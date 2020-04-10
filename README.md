@@ -10,14 +10,22 @@
 
 ### 生成的工程
 
->工程可用于学习、培训、接私活、公司自用、开发商业项目等均无任何限制。其中基础框架代码将永久免费，并持续更新。
+>可用于学习、培训、接私活、公司自用、开发商业项目等均无任何限制。其中基础框架代码将永久免费，并持续更新。
 
 #### 开箱即用
 项目信息如您所愿，工程名称、目录结构、基础包名、common模块、代码注释中的@author信息等，在创建工程时即已配置，不会留有橙单的任何信息。因此无需二次修改，前后端直接编译运行即可。如编译期和运行时出现问题，那一定是我们的bug，在得到您反馈后，我们将及时修复。
 
+#### 技术选型
+- 前端: Element (Vue) / Ant Design (React) + ECharts / AntV + Axios + Webpack。
+- 后端: Spring Boot / Spring Cloud / Spring Cloud Alibaba + Mybatis + Jwt。
+- 工具库: Hutool + Guava + Caffeine + Lombok + MapStruct + 通用Mapper。
+- 服务组件: Redis + ZooKeeper + Apollo + XXL-Job + Kafka + Nacos + Sentinel + Seata。
+- 日志监控: ELK + PinPoint / SkyWalking + Grafana + Prometheus。
+
 #### 基础功能
 - 前端框架：单页面、多标签、多栏目和子路由，多种模式可供选择。
 - 前端能力：上传下载、数据导出、自定义打印模板、富文本、分组统计图表、明细数据下钻等。
+- 页面布局：支持基于 Fragment 和 Block 的灵活布局方式，通过配置即可生成多样化的表单页面
 - 后台架构：分布式锁、分布式 Id 生成器、分布式缓存、分布式事务和分布式灰度发布等，按需集成。
 - 操作权限：前端控制可精确到按钮级的操作和标签级的显示，后台统一拦截验证更加安全。
 - 数据权限：基于 Mybatis 拦截器 + JSqlParser 的实现方式，配置更灵活，代码侵入性更低。
