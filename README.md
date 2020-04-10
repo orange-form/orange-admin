@@ -15,8 +15,8 @@
 - 前端代码文档。[http://101.200.178.51/development-vue/](http://101.200.178.51/development-vue/)
 - 基于在线教育后台业务生成的，更完整的演示项目。[http://101.200.178.51:8000](http://101.200.178.51:8000)
 
-### 生成的工程
->可无任何限制的用于学习、培训、接私活、公司自用和开发商业项目，其中基础框架代码将永久免费，并持续更新。
+### 生成后工程
+>可无限制的用于学习、培训、接私活、公司自用和开发商业项目等场景，其中基础框架代码将永久免费，并持续更新。
 
 #### 开箱即用
 项目信息如您所愿，工程名称、目录结构、基础包名、common模块、代码注释中的@author信息等，在创建工程时即已配置，不会留有橙单的任何信息。因此无需二次修改，前后端直接编译运行即可。如编译期和运行时出现问题，那一定是我们的bug，在得到您反馈后，我们将及时修复。
@@ -40,35 +40,5 @@
 - 定时任务：支持多种类型的Job处理器代码模板，灵活可配、高度优化、二次开发简单。
 - 日志监控：基于 Kafka + ELK 的服务日志跟踪，基于 PinPoint/SkyWalking 的服务链路跟踪。
 
-#### 软件架构
-软件架构说明
-
-
-#### 安装教程
-
-1.  xxxx
-2.  xxxx
-3.  xxxx
-
-#### 使用说明
-
-1.  xxxx
-2.  xxxx
-3.  xxxx
-
-#### 参与贡献
-
-1.  Fork 本仓库
-2.  新建 Feat_xxx 分支
-3.  提交代码
-4.  新建 Pull Request
-
-
-#### 码云特技
-
-1.  使用 Readme\_XXX.md 来支持不同的语言，例如 Readme\_en.md, Readme\_zh.md
-2.  码云官方博客 [blog.gitee.com](https://blog.gitee.com)
-3.  你可以 [https://gitee.com/explore](https://gitee.com/explore) 这个地址来了解码云上的优秀开源项目
-4.  [GVP](https://gitee.com/gvp) 全称是码云最有价值开源项目，是码云综合评定出的优秀开源项目
-5.  码云官方提供的使用手册 [https://gitee.com/help](https://gitee.com/help)
-6.  码云封面人物是一档用来展示码云会员风采的栏目 [https://gitee.com/gitee-stars/](https://gitee.com/gitee-stars/)
+#### 工程运行
+- 后端项目，以maven的形式导入IDE，直接编译运行即可。如遇问题，可参考我们的开发文档[系统启动章节](http://101.200.178.51/development-doc/system-start/#单体服务启动)。
