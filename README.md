@@ -88,15 +88,24 @@
 ### 主要截图
 
 #### 橙单生成器
-
-![功能入口](https://images.gitee.com/uploads/images/2020/0411/165025_1a5dab88_7431510.png "屏幕截图.png")
-![数据源配置](https://images.gitee.com/uploads/images/2020/0411/165127_aa86f874_7431510.png "屏幕截图.png")
-![字典配置](https://images.gitee.com/uploads/images/2020/0411/165235_333782ce_7431510.png "屏幕截图.png")
-![作业配置](https://images.gitee.com/uploads/images/2020/0411/165330_3b22761a_7431510.png "屏幕截图.png")
-![作业配置2](https://images.gitee.com/uploads/images/2020/0411/165440_faecc3ab_7431510.png "屏幕截图.png")
-![作业配置3](https://images.gitee.com/uploads/images/2020/0411/165518_e381e2f7_7431510.png "屏幕截图.png")
-![表单配置](https://images.gitee.com/uploads/images/2020/0411/165711_07c08f16_7431510.png "屏幕截图.png")
-![表单预览](https://images.gitee.com/uploads/images/2020/0411/165837_de1fef48_7431510.png "屏幕截图.png")
+<table>
+<tr>
+  <td><img src="https://images.gitee.com/uploads/images/2020/0411/165025_1a5dab88_7431510.png"/></td>
+  <td><img src="https://images.gitee.com/uploads/images/2020/0411/165127_aa86f874_7431510.png"/></td>
+</tr>
+<tr>
+  <td><img src="https://images.gitee.com/uploads/images/2020/0411/165235_333782ce_7431510.png"/></td>
+  <td><img src="https://images.gitee.com/uploads/images/2020/0411/165330_3b22761a_7431510.png"/></td>
+</tr>
+<tr>
+  <td><img src="https://images.gitee.com/uploads/images/2020/0411/165440_faecc3ab_7431510.png"/></td>
+  <td><img src="https://images.gitee.com/uploads/images/2020/0411/165518_e381e2f7_7431510.png"/></td>
+</tr>
+<tr>
+  <td><img src="https://images.gitee.com/uploads/images/2020/0411/165711_07c08f16_7431510.png"/></td>
+  <td><img src="https://images.gitee.com/uploads/images/2020/0411/165837_de1fef48_7431510.png"/></td>
+</tr>
+</table>
 
 #### 演示工程
 ![数据权限](https://images.gitee.com/uploads/images/2020/0411/170631_e325d367_7431510.png "屏幕截图.png")
