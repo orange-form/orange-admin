@@ -118,14 +118,8 @@
 <tr>
   <td><img src="https://images.gitee.com/uploads/images/2020/0411/162844_d7731374_7431510.png"/></td>
   <td><img src="https://images.gitee.com/uploads/images/2020/0411/163012_78374da1_7431510.png"/></td>
-</tr>
-<tr>
   <td><img src="https://images.gitee.com/uploads/images/2020/0411/163124_92373034_7431510.png"/></td>
   <td><img src="https://images.gitee.com/uploads/images/2020/0411/163222_c95aae03_7431510.png"/></td>
-</tr>
-<tr>
-  <td><img src="https://images.gitee.com/uploads/images/2020/0411/163813_f610c413_7431510.png"/></td>
-  <td><img src="https://images.gitee.com/uploads/images/2020/0411/163912_4c1b3007_7431510.png"/></td>
 </tr>
 </table>
 
