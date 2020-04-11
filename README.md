@@ -27,6 +27,11 @@
 - 有别于其他产品，我们不仅提供了Job框架的集成，更能生成任务处理器的业务逻辑代码。
 - 微服务和单体服务的接口命名规则和参数定义完全一致，便于您今后的平滑升级。
 
+#### 关于我们
+- 老刘，20年开发经验，后台全栈架构师，代码强迫症、性能洁癖。精通C++/Java/Scala/Web高并发/大数据/视频直播底层，略懂容器，善于审美。
+- 老田，15年开发经验，前端全栈架构师，思维极缜密、号边界王。精通C++/Java/Javascript/Vue & React/C++客户端/Android原生/小程序。
+- 欢迎加入我们的技术交流QQ群 788581363
+
 ### 生成后工程
 >可无限制的用于学习、培训、接私活、公司自用和开发商业项目等场景，其中基础框架代码将永久免费，并持续更新。
 
@@ -75,18 +80,22 @@
 2. 后台工程，以maven的形式导入IDE，直接编译运行即可。如遇问题，可参考我们的开发文档[系统启动章节](http://101.200.178.51/development-doc/system-start/#单体服务启动)。
 3. 前端工程。
 
-### 完整截图
+### 主要截图
 
 #### 橙单生成器
 
-![功能入口](https://images.gitee.com/uploads/images/2020/0411/080839_762ce596_7431510.png "屏幕截图.png")
-![数据源配置](https://images.gitee.com/uploads/images/2020/0411/161652_77634007_7431510.png "屏幕截图.png")
-![数据源关联](https://images.gitee.com/uploads/images/2020/0411/161812_08b5797b_7431510.png "屏幕截图.png")
-![字典配置](https://images.gitee.com/uploads/images/2020/0411/161908_ffe7b2be_7431510.png "屏幕截图.png")
-![表单配置](https://images.gitee.com/uploads/images/2020/0411/162017_5c7c075f_7431510.png "屏幕截图.png")
-![表单预览](https://images.gitee.com/uploads/images/2020/0411/162109_e3790ca6_7431510.png "屏幕截图.png")
+![功能入口](https://images.gitee.com/uploads/images/2020/0411/165025_1a5dab88_7431510.png "屏幕截图.png")
+![数据源配置](https://images.gitee.com/uploads/images/2020/0411/165127_aa86f874_7431510.png "屏幕截图.png")
+![字典配置](https://images.gitee.com/uploads/images/2020/0411/165235_333782ce_7431510.png "屏幕截图.png")
+![作业配置](https://images.gitee.com/uploads/images/2020/0411/165330_3b22761a_7431510.png "屏幕截图.png")
+![作业配置2](https://images.gitee.com/uploads/images/2020/0411/165440_faecc3ab_7431510.png "屏幕截图.png")
+![作业配置3](https://images.gitee.com/uploads/images/2020/0411/165518_e381e2f7_7431510.png "屏幕截图.png")
+![表单配置](https://images.gitee.com/uploads/images/2020/0411/165711_07c08f16_7431510.png "屏幕截图.png")
+![表单预览](https://images.gitee.com/uploads/images/2020/0411/165837_de1fef48_7431510.png "屏幕截图.png")
 
 #### 演示工程
+![数据权限](https://images.gitee.com/uploads/images/2020/0411/170631_e325d367_7431510.png "屏幕截图.png")
+![字典管理](https://images.gitee.com/uploads/images/2020/0411/170800_84053f2f_7431510.png "屏幕截图.png")
 ![课程列表](https://images.gitee.com/uploads/images/2020/0411/162844_d7731374_7431510.png "屏幕截图.png")
 ![课程章节](https://images.gitee.com/uploads/images/2020/0411/163012_78374da1_7431510.png "屏幕截图.png")
 ![表格进度条](https://images.gitee.com/uploads/images/2020/0411/163124_92373034_7431510.png "屏幕截图.png")
