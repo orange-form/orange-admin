@@ -63,5 +63,4 @@
 
 #### 橙单生成器
 
-![工程属性](https://images.gitee.com/uploads/images/2020/0411/080740_9cb80a5a_7431510.png "屏幕截图.png")
-![功能入口](https://images.gitee.com/uploads/images/2020/0411/080839_762ce596_7431510.png "屏幕截图.png")
+![工程属性](https://images.gitee.com/uploads/images/2020/0411/080740_9cb80a5a_7431510.png "屏幕截图.png") ![功能入口](https://images.gitee.com/uploads/images/2020/0411/080839_762ce596_7431510.png "屏幕截图.png")
