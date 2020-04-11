@@ -89,6 +89,13 @@
 3. 前端工程。
 - 将前端工程导入vscode。
 - 修改 src -> core -> config 下的配置文件，将baseUrl修改为您服务器地址。
+- 安装依赖并启动。
+  ``` sh
+  // 安装依赖
+  npm install
+  // 启动
+  npm run dev
+  ```
 - 如遇问题，可参考我们的前端开发文档[工程启动章节](http://101.200.178.51/development-vue/deployment/#工程启动)。
 
 ### 主要截图
