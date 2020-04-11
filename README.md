@@ -108,14 +108,24 @@
 </table>
 
 #### 演示工程
-![数据权限](https://images.gitee.com/uploads/images/2020/0411/170631_e325d367_7431510.png "屏幕截图.png")
-![字典管理](https://images.gitee.com/uploads/images/2020/0411/170800_84053f2f_7431510.png "屏幕截图.png")
-![课程列表](https://images.gitee.com/uploads/images/2020/0411/162844_d7731374_7431510.png "屏幕截图.png")
-![课程章节](https://images.gitee.com/uploads/images/2020/0411/163012_78374da1_7431510.png "屏幕截图.png")
-![表格进度条](https://images.gitee.com/uploads/images/2020/0411/163124_92373034_7431510.png "屏幕截图.png")
-![图表管理](https://images.gitee.com/uploads/images/2020/0411/163222_c95aae03_7431510.png "屏幕截图.png")
-![统计图表](https://images.gitee.com/uploads/images/2020/0411/163813_f610c413_7431510.png "屏幕截图.png")
-![统计图表2](https://images.gitee.com/uploads/images/2020/0411/163912_4c1b3007_7431510.png "屏幕截图.png")
+<table>
+<tr>
+  <td><img src="https://images.gitee.com/uploads/images/2020/0411/170631_e325d367_7431510.png"/></td>
+  <td><img src="https://images.gitee.com/uploads/images/2020/0411/170800_84053f2f_7431510.png"/></td>
+</tr>
+<tr>
+  <td><img src="https://images.gitee.com/uploads/images/2020/0411/162844_d7731374_7431510.png"/></td>
+  <td><img src="https://images.gitee.com/uploads/images/2020/0411/163012_78374da1_7431510.png"/></td>
+</tr>
+<tr>
+  <td><img src="https://images.gitee.com/uploads/images/2020/0411/163124_92373034_7431510.png"/></td>
+  <td><img src="https://images.gitee.com/uploads/images/2020/0411/163222_c95aae03_7431510.png"/></td>
+</tr>
+<tr>
+  <td><img src="https://images.gitee.com/uploads/images/2020/0411/163813_f610c413_7431510.png"/></td>
+  <td><img src="https://images.gitee.com/uploads/images/2020/0411/163912_4c1b3007_7431510.png"/></td>
+</tr>
+</table>
 
 #### 开发文档
 ![后台开发文档](https://images.gitee.com/uploads/images/2020/0411/162239_1dc0698b_7431510.png "屏幕截图.png")
