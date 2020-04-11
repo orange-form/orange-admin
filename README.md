@@ -87,6 +87,9 @@
 - 配置文件为resources/application.yml，配置项在此修改。
 - 如遇问题，可参考我们的开发文档[系统启动章节](http://101.200.178.51/development-doc/system-start/#单体服务启动)。
 3. 前端工程。
+- 将前端工程导入vscode。
+- 修改 src -> core -> config 下的配置文件，将baseUrl修改为您服务器地址。
+- 如遇问题，可参考我们的前端开发文档[工程启动章节](http://101.200.178.51/development-vue/deployment/#工程启动)。
 
 ### 主要截图
 
