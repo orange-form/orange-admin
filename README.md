@@ -79,7 +79,10 @@
 - 本地创建MySQL数据库。数据库名: zz-orange-admin 字符集: utf8mb4
 - 缺省用户名和密码为: root/123456。如果与本地不一致，可修改工程的application.yml文件。
 - 打开zz-orange-admin数据库，执行工程目录下的upms-script.sql和areacode.sql。
-2. 后台工程，以maven的形式导入IDE，直接编译运行即可。如遇问题，可参考我们的开发文档[系统启动章节](http://101.200.178.51/development-doc/system-start/#单体服务启动)。
+2. 后台工程。
+- 以Maven的形式导入IDE，直接编译运行即可。
+- 配置文件为resources/application.yml，配置项在此修改。
+- 如遇问题，可参考我们的开发文档[系统启动章节](http://101.200.178.51/development-doc/system-start/#单体服务启动)。
 3. 前端工程。
 
 ### 主要截图
