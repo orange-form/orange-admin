@@ -69,7 +69,7 @@
         <el-divider></el-divider>
         <div class="item">
           <span style="width: 120px;">开源代码</span>
-          <a href="https://www.baidu.com" target="_blank">橙单代码生成器</a>
+          <a href="https://gitee.com/orangeform/orange-admin" target="_blank">https://gitee.com/orangeform/orange-admin</a>
         </div>
         <el-divider></el-divider>
         <div class="item">
