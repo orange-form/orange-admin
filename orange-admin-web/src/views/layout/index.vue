@@ -1,7 +1,7 @@
 <template>
   <el-container :style="getMainStyle">
     <el-aside width='200px' class="sidebar">
-      <side-bar style="overflow: hidden"></side-bar>
+      <side-bar style="overflow: hidden" :multi-tag="false"></side-bar>
     </el-aside>
     <el-container style="background-color: rgb(235,235,235)">
       <el-header class="header">
@@ -76,11 +76,12 @@ export default {
           }
 
           SystemController.logout(this, {}, options).catch(e => {});
+          this.clearAllTags();
           this.$router.replace({name: 'login'});
         }).catch(e => {});
       }
     },
-    ...mapMutations(['setClientHeight'])
+    ...mapMutations(['setClientHeight', 'clearAllTags'])
   },
   computed: {
     getMainStyle () {
@@ -112,9 +113,11 @@ export default {
     getMenuItem: {
       handler (newValue) {
         if (newValue == null) {
-          this.$router.replace({
-            name: 'welcome'
-          });
+          if (this.$route.name !== 'welcome') {
+            this.$router.replace({
+              name: 'welcome'
+            });
+          }
         } else {
           this.$router.replace({
             name: newValue.formRouterName

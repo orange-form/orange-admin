@@ -120,10 +120,16 @@ export default {
       for (let i = 0; i < state.menuList.length; i++) {
         menuItem = findMenuItem(state.menuList[i], menuId, 'menuId');
         if (menuItem != null) {
+          // 添加新的tag
           let tagItem = findItemFromList(state.tagList, menuId, 'menuId');
           if (tagItem == null) {
             state.tagList = [...state.tagList, menuItem];
             setObjectToSessionStorage('tagList', state.tagList);
+          }
+          // 添加新缓存
+          if (Array.isArray(state.cachePages) && state.cachePages.indexOf(menuItem.formRouterName) === -1) {
+            state.cachePages = [...state.cachePages, menuItem.formRouterName];
+            setObjectToSessionStorage('cachePages', state.cachePages);
           }
           break;
         }

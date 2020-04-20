@@ -23,6 +23,12 @@ import { mapGetters, mapMutations } from 'vuex';
 import projectConfig from '@/core/config';
 
 export default {
+  props: {
+    multiTag: {
+      type: Boolean,
+      default: false
+    }
+  },
   data () {
     return {
       isCollapse: false,
@@ -60,9 +66,13 @@ export default {
     },
     selectMenu (index, path) {
       if (this.getCurrentMenuId === index) return;
+      // 单页面清空所有tags和cachePage
+      if (!this.multiTag) {
+        this.clearAllTags();
+      }
       this.setCurrentMenuId(index);
     },
-    ...mapMutations(['setCollapse', 'clearCachePage', 'setCurrentMenuId'])
+    ...mapMutations(['setCollapse', 'clearAllTags', 'setCurrentMenuId'])
   }
 };
 </script>

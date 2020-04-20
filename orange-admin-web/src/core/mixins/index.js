@@ -137,7 +137,18 @@ const statsDateRangeMixin = {
       if (date == null) return [];
 
       statsType = allowStatsType.indexOf(statsType) === -1 ? 'day' : statsType;
-      let tempDate = new Date(date);
+      date = date.substr(0, date.indexOf(' '));
+      let tempList = date.split('-');
+      let year = Number.parseInt(tempList[0]);
+      let month = Number.parseInt(tempList[1]);
+      let day = Number.parseInt(tempList[2]);
+      if (isNaN(year) || isNaN(month) || isNaN(day)) {
+        return [];
+      }
+      let tempDate = new Date(year, month - 1, day);
+      // 判断是否正确的日期
+      if (isNaN(tempDate.getTime())) return [];
+
       tempDate.setHours(0, 0, 0, 0);
       let retDate;
       switch (statsType) {

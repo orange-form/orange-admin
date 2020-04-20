@@ -81,7 +81,7 @@ export default {
         this.rowJustify = 'space-between';
         let tempCount = residueCount === 0 ? 0 : (lineCount - residueCount);
         if (hasOperator) {
-          let residueWidth = width - ((lineCount - residueCount) * this.itemWidth) - 20;
+          let residueWidth = width - ((lineCount - residueCount) * this.itemWidth) - ((tempCount >= 1) ? 20 : 0);
           // 判断剩余的空间是否够放下操作按钮
           if (residueWidth >= this.minMenuWidth && residueCount === 0) {
             this.rowJustify = 'start';

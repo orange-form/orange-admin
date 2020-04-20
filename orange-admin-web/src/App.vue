@@ -5,12 +5,7 @@
 </template>
 
 <script>
-import { mapMutations } from 'vuex';
-
 export default {
-  methods: {
-    ...mapMutations(['setUserRules'])
-  },
   watch: {
     $route: {
       handler (newValue) {

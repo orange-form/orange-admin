@@ -1,14 +1,17 @@
 <template>
   <div class="date-range">
     <!--<year-range-panel />-->
-    <el-select v-model="dateType" :size="size" style="max-width: 100px; min-width: 100px; margin-right: 10px;" v-if="!hideTypeOnlyOne || validTypeList.length > 1">
+    <el-select v-model="dateType" :size="size"
+      style="max-width: 100px; min-width: 100px; margin-right: 10px;"
+      v-if="!hideTypeOnlyOne || validTypeList.length > 1">
       <el-option v-for="type in validTypeList" :key="type.value" :value="type.value" :label="type.label" />
     </el-select>
-    <el-date-picker style="flex-grow: 1;" v-model="currentDates" :size="size" :placeholder="placeholder" :type="innerDateType"
+    <el-date-picker style="flex-grow: 1;" v-model="currentDates"
+      :size="size" :placeholder="placeholder" :type="innerDateType"
       :disabled="disabled" :format="innerDateFormat" :readonly="readonly" :editable="editable"
       :clearable="clearable" :start-placeholder="startPlaceholder" :end-placeholder="endPlaceholder"
       :align="align" :range-separator="rangeSeparator" :value-format="valueFormat"
-      :prefix-icon="prefixIcon" :clear-icon="clearIcon" @change="onValueChange"></el-date-picker>
+      :prefix-icon="prefixIcon" :clear-icon="clearIcon" @change="onValueChange" />
   </div>
 </template>
 
