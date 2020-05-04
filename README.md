@@ -71,6 +71,41 @@
 - 近乎于0的代码重复率，35%以上的注释覆盖率。
 - 15年架构师优化的每一处细节。
 
+#### 规则扫描
+此为在线演示工程的代码审查报告，而非当前开源示例工程。前者为微服务架构，代码量更大，结构更复杂。
+1. SonarQube 扫描
+- 基于SonarQube8.2缺省最严格的代码扫描规则，其中代码复杂度要求为15。
+- 有气味代码共90处，其中85处为DTO、Model、常量字典、RPC接口等定义出现重复名称所致，均与模拟实际业务有关。
+- 其余气味代码，是在权衡性能、可读性和易修改性等因素后保留下来的，具体见图4。
+<table>
+<tr>
+  <td><img src="https://images.gitee.com/uploads/images/2020/0504/132431_a28ba412_7431510.png"/></td>
+  <td><img src="https://images.gitee.com/uploads/images/2020/0504/133330_6a7564a1_7431510.png"/></td>
+  <td><img src="https://images.gitee.com/uploads/images/2020/0504/141440_c5b8e3c1_7431510.png"/></td>
+  <td><img src="https://images.gitee.com/uploads/images/2020/0504/141124_df278683_7431510.png"/></td>
+</tr>
+</table>
+
+2. Alibaba Code Guide 扫描
+- 下载最新版本IDEA插件，同时打开所有审查条件。
+- 全部代码扫描通过。
+<table>
+<tr>
+  <td><img src="https://images.gitee.com/uploads/images/2020/0504/134052_c3196376_7431510.png"/></td>
+  <td><img src="https://images.gitee.com/uploads/images/2020/0504/133514_32d8faad_7431510.png"/></td>
+</tr>
+</table>
+
+3. Statistic 代码统计
+- 生成代码总量约为73000行，主要包括Java、XML、YAML和SQL初始化脚本等。
+- Java代码覆盖率为37%。
+<table>
+<tr>
+  <td><img src="https://images.gitee.com/uploads/images/2020/0504/133554_8df8ff51_7431510.png"/></td>
+  <td><img src="https://images.gitee.com/uploads/images/2020/0504/133613_68dd5482_7431510.png"/></td>
+</tr>
+</table>
+
 #### 设计理念
 - 前沿的单表组合式设计，使系统拆分SO EASY。
 - 先代码，后SQL的原则，让服务扩充更具弹性。
