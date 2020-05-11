@@ -1,6 +1,6 @@
 ### 项目简介
 专为推广"***橙单平台生成器***"而开源的代码演示项目，该项目的前后端代码完全由生成器配置后动态生成。相信在您耐心阅读五分钟后，一定会发现更多与众不同。
->友情提示，一定要放大看每一张截图，直到最后。如果图片不能正常显示，可以移步到[码云这里](https://gitee.com/orangeform/orange-admin)
+>友情提示，一定要放大看每一张截图，直到最后。如果图片不能正常显示，可以考虑科学上网，或者移步到[码云这里](https://gitee.com/orangeform/orange-admin)
 <table>
 <tr>
   <td><img src="https://images.gitee.com/uploads/images/2020/0511/215755_28f1804f_7431510.png"/></td>
