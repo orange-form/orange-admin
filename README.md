@@ -1,6 +1,6 @@
 ### 项目简介
 专为推广"***橙单平台生成器***"而开源的代码演示项目，该项目的前后端代码完全由生成器配置后动态生成。相信在您耐心阅读五分钟后，一定会发现更多与众不同。
->友情提示，一定要放大看每一张截图，直到最后。
+>友情提示，一定要放大看每一张截图，直到最后。如果图片不能正常显示，可以移步到[码云这里](https://gitee.com/orangeform/orange-admin)
 <table>
 <tr>
   <td><img src="https://images.gitee.com/uploads/images/2020/0411/172358_b55fc879_7431510.png"/></td>
@@ -186,11 +186,13 @@
 <tr>
   <td><img src="https://images.gitee.com/uploads/images/2020/0411/190701_24eed9f4_7431510.png"/></td>
   <td><img src="https://images.gitee.com/uploads/images/2020/0423/204529_06fb1cd3_7431510.png"/></td>
+  <td><img src="https://images.gitee.com/uploads/images/2020/0511/214604_b266bcda_7431510.png"/></td>
   <td><img src="https://images.gitee.com/uploads/images/2020/0411/191404_6eff2e07_7431510.png"/></td>
-  <td><img src="https://images.gitee.com/uploads/images/2020/0411/192424_04baa0a6_7431510.png"/></td>
 </tr>
 <tr>
   <td><img src="https://images.gitee.com/uploads/images/2020/0411/193120_eb24d1c4_7431510.png"/></td>
   <td><img src="https://images.gitee.com/uploads/images/2020/0411/194208_3dd70cd2_7431510.png"/></td>
+  <td><img src="https://images.gitee.com/uploads/images/2020/0511/214049_1f035fbb_7431510.png"/></td>
+  <td><img src="https://images.gitee.com/uploads/images/2020/0411/192424_04baa0a6_7431510.png"/></td>
 </tr>
 </table>
