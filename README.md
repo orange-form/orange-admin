@@ -3,7 +3,7 @@
 >友情提示，一定要放大看每一张截图，直到最后。如果图片不能正常显示，可以考虑科学上网，或者移步到[码云这里](https://gitee.com/orangeform/orange-admin)
 <table>
 <tr>
-  <td><img src="https://images.gitee.com/uploads/images/2020/0511/215755_28f1804f_7431510.png"/></td>
+  <td><img src="https://images.gitee.com/uploads/images/2020/0511/220255_b1f17558_7431510.png"/></td>
 </tr>
 </table>
 
