@@ -6,7 +6,7 @@ import java.lang.annotation.*;
  * 标识Model之间的一对一关联关系。
  *
  * @author Stephen.Liu
- * @date 2020-04-11
+ * @date 2020-05-24
  */
 @Target({ElementType.FIELD, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)

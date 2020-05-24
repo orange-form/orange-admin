@@ -3,10 +3,10 @@ package com.orange.admin.common.core.annotation;
 import java.lang.annotation.*;
 
 /**
- * 主要用于多对多的Model关系。标注通过从表关联字段或者关联表关联字段计算主表虚拟字段的规则。
+ * 主要用于多对多的Model关系。标注通过从表关联字段或者关联表关联字段计算主表聚合计算字段的规则。
  *
  * @author Stephen.Liu
- * @date 2020-04-11
+ * @date 2020-05-24
  */
 @Target({ElementType.FIELD, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)

@@ -3,6 +3,12 @@ package com.orange.admin.app.model.constant;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * 性别常量字典对象。
+ *
+ * @author Stephen.Liu
+ * @date 2020-05-24
+ */
 public final class Gender {
 
     /**
@@ -14,7 +20,7 @@ public final class Gender {
      */
     public static final int FEMALE = 0;
 
-    public static final Map<Object, String> DICT_MAP = new HashMap<>(2);
+    private static final Map<Object, String> DICT_MAP = new HashMap<>(2);
     static {
         DICT_MAP.put(MALE, "男");
         DICT_MAP.put(FEMALE, "女");
@@ -26,8 +32,8 @@ public final class Gender {
      * @param value 待验证的参数值。
      * @return 合法返回true，否则false。
      */
-    public static boolean isValid(int value) {
-        return DICT_MAP.containsKey(value);
+    public static boolean isValid(Integer value) {
+        return value != null && DICT_MAP.containsKey(value);
     }
 
     /**

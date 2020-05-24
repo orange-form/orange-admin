@@ -264,6 +264,9 @@ export default {
   mounted () {
     if (this.rowData != null) {
       this.formData = {...this.formData, ...this.rowData};
+      if (Array.isArray(this.formData.sysMenuPermCodeList)) {
+        this.formData.permCodeIdList = this.formData.sysMenuPermCodeList.map(item => item.permCodeId);
+      }
     }
     if (this.parentId != null) this.formData.parentId = this.parentId;
     this.initData();

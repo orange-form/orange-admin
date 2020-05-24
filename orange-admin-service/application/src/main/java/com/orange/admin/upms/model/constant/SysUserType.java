@@ -3,6 +3,12 @@ package com.orange.admin.upms.model.constant;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * 用户类型常量字典对象。
+ *
+ * @author Stephen.Liu
+ * @date 2020-05-24
+ */
 public final class SysUserType {
 
     /**
@@ -18,7 +24,7 @@ public final class SysUserType {
      */
     public static final int TYPE_OPERATOR = 2;
 
-    public static final Map<Object, String> DICT_MAP = new HashMap<>(3);
+    private static final Map<Object, String> DICT_MAP = new HashMap<>(3);
     static {
         DICT_MAP.put(TYPE_ADMIN, "管理员");
         DICT_MAP.put(TYPE_SYSTEM, "系统操作员");
@@ -31,8 +37,8 @@ public final class SysUserType {
      * @param value 待验证的参数值。
      * @return 合法返回true，否则false。
      */
-    public static boolean isValid(int value) {
-        return DICT_MAP.containsKey(value);
+    public static boolean isValid(Integer value) {
+        return value != null && DICT_MAP.containsKey(value);
     }
 
     /**

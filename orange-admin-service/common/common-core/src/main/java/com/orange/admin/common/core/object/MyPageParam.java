@@ -6,13 +6,14 @@ import lombok.Getter;
  * Controller参数中的分页请求对象
  *
  * @author Stephen.Liu
- * @date 2020-04-11
+ * @date 2020-05-24
  */
 @Getter
 public class MyPageParam {
 
     public static final int DEFAULT_PAGE_NUM = 1;
     public static final int DEFAULT_PAGE_SIZE = 10;
+    public static final int DEFAULT_MAX_SIZE = 100;
 
     /**
      * 分页号码，从1开始计数。
@@ -48,7 +49,7 @@ public class MyPageParam {
         if (pageSize == null) {
             return;
         }
-        if (pageSize <= 0 || pageSize > 100) {
+        if (pageSize <= 0 || pageSize > DEFAULT_MAX_SIZE) {
             pageSize = DEFAULT_PAGE_SIZE;
         }
         this.pageSize = pageSize;

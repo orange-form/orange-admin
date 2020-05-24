@@ -14,4 +14,4 @@ npm run build
 npm test
 ```
 
-### 官方文档：[http://101.200.178.51/development-vue/](http://101.200.178.51/development-vue/)
+### 官方文档：[http://101.200.178.51/](http://101.200.178.51/)

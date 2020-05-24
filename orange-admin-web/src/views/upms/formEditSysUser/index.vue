@@ -16,13 +16,15 @@
         </el-form-item>
         <el-form-item label="账号类型" prop="userType">
           <el-select v-model="formData.userType">
-            <el-option v-for="item in SysUserType.getList()" :key="item.id" :label="item.name" :value="item.id" />
+            <el-option v-for="item in SysUserType.getList()" :key="item.id"
+              :label="item.name" :value="item.id" />
           </el-select>
         </el-form-item>
         <el-form-item label="用户状态" prop="userStatus" v-if="isEdit">
           <el-radio-group v-model="formData.userStatus">
-            <el-radio :label="0">正常</el-radio>
-            <el-radio :label="1">锁定</el-radio>
+            <el-radio v-for="item in SysUserStatus.getList()" :key="item.id" :label="item.id">
+              {{item.name}}
+            </el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="所属部门" prop="deptId">
@@ -203,6 +205,12 @@ export default {
   mounted () {
     if (this.rowData != null) {
       this.formData = {...this.rowData};
+      if (Array.isArray(this.formData.sysDataPermUserList)) {
+        this.formData.dataPermIdList = this.formData.sysDataPermUserList.map(item => item.dataPermId);
+      }
+      if (Array.isArray(this.formData.sysUserRoleList)) {
+        this.formData.roleIdList = this.formData.sysUserRoleList.map(item => item.roleId);
+      }
     }
     this.deptId.impl.onVisibleChange(true).then(res => {
       this.deptId.value = findTreeNodePath(this.deptId.impl.dropdownList, this.formData.deptId, 'deptId');

@@ -1,11 +1,11 @@
 package com.orange.admin.upms.service;
 
 import com.alibaba.fastjson.JSONObject;
+import com.orange.admin.common.biz.base.service.BaseBizService;
 import com.orange.admin.common.biz.util.BasicIdGenerator;
 import com.orange.admin.common.core.base.dao.BaseDaoMapper;
-import com.orange.admin.common.core.base.service.BaseService;
 import com.orange.admin.common.core.constant.GlobalDeletedFlag;
-import com.orange.admin.common.core.object.VerifyResult;
+import com.orange.admin.common.core.object.CallResult;
 import com.orange.admin.upms.dao.SysMenuMapper;
 import com.orange.admin.upms.dao.SysMenuPermCodeMapper;
 import com.orange.admin.upms.dao.SysRoleMenuMapper;
@@ -28,10 +28,10 @@ import java.util.stream.Collectors;
  * 菜单数据服务类。
  *
  * @author Stephen.Liu
- * @date 2020-04-11
+ * @date 2020-05-24
  */
 @Service
-public class SysMenuService extends BaseService<SysMenu, Long> {
+public class SysMenuService extends BaseBizService<SysMenu, Long> {
 
     @Autowired
     private SysMenuMapper sysMenuMapper;
@@ -59,11 +59,11 @@ public class SysMenuService extends BaseService<SysMenu, Long> {
     /**
      * 保存新增的菜单对象。
      *
-     * @param sysMenu 新增的菜单对象。
+     * @param sysMenu       新增的菜单对象。
      * @param permCodeIdSet 权限字Id列表。
      * @return 新增后的菜单对象。
      */
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public SysMenu saveNew(SysMenu sysMenu, Set<Long> permCodeIdSet) {
         sysMenu.setMenuId(idGenerator.nextLongId());
         sysMenu.setCreateTime(new Date());
@@ -85,12 +85,12 @@ public class SysMenuService extends BaseService<SysMenu, Long> {
     /**
      * 更新菜单对象。
      *
-     * @param sysMenu 更新的菜单对象。
+     * @param sysMenu         更新的菜单对象。
      * @param originalSysMenu 原有的菜单对象。
-     * @param permCodeIdSet 权限字Id列表。
+     * @param permCodeIdSet   权限字Id列表。
      * @return 更新成功返回true，否则false。
      */
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public boolean update(SysMenu sysMenu, SysMenu originalSysMenu, Set<Long> permCodeIdSet) {
         sysMenu.setCreateTime(originalSysMenu.getCreateTime());
         sysMenu.setMenuType(originalSysMenu.getMenuType());
@@ -98,9 +98,9 @@ public class SysMenuService extends BaseService<SysMenu, Long> {
         if (sysMenuMapper.updateByPrimaryKey(sysMenu) != 1) {
             return false;
         }
-        Example e = new Example(SysMenuPermCode.class);
-        e.createCriteria().andEqualTo("menuId", sysMenu.getMenuId());
-        sysMenuPermCodeMapper.deleteByExample(e);
+        SysMenuPermCode deletedMenuPermCode = new SysMenuPermCode();
+        deletedMenuPermCode.setMenuId(sysMenu.getMenuId());
+        sysMenuPermCodeMapper.delete(deletedMenuPermCode);
         if (permCodeIdSet != null) {
             List<SysMenuPermCode> sysMenuPermCodeList = new LinkedList<>();
             for (Long permCodeId : permCodeIdSet) {
@@ -120,7 +120,7 @@ public class SysMenuService extends BaseService<SysMenu, Long> {
      * @param menuId 菜单主键Id。
      * @return 删除成功返回true，否则false。
      */
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public boolean remove(Long menuId) {
         SysMenu menu = new SysMenu();
         menu.setMenuId(menuId);
@@ -128,15 +128,15 @@ public class SysMenuService extends BaseService<SysMenu, Long> {
         if (sysMenuMapper.updateByPrimaryKeySelective(menu) != 1) {
             return false;
         }
-        Example roleMenuExample = new Example(SysRoleMenu.class);
-        roleMenuExample.createCriteria().andEqualTo("menuId", menuId);
-        sysRoleMenuMapper.deleteByExample(roleMenuExample);
-        Example menuPermCodeExample = new Example(SysMenuPermCode.class);
-        menuPermCodeExample.createCriteria().andEqualTo("menuId", menuId);
-        sysMenuPermCodeMapper.deleteByExample(menuPermCodeExample);
-        Example dataPermMenuExample = new Example(SysDataPermMenu.class);
-        dataPermMenuExample.createCriteria().andEqualTo("menuId", menuId);
-        sysDataPermMenuMapper.deleteByExample(dataPermMenuExample);
+        SysRoleMenu roleMenu = new SysRoleMenu();
+        roleMenu.setMenuId(menuId);
+        sysRoleMenuMapper.delete(roleMenu);
+        SysMenuPermCode menuPermCode = new SysMenuPermCode();
+        menuPermCode.setMenuId(menuId);
+        sysMenuPermCodeMapper.delete(menuPermCode);
+        SysDataPermMenu dataPermMenu = new SysDataPermMenu();
+        dataPermMenu.setMenuId(menuId);
+        sysDataPermMenuMapper.delete(dataPermMenu);
         return true;
     }
 
@@ -165,27 +165,6 @@ public class SysMenuService extends BaseService<SysMenu, Long> {
     }
 
     /**
-     * 获取指定菜单的详情对象。
-     *
-     * @param menuId 菜单主键Id。
-     * @return 菜单对象。
-     */
-    public SysMenu getSysMenuWithRelation(Long menuId) {
-        SysMenu sysMenu = this.getById(menuId);
-        if (sysMenu != null) {
-            Example e = new Example(SysMenuPermCode.class);
-            e.createCriteria().andEqualTo("menuId", menuId);
-            List<SysMenuPermCode> sysMenuPermCodeList = sysMenuPermCodeMapper.selectByExample(e);
-            if (sysMenuPermCodeList.size() > 0) {
-                List<Long> permCodeIdList =
-                        sysMenuPermCodeList.stream().map(SysMenuPermCode::getPermCodeId).collect(Collectors.toList());
-                sysMenu.setPermCodeIdList(permCodeIdList);
-            }
-        }
-        return sysMenu;
-    }
-
-    /**
      * 判断当前菜单是否存在子菜单。
      *
      * @param menuId 菜单主键Id。
@@ -200,64 +179,63 @@ public class SysMenuService extends BaseService<SysMenu, Long> {
     /**
      * 验证菜单对象关联的数据是否都合法。
      *
-     * @param sysMenu 当前操作的对象。
-     * @param originalSysMenu 原有对象。
+     * @param sysMenu              当前操作的对象。
+     * @param originalSysMenu      原有对象。
      * @param permCodeIdListString 逗号分隔的权限Id列表。
      * @return 验证结果。
      */
-    public VerifyResult verifyRelatedData(SysMenu sysMenu, SysMenu originalSysMenu, String permCodeIdListString) {
-        String errorMessage = null;
+    public CallResult verifyRelatedData(SysMenu sysMenu, SysMenu originalSysMenu, String permCodeIdListString) {
         JSONObject jsonObject = null;
-        do {
-            if (this.needToVerify(sysMenu, originalSysMenu, SysMenu::getParentId)) {
-                // 1. menu、ui fragment和button类型的menu不能没有parentId
-                if (sysMenu.getParentId() == null) {
-                    if (sysMenu.getMenuType() != SysMenuType.TYPE_DIRECTORY) {
-                        errorMessage = "数据验证失败，当前类型菜单项的上级菜单不能为空！";
-                        break;
-                    }
-                } else {
-                    // 2. 判断父节点是否存在
-                    SysMenu parentSysMenu = getById(sysMenu.getParentId());
-                    if (parentSysMenu == null) {
-                        errorMessage = "数据验证失败，关联的上级菜单并不存在，请刷新后重试！";
-                        break;
-                    }
-                    // 3. 逐个判断每种类型的菜单，他的父菜单的合法性，先从目录类型和菜单类型开始
-                    if (sysMenu.getMenuType() == SysMenuType.TYPE_DIRECTORY
-                            || sysMenu.getMenuType() == SysMenuType.TYPE_MENU) {
-                        // 他们的上级只能是目录
-                        if (parentSysMenu.getMenuType() != SysMenuType.TYPE_DIRECTORY) {
-                            errorMessage = "数据验证失败，当前类型菜单项的上级菜单只能是目录类型！";
-                            break;
-                        }
-                    } else if (sysMenu.getMenuType() == SysMenuType.TYPE_UI_FRAGMENT) {
-                        // ui fragment的上级只能是menu类型
-                        if (parentSysMenu.getMenuType() != SysMenuType.TYPE_MENU) {
-                            errorMessage = "数据验证失败，当前类型菜单项的上级菜单只能是菜单类型和按钮类型！";
-                            break;
-                        }
-                    } else if (sysMenu.getMenuType() == SysMenuType.TYPE_BUTTON) {
-                        // button的上级只能是menu和ui fragment
-                        if (parentSysMenu.getMenuType() != SysMenuType.TYPE_MENU
-                                && parentSysMenu.getMenuType() != SysMenuType.TYPE_UI_FRAGMENT) {
-                            errorMessage = "数据验证失败，当前类型菜单项的上级菜单只能是菜单类型和UI片段类型！";
-                            break;
-                        }
-                    }
+        if (this.needToVerify(sysMenu, originalSysMenu, SysMenu::getParentId)) {
+            // menu、ui fragment和button类型的menu不能没有parentId
+            if (sysMenu.getParentId() == null) {
+                if (sysMenu.getMenuType() != SysMenuType.TYPE_DIRECTORY) {
+                    return CallResult.error("数据验证失败，当前类型菜单项的上级菜单不能为空！");
+                }
+            } else {
+                String errorMessage = checkErrorOfNonDirectoryMenu(sysMenu);
+                if (errorMessage != null) {
+                    return CallResult.error(errorMessage);
                 }
             }
-            if (StringUtils.isNotBlank(permCodeIdListString)) {
-                Set<Long> permCodeIdSet = Arrays.stream(
-                        permCodeIdListString.split(",")).map(Long::valueOf).collect(Collectors.toSet());
-                if (!sysPermCodeService.existUniqueKeyList("permCodeId", permCodeIdSet)) {
-                    errorMessage = "数据验证失败，存在不合法的权限字，请刷新后重试！";
-                    break;
-                }
-                jsonObject = new JSONObject();
-                jsonObject.put("permCodeIdSet", permCodeIdSet);
+        }
+        if (StringUtils.isNotBlank(permCodeIdListString)) {
+            Set<Long> permCodeIdSet = Arrays.stream(
+                    permCodeIdListString.split(",")).map(Long::valueOf).collect(Collectors.toSet());
+            if (!sysPermCodeService.existAllPrimaryKeys(permCodeIdSet)) {
+                return CallResult.error("数据验证失败，存在不合法的权限字，请刷新后重试！");
             }
-        } while (false);
-        return VerifyResult.create(errorMessage, jsonObject);
+            jsonObject = new JSONObject();
+            jsonObject.put("permCodeIdSet", permCodeIdSet);
+        }
+        return CallResult.ok(jsonObject);
     }
+
+    private String checkErrorOfNonDirectoryMenu(SysMenu sysMenu) {
+        // 判断父节点是否存在
+        SysMenu parentSysMenu = getById(sysMenu.getParentId());
+        if (parentSysMenu == null) {
+            return "数据验证失败，关联的上级菜单并不存在，请刷新后重试！";
+        }
+        // 逐个判断每种类型的菜单，他的父菜单的合法性，先从目录类型和菜单类型开始
+        if (sysMenu.getMenuType() == SysMenuType.TYPE_DIRECTORY
+                || sysMenu.getMenuType() == SysMenuType.TYPE_MENU) {
+            // 他们的上级只能是目录
+            if (parentSysMenu.getMenuType() != SysMenuType.TYPE_DIRECTORY) {
+                return "数据验证失败，当前类型菜单项的上级菜单只能是目录类型！";
+            }
+        } else if (sysMenu.getMenuType() == SysMenuType.TYPE_UI_FRAGMENT) {
+            // ui fragment的上级只能是menu类型
+            if (parentSysMenu.getMenuType() != SysMenuType.TYPE_MENU) {
+                return "数据验证失败，当前类型菜单项的上级菜单只能是菜单类型和按钮类型！";
+            }
+        } else if (sysMenu.getMenuType() == SysMenuType.TYPE_BUTTON) {
+            // button的上级只能是menu和ui fragment
+            if (parentSysMenu.getMenuType() != SysMenuType.TYPE_MENU
+                    && parentSysMenu.getMenuType() != SysMenuType.TYPE_UI_FRAGMENT) {
+                return "数据验证失败，当前类型菜单项的上级菜单只能是菜单类型和UI片段类型！";
+            }
+        }
+        return null;
+    }    
 }

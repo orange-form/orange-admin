@@ -7,15 +7,21 @@ import lombok.EqualsAndHashCode;
  * 无效的实体对象字段的自定义异常。
  *
  * @author Stephen.Liu
- * @date 2020-04-11
+ * @date 2020-05-24
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class InvalidDataFieldException extends RuntimeException {
 
-    private String modelName;
-    private String fieldName;
+    private final String modelName;
+    private final String fieldName;
 
+    /**
+     * 构造函数。
+     *
+     * @param modelName 实体对象名。
+     * @param fieldName 字段名。
+     */
     public InvalidDataFieldException(String modelName, String fieldName) {
         super("Invalid FieldName [" + fieldName + "] in Model Class [" + modelName + "].");
         this.modelName = modelName;

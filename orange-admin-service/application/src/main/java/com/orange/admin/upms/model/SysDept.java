@@ -10,6 +10,12 @@ import javax.validation.constraints.*;
 
 import java.util.Date;
 
+/**
+ * SysDept实体对象。
+ *
+ * @author Stephen.Liu
+ * @date 2020-05-24
+ */
 @Data
 @Table(name = "zz_sys_dept")
 public class SysDept {

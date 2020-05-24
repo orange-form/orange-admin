@@ -16,7 +16,7 @@ import static org.joda.time.PeriodType.days;
  * 日期工具类，主要封装了部分joda-time中的方法，让很多代码一行完成，同时统一了日期到字符串的pattern格式。
  *
  * @author Stephen.Liu
- * @date 2020-04-11
+ * @date 2020-05-24
  */
 public class MyDateUtil {
 
@@ -171,5 +171,11 @@ public class MyDateUtil {
      */
     public static Date truncateToYear(Date date) {
         return DateUtils.truncate(date, Calendar.YEAR);
+    }
+
+    /**
+     * 私有构造函数，明确标识该常量类的作用。
+     */
+    private MyDateUtil() {
     }
 }

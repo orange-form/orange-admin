@@ -7,7 +7,7 @@ import java.util.Map;
  * 数据权限规则类型常量类。
  *
  * @author Stephen.Liu
- * @date 2020-04-11
+ * @date 2020-05-24
  */
 public final class DataPermRuleType {
 
@@ -31,7 +31,7 @@ public final class DataPermRuleType {
      */
     public static final int TYPE_CUSTOM_DETP_LIST = 5;
 
-    public static final Map<Object, String> DICT_MAP = new HashMap<>(4);
+    private static final Map<Object, String> DICT_MAP = new HashMap<>(4);
     static {
         DICT_MAP.put(0, "查看全部");
         DICT_MAP.put(1, "仅查看当前用户");
@@ -45,8 +45,8 @@ public final class DataPermRuleType {
      * @param value 待验证的参数值。
      * @return 合法返回true，否则false。
      */
-    public static boolean isValid(int value) {
-        return DICT_MAP.containsKey(value);
+    public static boolean isValid(Integer value) {
+        return value != null && DICT_MAP.containsKey(value);
     }
 
     /**

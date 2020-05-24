@@ -9,7 +9,7 @@ import java.util.Set;
  * @param <K> 字典表主键类型。
  * @param <V> 字典表对象类型。
  * @author Stephen.Liu
- * @date 2020-04-11
+ * @date 2020-05-24
  */
 public interface DictionaryCache<K, V> {
 
@@ -39,8 +39,9 @@ public interface DictionaryCache<K, V> {
      * 重新加载，先清空原有数据，在执行putAll的操作。
      *
      * @param dataList 待缓存的数据列表。
+     * @param force    true则强制刷新，如果false，当缓存中存在数据时不刷新。
      */
-    void reload(List<V> dataList);
+    void reload(List<V> dataList, boolean force);
 
     /**
      * 从缓存中获取指定的数据。
@@ -53,7 +54,7 @@ public interface DictionaryCache<K, V> {
     /**
      * 将数据存入缓存。
      *
-     * @param key 通常为字典数据的主键。
+     * @param key    通常为字典数据的主键。
      * @param object 字典数据对象。
      */
     void put(K key, V object);
@@ -81,7 +82,7 @@ public interface DictionaryCache<K, V> {
     void invalidateSet(Set<K> keys);
 
     /**
-     * 清空缓存
+     * 清空缓存。
      */
     void invalidateAll();
 }

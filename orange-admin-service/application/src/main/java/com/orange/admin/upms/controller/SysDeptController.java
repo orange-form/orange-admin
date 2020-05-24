@@ -1,7 +1,7 @@
 package com.orange.admin.upms.controller;
 
 import cn.jimmyshi.beanquery.BeanQuery;
-import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.page.PageMethod;
 import com.orange.admin.upms.model.*;
 import com.orange.admin.upms.service.*;
 import com.orange.admin.common.core.object.*;
@@ -21,7 +21,7 @@ import javax.validation.groups.Default;
  * 部门管理操作控制器类。
  *
  * @author Stephen.Liu
- * @date 2020-04-11
+ * @date 2020-05-24
  */
 @Slf4j
 @RestController
@@ -38,21 +38,15 @@ public class SysDeptController {
      * @return 应答结果对象，包含新增对象主键Id。
      */
     @PostMapping("/add")
-    public ResponseResult<?> add(@MyRequestBody SysDept sysDept) {
-        ErrorCodeEnum errorCodeEnum = ErrorCodeEnum.NO_ERROR;
-        String errorMessage;
-        JSONObject responseData = null;
-        do {
-            errorMessage = MyCommonUtil.getModelValidationError(sysDept);
-            if (errorMessage != null) {
-                errorCodeEnum = ErrorCodeEnum.DATA_VALIDATAED_FAILED;
-                break;
-            }
-            sysDept = sysDeptService.saveNew(sysDept);
-            responseData = new JSONObject();
-            responseData.put("deptId", sysDept.getDeptId());
-        } while (false);
-        return ResponseResult.create(errorCodeEnum, errorMessage, responseData);
+    public ResponseResult<JSONObject> add(@MyRequestBody SysDept sysDept) {
+        String errorMessage = MyCommonUtil.getModelValidationError(sysDept);
+        if (errorMessage != null) {
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+        }
+        sysDept = sysDeptService.saveNew(sysDept);
+        JSONObject responseData = new JSONObject();
+        responseData.put("deptId", sysDept.getDeptId());
+        return ResponseResult.success(responseData);
     }
 
     /**
@@ -62,29 +56,22 @@ public class SysDeptController {
      * @return 应答结果对象。
      */
     @PostMapping("/update")
-    public ResponseResult<?> update(@MyRequestBody SysDept sysDept) {
-        ErrorCodeEnum errorCodeEnum = ErrorCodeEnum.NO_ERROR;
-        String errorMessage;
-        do {
-            errorMessage = MyCommonUtil.getModelValidationError(sysDept, Default.class, UpdateGroup.class);
-            if (errorMessage != null) {
-                errorCodeEnum = ErrorCodeEnum.DATA_VALIDATAED_FAILED;
-                break;
-            }
-            // 验证关联Id的数据合法性
-            SysDept originalSysDept = sysDeptService.getById(sysDept.getDeptId());
-            if (originalSysDept == null) {
-                errorCodeEnum = ErrorCodeEnum.DATA_NOT_EXIST;
-                //TODO 修改下面方括号中的话述
-                errorMessage = "数据验证失败，当前 [数据] 并不存在，请刷新后重试！";
-                break;
-            }
-            if (!sysDeptService.update(sysDept, originalSysDept)) {
-                errorCodeEnum = ErrorCodeEnum.DATA_NOT_EXIST;
-                break;
-            }
-        } while (false);
-        return ResponseResult.create(errorCodeEnum, errorMessage);
+    public ResponseResult<Void> update(@MyRequestBody SysDept sysDept) {
+        String errorMessage = MyCommonUtil.getModelValidationError(sysDept, Default.class, UpdateGroup.class);
+        if (errorMessage != null) {
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+        }
+        // 验证关联Id的数据合法性
+        SysDept originalSysDept = sysDeptService.getById(sysDept.getDeptId());
+        if (originalSysDept == null) {
+            //NOTE: 修改下面方括号中的话述
+            errorMessage = "数据验证失败，当前 [数据] 并不存在，请刷新后重试！";
+            return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST, errorMessage);
+        }
+        if (!sysDeptService.update(sysDept, originalSysDept)) {
+            return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST);
+        }
+        return ResponseResult.success();
     }
 
     /**
@@ -94,29 +81,23 @@ public class SysDeptController {
      * @return 应答结果对象。
      */
     @PostMapping("/delete")
-    public ResponseResult<?> delete(@MyRequestBody Long deptId) {
-        ErrorCodeEnum errorCodeEnum = ErrorCodeEnum.NO_ERROR;
-        String errorMessage = null;
-        do {
-            if (MyCommonUtil.existBlankArgument(deptId)) {
-                errorCodeEnum = ErrorCodeEnum.ARGUMENT_NULL_EXIST;
-                break;
-            }
-            // 验证关联Id的数据合法性
-            SysDept originalSysDept = sysDeptService.getById(deptId);
-            if (originalSysDept == null) {
-                errorCodeEnum = ErrorCodeEnum.DATA_NOT_EXIST;
-                //TODO 修改下面方括号中的话述
-                errorMessage = "数据验证失败，当前 [对象] 并不存在，请刷新后重试！";
-                break;
-            }
-            if (!sysDeptService.remove(deptId)) {
-                errorCodeEnum = ErrorCodeEnum.DATA_NOT_EXIST;
-                errorMessage = "数据操作失败，删除的对象不存在，请刷新后重试！";
-                break;
-            }
-        } while (false);
-        return ResponseResult.create(errorCodeEnum, errorMessage);
+    public ResponseResult<Void> delete(@MyRequestBody Long deptId) {
+        String errorMessage;
+        if (MyCommonUtil.existBlankArgument(deptId)) {
+            return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
+        }
+        // 验证关联Id的数据合法性
+        SysDept originalSysDept = sysDeptService.getById(deptId);
+        if (originalSysDept == null) {
+            // NOTE: 修改下面方括号中的话述
+            errorMessage = "数据验证失败，当前 [对象] 并不存在，请刷新后重试！";
+            return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST, errorMessage);
+        }
+        if (!sysDeptService.remove(deptId)) {
+            errorMessage = "数据操作失败，删除的对象不存在，请刷新后重试！";
+            return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST, errorMessage);
+        }
+        return ResponseResult.success();
     }
 
     /**
@@ -128,12 +109,12 @@ public class SysDeptController {
      * @return 应答结果对象，包含查询结果集。
      */
     @PostMapping("/list")
-    public ResponseResult<?> list(
+    public ResponseResult<JSONObject> list(
             @MyRequestBody SysDept sysDeptFilter,
             @MyRequestBody MyOrderParam orderParam,
             @MyRequestBody MyPageParam pageParam) {
         if (pageParam != null) {
-            PageHelper.startPage(pageParam.getPageNum(), pageParam.getPageSize());
+            PageMethod.startPage(pageParam.getPageNum(), pageParam.getPageSize());
         }
         String orderBy = MyOrderParam.buildOrderBy(orderParam, SysDept.class);
         List<SysDept> resultList = sysDeptService.getSysDeptListWithRelation(sysDeptFilter, orderBy);
@@ -148,21 +129,14 @@ public class SysDeptController {
      */
     @GetMapping("/view")
     public ResponseResult<SysDept> view(@RequestParam Long deptId) {
-        ErrorCodeEnum errorCodeEnum = ErrorCodeEnum.NO_ERROR;
-        String errorMessage = null;
-        SysDept sysDept = null;
-        do {
-            if (MyCommonUtil.existBlankArgument(deptId)) {
-                errorCodeEnum = ErrorCodeEnum.ARGUMENT_NULL_EXIST;
-                break;
-            }
-            sysDept = sysDeptService.getByIdWithRelation(deptId);
-            if (sysDept == null) {
-                errorCodeEnum = ErrorCodeEnum.DATA_NOT_EXIST;
-                break;
-            }
-        } while (false);
-        return ResponseResult.create(errorCodeEnum, errorMessage, sysDept);
+        if (MyCommonUtil.existBlankArgument(deptId)) {
+            return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
+        }
+        SysDept sysDept = sysDeptService.getByIdWithRelation(deptId, MyRelationParam.full());
+        if (sysDept == null) {
+            return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST);
+        }
+        return ResponseResult.success(sysDept);
     }
 
     /**
@@ -173,8 +147,8 @@ public class SysDeptController {
      * @return 应答结果对象，包含的数据为 List<Map<String, String>>，map中包含两条记录，key的值分别是id和name，value对应具体数据。
      */
     @GetMapping("/listDictSysDept")
-    public ResponseResult<?> listDictSysDept(SysDept filter) {
-        List<SysDept> resultList = sysDeptService.getListByFilter(filter);
+    public ResponseResult<List<Map<String, Object>>> listDictSysDept(SysDept filter) {
+        List<SysDept> resultList = sysDeptService.getListByFilter(filter, null);
         return ResponseResult.success(BeanQuery.select(
                 "deptId as id", "deptName as name").executeFrom(resultList));
     }

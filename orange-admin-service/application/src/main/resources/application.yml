@@ -13,7 +13,7 @@ server:
 # spring相关配置
 spring:
   application:
-    name: application
+    name: app
   profiles:
     active: dev
   servlet:
@@ -62,7 +62,11 @@ management:
     web:
       exposure:
         include: '*'
+    jmx:
+      exposure:
+        include: '*'
   endpoint:
+    # 与中间件相关的健康详情也会被展示
     health:
       show-details: always
     configprops:
@@ -85,7 +89,7 @@ spring:
       username: root
       password: 123456
       driver-class-name: com.mysql.cj.jdbc.Driver
-      name: application
+      name: app
       initialSize: 10
       minIdle: 10
       maxActive: 50
@@ -105,7 +109,7 @@ spring:
       web-stat-filter:
         enabled: true
         url-pattern: /*
-        exclusions: "*.js,*.gif,*.jpg,*.bmp,*.png,*.css,*.ico,/druid/*"
+        exclusions: "*.js,*.gif,*.jpg,*.bmp,*.png,*.css,*.ico,/druid/*,/actuator/*"
       stat-view-servlet:
         enabled: true
         urlPattern: /druid/*
@@ -142,7 +146,7 @@ spring:
       username: root
       password: 123456
       driver-class-name: com.mysql.cj.jdbc.Driver
-      name: application
+      name: app
       initialSize: 10
       minIdle: 10
       maxActive: 50
@@ -162,7 +166,7 @@ spring:
       web-stat-filter:
         enabled: true
         url-pattern: /*
-        exclusions: "*.js,*.gif,*.jpg,*.bmp,*.png,*.css,*.ico,/druid/*"
+        exclusions: "*.js,*.gif,*.jpg,*.bmp,*.png,*.css,*.ico,/druid/*,/actuator/*"
       stat-view-servlet:
         enabled: true
         urlPattern: /druid/*

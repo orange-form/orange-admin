@@ -1,6 +1,10 @@
 package com.orange.admin.common.core.object;
 
 import cn.hutool.core.util.ReflectUtil;
+import com.orange.admin.common.core.constant.ApplicationConstant;
+import com.orange.admin.common.core.exception.InvalidClassFieldException;
+import com.orange.admin.common.core.exception.InvalidDataFieldException;
+import com.orange.admin.common.core.exception.InvalidDataModelException;
 import com.orange.admin.common.core.util.MyModelUtil;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -14,13 +18,14 @@ import java.util.*;
  * Controller参数中的排序请求对象。
  *
  * @author Stephen.Liu
- * @date 2020-04-11
+ * @date 2020-05-24
  */
 @EqualsAndHashCode(callSuper = true)
 @Slf4j
 @Data
 public class MyOrderParam extends ArrayList<MyOrderParam.OrderInfo> {
 
+    private static final String DICT_MAP = "DictMap.";
     /**
      * 基于排序对象中的JSON数据，构建SQL中order by从句可以直接使用的排序字符串。
      *
@@ -32,65 +37,21 @@ public class MyOrderParam extends ArrayList<MyOrderParam.OrderInfo> {
         if (orderParam == null) {
             return null;
         }
-        String exceptionMessage;
         if (modelClazz == null) {
-            throw new IllegalArgumentException("modelClazz Argument can't be NULL");
+            throw new IllegalArgumentException(
+                    "modelClazz Argument in MyOrderParam.buildOrderBy can't be NULL");
         }
         int i = 0;
         StringBuilder orderBy = new StringBuilder(128);
         for (OrderInfo orderInfo : orderParam) {
-            String modelName, fieldName = orderInfo.fieldName, tableName, columnName;
-            int pos = fieldName.indexOf("DictMap.");
-            if (pos != -1) {
-                fieldName = fieldName.substring(0, pos);
+            OrderBaseData orderBaseData = parseOrderBaseData(orderInfo, modelClazz);
+            if (StringUtils.isBlank(orderBaseData.tableName)) {
+                throw new InvalidDataModelException(orderBaseData.modelName);
             }
-            String[] stringArray = StringUtils.split(fieldName, '.');
-            if (stringArray.length == 1) {
-                modelName = modelClazz.getSimpleName();
-                tableName = MyModelUtil.mapToTableName(modelClazz);
-                columnName = MyModelUtil.mapToColumnName(fieldName, modelClazz);
-            } else {
-                Field field = ReflectUtil.getField(modelClazz, stringArray[0]);
-                if (field == null) {
-                    exceptionMessage = String.format(
-                            "Relation Field [%s] doesn't exist in Class [%s]!", stringArray[0], modelClazz.getSimpleName());
-                    log.error(exceptionMessage);
-                    throw new IllegalArgumentException(exceptionMessage);
-                }
-                Class<?> fieldClazz = field.getType();
-                modelName = fieldClazz.getSimpleName();
-                fieldName = stringArray[1];
-                tableName = MyModelUtil.mapToTableName(fieldClazz);
-                columnName = MyModelUtil.mapToColumnName(fieldName, fieldClazz);
+            if (StringUtils.isBlank(orderBaseData.columnName)) {
+                throw new InvalidDataFieldException(orderBaseData.modelName, orderBaseData.fieldName);
             }
-            if (StringUtils.isBlank(tableName)) {
-                exceptionMessage = String.format("ModelName [%s] can't be mapped to Table!", modelName);
-                log.error(exceptionMessage);
-                throw new IllegalArgumentException(exceptionMessage);
-            }
-            if (StringUtils.isBlank(columnName)) {
-                exceptionMessage = String.format(
-                        "FieldName [%s] in Class [%s] can't be mapped to Column!", fieldName, modelName);
-                log.error(exceptionMessage);
-                throw new IllegalArgumentException(exceptionMessage);
-            }
-            if (StringUtils.isNotBlank(orderInfo.dateAggregateBy)) {
-                orderBy.append("DATE_FORMAT(").append(tableName).append(".").append(columnName);
-                if ("day".equals(orderInfo.dateAggregateBy)) {
-                    orderBy.append(", '%Y-%m-%d')");
-                } else if ("month".equals(orderInfo.dateAggregateBy)) {
-                    orderBy.append(", '%Y-%m-01')");
-                } else if ("year".equals(orderInfo.dateAggregateBy)) {
-                    orderBy.append(", '%Y-01-01')");
-                } else {
-                    throw new IllegalArgumentException("Illegal DATE_FORMAT for GROUP ID list.");
-                }
-            } else {
-                orderBy.append(tableName).append(".").append(columnName);
-            }
-            if (orderInfo.asc != null && !orderInfo.asc) {
-                orderBy.append(" DESC");
-            }
+            processOrderInfo(orderInfo, orderBaseData, orderBy);
             if (++i < orderParam.size()) {
                 orderBy.append(", ");
             }
@@ -98,12 +59,56 @@ public class MyOrderParam extends ArrayList<MyOrderParam.OrderInfo> {
         return orderBy.toString();
     }
 
+    private static void processOrderInfo(
+            OrderInfo orderInfo, OrderBaseData orderBaseData, StringBuilder orderByBuilder) {
+        if (StringUtils.isNotBlank(orderInfo.dateAggregateBy)) {
+            orderByBuilder.append("DATE_FORMAT(")
+                    .append(orderBaseData.tableName).append(".").append(orderBaseData.columnName);
+            if (ApplicationConstant.DAY_AGGREGATION.equals(orderInfo.dateAggregateBy)) {
+                orderByBuilder.append(", '%Y-%m-%d')");
+            } else if (ApplicationConstant.MONTH_AGGREGATION.equals(orderInfo.dateAggregateBy)) {
+                orderByBuilder.append(", '%Y-%m-01')");
+            } else if (ApplicationConstant.YEAR_AGGREGATION.equals(orderInfo.dateAggregateBy)) {
+                orderByBuilder.append(", '%Y-01-01')");
+            } else {
+                throw new IllegalArgumentException("Illegal DATE_FORMAT for GROUP ID list.");
+            }
+        } else {
+            orderByBuilder.append(orderBaseData.tableName).append(".").append(orderBaseData.columnName);
+        }
+        if (orderInfo.asc != null && !orderInfo.asc) {
+            orderByBuilder.append(" DESC");
+        }
+    }
+
+    private static OrderBaseData parseOrderBaseData(OrderInfo orderInfo, Class<?> modelClazz) {
+        OrderBaseData orderBaseData = new OrderBaseData();
+        orderBaseData.fieldName = StringUtils.substringBefore(orderInfo.fieldName, DICT_MAP);
+        String[] stringArray = StringUtils.split(orderBaseData.fieldName, '.');
+        if (stringArray.length == 1) {
+            orderBaseData.modelName = modelClazz.getSimpleName();
+            orderBaseData.tableName = MyModelUtil.mapToTableName(modelClazz);
+            orderBaseData.columnName = MyModelUtil.mapToColumnName(orderBaseData.fieldName, modelClazz);
+        } else {
+            Field field = ReflectUtil.getField(modelClazz, stringArray[0]);
+            if (field == null) {
+                throw new InvalidClassFieldException(modelClazz.getSimpleName(), stringArray[0]);
+            }
+            Class<?> fieldClazz = field.getType();
+            orderBaseData.modelName = fieldClazz.getSimpleName();
+            orderBaseData.fieldName = stringArray[1];
+            orderBaseData.tableName = MyModelUtil.mapToTableName(fieldClazz);
+            orderBaseData.columnName = MyModelUtil.mapToColumnName(orderBaseData.fieldName, fieldClazz);
+        }
+        return orderBaseData;
+    }
+
     /**
      * 在排序列表中，可能存在基于指定表字段的排序，该函数将获取指定表的所有排序字段。
-     * 返回有的字符串，可直接用于SQL中的ORDER BY从句。
+     * 返回的字符串，可直接用于SQL中的ORDER BY从句。
      *
-     * @param orderParam 排序参数对象。
-     * @param modelClazz 查询主表对应的主对象的Class。
+     * @param orderParam        排序参数对象。
+     * @param modelClazz        查询主表对应的主对象的Class。
      * @param relationModelName 与关联表对应的Model的名称，如my_course_paper表应对的Java对象CoursePaper。
      *                          如果该值为null或空字符串，则获取所有主表的排序字段。
      * @return 返回的是表字段，而非Java对象的属性，多个字段之间逗号分隔。
@@ -114,73 +119,72 @@ public class MyOrderParam extends ArrayList<MyOrderParam.OrderInfo> {
             return null;
         }
         if (modelClazz == null) {
-            throw new IllegalArgumentException("modelClazz Argument can't be NULL");
+            throw new IllegalArgumentException(
+                    "modelClazz Argument in MyOrderParam.getOrderClauseByModelName can't be NULL");
         }
-        String exceptionMessage;
         List<String> fieldNameList = new LinkedList<>();
         String prefix = null;
         if (StringUtils.isNotBlank(relationModelName)) {
             prefix = relationModelName + ".";
         }
         for (OrderInfo orderInfo : orderParam) {
-            boolean found = false;
-            String modelName = null, fieldName = orderInfo.fieldName, tableName = null, columnName = null;
-            int pos = fieldName.indexOf("DictMap.");
-            if (pos != -1) {
-                fieldName = fieldName.substring(0, pos);
-            }
-            if (prefix != null) {
-                if (fieldName.startsWith(prefix)) {
-                    Field field = ReflectUtil.getField(modelClazz, relationModelName);
-                    if (field == null) {
-                        exceptionMessage = String.format(
-                                "Relation Field [%s] doesn't exist in Class [%s]!", relationModelName, modelClazz.getSimpleName());
-                        log.error(exceptionMessage);
-                        throw new IllegalArgumentException(exceptionMessage);
-                    }
-                    Class<?> fieldClazz = field.getType();
-                    modelName = fieldClazz.getSimpleName();
-                    fieldName = StringUtils.removeStart(fieldName, prefix);
-                    tableName = MyModelUtil.mapToTableName(fieldClazz);
-                    columnName = MyModelUtil.mapToColumnName(fieldName, fieldClazz);
-                    found = true;
-                }
-            } else {
-                if (!fieldName.contains(".")) {
-                    modelName = modelClazz.getSimpleName();
-                    tableName = MyModelUtil.mapToTableName(modelClazz);
-                    columnName = MyModelUtil.mapToColumnName(fieldName, modelClazz);
-                    found = true;
-                }
-            }
-            if (found) {
-                if (StringUtils.isBlank(tableName)) {
-                    exceptionMessage = String.format("ModelName [%s] can't be mapped to Table!", modelName);
-                    log.error(exceptionMessage);
-                    throw new IllegalArgumentException(exceptionMessage);
-                }
-                if (StringUtils.isBlank(columnName)) {
-                    exceptionMessage = String.format(
-                            "FieldName [%s] in Class [%s] can't be mapped to Column!", fieldName, modelName);
-                    log.error(exceptionMessage);
-                    throw new IllegalArgumentException(exceptionMessage);
-                }
-                StringBuilder orderBy = new StringBuilder(128);
-                orderBy.append(tableName).append(".").append(columnName);
-                if (orderInfo.asc != null && !orderInfo.asc) {
-                    orderBy.append(" DESC");
-                }
-                fieldNameList.add(orderBy.toString());
+            OrderBaseData baseData = parseOrderBaseData(orderInfo, modelClazz, prefix, relationModelName);
+            if (baseData != null) {
+                fieldNameList.add(makeOrderBy(baseData, orderInfo.asc));
             }
         }
         return StringUtils.join(fieldNameList, ", ");
     }
 
+    private static OrderBaseData parseOrderBaseData(
+            OrderInfo orderInfo, Class<?> modelClazz, String prefix, String relationModelName) {
+        OrderBaseData baseData = null;
+        String fieldName = StringUtils.substringBefore(orderInfo.fieldName, DICT_MAP);
+        if (prefix != null) {
+            if (fieldName.startsWith(prefix)) {
+                baseData = new OrderBaseData();
+                Field field = ReflectUtil.getField(modelClazz, relationModelName);
+                if (field == null) {
+                    throw new InvalidClassFieldException(modelClazz.getSimpleName(), relationModelName);
+                }
+                Class<?> fieldClazz = field.getType();
+                baseData.modelName = fieldClazz.getSimpleName();
+                baseData.fieldName = StringUtils.removeStart(fieldName, prefix);
+                baseData.tableName = MyModelUtil.mapToTableName(fieldClazz);
+                baseData.columnName = MyModelUtil.mapToColumnName(fieldName, fieldClazz);
+            }
+        } else {
+            String dotLimitor = ".";
+            if (!fieldName.contains(dotLimitor)) {
+                baseData = new OrderBaseData();
+                baseData.modelName = modelClazz.getSimpleName();
+                baseData.tableName = MyModelUtil.mapToTableName(modelClazz);
+                baseData.columnName = MyModelUtil.mapToColumnName(fieldName, modelClazz);
+            }
+        }
+        return baseData;
+    }
+
+    private static String makeOrderBy(OrderBaseData baseData, Boolean asc) {
+        if (StringUtils.isBlank(baseData.tableName)) {
+            throw new InvalidDataModelException(baseData.modelName);
+        }
+        if (StringUtils.isBlank(baseData.columnName)) {
+            throw new InvalidDataFieldException(baseData.modelName, baseData.fieldName);
+        }
+        StringBuilder orderBy = new StringBuilder(128);
+        orderBy.append(baseData.tableName).append(".").append(baseData.columnName);
+        if (asc != null && !asc) {
+            orderBy.append(" DESC");
+        }
+        return orderBy.toString();
+    }
+
     /**
      * 在排序列表中，可能存在基于指定表字段的排序，该函数将删除指定表的所有排序字段。
      *
-     * @param orderParam 排序参数对象。
-     * @param modelClazz 查询主表对应的主对象的Class。
+     * @param orderParam        排序参数对象。
+     * @param modelClazz        查询主表对应的主对象的Class。
      * @param relationModelName 与关联表对应的Model的名称，如my_course_paper表应对的Java对象CoursePaper。
      *                          如果该值为null或空字符串，则获取所有主表的排序字段。
      */
@@ -190,7 +194,8 @@ public class MyOrderParam extends ArrayList<MyOrderParam.OrderInfo> {
             return;
         }
         if (modelClazz == null) {
-            throw new IllegalArgumentException("modelClazz Argument can't be NULL");
+            throw new IllegalArgumentException(
+                    "modelClazz Argument in MyOrderParam.removeOrderClauseByModelName can't be NULL");
         }
         List<Integer> fieldIndexList = new LinkedList<>();
         String prefix = null;
@@ -199,11 +204,7 @@ public class MyOrderParam extends ArrayList<MyOrderParam.OrderInfo> {
         }
         int i = 0;
         for (OrderInfo orderInfo : orderParam) {
-            String fieldName = orderInfo.fieldName;
-            int pos = fieldName.indexOf("DictMap.");
-            if (pos != -1) {
-                fieldName = fieldName.substring(0, pos);
-            }
+            String fieldName = StringUtils.substringBefore(orderInfo.fieldName, DICT_MAP);
             if (prefix != null) {
                 if (fieldName.startsWith(prefix)) {
                     fieldIndexList.add(i);
@@ -220,6 +221,9 @@ public class MyOrderParam extends ArrayList<MyOrderParam.OrderInfo> {
         }
     }
 
+    /**
+     * 排序信息对象。
+     */
     @Data
     public static class OrderInfo {
         /**
@@ -243,5 +247,12 @@ public class MyOrderParam extends ArrayList<MyOrderParam.OrderInfo> {
          * year:  表示按照年聚合，将会截取到年。DATE_FORMAT(columnName, '%Y-01-01')
          */
         private String dateAggregateBy;
+    }
+
+    private static class OrderBaseData {
+        private String modelName;
+        private String fieldName;
+        private String tableName;
+        private String columnName;
     }
 }

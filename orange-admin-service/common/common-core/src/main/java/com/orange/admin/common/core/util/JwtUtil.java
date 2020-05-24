@@ -3,6 +3,7 @@ package com.orange.admin.common.core.util;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Date;
 import java.util.Map;
@@ -11,8 +12,9 @@ import java.util.Map;
  * 基于JWT的Token生成工具类
  *
  * @author Stephen.Liu
- * @date 2020-04-11
+ * @date 2020-05-24
  */
+@Slf4j
 public class JwtUtil {
 
     private static final String TOKEN_PREFIX = "Bearer:";
@@ -71,7 +73,7 @@ public class JwtUtil {
         try {
             claims = Jwts.parser().setSigningKey(signingKey).parseClaimsJws(tokenKey).getBody();
         } catch (Exception e) {
-            System.out.println("Token Expired");
+            log.error("Token Expired", e);
         }
         return claims;
     }
@@ -100,4 +102,9 @@ public class JwtUtil {
         return createTime == null || System.currentTimeMillis() - createTime > REFRESH_TOKEN_INTERVAL;
     }
 
+    /**
+     * 私有构造函数，明确标识该常量类的作用。
+     */
+    private JwtUtil() {
+    }
 }

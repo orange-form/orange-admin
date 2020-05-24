@@ -20,6 +20,12 @@ import javax.validation.constraints.*;
 import java.util.Date;
 import java.util.Map;
 
+/**
+ * Teacher实体对象。
+ *
+ * @author Stephen.Liu
+ * @date 2020-05-24
+ */
 @Data
 @Table(name = "zz_teacher")
 public class Teacher {

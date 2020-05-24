@@ -6,10 +6,6 @@
         <id column="role_id" jdbcType="BIGINT" property="roleId"/>
     </resultMap>
 
-    <select id="getRoleIdListByUserId" resultType="java.lang.Long">
-        SELECT role_id FROM zz_sys_user_role WHERE user_id = #{userId}
-    </select>
-
     <insert id="addUserRoleList">
         REPLACE INTO zz_sys_user_role(user_id, role_id) VALUES
         <foreach collection="list" index="index" item="item" separator=",">

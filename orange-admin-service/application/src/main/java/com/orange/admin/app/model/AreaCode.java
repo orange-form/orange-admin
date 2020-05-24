@@ -4,6 +4,12 @@ import lombok.Data;
 
 import javax.persistence.*;
 
+/**
+ * 行政区划实体对象。
+ *
+ * @author Stephen.Liu
+ * @date 2020-05-24
+ */
 @Data
 @Table(name = "zz_area_code")
 public class AreaCode {

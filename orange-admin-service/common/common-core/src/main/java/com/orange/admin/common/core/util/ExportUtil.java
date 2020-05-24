@@ -4,6 +4,9 @@ import cn.hutool.core.io.IoUtil;
 import cn.hutool.poi.excel.ExcelUtil;
 import cn.hutool.poi.excel.ExcelWriter;
 import cn.jimmyshi.beanquery.BeanQuery;
+import com.orange.admin.common.core.constant.ApplicationConstant;
+import com.orange.admin.common.core.exception.MyRuntimeException;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
@@ -20,17 +23,18 @@ import java.util.*;
  * 导出工具类，目前支持xlsx和csv两种类型。
  *
  * @author Stephen.Liu
- * @date 2020-04-11
+ * @date 2020-05-24
  */
+@Slf4j
 public class ExportUtil {
 
     /**
      * 数据导出。目前仅支持xlsx和csv。
      *
-     * @param dataList 导出数据列表。
+     * @param dataList       导出数据列表。
      * @param selectFieldMap 导出的数据字段，key为对象字段名称，value为中文标题名称。
-     * @param filename 导出文件名。
-     * @param <T> 数据对象类型。
+     * @param filename       导出文件名。
+     * @param <T>            数据对象类型。
      * @throws IOException 文件操作失败。
      */
     public static <T> void doExport(
@@ -51,7 +55,7 @@ public class ExportUtil {
         response.setHeader("content-type", "application/octet-stream");
         response.setContentType("application/octet-stream");
         response.setHeader("Content-Disposition", "attachment;filename=" + filename);
-        if ("xlsx".equals(FilenameUtils.getExtension(filename))) {
+        if (ApplicationConstant.XLSX_EXT.equals(FilenameUtils.getExtension(filename))) {
             ServletOutputStream out = response.getOutputStream();
             ExcelWriter writer = ExcelUtil.getWriter(true);
             writer.setRowHeight(-1, 30);
@@ -61,7 +65,7 @@ public class ExportUtil {
             writer.flush(out);
             writer.close();
             IoUtil.close(out);
-        } else if ("csv".equals(FilenameUtils.getExtension(filename))) {
+        } else if (ApplicationConstant.CSV_EXT.equals(FilenameUtils.getExtension(filename))) {
             Collection<String> headerList = selectFieldMap.values();
             String[] headerArray = new String[headerList.size()];
             headerList.toArray(headerArray);
@@ -76,10 +80,16 @@ public class ExportUtil {
                 }
                 printer.flush();
             } catch (Exception e) {
-                e.printStackTrace();
+                log.error("Failed to call ExportUtil.doExport", e);
             }
         } else {
-            throw new RuntimeException("不支持的导出文件类型！");
+            throw new MyRuntimeException("不支持的导出文件类型！");
         }
+    }
+
+    /**
+     * 私有构造函数，明确标识该常量类的作用。
+     */
+    private ExportUtil() {
     }
 }

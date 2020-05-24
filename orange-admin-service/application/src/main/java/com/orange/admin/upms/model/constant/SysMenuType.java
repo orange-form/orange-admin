@@ -7,7 +7,7 @@ import java.util.Map;
  * 菜单类型常量对象。
  *
  * @author Stephen.Liu
- * @date 2020-04-11
+ * @date 2020-05-24
  */
 public final class SysMenuType {
 
@@ -28,7 +28,7 @@ public final class SysMenuType {
      */
     public static final int TYPE_BUTTON = 3;
 
-    public static final Map<Object, String> DICT_MAP = new HashMap<>(4);
+    private static final Map<Object, String> DICT_MAP = new HashMap<>(4);
     static {
         DICT_MAP.put(0, "目录菜单");
         DICT_MAP.put(1, "普通菜单");
@@ -42,8 +42,8 @@ public final class SysMenuType {
      * @param value 待验证的参数值。
      * @return 合法返回true，否则false。
      */
-    public static boolean isValid(int value) {
-        return DICT_MAP.containsKey(value);
+    public static boolean isValid(Integer value) {
+        return value != null && DICT_MAP.containsKey(value);
     }
 
     /**

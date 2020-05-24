@@ -10,7 +10,7 @@ import java.util.*;
  * 用户管理数据操作访问接口。
  *
  * @author Stephen.Liu
- * @date 2020-04-11
+ * @date 2020-05-24
  */
 public interface SysUserMapper extends BaseDaoMapper<SysUser> {
 
@@ -27,9 +27,9 @@ public interface SysUserMapper extends BaseDaoMapper<SysUser> {
     /**
      * 根据角色Id，获取关联的用户Id列表。
      *
-     * @param roleId 关联的角色Id。
+     * @param roleId        关联的角色Id。
      * @param sysUserFilter 用户过滤条件对象。
-     * @param orderBy order by从句的参数。
+     * @param orderBy       order by从句的参数。
      * @return 和RoleId关联的用户列表。
      */
     List<SysUser> getSysUserListByRoleId(
@@ -40,7 +40,7 @@ public interface SysUserMapper extends BaseDaoMapper<SysUser> {
     /**
      * 根据角色Id，获取和当前角色Id没有建立多对多关联关系的用户Id列表。
      *
-     * @param roleId 关联的角色Id。
+     * @param roleId        关联的角色Id。
      * @param sysUserFilter 用户过滤条件对象。
      * @param orderBy order by从句的参数。
      * @return 和RoleId没有建立关联关系的用户列表。
@@ -53,7 +53,7 @@ public interface SysUserMapper extends BaseDaoMapper<SysUser> {
     /**
      * 根据数据权限Id，获取关联的用户Id列表。
      *
-     * @param dataPermId 关联的数据权限Id。
+     * @param dataPermId    关联的数据权限Id。
      * @param sysUserFilter 用户过滤条件对象。
      * @param orderBy order by从句的参数。
      * @return 和DataPermId关联的用户列表。
@@ -66,7 +66,7 @@ public interface SysUserMapper extends BaseDaoMapper<SysUser> {
     /**
      * 根据数据权限Id，获取和当前数据权限Id没有建立多对多关联关系的用户Id列表。
      *
-     * @param dataPermId 关联的数据权限Id。
+     * @param dataPermId    关联的数据权限Id。
      * @param sysUserFilter 用户过滤条件对象。
      * @param orderBy order by从句的参数。
      * @return 和DataPermId没有建立关联关系的用户列表。

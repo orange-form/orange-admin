@@ -16,7 +16,7 @@ import java.util.List;
  * Where中的条件语句。
  *
  * @author Stephen.Liu
- * @date 2020-04-11
+ * @date 2020-05-24
  */
 @Slf4j
 @Data
@@ -103,7 +103,7 @@ public class MyWhereCriteria {
      * @param value        条件过滤值。
      * @return 验证结果对象，如果有错误将会返回具体的错误信息。
      */
-    public VerifyResult setCriteria(String fieldName, Integer operatorType, Object value) {
+    public CallResult setCriteria(String fieldName, Integer operatorType, Object value) {
         this.operatorType = operatorType;
         this.fieldName = fieldName;
         this.value = value;
@@ -119,7 +119,7 @@ public class MyWhereCriteria {
      * @param value        条件过滤值。
      * @return 验证结果对象，如果有错误将会返回具体的错误信息。
      */
-    public VerifyResult setCriteria(Class<?> modelClazz, String fieldName, Integer operatorType, Object value) {
+    public CallResult setCriteria(Class<?> modelClazz, String fieldName, Integer operatorType, Object value) {
         this.modelClazz = modelClazz;
         this.operatorType = operatorType;
         this.fieldName = fieldName;
@@ -133,35 +133,31 @@ public class MyWhereCriteria {
      *
      * @return 验证结果对象，如果有错误将会返回具体的错误信息。
      */
-    public VerifyResult doVerify() {
+    public CallResult doVerify() {
         if (fieldName == null) {
-            return VerifyResult.error("过滤字段名称 [fieldName] 不能为空！");
+            return CallResult.error("过滤字段名称 [fieldName] 不能为空！");
         }
-        if (modelClazz != null) {
-            if (ReflectUtil.getField(modelClazz, fieldName) == null) {
-                return VerifyResult.error(
-                        "过滤字段 [" + fieldName + "] 在实体对象 [" + modelClazz.getSimpleName() + "] 中并不存在！");
-            }
+        if (modelClazz != null && ReflectUtil.getField(modelClazz, fieldName) == null) {
+            return CallResult.error(
+                    "过滤字段 [" + fieldName + "] 在实体对象 [" + modelClazz.getSimpleName() + "] 中并不存在！");
         }
         if (!checkOperatorType()) {
-            return VerifyResult.error("无效的操作符类型 [" + operatorType + "]!");
+            return CallResult.error("无效的操作符类型 [" + operatorType + "]!");
         }
         // 其他操作符必须包含value值
-        if (operatorType != OPERATOR_IS_NULL && operatorType != OPERATOR_NOT_NULL) {
-            if (value == null) {
-                String operatorString = this.getOperatorString();
-                return VerifyResult.error("操作符 [" + operatorString + "] 的条件值不能为空！");
-            }
+        if (operatorType != OPERATOR_IS_NULL && operatorType != OPERATOR_NOT_NULL && value == null) {
+            String operatorString = this.getOperatorString();
+            return CallResult.error("操作符 [" + operatorString + "] 的条件值不能为空！");
         }
         if (this.operatorType == OPERATOR_IN) {
             if (!(value instanceof Collection)) {
-                return VerifyResult.error("操作符 [IN] 的条件值必须为集合对象！");
+                return CallResult.error("操作符 [IN] 的条件值必须为集合对象！");
             }
             if (CollectionUtils.isEmpty((Collection<?>) value)) {
-                return VerifyResult.error("操作符 [IN] 的条件值不能为空！");
+                return CallResult.error("操作符 [IN] 的条件值不能为空！");
             }
         }
-        return VerifyResult.ok();
+        return CallResult.ok();
     }
 
     /**
@@ -237,33 +233,7 @@ public class MyWhereCriteria {
         if (tableName == null) {
             throw new InvalidDataModelException(modelClazz.getSimpleName());
         }
-        StringBuilder sb = new StringBuilder(64);
-        sb.append(tableName).append(".").append(fieldInfo.getFirst()).append(getOperatorString());
-        if (operatorType == OPERATOR_IN) {
-            Collection<?> filterValues = (Collection<?>) value;
-            sb.append("(");
-            int i = 0;
-            for (Object filterValue : filterValues) {
-                if (fieldInfo.getSecond().equals(MyModelUtil.NUMERIC_FIELD_TYPE)) {
-                    sb.append(filterValue);
-                } else {
-                    sb.append("'").append(filterValue).append("'");
-                }
-                if (i++ != filterValues.size() - 1) {
-                    sb.append(", ");
-                }
-            }
-            sb.append(")");
-        } else {
-            if (value != null) {
-                if (fieldInfo.getSecond().equals(MyModelUtil.NUMERIC_FIELD_TYPE)) {
-                    sb.append(value);
-                } else {
-                    sb.append("'").append(value).append("'");
-                }
-            }
-        }
-        return sb.toString();
+        return this.buildClauseString(tableName, fieldInfo.getFirst(), fieldInfo.getSecond());
     }
 
     /**
@@ -304,5 +274,35 @@ public class MyWhereCriteria {
             sb.append(criteriaString);
         }
         return sb.length() == 0 ? null : sb.toString();
+    }
+
+    private String buildClauseString(String tableName, String columnName, Integer columnType) {
+        StringBuilder sb = new StringBuilder(64);
+        sb.append(tableName).append(".").append(columnName).append(getOperatorString());
+        if (operatorType == OPERATOR_IN) {
+            Collection<?> filterValues = (Collection<?>) value;
+            sb.append("(");
+            int i = 0;
+            for (Object filterValue : filterValues) {
+                if (columnType.equals(MyModelUtil.NUMERIC_FIELD_TYPE)) {
+                    sb.append(filterValue);
+                } else {
+                    sb.append("'").append(filterValue).append("'");
+                }
+                if (i++ != filterValues.size() - 1) {
+                    sb.append(", ");
+                }
+            }
+            sb.append(")");
+            return sb.toString();
+        }
+        if (value != null) {
+            if (columnType.equals(MyModelUtil.NUMERIC_FIELD_TYPE)) {
+                sb.append(value);
+            } else {
+                sb.append("'").append(value).append("'");
+            }
+        }
+        return sb.toString();
     }
 }

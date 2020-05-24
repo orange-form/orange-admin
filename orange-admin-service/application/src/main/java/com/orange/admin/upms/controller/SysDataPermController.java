@@ -1,7 +1,7 @@
 package com.orange.admin.upms.controller;
 
 import com.alibaba.fastjson.JSONObject;
-import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.page.PageMethod;
 import lombok.extern.slf4j.Slf4j;
 import com.orange.admin.upms.model.SysDataPermMenu;
 import com.orange.admin.upms.model.SysDataPerm;
@@ -10,10 +10,11 @@ import com.orange.admin.upms.service.SysDataPermService;
 import com.orange.admin.upms.service.SysUserService;
 import com.orange.admin.common.core.validator.UpdateGroup;
 import com.orange.admin.common.core.constant.ErrorCodeEnum;
-import com.orange.admin.common.core.object.VerifyResult;
+import com.orange.admin.common.core.object.CallResult;
 import com.orange.admin.common.core.object.MyOrderParam;
 import com.orange.admin.common.core.object.MyPageParam;
 import com.orange.admin.common.core.object.ResponseResult;
+import com.orange.admin.common.core.object.MyRelationParam;
 import com.orange.admin.common.core.util.MyCommonUtil;
 import com.orange.admin.common.core.util.MyPageUtil;
 import com.orange.admin.common.core.annotation.MyRequestBody;
@@ -28,7 +29,7 @@ import java.util.stream.Collectors;
  * 数据权限接口控制器对象。
  *
  * @author Stephen.Liu
- * @date 2020-04-11
+ * @date 2020-05-24
  */
 @Slf4j
 @RestController
@@ -50,38 +51,31 @@ public class SysDataPermController {
      */
     @SuppressWarnings("unchecked")
     @PostMapping("/add")
-    public ResponseResult<?> add(
+    public ResponseResult<JSONObject> add(
             @MyRequestBody SysDataPerm sysDataPerm,
             @MyRequestBody String deptIdListString,
             @MyRequestBody String menuIdListString) {
-        ErrorCodeEnum errorCodeEnum = ErrorCodeEnum.NO_ERROR;
-        String errorMessage = null;
-        JSONObject responseData = null;
-        do {
-            if (MyCommonUtil.existBlankArgument(menuIdListString)) {
-                errorCodeEnum = ErrorCodeEnum.ARGUMENT_NULL_EXIST;
-                break;
-            }
-            errorMessage = MyCommonUtil.getModelValidationError(sysDataPerm);
-            if (errorMessage != null) {
-                errorCodeEnum = ErrorCodeEnum.DATA_VALIDATAED_FAILED;
-                break;
-            }
-            VerifyResult result = sysDataPermService.verifyRelatedData(sysDataPerm, deptIdListString, menuIdListString);
-            if (!result.isSuccess()) {
-                return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, result.getErrorMessage());
-            }
-            List<SysDataPermMenu> dataPermMenuList = null;
-            Set<Long> deptIdSet = null;
-            if (result.getData() != null) {
-                dataPermMenuList = (List<SysDataPermMenu>) result.getData().get("dataPermMenuList");
-                deptIdSet = (Set<Long>) result.getData().get("deptIdSet");
-            }
-            sysDataPermService.saveNew(sysDataPerm, deptIdSet, dataPermMenuList);
-            responseData = new JSONObject();
-            responseData.put("dataPermId", sysDataPerm.getDataPermId());
-        } while (false);
-        return ResponseResult.create(errorCodeEnum, errorMessage, responseData);
+        if (MyCommonUtil.existBlankArgument(menuIdListString)) {
+            return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
+        }
+        String errorMessage = MyCommonUtil.getModelValidationError(sysDataPerm);
+        if (errorMessage != null) {
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+        }
+        CallResult result = sysDataPermService.verifyRelatedData(sysDataPerm, deptIdListString, menuIdListString);
+        if (!result.isSuccess()) {
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, result.getErrorMessage());
+        }
+        List<SysDataPermMenu> dataPermMenuList = null;
+        Set<Long> deptIdSet = null;
+        if (result.getData() != null) {
+            dataPermMenuList = (List<SysDataPermMenu>) result.getData().get("dataPermMenuList");
+            deptIdSet = (Set<Long>) result.getData().get("deptIdSet");
+        }
+        sysDataPermService.saveNew(sysDataPerm, deptIdSet, dataPermMenuList);
+        JSONObject responseData = new JSONObject();
+        responseData.put("dataPermId", sysDataPerm.getDataPermId());
+        return ResponseResult.success(responseData);
     }
 
     /**
@@ -94,45 +88,37 @@ public class SysDataPermController {
      */
     @SuppressWarnings("unchecked")
     @PostMapping("/update")
-    public ResponseResult<?> update(
+    public ResponseResult<Void> update(
             @MyRequestBody SysDataPerm sysDataPerm,
             @MyRequestBody String deptIdListString,
             @MyRequestBody String menuIdListString) {
-        ErrorCodeEnum errorCodeEnum = ErrorCodeEnum.NO_ERROR;
-        String errorMessage = null;
-        do {
-            if (MyCommonUtil.existBlankArgument(menuIdListString)) {
-                errorCodeEnum = ErrorCodeEnum.ARGUMENT_NULL_EXIST;
-                break;
-            }
-            errorMessage = MyCommonUtil.getModelValidationError(sysDataPerm, Default.class, UpdateGroup.class);
-            if (errorMessage != null) {
-                errorCodeEnum = ErrorCodeEnum.DATA_VALIDATAED_FAILED;
-                break;
-            }
-            SysDataPerm originalSysDataPerm = sysDataPermService.getById(sysDataPerm.getDataPermId());
-            if (originalSysDataPerm == null) {
-                errorCodeEnum = ErrorCodeEnum.DATA_NOT_EXIST;
-                errorMessage = "数据验证失败，当前数据权限并不存在，请刷新后重试！";
-                break;
-            }
-            VerifyResult result = sysDataPermService.verifyRelatedData(sysDataPerm, deptIdListString, menuIdListString);
-            if (!result.isSuccess()) {
-                return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, result.getErrorMessage());
-            }
-            List<SysDataPermMenu> dataPermMenuList = null;
-            Set<Long> deptIdSet = null;
-            if (result.getData() != null) {
-                dataPermMenuList = (List<SysDataPermMenu>) result.getData().get("dataPermMenuList");
-                deptIdSet = (Set<Long>) result.getData().get("deptIdSet");
-            }
-            if (!sysDataPermService.update(sysDataPerm, originalSysDataPerm, deptIdSet, dataPermMenuList)) {
-                errorCodeEnum = ErrorCodeEnum.DATA_NOT_EXIST;
-                errorMessage = "更新失败，数据不存在，请刷新后重试！";
-                break;
-            }
-        } while (false);
-        return ResponseResult.create(errorCodeEnum, errorMessage);
+        if (MyCommonUtil.existBlankArgument(menuIdListString)) {
+            return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
+        }
+        String errorMessage = MyCommonUtil.getModelValidationError(sysDataPerm, Default.class, UpdateGroup.class);
+        if (errorMessage != null) {
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+        }
+        SysDataPerm originalSysDataPerm = sysDataPermService.getById(sysDataPerm.getDataPermId());
+        if (originalSysDataPerm == null) {
+            errorMessage = "数据验证失败，当前数据权限并不存在，请刷新后重试！";
+            return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST, errorMessage);
+        }
+        CallResult result = sysDataPermService.verifyRelatedData(sysDataPerm, deptIdListString, menuIdListString);
+        if (!result.isSuccess()) {
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, result.getErrorMessage());
+        }
+        List<SysDataPermMenu> dataPermMenuList = null;
+        Set<Long> deptIdSet = null;
+        if (result.getData() != null) {
+            dataPermMenuList = (List<SysDataPermMenu>) result.getData().get("dataPermMenuList");
+            deptIdSet = (Set<Long>) result.getData().get("deptIdSet");
+        }
+        if (!sysDataPermService.update(sysDataPerm, originalSysDataPerm, deptIdSet, dataPermMenuList)) {
+            errorMessage = "更新失败，数据不存在，请刷新后重试！";
+            return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST, errorMessage);
+        }
+        return ResponseResult.success();
     }
 
     /**
@@ -142,21 +128,15 @@ public class SysDataPermController {
      * @return 应答数据结果。
      */
     @PostMapping("/delete")
-    public ResponseResult<?> delete(@MyRequestBody Long dataPermId) {
-        ErrorCodeEnum errorCodeEnum = ErrorCodeEnum.NO_ERROR;
-        String errorMessage = null;
-        do {
-            if (MyCommonUtil.existBlankArgument(dataPermId)) {
-                errorCodeEnum = ErrorCodeEnum.ARGUMENT_NULL_EXIST;
-                break;
-            }
-            if (!sysDataPermService.remove(dataPermId)) {
-                errorCodeEnum = ErrorCodeEnum.DATA_NOT_EXIST;
-                errorMessage = "数据操作失败，数据权限不存在，请刷新后重试！";
-                break;
-            }
-        } while (false);
-        return ResponseResult.create(errorCodeEnum, errorMessage);
+    public ResponseResult<Void> delete(@MyRequestBody Long dataPermId) {
+        if (MyCommonUtil.existBlankArgument(dataPermId)) {
+            return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
+        }
+        if (!sysDataPermService.remove(dataPermId)) {
+            String errorMessage = "数据操作失败，数据权限不存在，请刷新后重试！";
+            return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST, errorMessage);
+        }
+        return ResponseResult.success();
     }
 
     /**
@@ -168,12 +148,12 @@ public class SysDataPermController {
      * @return 应答结果对象。包含数据权限列表。
      */
     @PostMapping("/list")
-    public ResponseResult<?> list(
+    public ResponseResult<JSONObject> list(
             @MyRequestBody SysDataPerm sysDataPermFilter,
             @MyRequestBody MyOrderParam orderParam,
             @MyRequestBody MyPageParam pageParam) {
         if (pageParam != null) {
-            PageHelper.startPage(pageParam.getPageNum(), pageParam.getPageSize());
+            PageMethod.startPage(pageParam.getPageNum(), pageParam.getPageSize());
         }
         String orderBy = MyOrderParam.buildOrderBy(orderParam, SysDataPerm.class);
         List<SysDataPerm> resultList = sysDataPermService.getSysDataPermList(sysDataPermFilter, orderBy);
@@ -188,21 +168,14 @@ public class SysDataPermController {
      */
     @GetMapping("/view")
     public ResponseResult<SysDataPerm> view(@RequestParam Long dataPermId) {
-        ErrorCodeEnum errorCodeEnum = ErrorCodeEnum.NO_ERROR;
-        String errorMessage = null;
-        SysDataPerm dataPerm = null;
-        do {
-            if (MyCommonUtil.existBlankArgument(dataPermId)) {
-                errorCodeEnum = ErrorCodeEnum.ARGUMENT_NULL_EXIST;
-                break;
-            }
-            dataPerm = sysDataPermService.getSysDataPermWithRelation(dataPermId);
-            if (dataPerm == null) {
-                errorCodeEnum = ErrorCodeEnum.DATA_NOT_EXIST;
-                break;
-            }
-        } while (false);
-        return ResponseResult.create(errorCodeEnum, errorMessage, dataPerm);
+        if (MyCommonUtil.existBlankArgument(dataPermId)) {
+            return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
+        }
+        SysDataPerm dataPerm = sysDataPermService.getByIdWithRelation(dataPermId, MyRelationParam.full());
+        if (dataPerm == null) {
+            return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST);
+        }
+        return ResponseResult.success(dataPerm);
     }
 
     /**
@@ -216,32 +189,23 @@ public class SysDataPermController {
      * @return 应答结果对象，包含用户列表数据。
      */
     @PostMapping("/listNotInDataPermUser")
-    public ResponseResult<?> listNotInDataPermUser(
+    public ResponseResult<JSONObject> listNotInDataPermUser(
             @MyRequestBody Long dataPermId,
             @MyRequestBody SysUser sysUserFilter,
             @MyRequestBody MyOrderParam orderParam,
             @MyRequestBody MyPageParam pageParam) {
-        ErrorCodeEnum errorCodeEnum = ErrorCodeEnum.NO_ERROR;
-        String errorMessage = null;
-        JSONObject responseData = null;
-        do {
-            if (MyCommonUtil.existBlankArgument(dataPermId)) {
-                errorCodeEnum = ErrorCodeEnum.ARGUMENT_NULL_EXIST;
-                break;
-            }
-            if (!sysDataPermService.existId(dataPermId)) {
-                errorCodeEnum = ErrorCodeEnum.INVALID_RELATED_RECORD_ID;
-                break;
-            }
-            if (pageParam != null) {
-                PageHelper.startPage(pageParam.getPageNum(), pageParam.getPageSize());
-            }
-            String orderBy = MyOrderParam.buildOrderBy(orderParam, SysUser.class);
-            List<SysUser> resultList =
-                    sysUserService.getNotInSysUserListByDataPermId(dataPermId, sysUserFilter, orderBy);
-            responseData = MyPageUtil.makeResponseData(resultList);
-        } while (false);
-        return ResponseResult.create(errorCodeEnum, errorMessage, responseData);
+        ResponseResult<Void> verifyResult = this.doDataPermUserVerify(dataPermId);
+        if (!verifyResult.isSuccess()) {
+            return ResponseResult.errorFrom(verifyResult);
+        }
+        if (pageParam != null) {
+            PageMethod.startPage(pageParam.getPageNum(), pageParam.getPageSize());
+        }
+        String orderBy = MyOrderParam.buildOrderBy(orderParam, SysUser.class);
+        List<SysUser> resultList =
+                sysUserService.getNotInSysUserListByDataPermId(dataPermId, sysUserFilter, orderBy);
+        JSONObject responseData = MyPageUtil.makeResponseData(resultList);
+        return ResponseResult.success(responseData);
     }
 
     /**
@@ -254,32 +218,33 @@ public class SysDataPermController {
      * @return 应答结果对象，包含用户列表数据。
      */
     @PostMapping("/listDataPermUser")
-    public ResponseResult<?> listDataPermUser(
+    public ResponseResult<JSONObject> listDataPermUser(
             @MyRequestBody Long dataPermId,
             @MyRequestBody SysUser sysUserFilter,
             @MyRequestBody MyOrderParam orderParam,
             @MyRequestBody MyPageParam pageParam) {
-        ErrorCodeEnum errorCodeEnum = ErrorCodeEnum.NO_ERROR;
-        String errorMessage = null;
-        JSONObject responseData = null;
-        do {
-            if (MyCommonUtil.existBlankArgument(dataPermId)) {
-                errorCodeEnum = ErrorCodeEnum.ARGUMENT_NULL_EXIST;
-                break;
-            }
-            if (!sysDataPermService.existId(dataPermId)) {
-                errorCodeEnum = ErrorCodeEnum.INVALID_RELATED_RECORD_ID;
-                break;
-            }
-            if (pageParam != null) {
-                PageHelper.startPage(pageParam.getPageNum(), pageParam.getPageSize());
-            }
-            String orderBy = MyOrderParam.buildOrderBy(orderParam, SysUser.class);
-            List<SysUser> resultList =
-                    sysUserService.getSysUserListByDataPermId(dataPermId, sysUserFilter, orderBy);
-            responseData = MyPageUtil.makeResponseData(resultList);
-        } while (false);
-        return ResponseResult.create(errorCodeEnum, errorMessage, responseData);
+        ResponseResult<Void> verifyResult = this.doDataPermUserVerify(dataPermId);
+        if (!verifyResult.isSuccess()) {
+            return ResponseResult.errorFrom(verifyResult);
+        }
+        if (pageParam != null) {
+            PageMethod.startPage(pageParam.getPageNum(), pageParam.getPageSize());
+        }
+        String orderBy = MyOrderParam.buildOrderBy(orderParam, SysUser.class);
+        List<SysUser> resultList =
+                sysUserService.getSysUserListByDataPermId(dataPermId, sysUserFilter, orderBy);
+        JSONObject responseData = MyPageUtil.makeResponseData(resultList);
+        return ResponseResult.success(responseData);
+    }
+
+    private ResponseResult<Void> doDataPermUserVerify(Long dataPermId) {
+        if (MyCommonUtil.existBlankArgument(dataPermId)) {
+            return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
+        }
+        if (!sysDataPermService.existId(dataPermId)) {
+            return ResponseResult.error(ErrorCodeEnum.INVALID_RELATED_RECORD_ID);
+        }
+        return ResponseResult.success();
     }
 
     /**
@@ -290,25 +255,19 @@ public class SysDataPermController {
      * @return 应答结果对象。
      */
     @PostMapping("/addDataPermUser")
-    public ResponseResult<?> addDataPermUser(
+    public ResponseResult<Void> addDataPermUser(
             @MyRequestBody Long dataPermId, @MyRequestBody String userIdListString) {
-        ErrorCodeEnum errorCodeEnum = ErrorCodeEnum.NO_ERROR;
-        String errorMessage = null;
-        do {
-            if (MyCommonUtil.existBlankArgument(dataPermId, userIdListString)) {
-                errorCodeEnum = ErrorCodeEnum.ARGUMENT_NULL_EXIST;
-                break;
-            }
-            Set<Long> userIdSet =
-                    Arrays.stream(userIdListString.split(",")).map(Long::valueOf).collect(Collectors.toSet());
-            if (!sysDataPermService.existId(dataPermId)
-                    || !sysUserService.existUniqueKeyList("userId", userIdSet)) {
-                errorCodeEnum = ErrorCodeEnum.INVALID_RELATED_RECORD_ID;
-                break;
-            }
-            sysDataPermService.addDataPermUserList(dataPermId, userIdSet);
-        } while (false);
-        return ResponseResult.create(errorCodeEnum, errorMessage);
+        if (MyCommonUtil.existBlankArgument(dataPermId, userIdListString)) {
+            return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
+        }
+        Set<Long> userIdSet =
+                Arrays.stream(userIdListString.split(",")).map(Long::valueOf).collect(Collectors.toSet());
+        if (!sysDataPermService.existId(dataPermId)
+                || !sysUserService.existUniqueKeyList("userId", userIdSet)) {
+            return ResponseResult.error(ErrorCodeEnum.INVALID_RELATED_RECORD_ID);
+        }
+        sysDataPermService.addDataPermUserList(dataPermId, userIdSet);
+        return ResponseResult.success();
     }
 
     /**
@@ -319,20 +278,14 @@ public class SysDataPermController {
      * @return 应答数据结果。
      */
     @PostMapping("/deleteDataPermUser")
-    public ResponseResult<?> deleteDataPermUser(
+    public ResponseResult<Void> deleteDataPermUser(
             @MyRequestBody Long dataPermId, @MyRequestBody Long userId) {
-        ErrorCodeEnum errorCodeEnum = ErrorCodeEnum.NO_ERROR;
-        String errorMessage = null;
-        do {
-            if (MyCommonUtil.existBlankArgument(dataPermId, userId)) {
-                errorCodeEnum = ErrorCodeEnum.ARGUMENT_NULL_EXIST;
-                break;
-            }
-            if (!sysDataPermService.removeDataPermUser(dataPermId, userId)) {
-                errorCodeEnum = ErrorCodeEnum.DATA_NOT_EXIST;
-                break;
-            }
-        } while (false);
-        return ResponseResult.create(errorCodeEnum, errorMessage);
+        if (MyCommonUtil.existBlankArgument(dataPermId, userId)) {
+            return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
+        }
+        if (!sysDataPermService.removeDataPermUser(dataPermId, userId)) {
+            return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST);
+        }
+        return ResponseResult.success();
     }
 }

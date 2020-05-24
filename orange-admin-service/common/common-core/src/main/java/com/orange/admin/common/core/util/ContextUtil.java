@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletResponse;
  * 获取Servlet HttpRequest和HttpResponse的工具类。
  *
  * @author Stephen.Liu
- * @date 2020-04-11
+ * @date 2020-05-24
  */
 public class ContextUtil {
 
@@ -41,4 +41,9 @@ public class ContextUtil {
         return ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getResponse();
     }
 
+    /**
+     * 私有构造函数，明确标识该常量类的作用。
+     */
+    private ContextUtil() {
+    }
 }

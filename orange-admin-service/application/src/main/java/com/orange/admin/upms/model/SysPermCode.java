@@ -2,6 +2,7 @@ package com.orange.admin.upms.model;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import com.orange.admin.common.core.annotation.DeletedFlagColumn;
+import com.orange.admin.common.core.annotation.RelationManyToMany;
 import com.orange.admin.common.core.validator.ConstDictRef;
 import com.orange.admin.common.core.validator.UpdateGroup;
 import com.orange.admin.upms.model.constant.SysPermCodeType;
@@ -12,6 +13,12 @@ import javax.validation.constraints.*;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * 权限字实体对象。
+ *
+ * @author Stephen.Liu
+ * @date 2020-05-24
+ */
 @Data
 @Table(name = "zz_sys_perm_code")
 public class SysPermCode {
@@ -73,6 +80,10 @@ public class SysPermCode {
     @Column(name = "deleted_flag")
     private Integer deletedFlag;
 
+    @RelationManyToMany(
+            relationMapperName = "sysPermCodePermMapper",
+            relationMasterIdField = "permCodeId",
+            relationModelClass = SysPermCodePerm.class)
     @Transient
-    private List<Long> permIdList;
+    private List<SysPermCodePerm> sysPermCodePermList;
 }

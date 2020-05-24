@@ -16,10 +16,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 /**
- * 所有的项目拦截器都在这里集中配置
+ * 所有的项目拦截器都在这里集中配置。
  *
  * @author Stephen.Liu
- * @date 2020-04-11
+ * @date 2020-05-24
  */
 @Configuration
 public class InterceptorConfig implements WebMvcConfigurer {

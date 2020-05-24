@@ -6,10 +6,6 @@
         <result column="user_id" jdbcType="BIGINT" property="userId"/>
     </resultMap>
 
-    <select id="getDataPermIdListByUserId" resultType="java.lang.Long">
-        SELECT data_perm_id FROM zz_sys_data_perm_user WHERE user_id = #{userId}
-    </select>
-
     <insert id="addDataPermUserList">
         REPLACE INTO zz_sys_data_perm_user(data_perm_id, user_id) VALUES
         <foreach collection="list" index="index" item="item" separator=",">

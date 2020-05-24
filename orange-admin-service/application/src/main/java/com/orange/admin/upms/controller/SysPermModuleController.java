@@ -24,7 +24,7 @@ import java.util.Map;
  * 权限资源模块管理接口控制器类。
  *
  * @author Stephen.Liu
- * @date 2020-04-11
+ * @date 2020-05-24
  */
 @Slf4j
 @RestController
@@ -41,28 +41,20 @@ public class SysPermModuleController {
      * @return 应答结果对象，包含新增权限资源模块的主键Id。
      */
     @PostMapping("/add")
-    public ResponseResult<?> add(@MyRequestBody SysPermModule sysPermModule) {
-        ErrorCodeEnum errorCodeEnum = ErrorCodeEnum.NO_ERROR;
-        String errorMessage;
-        JSONObject responseData = null;
-        do {
-            errorMessage = MyCommonUtil.getModelValidationError(sysPermModule);
-            if (errorMessage != null) {
-                errorCodeEnum = ErrorCodeEnum.DATA_VALIDATAED_FAILED;
-                break;
-            }
-            if (sysPermModule.getParentId() != null) {
-                if (sysPermModuleService.getById(sysPermModule.getParentId()) == null) {
-                    errorCodeEnum = ErrorCodeEnum.DATA_PARENT_ID_NOT_EXIST;
-                    errorMessage = "数据验证失败，关联的上级权限模块并不存在，请刷新后重试！";
-                    break;
-                }
-            }
-            sysPermModuleService.saveNew(sysPermModule);
-            responseData = new JSONObject();
-            responseData.put("permModuleId", sysPermModule.getModuleId());
-        } while (false);
-        return ResponseResult.create(errorCodeEnum, errorMessage, responseData);
+    public ResponseResult<JSONObject> add(@MyRequestBody SysPermModule sysPermModule) {
+        String errorMessage = MyCommonUtil.getModelValidationError(sysPermModule);
+        if (errorMessage != null) {
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+        }
+        if (sysPermModule.getParentId() != null
+                && sysPermModuleService.getById(sysPermModule.getParentId()) == null) {
+            errorMessage = "数据验证失败，关联的上级权限模块并不存在，请刷新后重试！";
+            return ResponseResult.error(ErrorCodeEnum.DATA_PARENT_ID_NOT_EXIST, errorMessage);
+        }
+        sysPermModuleService.saveNew(sysPermModule);
+        JSONObject responseData = new JSONObject();
+        responseData.put("permModuleId", sysPermModule.getModuleId());
+        return ResponseResult.success(responseData);
     }
 
     /**
@@ -72,34 +64,27 @@ public class SysPermModuleController {
      * @return 应答结果对象，包含新增权限资源模块的主键Id。
      */
     @PostMapping("/update")
-    public ResponseResult<?> update(@MyRequestBody SysPermModule sysPermModule) {
-        ErrorCodeEnum errorCodeEnum = ErrorCodeEnum.NO_ERROR;
-        String errorMessage;
-        do {
-            errorMessage = MyCommonUtil.getModelValidationError(sysPermModule, Default.class, UpdateGroup.class);
-            if (errorMessage != null) {
-                errorCodeEnum = ErrorCodeEnum.DATA_VALIDATAED_FAILED;
-                break;
+    public ResponseResult<Void> update(@MyRequestBody SysPermModule sysPermModule) {
+        String errorMessage = MyCommonUtil.getModelValidationError(sysPermModule, Default.class, UpdateGroup.class);
+        if (errorMessage != null) {
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+        }
+        SysPermModule originalPermModule = sysPermModuleService.getById(sysPermModule.getModuleId());
+        if (originalPermModule == null) {
+            return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST);
+        }
+        if (sysPermModule.getParentId() != null
+                && !sysPermModule.getParentId().equals(originalPermModule.getParentId())) {
+            if (sysPermModuleService.getById(sysPermModule.getParentId()) == null) {
+                errorMessage = "数据验证失败，关联的上级权限模块并不存在，请刷新后重试！";
+                return ResponseResult.error(ErrorCodeEnum.DATA_PARENT_ID_NOT_EXIST, errorMessage);
             }
-            SysPermModule originalPermModule = sysPermModuleService.getById(sysPermModule.getModuleId());
-            if (originalPermModule == null) {
-                errorCodeEnum = ErrorCodeEnum.DATA_NOT_EXIST;
-                break;
-            }
-            if (sysPermModule.getParentId() != null
-                    && !sysPermModule.getParentId().equals(originalPermModule.getParentId())) {
-                if (sysPermModuleService.getById(sysPermModule.getParentId()) == null) {
-                    errorCodeEnum = ErrorCodeEnum.DATA_PARENT_ID_NOT_EXIST;
-                    errorMessage = "数据验证失败，关联的上级权限模块并不存在，请刷新后重试！";
-                    break;
-                }
-            }
-            if (!sysPermModuleService.update(sysPermModule, originalPermModule)) {
-                errorCodeEnum = ErrorCodeEnum.DATA_NOT_EXIST;
-                errorMessage = "数据验证失败，当前模块并不存在，请刷新后重试！";
-            }
-        } while (false);
-        return ResponseResult.create(errorCodeEnum, errorMessage);
+        }
+        if (!sysPermModuleService.update(sysPermModule, originalPermModule)) {
+            errorMessage = "数据验证失败，当前模块并不存在，请刷新后重试！";
+            return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST, errorMessage);
+        }
+        return ResponseResult.success();
     }
 
     /**
@@ -109,26 +94,21 @@ public class SysPermModuleController {
      * @return 应答结果对象。
      */
     @PostMapping("/delete")
-    public ResponseResult<?> delete(@MyRequestBody Long moduleId) {
-        ErrorCodeEnum errorCodeEnum = ErrorCodeEnum.NO_ERROR;
-        String errorMessage = null;
-        do {
-            if (MyCommonUtil.existBlankArgument(moduleId)) {
-                errorCodeEnum = ErrorCodeEnum.ARGUMENT_NULL_EXIST;
-                break;
-            }
-            if (sysPermModuleService.hasChildren(moduleId)
-                    || sysPermModuleService.hasModulePerms(moduleId)) {
-                errorCodeEnum = ErrorCodeEnum.HAS_CHILDREN_DATA;
-                errorMessage = "数据验证失败，当前权限模块存在子模块或权限资源，请先删除关联数据！";
-                break;
-            }
-            if (!sysPermModuleService.remove(moduleId)) {
-                errorCodeEnum = ErrorCodeEnum.DATA_NOT_EXIST;
-                errorMessage = "数据操作失败，权限模块不存在，请刷新后重试！";
-            }
-        } while (false);
-        return ResponseResult.create(errorCodeEnum, errorMessage);
+    public ResponseResult<Void> delete(@MyRequestBody Long moduleId) {
+        if (MyCommonUtil.existBlankArgument(moduleId)) {
+            return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
+        }
+        String errorMessage;
+        if (sysPermModuleService.hasChildren(moduleId)
+                || sysPermModuleService.hasModulePerms(moduleId)) {
+            errorMessage = "数据验证失败，当前权限模块存在子模块或权限资源，请先删除关联数据！";
+            return ResponseResult.error(ErrorCodeEnum.HAS_CHILDREN_DATA, errorMessage);
+        }
+        if (!sysPermModuleService.remove(moduleId)) {
+            errorMessage = "数据操作失败，权限模块不存在，请刷新后重试！";
+            return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST, errorMessage);
+        }
+        return ResponseResult.success();
     }
 
     /**
@@ -147,7 +127,7 @@ public class SysPermModuleController {
      * @return 应答结果对象，包含树状列表，结构为权限资源模块和权限资源之间的树状关系。
      */
     @GetMapping("/listAll")
-    public ResponseResult<?> listAll() {
+    public ResponseResult<List<Map<String, Object>>> listAll() {
         List<SysPermModule> sysPermModuleList = sysPermModuleService.getPermModuleAndPermList();
         List<Map<String, Object>> resultList = new LinkedList<>();
         for (SysPermModule sysPermModule : sysPermModuleList) {

@@ -6,8 +6,9 @@ import com.orange.admin.upms.model.SysMenu;
 import com.orange.admin.upms.service.SysMenuService;
 import com.orange.admin.upms.service.SysPermCodeService;
 import com.orange.admin.common.core.constant.ErrorCodeEnum;
-import com.orange.admin.common.core.object.VerifyResult;
+import com.orange.admin.common.core.object.CallResult;
 import com.orange.admin.common.core.object.ResponseResult;
+import com.orange.admin.common.core.object.MyRelationParam;
 import com.orange.admin.common.core.util.MyCommonUtil;
 import com.orange.admin.common.core.validator.UpdateGroup;
 import com.orange.admin.common.core.annotation.MyRequestBody;
@@ -21,7 +22,7 @@ import java.util.*;
  * 菜单管理接口控制器类。
  *
  * @author Stephen.Liu
- * @date 2020-04-11
+ * @date 2020-05-24
  */
 @Slf4j
 @RestController
@@ -42,29 +43,23 @@ public class SysMenuController {
      */
     @SuppressWarnings("unchecked")
     @PostMapping("/add")
-    public ResponseResult<?> add(@MyRequestBody SysMenu sysMenu, @MyRequestBody String permCodeIdListString) {
-        ErrorCodeEnum errorCodeEnum = ErrorCodeEnum.NO_ERROR;
-        String errorMessage;
-        JSONObject responseData = null;
-        do {
-            errorMessage = MyCommonUtil.getModelValidationError(sysMenu);
-            if (errorMessage != null) {
-                errorCodeEnum = ErrorCodeEnum.DATA_VALIDATAED_FAILED;
-                break;
-            }
-            VerifyResult result = sysMenuService.verifyRelatedData(sysMenu, null, permCodeIdListString);
-            if (!result.isSuccess()) {
-                return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, result.getErrorMessage());
-            }
-            Set<Long> permCodeIdSet = null;
-            if (result.getData() != null) {
-                permCodeIdSet = (Set<Long>) result.getData().get("permCodeIdSet");
-            }
-            sysMenuService.saveNew(sysMenu, permCodeIdSet);
-            responseData = new JSONObject();
-            responseData.put("sysMenuId", sysMenu.getMenuId());
-        } while (false);
-        return ResponseResult.create(errorCodeEnum, errorMessage, responseData);
+    public ResponseResult<JSONObject> add(@MyRequestBody SysMenu sysMenu, @MyRequestBody String permCodeIdListString) {
+        String errorMessage = MyCommonUtil.getModelValidationError(sysMenu);
+        if (errorMessage != null) {
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+        }
+        CallResult result = sysMenuService.verifyRelatedData(sysMenu, null, permCodeIdListString);
+        if (!result.isSuccess()) {
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, result.getErrorMessage());
+        }
+        Set<Long> permCodeIdSet = null;
+        if (result.getData() != null) {
+            permCodeIdSet = (Set<Long>) result.getData().get("permCodeIdSet");
+        }
+        sysMenuService.saveNew(sysMenu, permCodeIdSet);
+        JSONObject responseData = new JSONObject();
+        responseData.put("sysMenuId", sysMenu.getMenuId());
+        return ResponseResult.success(responseData);
     }
 
     /**
@@ -76,35 +71,29 @@ public class SysMenuController {
      */
     @SuppressWarnings("unchecked")
     @PostMapping("/update")
-    public ResponseResult<?> update(@MyRequestBody SysMenu sysMenu, @MyRequestBody String permCodeIdListString) {
-        ErrorCodeEnum errorCodeEnum = ErrorCodeEnum.NO_ERROR;
-        String errorMessage;
-        do {
-            errorMessage = MyCommonUtil.getModelValidationError(sysMenu, Default.class, UpdateGroup.class);
-            if (errorMessage != null) {
-                errorCodeEnum = ErrorCodeEnum.DATA_VALIDATAED_FAILED;
-                break;
-            }
-            SysMenu originalSysMenu = sysMenuService.getById(sysMenu.getMenuId());
-            if (originalSysMenu == null) {
-                errorCodeEnum = ErrorCodeEnum.DATA_NOT_EXIST;
-                errorMessage = "数据验证失败，当前菜单并不存在，请刷新后重试！";
-                break;
-            }
-            VerifyResult result = sysMenuService.verifyRelatedData(sysMenu, originalSysMenu, permCodeIdListString);
-            if (!result.isSuccess()) {
-                return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, result.getErrorMessage());
-            }
-            Set<Long> permCodeIdSet = null;
-            if (result.getData() != null) {
-                permCodeIdSet = (Set<Long>) result.getData().get("permCodeIdSet");
-            }
-            if (!sysMenuService.update(sysMenu, originalSysMenu, permCodeIdSet)) {
-                errorCodeEnum = ErrorCodeEnum.DATA_NOT_EXIST;
-                errorMessage = "数据验证失败，当前权限字并不存在，请刷新后重试！";
-            }
-        } while (false);
-        return ResponseResult.create(errorCodeEnum, errorMessage);
+    public ResponseResult<Void> update(@MyRequestBody SysMenu sysMenu, @MyRequestBody String permCodeIdListString) {
+        String errorMessage = MyCommonUtil.getModelValidationError(sysMenu, Default.class, UpdateGroup.class);
+        if (errorMessage != null) {
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+        }
+        SysMenu originalSysMenu = sysMenuService.getById(sysMenu.getMenuId());
+        if (originalSysMenu == null) {
+            errorMessage = "数据验证失败，当前菜单并不存在，请刷新后重试！";
+            return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST, errorMessage);
+        }
+        CallResult result = sysMenuService.verifyRelatedData(sysMenu, originalSysMenu, permCodeIdListString);
+        if (!result.isSuccess()) {
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, result.getErrorMessage());
+        }
+        Set<Long> permCodeIdSet = null;
+        if (result.getData() != null) {
+            permCodeIdSet = (Set<Long>) result.getData().get("permCodeIdSet");
+        }
+        if (!sysMenuService.update(sysMenu, originalSysMenu, permCodeIdSet)) {
+            errorMessage = "数据验证失败，当前权限字并不存在，请刷新后重试！";
+            return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST, errorMessage);
+        }
+        return ResponseResult.success();
     }
 
     /**
@@ -114,26 +103,20 @@ public class SysMenuController {
      * @return 应答结果对象。
      */
     @PostMapping("/delete")
-    public ResponseResult<?> delete(@MyRequestBody Long menuId) {
-        ErrorCodeEnum errorCodeEnum = ErrorCodeEnum.NO_ERROR;
-        String errorMessage = null;
-        do {
-            if (MyCommonUtil.existBlankArgument(menuId)) {
-                errorCodeEnum = ErrorCodeEnum.ARGUMENT_NULL_EXIST;
-                break;
-            }
-            if (sysMenuService.hasChildren(menuId)) {
-                errorCodeEnum = ErrorCodeEnum.HAS_CHILDREN_DATA;
-                errorMessage = "数据验证失败，当前菜单存在下级菜单！";
-                break;
-            }
-            if (!sysMenuService.remove(menuId)) {
-                errorCodeEnum = ErrorCodeEnum.DATA_NOT_EXIST;
-                errorMessage = "数据操作失败，菜单不存在，请刷新后重试！";
-            }
-
-        } while (false);
-        return ResponseResult.create(errorCodeEnum, errorMessage);
+    public ResponseResult<Void> delete(@MyRequestBody Long menuId) {
+        if (MyCommonUtil.existBlankArgument(menuId)) {
+            return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
+        }
+        String errorMessage;
+        if (sysMenuService.hasChildren(menuId)) {
+            errorMessage = "数据验证失败，当前菜单存在下级菜单！";
+            return ResponseResult.error(ErrorCodeEnum.HAS_CHILDREN_DATA, errorMessage);
+        }
+        if (!sysMenuService.remove(menuId)) {
+            errorMessage = "数据操作失败，菜单不存在，请刷新后重试！";
+            return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST, errorMessage);
+        }
+        return ResponseResult.success();
     }
 
     /**
@@ -154,21 +137,14 @@ public class SysMenuController {
      */
     @GetMapping("/view")
     public ResponseResult<SysMenu> view(@RequestParam Long menuId) {
-        ErrorCodeEnum errorCodeEnum = ErrorCodeEnum.NO_ERROR;
-        String errorMessage = null;
-        SysMenu sysMenu = null;
-        do {
-            if (MyCommonUtil.existBlankArgument(menuId)) {
-                errorCodeEnum = ErrorCodeEnum.ARGUMENT_NULL_EXIST;
-                break;
-            }
-            sysMenu = sysMenuService.getSysMenuWithRelation(menuId);
-            if (sysMenu == null) {
-                errorCodeEnum = ErrorCodeEnum.DATA_NOT_EXIST;
-                break;
-            }
-        } while (false);
-        return ResponseResult.create(errorCodeEnum, errorMessage, sysMenu);
+        if (MyCommonUtil.existBlankArgument(menuId)) {
+            return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
+        }
+        SysMenu sysMenu = sysMenuService.getByIdWithRelation(menuId, MyRelationParam.full());
+        if (sysMenu == null) {
+            return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST);
+        }
+        return ResponseResult.success(sysMenu);
     }
 
     /**

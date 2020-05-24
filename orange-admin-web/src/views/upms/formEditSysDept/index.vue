@@ -87,7 +87,7 @@ export default {
         formFilterCopy: {
         },
         parentId: {
-          impl: new DropdownWidget(this.loadParentIdDropdownList, true, 'deptId'),
+          impl: new DropdownWidget(this.loadParentIdDropdownList, true, 'id'),
           value: []
         },
         isInit: false
@@ -131,7 +131,7 @@ export default {
       this.formEditSysDept.parentId.impl.onVisibleChange(true).then(res => {
         if (!this.formEditSysDept.isInit) {
           this.formEditSysDept.parentId.value = findTreeNodePath(
-            this.formEditSysDept.parentId.impl.dropdownList, this.formData.SysDept.parentId, 'deptId');
+            this.formEditSysDept.parentId.impl.dropdownList, this.formData.SysDept.parentId, 'id');
         }
         this.formEditSysDept.isInit = true;
       });

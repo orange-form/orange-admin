@@ -4,14 +4,18 @@ import com.orange.admin.common.core.constant.ErrorCodeEnum;
 import lombok.Data;
 
 /**
- * 接口返回对象。
+ * 接口返回对象
  *
  * @author Stephen.Liu
- * @date 2020-04-11
+ * @date 2020-05-24
  */
 @Data
 public class ResponseResult<T> {
 
+    /**
+     * 为了优化性能，所有没有携带数据的正确结果，均可用该对象表示。
+     */
+    private static final ResponseResult<Void> OK = new ResponseResult<>();
     /**
      * 是否成功标记。
      */
@@ -33,10 +37,10 @@ public class ResponseResult<T> {
      * 根据参数errorCodeEnum的枚举值，判断创建成功对象还是错误对象。
      * 如果返回错误对象，errorCode 和 errorMessage 分别取自于参数 errorCodeEnum 的 name() 和 getErrorMessage()。
      *
-     * @param errorCodeEnum - 错误码枚举
+     * @param errorCodeEnum 错误码枚举
      * @return 返回创建的ResponseResult实例对象
      */
-    public static <T> ResponseResult<T> create(ErrorCodeEnum errorCodeEnum) {
+    public static ResponseResult<Void> create(ErrorCodeEnum errorCodeEnum) {
         return create(errorCodeEnum, errorCodeEnum.getErrorMessage());
     }
 
@@ -44,38 +48,24 @@ public class ResponseResult<T> {
      * 根据参数errorCodeEnum的枚举值，判断创建成功对象还是错误对象。
      * 如果返回错误对象，errorCode 和 errorMessage 分别取自于参数 errorCodeEnum 的 name() 和参数 errorMessage。
      *
-     * @param errorCodeEnum - 错误码枚举。
-     * @param errorMessage  - 如果该参数为null，错误信息取自errorCodeEnum参数内置的errorMessage，否则使用当前参数。
+     * @param errorCodeEnum 错误码枚举。
+     * @param errorMessage  如果该参数为null，错误信息取自errorCodeEnum参数内置的errorMessage，否则使用当前参数。
      * @return 返回创建的ResponseResult实例对象
      */
-    public static <T> ResponseResult<T> create(ErrorCodeEnum errorCodeEnum, String errorMessage) {
-        return errorCodeEnum == ErrorCodeEnum.NO_ERROR ? success()
-                : error(errorCodeEnum.name(), errorMessage != null ? errorMessage : errorCodeEnum.getErrorMessage());
-    }
-
-    /**
-     * 根据参数errorCodeEnum的枚举值，判断创建成功对象还是错误对象。
-     * 如果返回错误对象，errorCode 和 errorMessage 分别取自于参数 errorCodeEnum 的 name() 和参数 errorMessage。
-     * 如果返回的是成功对象，dataObject数据对象将被连同返回。
-     *
-     * @param errorCodeEnum - 错误码枚举。
-     * @param errorMessage  - 如果该参数为null，错误信息取自errorCodeEnum参数内置的errorMessage，否则使用当前参数。
-     * @param data - 返回的数据对象。
-     * @return 返回创建的ResponseResult实例对象
-     */
-    public static <T> ResponseResult<T> create(ErrorCodeEnum errorCodeEnum, String errorMessage, T data) {
-        return errorCodeEnum == ErrorCodeEnum.NO_ERROR ? success(data) : create(errorCodeEnum, errorMessage);
+    public static ResponseResult<Void> create(ErrorCodeEnum errorCodeEnum, String errorMessage) {
+        errorMessage = errorMessage != null ? errorMessage : errorCodeEnum.getErrorMessage();
+        return errorCodeEnum == ErrorCodeEnum.NO_ERROR ? success() : error(errorCodeEnum.name(), errorMessage);
     }
 
     /**
      * 根据参数errorCode是否为空，判断创建成功对象还是错误对象。
      * 如果返回错误对象，errorCode 和 errorMessage 分别取自于参数 errorCode 和参数 errorMessage。
      *
-     * @param errorCode    - 自定义的错误码
-     * @param errorMessage - 自定义的错误信息
+     * @param errorCode    自定义的错误码
+     * @param errorMessage 自定义的错误信息
      * @return 返回创建的ResponseResult实例对象
      */
-    public static <T> ResponseResult<T> create(String errorCode, String errorMessage) {
+    public static ResponseResult<Void> create(String errorCode, String errorMessage) {
         return errorCode == null ? success() : error(errorCode, errorMessage);
     }
 
@@ -85,14 +75,14 @@ public class ResponseResult<T> {
      *
      * @return 返回创建的ResponseResult实例对象
      */
-    public static <T> ResponseResult<T> success() {
-        return success(null);
+    public static ResponseResult<Void> success() {
+        return OK;
     }
 
     /**
      * 创建带有返回数据的成功对象。
      *
-     * @param data - 返回的数据对象
+     * @param data 返回的数据对象
      * @return 返回创建的ResponseResult实例对象
      */
     public static <T> ResponseResult<T> success(T data) {
@@ -105,7 +95,7 @@ public class ResponseResult<T> {
      * 创建错误对象。
      * 如果返回错误对象，errorCode 和 errorMessage 分别取自于参数 errorCodeEnum 的 name() 和 getErrorMessage()。
      *
-     * @param errorCodeEnum - 错误码枚举
+     * @param errorCodeEnum 错误码枚举
      * @return 返回创建的ResponseResult实例对象
      */
     public static <T> ResponseResult<T> error(ErrorCodeEnum errorCodeEnum) {
@@ -116,8 +106,8 @@ public class ResponseResult<T> {
      * 创建错误对象。
      * 如果返回错误对象，errorCode 和 errorMessage 分别取自于参数 errorCodeEnum 的 name() 和参数 errorMessage。
      *
-     * @param errorCodeEnum - 错误码枚举
-     * @param errorMessage  - 自定义的错误信息
+     * @param errorCodeEnum 错误码枚举
+     * @param errorMessage  自定义的错误信息
      * @return 返回创建的ResponseResult实例对象
      */
     public static <T> ResponseResult<T> error(ErrorCodeEnum errorCodeEnum, String errorMessage) {
@@ -128,12 +118,22 @@ public class ResponseResult<T> {
      * 创建错误对象。
      * 如果返回错误对象，errorCode 和 errorMessage 分别取自于参数 errorCode 和参数 errorMessage。
      *
-     * @param errorCode    - 自定义的错误码
-     * @param errorMessage - 自定义的错误信息
+     * @param errorCode    自定义的错误码
+     * @param errorMessage 自定义的错误信息
      * @return 返回创建的ResponseResult实例对象
      */
     public static <T> ResponseResult<T> error(String errorCode, String errorMessage) {
         return new ResponseResult<>(false, errorCode, errorMessage);
+    }
+
+    /**
+     * 根据参数的errorCode和errorMessage创建新的错误应答对象。
+     *
+     * @param errorCause 导致错误原因的应答对象。
+     * @return 返回创建的ResponseResult实例对象。
+     */
+    public static <T, E> ResponseResult<T> errorFrom(ResponseResult<E> errorCause) {
+        return error(errorCause.errorCode, errorCause.getErrorMessage());
     }
 
     /**
@@ -154,5 +154,4 @@ public class ResponseResult<T> {
         this.errorCode = errorCode;
         this.errorMessage = errorMessage;
     }
-
 }

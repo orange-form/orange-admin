@@ -14,7 +14,7 @@ import java.util.Map;
  *
  * @param <M> 主Model实体对象。
  * @author Stephen.Liu
- * @date 2020-04-11
+ * @date 2020-05-24
  */
 @RegisterMapper
 public interface BaseDaoMapper<M> extends Mapper<M>, InsertListMapper<M> {
@@ -39,7 +39,7 @@ public interface BaseDaoMapper<M> extends Mapper<M>, InsertListMapper<M> {
             + "    GROUP BY ${groupBy}"
             + "</if>"
             + "</script>")
-    <T> List<Map<String, Object>> getGroupedListByCondition(
+    List<Map<String, Object>> getGroupedListByCondition(
             @Param("selectTable") String selectTable,
             @Param("selectFields") String selectFields,
             @Param("whereClause") String whereClause,
@@ -65,7 +65,7 @@ public interface BaseDaoMapper<M> extends Mapper<M>, InsertListMapper<M> {
             + "    ORDER BY ${orderBy}"
             + "</if>"
             + "</script>")
-    <T> List<Map<String, Object>> getListByCondition(
+    List<Map<String, Object>> getListByCondition(
             @Param("selectTable") String selectTable,
             @Param("selectFields") String selectFields,
             @Param("whereClause") String whereClause,

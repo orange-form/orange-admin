@@ -7,6 +7,12 @@ import javax.persistence.Column;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+/**
+ * 数据权限与部门关联实体对象。
+ *
+ * @author Stephen.Liu
+ * @date 2020-05-24
+ */
 @Data
 @ToString(of = {"deptId"})
 @Table(name = "zz_sys_data_perm_dept")

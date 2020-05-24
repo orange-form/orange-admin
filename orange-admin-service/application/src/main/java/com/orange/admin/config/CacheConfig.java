@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
  * 使用Caffeine作为本地缓存库
  *
  * @author Stephen.Liu
- * @date 2020-04-11
+ * @date 2020-05-24
  */
 @Configuration
 @EnableCaching
@@ -32,21 +32,17 @@ public class CacheConfig {
         /**
          * 专门存储用户权限的缓存。
          */
-        UserPermissionCache(1800),
+        USER_PERMISSION_CACHE(1800, 10000),
         /**
          * 专门存储用户数据权限的缓存。
          */
-        DataPermissionCache(7200),
+        DATA_PERMISSION_CACHE(7200, 10000),
         /**
          * 缺省全局缓存(时间是24小时)。
          */
-        GlobalCache(86400,20000);
+        GLOBAL_CACHE(86400,20000);
 
         CacheEnum() {
-        }
-
-        CacheEnum(int ttl) {
-            this.ttl = ttl;
         }
 
         CacheEnum(int ttl, int maxSize) {
@@ -67,16 +63,8 @@ public class CacheConfig {
             return maxSize;
         }
 
-        public void setMaxSize(int maxSize) {
-            this.maxSize = maxSize;
-        }
-
         public int getTtl() {
             return ttl;
-        }
-
-        public void setTtl(int ttl) {
-            this.ttl = ttl;
         }
     }
 

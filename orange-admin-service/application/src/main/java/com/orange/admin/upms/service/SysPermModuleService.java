@@ -1,8 +1,8 @@
 package com.orange.admin.upms.service;
 
+import com.orange.admin.common.biz.base.service.BaseBizService;
 import com.orange.admin.common.biz.util.BasicIdGenerator;
 import com.orange.admin.common.core.base.dao.BaseDaoMapper;
-import com.orange.admin.common.core.base.service.BaseService;
 import com.orange.admin.common.core.constant.GlobalDeletedFlag;
 import com.orange.admin.upms.dao.SysPermModuleMapper;
 import com.orange.admin.upms.model.SysPerm;
@@ -18,10 +18,10 @@ import java.util.List;
  * 权限资源模块数据服务类。
  *
  * @author Stephen.Liu
- * @date 2020-04-11
+ * @date 2020-05-24
  */
 @Service
-public class SysPermModuleService extends BaseService<SysPermModule, Long> {
+public class SysPermModuleService extends BaseBizService<SysPermModule, Long> {
 
     @Autowired
     private SysPermModuleMapper sysPermModuleMapper;
@@ -46,7 +46,7 @@ public class SysPermModuleService extends BaseService<SysPermModule, Long> {
      * @param sysPermModule 新增的权限资源模块对象。
      * @return 新增后的权限资源模块对象。
      */
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public SysPermModule saveNew(SysPermModule sysPermModule) {
         sysPermModule.setModuleId(idGenerator.nextLongId());
         sysPermModule.setCreateTime(new Date());
@@ -58,11 +58,11 @@ public class SysPermModuleService extends BaseService<SysPermModule, Long> {
     /**
      * 更新权限资源模块对象。
      *
-     * @param sysPermModule 更新的权限资源模块对象。
+     * @param sysPermModule         更新的权限资源模块对象。
      * @param originalSysPermModule 原有的权限资源模块对象。
      * @return 更新成功返回true，否则false
      */
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public boolean update(SysPermModule sysPermModule, SysPermModule originalSysPermModule) {
         sysPermModule.setCreateTime(originalSysPermModule.getCreateTime());
         sysPermModule.setDeletedFlag(GlobalDeletedFlag.NORMAL);
@@ -75,7 +75,7 @@ public class SysPermModuleService extends BaseService<SysPermModule, Long> {
      * @param moduleId 权限资源模块主键Id。
      * @return 删除成功返回true，否则false。
      */
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public boolean remove(Long moduleId) {
         SysPermModule permModule = new SysPermModule();
         permModule.setModuleId(moduleId);

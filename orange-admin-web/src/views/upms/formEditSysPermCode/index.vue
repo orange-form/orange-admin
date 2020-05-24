@@ -199,6 +199,9 @@ export default {
   mounted () {
     if (this.rowData != null) {
       this.formData = {...this.formData, ...this.rowData};
+      if (Array.isArray(this.formData.sysPermCodePermList)) {
+        this.formData.permIdList = this.formData.sysPermCodePermList.map(item => item.permId);
+      }
       if (this.formData.parentId != null && this.permCodeTree != null && Array.isArray(this.permCodeTree)) {
         this.parentPermCodePath = findTreeNodePath(this.permCodeTree, this.formData.parentId, 'permCodeId');
       } else {

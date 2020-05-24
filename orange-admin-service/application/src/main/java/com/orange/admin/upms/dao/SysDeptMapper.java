@@ -10,7 +10,7 @@ import java.util.*;
  * 部门管理数据操作访问接口。
  *
  * @author Stephen.Liu
- * @date 2020-04-11
+ * @date 2020-05-24
  */
 public interface SysDeptMapper extends BaseDaoMapper<SysDept> {
 

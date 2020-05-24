@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
  * 登录用户Token验证、生成和权限验证的拦截器。
  *
  * @author Stephen.Liu
- * @date 2020-04-11
+ * @date 2020-05-24
  */
 @Slf4j
 public class AuthenticationInterceptor implements HandlerInterceptor {
@@ -82,7 +82,7 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
             return false;
         }
         String sessionId = (String) c.get("sessionId");
-        Cache cache = cacheManager.getCache(CacheConfig.CacheEnum.GlobalCache.name());
+        Cache cache = cacheManager.getCache(CacheConfig.CacheEnum.GLOBAL_CACHE.name());
         TokenData tokenData = cache.get(sessionId, TokenData.class);
         if (tokenData == null) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -91,17 +91,15 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
             return false;
         }
         TokenData.addToRequest(tokenData);
-        if (!tokenData.getIsAdmin()) {
-            // 如果url在权限资源白名单中，则不需要进行鉴权操作
-            if (!whitelistPermSet.contains(url)) {
-                Set<String> urlSet = sysPermService.getCacheableSysPermSetByUserId(
-                        tokenData.getSessionId(), tokenData.getUserId());
-                if (!urlSet.contains(url)) {
-                    response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                    this.outputResponseMessage(response,
-                            ResponseResult.error(ErrorCodeEnum.NO_OPERATION_PERMISSION));
-                    return false;
-                }
+        // 如果url在权限资源白名单中，则不需要进行鉴权操作
+        if (!tokenData.getIsAdmin() && !whitelistPermSet.contains(url)) {
+            Set<String> urlSet = sysPermService.getCacheableSysPermSetByUserId(
+                    tokenData.getSessionId(), tokenData.getUserId());
+            if (!urlSet.contains(url)) {
+                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                this.outputResponseMessage(response,
+                        ResponseResult.error(ErrorCodeEnum.NO_OPERATION_PERMISSION));
+                return false;
             }
         }
         if (JwtUtil.needToRefresh(c)) {
@@ -114,11 +112,13 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
     @Override
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler,
                            ModelAndView modelAndView) throws Exception {
+        // 这里需要空注解，否则sonar会不happy。
     }
 
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex)
             throws Exception {
+        // 这里需要空注解，否则sonar会不happy。
     }
 
     private void outputResponseMessage(HttpServletResponse response, ResponseResult<Object> respObj) {

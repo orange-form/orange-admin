@@ -8,11 +8,15 @@ import lombok.Data;
  * 同时为了提升效率，减少查询次数，可以根据具体的需求，将部分验证关联对象存入data字段，以供Controller使用。
  *
  * @author Stephen.Liu
- * @date 2020-04-11
+ * @date 2020-05-24
  */
 @Data
-public class VerifyResult {
+public class CallResult {
 
+    /**
+     * 为了优化性能，所有没有携带数据的正确结果，均可用该对象表示。
+     */
+    private static final CallResult OK = new CallResult();
     /**
      * 是否成功标记。
      */
@@ -32,7 +36,7 @@ public class VerifyResult {
      * @param errorMessage 错误描述信息。
      * @return 如果参数为空，表示成功，否则返回代码错误信息的错误对象实例。
      */
-    public static VerifyResult create(String errorMessage) {
+    public static CallResult create(String errorMessage) {
         return errorMessage == null ? ok() : error(errorMessage);
     }
 
@@ -40,10 +44,10 @@ public class VerifyResult {
      * 创建验证结果对象。
      *
      * @param errorMessage 错误描述信息。
-     * @param data 附带的数据对象。
+     * @param data         附带的数据对象。
      * @return 如果参数为空，表示成功，否则返回代码错误信息的错误对象实例。
      */
-    public static VerifyResult create(String errorMessage, JSONObject data) {
+    public static CallResult create(String errorMessage, JSONObject data) {
         return errorMessage == null ? ok(data) : error(errorMessage);
     }
 
@@ -52,8 +56,8 @@ public class VerifyResult {
      *
      * @return 验证成功对象实例。
      */
-    public static VerifyResult ok() {
-        return new VerifyResult();
+    public static CallResult ok() {
+        return OK;
     }
 
     /**
@@ -62,8 +66,8 @@ public class VerifyResult {
      * @param data 附带的数据对象。
      * @return 验证成功对象实例。
      */
-    public static VerifyResult ok(JSONObject data) {
-        VerifyResult result = new VerifyResult();
+    public static CallResult ok(JSONObject data) {
+        CallResult result = new CallResult();
         result.data = data;
         return result;
     }
@@ -74,11 +78,10 @@ public class VerifyResult {
      * @param errorMessage 错误描述。
      * @return 验证失败对象实例。
      */
-    public static VerifyResult error(String errorMessage) {
-        VerifyResult verifyResult = new VerifyResult();
-        verifyResult.success = false;
-        verifyResult.errorMessage = errorMessage;
-        return verifyResult;
+    public static CallResult error(String errorMessage) {
+        CallResult result = new CallResult();
+        result.success = false;
+        result.errorMessage = errorMessage;
+        return result;
     }
-
 }

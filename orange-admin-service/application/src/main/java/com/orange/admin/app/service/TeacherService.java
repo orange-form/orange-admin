@@ -5,15 +5,15 @@ import com.orange.admin.app.model.*;
 import com.orange.admin.upms.model.*;
 import com.orange.admin.upms.service.SysUserService;
 import com.orange.admin.upms.service.SysDeptService;
-import com.orange.admin.common.core.base.service.BaseService;
 import com.orange.admin.common.core.base.dao.BaseDaoMapper;
 import com.orange.admin.common.core.object.MyWhereCriteria;
-import com.orange.admin.common.core.object.VerifyResult;
+import com.orange.admin.common.core.object.MyRelationParam;
+import com.orange.admin.common.core.object.CallResult;
+import com.orange.admin.common.biz.base.service.BaseBizService;
 import com.orange.admin.common.biz.util.BasicIdGenerator;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import tk.mybatis.mapper.entity.Example;
 
 import java.util.*;
 
@@ -21,10 +21,10 @@ import java.util.*;
  * 老师数据源数据操作服务类。
  *
  * @author Stephen.Liu
- * @date 2020-04-11
+ * @date 2020-05-24
  */
 @Service
-public class TeacherService extends BaseService<Teacher, Long> {
+public class TeacherService extends BaseBizService<Teacher, Long> {
 
     @Autowired
     private TeacherMapper teacherMapper;
@@ -51,7 +51,7 @@ public class TeacherService extends BaseService<Teacher, Long> {
      * @param teacher 新增对象。
      * @return 返回新增对象。
      */
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public Teacher saveNew(Teacher teacher) {
         teacher.setTeacherId(idGenerator.nextLongId());
         teacher.setRegisterDate(new Date());
@@ -62,11 +62,11 @@ public class TeacherService extends BaseService<Teacher, Long> {
     /**
      * 更新数据对象。
      *
-     * @param teacher 更新的对象。
+     * @param teacher         更新的对象。
      * @param originalTeacher 原有数据对象。
      * @return 成功返回true，否则false。
      */
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public boolean update(Teacher teacher, Teacher originalTeacher) {
         teacher.setRegisterDate(originalTeacher.getRegisterDate());
         return teacherMapper.updateByPrimaryKey(teacher) == 1;
@@ -78,25 +78,17 @@ public class TeacherService extends BaseService<Teacher, Long> {
      * @param teacherId 主键Id。
      * @return 成功返回true，否则false。
      */
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public boolean remove(Long teacherId) {
-        Teacher teacher = teacherMapper.selectByPrimaryKey(teacherId);
-        if (teacher == null) {
-            return false;
-        }
-        // 这里先删除主数据
-        if (teacherMapper.deleteByPrimaryKey(teacherId) == 0) {
-            return false;
-        }
+        return teacherMapper.deleteByPrimaryKey(teacherId) != 0;
         // 这里可继续删除关联数据。
-        return true;
     }
 
     /**
      * 获取单表查询结果。由于没有关联数据查询，因此在仅仅获取单表数据的场景下，效率更高。
      * 如果需要同时获取关联数据，请移步(getTeacherListWithRelation)方法。
      *
-     * @param filter 过滤对象。
+     * @param filter  过滤对象。
      * @param orderBy 排序参数。
      * @return 查询结果集。
      */
@@ -117,7 +109,7 @@ public class TeacherService extends BaseService<Teacher, Long> {
         List<Teacher> resultList =
                 teacherMapper.getTeacherListEx(filter, sysDeptFilter, orderBy);
         Map<String, List<MyWhereCriteria>> criteriaMap = buildAggregationAdditionalWhereCriteria();
-        this.buildAllRelationForDataList(resultList, false, criteriaMap);
+        this.buildRelationForDataList(resultList, MyRelationParam.normal(), criteriaMap);
         return resultList;
     }
 
@@ -128,24 +120,18 @@ public class TeacherService extends BaseService<Teacher, Long> {
      * @param originalTeacher 原有数据对象。
      * @return 数据全部正确返回true，否则false。
      */
-    public VerifyResult verifyRelatedData(Teacher teacher, Teacher originalTeacher) {
-        String errorMessage = null;
-        do {
-            //这里是基于字典的验证。
-            if (this.needToVerify(teacher, originalTeacher, Teacher::getSchoolId)) {
-                if (!sysDeptService.existId(teacher.getSchoolId())) {
-                    errorMessage = "数据验证失败，关联的所属校区并不存在，请刷新后重试！";
-                    break;
-                }
-            }
-            //这里是基于字典的验证。
-            if (this.needToVerify(teacher, originalTeacher, Teacher::getUserId)) {
-                if (!sysUserService.existId(teacher.getUserId())) {
-                    errorMessage = "数据验证失败，关联的绑定用户并不存在，请刷新后重试！";
-                    break;
-                }
-            }
-        } while (false);
-        return VerifyResult.create(errorMessage);
+    public CallResult verifyRelatedData(Teacher teacher, Teacher originalTeacher) {
+        String errorMessageFormat = "数据验证失败，关联的%s并不存在，请刷新后重试！";
+        //这里是基于字典的验证。
+        if (this.needToVerify(teacher, originalTeacher, Teacher::getSchoolId)
+                && !sysDeptService.existId(teacher.getSchoolId())) {
+            return CallResult.error(String.format(errorMessageFormat, "所属校区"));
+        }
+        //这里是基于字典的验证。
+        if (this.needToVerify(teacher, originalTeacher, Teacher::getUserId)
+                && !sysUserService.existId(teacher.getUserId())) {
+            return CallResult.error(String.format(errorMessageFormat, "绑定用户"));
+        }
+        return CallResult.ok();
     }
 }

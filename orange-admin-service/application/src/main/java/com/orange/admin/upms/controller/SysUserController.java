@@ -1,7 +1,7 @@
 package com.orange.admin.upms.controller;
 
 import cn.jimmyshi.beanquery.BeanQuery;
-import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.page.PageMethod;
 import com.orange.admin.upms.model.*;
 import com.orange.admin.upms.service.*;
 import com.orange.admin.common.core.object.*;
@@ -22,7 +22,7 @@ import javax.validation.groups.Default;
  * 用户管理操作控制器类。
  *
  * @author Stephen.Liu
- * @date 2020-04-11
+ * @date 2020-05-24
  */
 @Slf4j
 @RestController
@@ -44,33 +44,25 @@ public class SysUserController {
      */
     @SuppressWarnings("unchecked")
     @PostMapping("/add")
-    public ResponseResult<?> add(
+    public ResponseResult<JSONObject> add(
             @MyRequestBody SysUser sysUser,
             @MyRequestBody String roleIdListString,
             @MyRequestBody String dataPermIdListString) {
-        ErrorCodeEnum errorCodeEnum = ErrorCodeEnum.NO_ERROR;
-        String errorMessage;
-        JSONObject responseData = null;
-        do {
-            errorMessage = MyCommonUtil.getModelValidationError(sysUser);
-            if (errorMessage != null) {
-                errorCodeEnum = ErrorCodeEnum.DATA_VALIDATAED_FAILED;
-                break;
-            }
-            VerifyResult result = sysUserService.verifyRelatedData(
-                    sysUser, null, roleIdListString, dataPermIdListString);
-            if (!result.isSuccess()) {
-                errorCodeEnum = ErrorCodeEnum.DATA_VALIDATAED_FAILED;
-                errorMessage = result.getErrorMessage();
-                break;
-            }
-            Set<Long> roleIdSet = (Set<Long>) result.getData().get("roleIdSet");
-            Set<Long> dataPermIdSet = (Set<Long>) result.getData().get("dataPermIdSet");
-            sysUserService.saveNew(sysUser, roleIdSet, dataPermIdSet, applicationConfig.getPasswordSalt());
-            responseData = new JSONObject();
-            responseData.put("userId", sysUser.getUserId());
-        } while (false);
-        return ResponseResult.create(errorCodeEnum, errorMessage, responseData);
+        String errorMessage = MyCommonUtil.getModelValidationError(sysUser);
+        if (errorMessage != null) {
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+        }
+        CallResult result = sysUserService.verifyRelatedData(
+                sysUser, null, roleIdListString, dataPermIdListString);
+        if (!result.isSuccess()) {
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, result.getErrorMessage());
+        }
+        Set<Long> roleIdSet = (Set<Long>) result.getData().get("roleIdSet");
+        Set<Long> dataPermIdSet = (Set<Long>) result.getData().get("dataPermIdSet");
+        sysUserService.saveNew(sysUser, roleIdSet, dataPermIdSet, applicationConfig.getPasswordSalt());
+        JSONObject responseData = new JSONObject();
+        responseData.put("userId", sysUser.getUserId());
+        return ResponseResult.success(responseData);
     }
 
     /**
@@ -83,39 +75,29 @@ public class SysUserController {
      */
     @SuppressWarnings("unchecked")
     @PostMapping("/update")
-    public ResponseResult<?> update(
+    public ResponseResult<Void> update(
             @MyRequestBody SysUser sysUser,
             @MyRequestBody String roleIdListString,
             @MyRequestBody String dataPermIdListString) {
-        ErrorCodeEnum errorCodeEnum = ErrorCodeEnum.NO_ERROR;
-        String errorMessage;
-        do {
-            errorMessage = MyCommonUtil.getModelValidationError(sysUser, Default.class, UpdateGroup.class);
-            if (errorMessage != null) {
-                errorCodeEnum = ErrorCodeEnum.DATA_VALIDATAED_FAILED;
-                break;
-            }
-            SysUser originalUser = sysUserService.getById(sysUser.getUserId());
-            if (originalUser == null) {
-                errorCodeEnum = ErrorCodeEnum.DATA_NOT_EXIST;
-                break;
-            }
-            VerifyResult result = sysUserService.verifyRelatedData(
-                    sysUser, originalUser, roleIdListString, dataPermIdListString);
-            if (!result.isSuccess()) {
-                errorCodeEnum = ErrorCodeEnum.DATA_VALIDATAED_FAILED;
-                errorMessage = result.getErrorMessage();
-                break;
-            }
-            Set<Long> roleIdSet = (Set<Long>) result.getData().get("roleIdSet");
-            Set<Long> dataPermIdSet = (Set<Long>) result.getData().get("dataPermIdSet");
-            if (!sysUserService.update(sysUser, originalUser, roleIdSet, dataPermIdSet)) {
-                errorCodeEnum = ErrorCodeEnum.DATA_NOT_EXIST;
-                errorMessage = "更新失败，数据不存在，请刷新后重试！";
-                break;
-            }
-        } while (false);
-        return ResponseResult.create(errorCodeEnum, errorMessage);
+        String errorMessage = MyCommonUtil.getModelValidationError(sysUser, Default.class, UpdateGroup.class);
+        if (errorMessage != null) {
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+        }
+        SysUser originalUser = sysUserService.getById(sysUser.getUserId());
+        if (originalUser == null) {
+            return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST);
+        }
+        CallResult result = sysUserService.verifyRelatedData(
+                sysUser, originalUser, roleIdListString, dataPermIdListString);
+        if (!result.isSuccess()) {
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, result.getErrorMessage());
+        }
+        Set<Long> roleIdSet = (Set<Long>) result.getData().get("roleIdSet");
+        Set<Long> dataPermIdSet = (Set<Long>) result.getData().get("dataPermIdSet");
+        if (!sysUserService.update(sysUser, originalUser, roleIdSet, dataPermIdSet)) {
+            return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST);
+        }
+        return ResponseResult.success();
     }
 
     /**
@@ -125,21 +107,15 @@ public class SysUserController {
      * @return 应答结果对象。
      */
     @PostMapping("/resetPassword")
-    public ResponseResult<?> resetPassword(@MyRequestBody Long userId) {
-        ErrorCodeEnum errorCodeEnum = ErrorCodeEnum.NO_ERROR;
-        String errorMessage = null;
-        do {
-            if (MyCommonUtil.existBlankArgument(userId)) {
-                errorCodeEnum = ErrorCodeEnum.ARGUMENT_NULL_EXIST;
-                break;
-            }
-            if (!sysUserService.resetPassword(
-                    userId, applicationConfig.getDefaultUserPassword(), applicationConfig.getPasswordSalt())) {
-                errorCodeEnum = ErrorCodeEnum.DATA_NOT_EXIST;
-                break;
-            }
-        } while (false);
-        return ResponseResult.create(errorCodeEnum, errorMessage);
+    public ResponseResult<Void> resetPassword(@MyRequestBody Long userId) {
+        if (MyCommonUtil.existBlankArgument(userId)) {
+            return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
+        }
+        if (!sysUserService.resetPassword(
+                userId, applicationConfig.getDefaultUserPassword(), applicationConfig.getPasswordSalt())) {
+            return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST);
+        }
+        return ResponseResult.success();
     }
 
     /**
@@ -149,29 +125,23 @@ public class SysUserController {
      * @return 应答结果对象。
      */
     @PostMapping("/delete")
-    public ResponseResult<?> delete(@MyRequestBody Long userId) {
-        ErrorCodeEnum errorCodeEnum = ErrorCodeEnum.NO_ERROR;
-        String errorMessage = null;
-        do {
-            if (MyCommonUtil.existBlankArgument(userId)) {
-                errorCodeEnum = ErrorCodeEnum.ARGUMENT_NULL_EXIST;
-                break;
-            }
-            // 验证关联Id的数据合法性
-            SysUser originalSysUser = sysUserService.getById(userId);
-            if (originalSysUser == null) {
-                errorCodeEnum = ErrorCodeEnum.DATA_NOT_EXIST;
-                //TODO 修改下面方括号中的话述
-                errorMessage = "数据验证失败，当前 [对象] 并不存在，请刷新后重试！";
-                break;
-            }
-            if (!sysUserService.remove(userId)) {
-                errorCodeEnum = ErrorCodeEnum.DATA_NOT_EXIST;
-                errorMessage = "数据操作失败，删除的对象不存在，请刷新后重试！";
-                break;
-            }
-        } while (false);
-        return ResponseResult.create(errorCodeEnum, errorMessage);
+    public ResponseResult<Void> delete(@MyRequestBody Long userId) {
+        String errorMessage;
+        if (MyCommonUtil.existBlankArgument(userId)) {
+            return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
+        }
+        // 验证关联Id的数据合法性
+        SysUser originalSysUser = sysUserService.getById(userId);
+        if (originalSysUser == null) {
+            // NOTE: 修改下面方括号中的话述
+            errorMessage = "数据验证失败，当前 [对象] 并不存在，请刷新后重试！";
+            return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST, errorMessage);
+        }
+        if (!sysUserService.remove(userId)) {
+            errorMessage = "数据操作失败，删除的对象不存在，请刷新后重试！";
+            return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST, errorMessage);
+        }
+        return ResponseResult.success();
     }
 
     /**
@@ -183,12 +153,12 @@ public class SysUserController {
      * @return 应答结果对象，包含查询结果集。
      */
     @PostMapping("/list")
-    public ResponseResult<?> list(
+    public ResponseResult<JSONObject> list(
             @MyRequestBody SysUser sysUserFilter,
             @MyRequestBody MyOrderParam orderParam,
             @MyRequestBody MyPageParam pageParam) {
         if (pageParam != null) {
-            PageHelper.startPage(pageParam.getPageNum(), pageParam.getPageSize());
+            PageMethod.startPage(pageParam.getPageNum(), pageParam.getPageSize());
         }
         String orderBy = MyOrderParam.buildOrderBy(orderParam, SysUser.class);
         List<SysUser> resultList = sysUserService.getSysUserListWithRelation(sysUserFilter, orderBy);
@@ -203,21 +173,15 @@ public class SysUserController {
      */
     @GetMapping("/view")
     public ResponseResult<SysUser> view(@RequestParam Long userId) {
-        ErrorCodeEnum errorCodeEnum = ErrorCodeEnum.NO_ERROR;
-        String errorMessage = null;
-        SysUser sysUser = null;
-        do {
-            if (MyCommonUtil.existBlankArgument(userId)) {
-                errorCodeEnum = ErrorCodeEnum.ARGUMENT_NULL_EXIST;
-                break;
-            }
-            sysUser = sysUserService.getByIdWithRelation(userId);
-            if (sysUser == null) {
-                errorCodeEnum = ErrorCodeEnum.DATA_NOT_EXIST;
-                break;
-            }
-        } while (false);
-        return ResponseResult.create(errorCodeEnum, errorMessage, sysUser);
+        if (MyCommonUtil.existBlankArgument(userId)) {
+            return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
+        }
+        // 这里查看用户数据时候，需要把用户多对多关联的角色和数据权限Id一并查出。
+        SysUser sysUser = sysUserService.getByIdWithRelation(userId, MyRelationParam.full());
+        if (sysUser == null) {
+            return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST);
+        }
+        return ResponseResult.success(sysUser);
     }
 
     /**
@@ -228,8 +192,8 @@ public class SysUserController {
      * @return 应答结果对象，包含的数据为 List<Map<String, String>>，map中包含两条记录，key的值分别是id和name，value对应具体数据。
      */
     @GetMapping("/listDictSysUser")
-    public ResponseResult<?> listDictSysUser(SysUser filter) {
-        List<SysUser> resultList = sysUserService.getListByFilter(filter);
+    public ResponseResult<List<Map<String, Object>>> listDictSysUser(SysUser filter) {
+        List<SysUser> resultList = sysUserService.getListByFilter(filter, null);
         return ResponseResult.success(BeanQuery.select(
                 "userId as id", "loginName as name").executeFrom(resultList));
     }

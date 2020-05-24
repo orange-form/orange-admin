@@ -7,7 +7,7 @@ import lombok.Data;
  * Mybatis Mapper.xml中所需的分组条件对象。
  *
  * @author Stephen.Liu
- * @date 2020-04-11
+ * @date 2020-05-24
  */
 @Data
 @AllArgsConstructor

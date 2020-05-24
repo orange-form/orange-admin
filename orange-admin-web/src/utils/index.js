@@ -1,3 +1,5 @@
+import JSEncrypt from 'jsencrypt';
+
 /**
  * 列表数据转换树形数据
  * @param {Array} data 要转换的列表
@@ -206,4 +208,15 @@ export function isNumber (str) {
 export function random (min, max) {
   let base = Math.random();
   return min + base * (max - min);
+}
+/**
+ * 加密
+ * @param {*} value 要加密的字符串
+ */
+const publicKey = 'MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCpC4QMnbTrQOFriJJCCFFWhlruBJThAEBfRk7pRx1jsAhyNVL3CqJb0tRvpnbCnJhrRAEPdgFHXv5A0RrvFp+5Cw7QoFH6O9rKB8+0H7+aVQeKITMUHf/XMXioymw6Iq4QfWd8RhdtM1KM6eGTy8aU7SO2s69Mc1LXefg/x3yw6wIDAQAB';
+export function encrypt (value) {
+  if (value == null || value === '') return null;
+  let encrypt = new JSEncrypt();
+  encrypt.setPublicKey(publicKey);
+  return encodeURIComponent(encrypt.encrypt(value));
 }

@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.ReflectUtil;
 import com.orange.admin.common.core.annotation.RelationDict;
 import com.orange.admin.common.core.annotation.RelationOneToOne;
+import com.orange.admin.common.core.exception.MyRuntimeException;
 import com.orange.admin.common.core.object.Tuple2;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -24,7 +25,7 @@ import java.util.stream.Collectors;
  * 负责Model数据操作、类型转换和关系关联等行为的工具类。
  *
  * @author Stephen.Liu
- * @date 2020-04-11
+ * @date 2020-05-24
  */
 @Slf4j
 public class MyModelUtil {
@@ -94,9 +95,9 @@ public class MyModelUtil {
             // 这里缺省情况下都是按照整型去处理，因为他覆盖太多的类型了。
             // 如Integer/Long/Double/BigDecimal，可根据实际情况完善和扩充。
             Integer type = NUMERIC_FIELD_TYPE;
-            if ("String".equals(typeName)) {
+            if (String.class.getSimpleName().equals(typeName)) {
                 type = STRING_FIELD_TYPE;
-            } else if ("Date".equals(typeName)) {
+            } else if (Date.class.getSimpleName().equals(typeName)) {
                 type = DATE_FIELD_TYPE;
             }
             columnInfo = new Tuple2<>(columnName, type);
@@ -156,7 +157,7 @@ public class MyModelUtil {
      * @param <R>               从表对象类型。
      */
     public static <T, R> void makeDictRelation(
-            Class<T> thisClazz, List<? extends T> thisModelList, List<R> thatModelList, String thisRelationField) {
+            Class<T> thisClazz, List<T> thisModelList, List<R> thatModelList, String thisRelationField) {
         if (CollectionUtils.isEmpty(thatModelList)
                 || CollectionUtils.isEmpty(thisModelList)) {
             return;
@@ -200,7 +201,7 @@ public class MyModelUtil {
      * @param <R>               从表对象类型。
      */
     public static <T, R> void makeDictRelation(
-            Class<T> thisClazz, List<? extends T> thisModelList, Map<Object, R> thatMadelMap, String thisRelationField) {
+            Class<T> thisClazz, List<T> thisModelList, Map<Object, R> thatMadelMap, String thisRelationField) {
         if (MapUtils.isEmpty(thatMadelMap)
                 || CollectionUtils.isEmpty(thisModelList)) {
             return;
@@ -210,7 +211,6 @@ public class MyModelUtil {
         RelationDict r = thisTargetField.getAnnotation(RelationDict.class);
         Field masterIdField = ReflectUtil.getField(thisClazz, r.masterIdField());
         Class<?> thatClass = r.slaveModelClass();
-        Field slaveIdField = ReflectUtil.getField(thatClass, r.slaveIdField());
         Field slaveNameField = ReflectUtil.getField(thatClass, r.slaveNameField());
         thisModelList.forEach(thisModel -> {
             if (thisModel != null) {
@@ -238,7 +238,7 @@ public class MyModelUtil {
      * @param <R>               从表对象类型。
      */
     public static <T, R> void makeOneToOneRelation(
-            Class<T> thisClazz, List<? extends T> thisModelList, List<R> thatModelList, String thisRelationField) {
+            Class<T> thisClazz, List<T> thisModelList, List<R> thatModelList, String thisRelationField) {
         if (CollectionUtils.isEmpty(thatModelList)
                 || CollectionUtils.isEmpty(thisModelList)) {
             return;
@@ -290,7 +290,7 @@ public class MyModelUtil {
      */
     public static <T, R> void makeOneToOneRelation(
             Class<T> thisClazz,
-            List<? extends T> thisModelList,
+            List<T> thisModelList,
             Function<T, Object> thisIdGetterFunc,
             List<R> thatModelList,
             Function<R, Object> thatIdGetterFunc,
@@ -316,58 +316,43 @@ public class MyModelUtil {
      */
     public static <T, R> void makeOneToOneRelation(
             Class<T> thisClazz,
-            List<? extends T> thisModelList,
+            List<T> thisModelList,
             Function<T, Object> thisIdGetterFunc,
             List<R> thatModelList,
             Function<R, Object> thatIdGetterFunc,
             String thisRelationField,
             boolean orderByThatList) {
         Field thisTargetField = ReflectUtil.getField(thisClazz, thisRelationField);
+        boolean isMap = thisTargetField.getType().equals(Map.class);
         if (orderByThatList) {
             List<T> newThisModelList = new LinkedList<>();
             Map<Object, ? extends T> thisModelMap =
                     thisModelList.stream().collect(Collectors.toMap(thisIdGetterFunc, c -> c));
-            if (thisTargetField.getType().equals(Map.class)) {
-                thatModelList.forEach(thatModel -> {
-                    Object thatId = thatIdGetterFunc.apply(thatModel);
-                    T thisModel = thisModelMap.get(thatId);
-                    if (thisModel != null) {
-                        ReflectUtil.setFieldValue(thisModel, thisTargetField, BeanUtil.beanToMap(thatModel));
-                        newThisModelList.add(thisModel);
-                    }
-                });
-            } else {
-                thatModelList.forEach(thatModel -> {
-                    Object thatId = thatIdGetterFunc.apply(thatModel);
-                    T thisModel = thisModelMap.get(thatId);
-                    if (thisModel != null) {
-                        ReflectUtil.setFieldValue(thisModel, thisTargetField, thatModel);
-                        newThisModelList.add(thisModel);
-                    }
-                });
-            }
-            thisModelList = newThisModelList;
+            thatModelList.forEach(thatModel -> {
+                Object thatId = thatIdGetterFunc.apply(thatModel);
+                T thisModel = thisModelMap.get(thatId);
+                if (thisModel != null) {
+                    ReflectUtil.setFieldValue(thisModel, thisTargetField, normalize(isMap, thatModel));
+                    newThisModelList.add(thisModel);
+                }
+            });
+            thisModelList.clear();
+            thisModelList.addAll(newThisModelList);
         } else {
             Map<Object, R> thatMadelMap =
                     thatModelList.stream().collect(Collectors.toMap(thatIdGetterFunc, c -> c));
-            if (thisTargetField.getType().equals(Map.class)) {
-                thisModelList.forEach(thisModel -> {
-                    Object thisId = thisIdGetterFunc.apply(thisModel);
-                    R thatModel = thatMadelMap.get(thisId);
-                    if (thatModel != null) {
-                        ReflectUtil.setFieldValue(thisModel, thisTargetField, BeanUtil.beanToMap(thatModel));
-                    }
-                });
-            } else {
-                thisModelList.forEach(thisModel -> {
-                    Object thisId = thisIdGetterFunc.apply(thisModel);
-                    R thatModel = thatMadelMap.get(thisId);
-                    if (thatModel != null) {
-                        ReflectUtil.setFieldValue(thisModel, thisTargetField, thatModel);
-                    }
-                });
-            }
+            thisModelList.forEach(thisModel -> {
+                Object thisId = thisIdGetterFunc.apply(thisModel);
+                R thatModel = thatMadelMap.get(thisId);
+                if (thatModel != null) {
+                    ReflectUtil.setFieldValue(thisModel, thisTargetField, normalize(isMap, thatModel));
+                }
+            });
         }
+    }
+
+    private static <M> Object normalize(boolean isMap, M model) {
+        return isMap ? BeanUtil.beanToMap(model) : model;
     }
 
     /**
@@ -392,7 +377,7 @@ public class MyModelUtil {
             int modifiers = field.getModifiers();
             // transient类型的字段不能作为查询条件
             if ((modifiers & 128) == 0) {
-                field.setAccessible(true);
+                ReflectUtil.setAccessible(field);
                 try {
                     Object o = field.get(filterModel);
                     if (o != null) {
@@ -400,10 +385,16 @@ public class MyModelUtil {
                     }
                 } catch (IllegalAccessException ex) {
                     log.error("Failed to call reflection code.", ex);
-                    throw new RuntimeException(ex);
+                    throw new MyRuntimeException(ex);
                 }
             }
         }
         return e;
+    }
+
+    /**
+     * 私有构造函数，明确标识该常量类的作用。
+     */
+    private MyModelUtil() {
     }
 }

@@ -4,6 +4,7 @@ import com.alibaba.fastjson.annotation.JSONField;
 import com.orange.admin.upms.model.constant.SysUserType;
 import com.orange.admin.upms.model.constant.SysUserStatus;
 import com.orange.admin.common.core.annotation.RelationConstDict;
+import com.orange.admin.common.core.annotation.RelationManyToMany;
 import com.orange.admin.common.core.annotation.DeletedFlagColumn;
 import com.orange.admin.common.core.annotation.JobUpdateTimeColumn;
 import com.orange.admin.common.core.validator.UpdateGroup;
@@ -16,6 +17,12 @@ import java.util.Date;
 import java.util.Map;
 import java.util.List;
 
+/**
+ * SysUser实体对象。
+ *
+ * @author Stephen.Liu
+ * @date 2020-05-24
+ */
 @Data
 @Table(name = "zz_sys_user")
 public class SysUser {
@@ -123,16 +130,24 @@ public class SysUser {
     private String createTimeEnd;
 
     /**
-     * 与当前用户关联的角色Id集合。
+     * 多对多用户角色数据集合。
      */
+    @RelationManyToMany(
+            relationMapperName = "sysUserRoleMapper",
+            relationMasterIdField = "userId",
+            relationModelClass = SysUserRole.class)
     @Transient
-    private List<Long> roleIdList;
+    private List<SysUserRole> sysUserRoleList;
 
     /**
-     * 与当前用户关联的数据权限Id集合。
+     * 多对多用户数据权限数据集合。
      */
+    @RelationManyToMany(
+            relationMapperName = "sysDataPermUserMapper",
+            relationMasterIdField = "userId",
+            relationModelClass = SysDataPermUser.class)
     @Transient
-    private List<Long> dataPermIdList;
+    private List<SysDataPermUser> sysDataPermUserList;
 
     @RelationConstDict(
             masterIdField = "userType",

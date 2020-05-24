@@ -3,6 +3,12 @@ package com.orange.admin.app.model.constant;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * 教师职级常量字典对象。
+ *
+ * @author Stephen.Liu
+ * @date 2020-05-24
+ */
 public final class TeacherLevelType {
 
     /**
@@ -18,7 +24,7 @@ public final class TeacherLevelType {
      */
     public static final int HIGH = 2;
 
-    public static final Map<Object, String> DICT_MAP = new HashMap<>(3);
+    private static final Map<Object, String> DICT_MAP = new HashMap<>(3);
     static {
         DICT_MAP.put(LOWER, "初级");
         DICT_MAP.put(NORMAL, "中级");
@@ -31,8 +37,8 @@ public final class TeacherLevelType {
      * @param value 待验证的参数值。
      * @return 合法返回true，否则false。
      */
-    public static boolean isValid(int value) {
-        return DICT_MAP.containsKey(value);
+    public static boolean isValid(Integer value) {
+        return value != null && DICT_MAP.containsKey(value);
     }
 
     /**

@@ -11,7 +11,7 @@ import java.util.*;
  * 老师流水统计数据操作访问接口。
  *
  * @author Stephen.Liu
- * @date 2020-04-11
+ * @date 2020-05-24
  */
 @EnableDataPerm
 public interface TeacherTransStatsMapper extends BaseDaoMapper<TeacherTransStats> {

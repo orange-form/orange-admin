@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Configuration;
  * tomcat配置对象。当前配置禁用了PUT和DELETE方法，防止渗透攻击。
  *
  * @author Stephen.Liu
- * @date 2020-04-11
+ * @date 2020-05-24
  */
 @Configuration
 public class TomcatConfig {

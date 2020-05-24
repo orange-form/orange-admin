@@ -11,7 +11,7 @@ import java.lang.annotation.*;
  * 将其中一个方法重新定义一个具体的接口方法，并重新设定其是否参与数据过滤。
  *
  * @author Stephen.Liu
- * @date 2020-04-11
+ * @date 2020-05-24
  */
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)

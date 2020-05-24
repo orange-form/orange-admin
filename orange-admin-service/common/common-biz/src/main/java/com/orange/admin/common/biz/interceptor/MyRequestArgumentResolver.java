@@ -9,9 +9,11 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.lang.NonNull;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
+import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
@@ -27,7 +29,7 @@ import java.util.*;
  * 2、多个对象需要封装到一个对象里才可以用@RequestBody接收。
  *
  * @author Stephen.Liu
- * @date 2020-04-11
+ * @date 2020-05-24
  */
 public class MyRequestArgumentResolver implements HandlerMethodArgumentResolver {
 
@@ -47,10 +49,10 @@ public class MyRequestArgumentResolver implements HandlerMethodArgumentResolver 
     }
 
     /**
-     * 设置支持的方法参数类型
+     * 设置支持的方法参数类型。
      *
-     * @param parameter 方法参数
-     * @return 支持的类型
+     * @param parameter 方法参数。
+     * @return 支持的类型。
      */
     @Override
     public boolean supportsParameter(@NonNull MethodParameter parameter) {
@@ -58,10 +60,9 @@ public class MyRequestArgumentResolver implements HandlerMethodArgumentResolver 
     }
 
     /**
-     * 参数解析，利用fastjson
-     * 注意：非基本类型返回null会报空指针异常，要通过反射或者JSON工具类创建一个空对象
+     * 参数解析，利用fastjson。
+     * 注意：非基本类型返回null会报空指针异常，要通过反射或者JSON工具类创建一个空对象。
      */
-    @SuppressWarnings("unchecked")
     @Override
     public Object resolveArgument(
             @NonNull MethodParameter parameter,
@@ -73,7 +74,7 @@ public class MyRequestArgumentResolver implements HandlerMethodArgumentResolver 
         if (!HttpMethod.POST.name().equals(servletRequest.getMethod())) {
             throw new IllegalArgumentException("Only POST method can be applied @MyRequestBody annotation！");
         }
-        if (!StringUtils.containsIgnoreCase(contentType, "application/json")) {
+        if (!StringUtils.containsIgnoreCase(contentType, MediaType.APPLICATION_JSON_VALUE)) {
             throw new IllegalArgumentException(
                     "Only application/json Content-Type can be applied @MyRequestBody annotation！");
         }
@@ -106,37 +107,41 @@ public class MyRequestArgumentResolver implements HandlerMethodArgumentResolver 
         // 基本类型包装类
         if (isBasicDataTypes(parameterType)) {
             return parseBasicTypeWrapper(parameterType, value);
-            // 字符串类型
         } else if (parameterType == String.class) {
+            // 字符串类型
             return value.toString();
         }
+        // 数组类型
         if (value instanceof JSONArray) {
-            Object o;
-            if (!parameterType.equals(List.class)) {
-                o = parameterType.newInstance();
-                parameterType = (Class<?>) ((ParameterizedType)
-                        parameterType.getGenericSuperclass()).getActualTypeArguments()[0];
-            } else {
-                parameterType = parameterAnnotation.elementType();
-                if (parameterType.equals(Class.class)) {
-                    throw new IllegalArgumentException(
-                            String.format("List Type parameter %s MUST have elementType!", key));
-                }
-                o = new LinkedList<>();
-            }
-            if (!(o instanceof List)) {
-                throw new IllegalArgumentException(String.format("Required parameter %s is List!", key));
-            }
-            ((List<Object>) o).addAll(((JSONArray) value).toJavaList(parameterType));
-            return o;
+            return parseArray(parameterType, parameterAnnotation.elementType(), key, value);
         }
         // 其他复杂对象
-        return JSONObject.toJavaObject((JSONObject) value, parameterType);
+        return JSON.toJavaObject((JSONObject) value, parameterType);
     }
 
-    /**
-     * 基本类型解析
-     */
+    @SuppressWarnings("unchecked")
+    private Object parseArray(Class<?> parameterType, Class<?> elementType, String key, Object value)
+            throws IllegalAccessException, InstantiationException {
+        Object o;
+        if (!parameterType.equals(List.class)) {
+            o = parameterType.newInstance();
+            parameterType = (Class<?>) ((ParameterizedType)
+                    parameterType.getGenericSuperclass()).getActualTypeArguments()[0];
+        } else {
+            parameterType = elementType;
+            if (parameterType.equals(Class.class)) {
+                throw new IllegalArgumentException(
+                        String.format("List Type parameter %s MUST have elementType!", key));
+            }
+            o = new LinkedList<>();
+        }
+        if (!(o instanceof List)) {
+            throw new IllegalArgumentException(String.format("Required parameter %s is List!", key));
+        }
+        ((List<Object>) o).addAll(((JSONArray) value).toJavaList(parameterType));
+        return o;
+    }
+
     private Object parsePrimitive(String parameterTypeName, Object value) {
         final String booleanTypeName = "boolean";
         if (booleanTypeName.equals(parameterTypeName)) {
@@ -173,9 +178,6 @@ public class MyRequestArgumentResolver implements HandlerMethodArgumentResolver 
         return null;
     }
 
-    /**
-     * 基本类型包装类解析
-     */
     private Object parseBasicTypeWrapper(Class<?> parameterType, Object value) {
         if (Number.class.isAssignableFrom(parameterType)) {
             if (value instanceof String) {
@@ -203,30 +205,20 @@ public class MyRequestArgumentResolver implements HandlerMethodArgumentResolver 
         return null;
     }
 
-    /**
-     * 判断是否为基本数据类型包装类
-     */
     private boolean isBasicDataTypes(Class<?> clazz) {
         return classSet.contains(clazz);
     }
 
-    /**
-     * 获取请求体JSON字符串
-     */
-    private JSONObject getRequestBody(NativeWebRequest webRequest) {
+    private JSONObject getRequestBody(NativeWebRequest webRequest) throws IOException {
         HttpServletRequest servletRequest = webRequest.getNativeRequest(HttpServletRequest.class);
         // 有就直接获取
-        JSONObject jsonObject = (JSONObject) webRequest.getAttribute(JSONBODY_ATTRIBUTE, NativeWebRequest.SCOPE_REQUEST);
+        JSONObject jsonObject = (JSONObject) webRequest.getAttribute(JSONBODY_ATTRIBUTE, RequestAttributes.SCOPE_REQUEST);
         // 没有就从请求中读取
         if (jsonObject == null) {
-            try {
-                String jsonBody = IOUtils.toString(servletRequest.getReader());
-                jsonObject = JSON.parseObject(jsonBody);
-                if (jsonObject != null) {
-                    webRequest.setAttribute(JSONBODY_ATTRIBUTE, jsonObject, NativeWebRequest.SCOPE_REQUEST);
-                }
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+            String jsonBody = IOUtils.toString(servletRequest.getReader());
+            jsonObject = JSON.parseObject(jsonBody);
+            if (jsonObject != null) {
+                webRequest.setAttribute(JSONBODY_ATTRIBUTE, jsonObject, RequestAttributes.SCOPE_REQUEST);
             }
         }
         return jsonObject;

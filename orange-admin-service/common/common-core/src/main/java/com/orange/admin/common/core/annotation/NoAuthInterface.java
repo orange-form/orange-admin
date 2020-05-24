@@ -6,7 +6,7 @@ import java.lang.annotation.*;
  * 主要用于标记无需Token验证的接口
  *
  * @author Stephen.Liu
- * @date 2020-04-11
+ * @date 2020-05-24
  */
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)

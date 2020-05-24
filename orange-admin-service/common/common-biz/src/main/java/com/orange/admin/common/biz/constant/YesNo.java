@@ -3,6 +3,12 @@ package com.orange.admin.common.biz.constant;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * 是否常量字典对象。
+ *
+ * @author Stephen.Liu
+ * @date 2020-05-24
+ */
 public final class YesNo {
 
     /**
@@ -14,7 +20,7 @@ public final class YesNo {
      */
     public static final int NO = 0;
 
-    public static final Map<Object, String> DICT_MAP = new HashMap<>(2);
+    private static final Map<Object, String> DICT_MAP = new HashMap<>(2);
     static {
         DICT_MAP.put(YES, "是");
         DICT_MAP.put(NO, "否");
@@ -26,8 +32,8 @@ public final class YesNo {
      * @param value 待验证的参数值。
      * @return 合法返回true，否则false。
      */
-    public static boolean isValid(int value) {
-        return DICT_MAP.containsKey(value);
+    public static boolean isValid(Integer value) {
+        return value != null && DICT_MAP.containsKey(value);
     }
 
     /**

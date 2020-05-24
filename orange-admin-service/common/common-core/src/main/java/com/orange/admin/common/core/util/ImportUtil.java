@@ -4,6 +4,9 @@ import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.poi.excel.ExcelReader;
 import cn.hutool.poi.excel.ExcelUtil;
 import cn.hutool.poi.excel.sax.Excel07SaxReader;
+import com.orange.admin.common.core.constant.ApplicationConstant;
+import com.orange.admin.common.core.exception.MyRuntimeException;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
@@ -19,10 +22,13 @@ import java.util.stream.Collectors;
  * 导入工具类，目前支持xlsx和csv两种类型。
  *
  * @author Stephen.Liu
- * @date 2020-04-11
+ * @date 2020-05-24
  */
+@Slf4j
 public class ImportUtil {
 
+    private static final String IMPORT_EXCEPTION_ERROR = "Failed to call ImportUtil.doImport";
+    private static final String UNSUPPORT_FILE_EXT_ERROR = "不支持的导入文件类型！";
     /**
      * 同步导入方式。
      *
@@ -30,11 +36,11 @@ public class ImportUtil {
      * @return 导入数据列表。
      */
     public static List<Map<String, Object>> doImport(String filename) {
-        if ("xlsx".equals(FilenameUtils.getExtension(filename))) {
+        if (ApplicationConstant.XLSX_EXT.equals(FilenameUtils.getExtension(filename))) {
             try (ExcelReader reader = ExcelUtil.getReader(filename)) {
                 return reader.readAll();
             }
-        } else if ("csv".equals(FilenameUtils.getExtension(filename))) {
+        } else if (ApplicationConstant.CSV_EXT.equals(FilenameUtils.getExtension(filename))) {
             List<Map<String, Object>> resultList = new LinkedList<>();
             try (FileReader reader = new FileReader(filename)) {
                 CSVParser parser = CSVFormat.DEFAULT.withFirstRecordAsHeader().parse(reader);
@@ -50,11 +56,11 @@ public class ImportUtil {
                     resultList.add(rowMap);
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                log.error(IMPORT_EXCEPTION_ERROR, e);
             }
             return resultList;
         }
-        throw new RuntimeException("不支持的导入文件类型！");
+        throw new MyRuntimeException(UNSUPPORT_FILE_EXT_ERROR);
     }
 
     /**
@@ -65,12 +71,12 @@ public class ImportUtil {
      * @throws IOException 文件处理异常。
      */
     public static <T> void doImport(String filename, BaseImporter<T> importer) throws IOException {
-        if ("xlsx".equals(FilenameUtils.getExtension(filename))) {
+        if (ApplicationConstant.XLSX_EXT.equals(FilenameUtils.getExtension(filename))) {
             Excel07SaxReader reader = new MyExcel07SaxReader<>(importer);
             try (InputStream in = new FileInputStream(filename)) {
                 reader.read(in, 0);
             }
-        } else if ("csv".equals(FilenameUtils.getExtension(filename))) {
+        } else if (ApplicationConstant.CSV_EXT.equals(FilenameUtils.getExtension(filename))) {
             try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
                 int rowIndex = 0;
                 do {
@@ -81,15 +87,12 @@ public class ImportUtil {
                     }
                     String[] dataArray = StringUtils.split(rowData, ",");
                     importer.doImport(rowIndex++, Arrays.asList(dataArray));
-                    if (importer.doInterrupt()) {
-                        break;
-                    }
-                } while (true);
+                } while (!importer.doInterrupt());
             } catch (Exception e) {
-                e.printStackTrace();
+                log.error(IMPORT_EXCEPTION_ERROR, e);
             }
         }
-        throw new RuntimeException("不支持的导入文件类型！");
+        throw new MyRuntimeException(UNSUPPORT_FILE_EXT_ERROR);
     }
 
     /**
@@ -97,7 +100,7 @@ public class ImportUtil {
      *
      * @param <T> 导入数据对象类型。
      */
-    public static abstract class BaseImporter<T> {
+    public abstract static class BaseImporter<T> {
         private Class<T> beanType;
         private List<T> batchRowList = new LinkedList<>();
         private int batchSize;
@@ -117,7 +120,7 @@ public class ImportUtil {
          * 导入操作执行函数。
          *
          * @param rowIndex 当前行号。
-         * @param row 当前行数据列表对象。
+         * @param row      当前行数据列表对象。
          */
         public void doImport(int rowIndex, List<Object> row) {
             if (row == null) {
@@ -154,7 +157,7 @@ public class ImportUtil {
                 }
                 batchRowList.add(data);
             } catch (Exception e) {
-                e.printStackTrace();
+                log.error(IMPORT_EXCEPTION_ERROR, e);
             }
             if (rowIndex % batchSize == 0) {
                 doProcess(batchRowList);
@@ -193,7 +196,7 @@ public class ImportUtil {
         public void endElement(String uri, String localName, String qName) {
             super.endElement(uri, localName, qName);
             if (importer.doInterrupt()) {
-                throw new RuntimeException();
+                throw new MyRuntimeException();
             }
         }
 
@@ -201,5 +204,11 @@ public class ImportUtil {
         public void endDocument() {
             importer.doImport(-1, null);
         }
+    }
+
+    /**
+     * 私有构造函数，明确标识该常量类的作用。
+     */
+    private ImportUtil() {
     }
 }

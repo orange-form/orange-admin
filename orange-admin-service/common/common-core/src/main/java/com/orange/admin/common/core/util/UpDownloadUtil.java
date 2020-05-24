@@ -1,7 +1,6 @@
 package com.orange.admin.common.core.util;
 
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.JSON;
 import com.orange.admin.common.core.constant.ApplicationConstant;
 import com.orange.admin.common.core.constant.ErrorCodeEnum;
 import com.orange.admin.common.core.object.ResponseResult;
@@ -19,12 +18,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 上传或下载附件文件的工具类。
  *
  * @author Stephen.Liu
- * @date 2020-04-11
+ * @date 2020-05-24
  */
 @Slf4j
 public class UpDownloadUtil {
@@ -47,8 +47,8 @@ public class UpDownloadUtil {
             Boolean asImage,
             HttpServletResponse response) {
         StringBuilder uploadPathBuilder = new StringBuilder(128);
-        uploadPathBuilder.append(rootBaseDir);
-        if (asImage) {
+        uploadPathBuilder.append(rootBaseDir).append("/");
+        if (Boolean.TRUE.equals(asImage)) {
             uploadPathBuilder.append(ApplicationConstant.UPLOAD_IMAGE_PARENT_PATH);
         } else {
             uploadPathBuilder.append(ApplicationConstant.UPLOAD_ATTACHMENT_PARENT_PATH);
@@ -64,8 +64,8 @@ public class UpDownloadUtil {
         response.setContentType("application/octet-stream");
         response.setHeader("Content-Disposition", "attachment;filename=" + fileName);
         byte[] buff = new byte[2048];
-        try (OutputStream os = response.getOutputStream()) {
-            BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));
+        try (OutputStream os = response.getOutputStream();
+             BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file))) {
             int i = bis.read(buff);
             while (i != -1) {
                 os.write(buff, 0, buff.length);
@@ -73,7 +73,7 @@ public class UpDownloadUtil {
                 i = bis.read(buff);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Failed to call UpDownloadUtil.doDownload", e);
         }
     }
 
@@ -97,9 +97,14 @@ public class UpDownloadUtil {
             HttpServletResponse response) throws IOException {
         PrintWriter out = response.getWriter();
         response.setContentType("application/json; charset=utf-8");
+        if (Objects.isNull(uploadFile) || uploadFile.isEmpty() || MyCommonUtil.isBlankOrNull(fieldName)) {
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            out.print(JSON.toJSONString(ResponseResult.error(ErrorCodeEnum.INVALID_UPLOAD_FILE_ARGUMENT)));
+            return;
+        }
         StringBuilder uploadPathBuilder = new StringBuilder(128);
-        uploadPathBuilder.append(rootBaseDir);
-        if (asImage) {
+        uploadPathBuilder.append(rootBaseDir).append("/");
+        if (Boolean.TRUE.equals(asImage)) {
             uploadPathBuilder.append(ApplicationConstant.UPLOAD_IMAGE_PARENT_PATH);
         } else {
             uploadPathBuilder.append(ApplicationConstant.UPLOAD_ATTACHMENT_PARENT_PATH);
@@ -129,10 +134,10 @@ public class UpDownloadUtil {
         } catch (IOException e) {
             log.error("Failed to write uploaded file [" + uploadFile.getOriginalFilename() + " ].", e);
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            out.print(JSONObject.toJSONString(ResponseResult.error(ErrorCodeEnum.INVALID_UPLOAD_FILE_IOERROR)));
+            out.print(JSON.toJSONString(ResponseResult.error(ErrorCodeEnum.INVALID_UPLOAD_FILE_IOERROR)));
             return;
         }
-        out.print(JSONObject.toJSONString(ResponseResult.success(fileInfo)));
+        out.print(JSON.toJSONString(ResponseResult.success(fileInfo)));
         out.flush();
         out.close();
     }
@@ -148,7 +153,7 @@ public class UpDownloadUtil {
         if (StringUtils.isAnyBlank(fileInfoJson, filename)) {
             return false;
         }
-        List<UploadFileInfo> fileInfoList = JSONArray.parseArray(fileInfoJson, UploadFileInfo.class);
+        List<UploadFileInfo> fileInfoList = JSON.parseArray(fileInfoJson, UploadFileInfo.class);
         if (CollectionUtils.isNotEmpty(fileInfoList)) {
             for (UploadFileInfo fileInfo : fileInfoList) {
                 if (StringUtils.equals(filename, fileInfo.filename)) {
@@ -157,6 +162,12 @@ public class UpDownloadUtil {
             }
         }
         return false;
+    }
+
+    /**
+     * 私有构造函数，明确标识该常量类的作用。
+     */
+    private UpDownloadUtil() {
     }
 
     @Data

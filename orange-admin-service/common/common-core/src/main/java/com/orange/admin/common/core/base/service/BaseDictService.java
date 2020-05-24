@@ -16,7 +16,7 @@ import java.util.List;
  * @param <M> Model实体对象的类型。
  * @param <K> Model对象主键的类型。
  * @author Stephen.Liu
- * @date 2020-04-11
+ * @date 2020-05-24
  */
 @Slf4j
 public abstract class BaseDictService<M, K> extends BaseService<M, K> {
@@ -47,16 +47,23 @@ public abstract class BaseDictService<M, K> extends BaseService<M, K> {
      */
     public void loadCachedData() {
         if (loadOnStartup()) {
-            reloadCachedData();
+            reloadCachedData(false);
         }
     }
 
     /**
      * 重新加载数据库中所有当前表数据到系统内存。
+     *
+     * @param force true则强制刷新，如果false，当缓存中存在数据时不刷新。
      */
-    public void reloadCachedData() {
+    public void reloadCachedData(boolean force) {
+        // 在非强制刷新情况下。
+        // 先行判断缓存中是否存在数据，如果有就不加载了。
+        if (!force && dictionaryCache.getCount() > 0) {
+            return;
+        }
         List<M> allList = super.getAllList();
-        dictionaryCache.reload(allList);
+        dictionaryCache.reload(allList, force);
     }
 
     /**
@@ -94,7 +101,7 @@ public abstract class BaseDictService<M, K> extends BaseService<M, K> {
     /**
      * 返回符合 inFilterField in (inFilterValues) 条件的所有数据。蜀国property是主键，则从缓存中读取。
      *
-     * @param inFilterField 参与(In-list)过滤的Java字段。
+     * @param inFilterField  参与(In-list)过滤的Java字段。
      * @param inFilterValues 参与(In-list)过滤的Java字段值集合。
      * @return 检索后的数据列表。
      */
@@ -110,7 +117,7 @@ public abstract class BaseDictService<M, K> extends BaseService<M, K> {
     /**
      * 判断参数值列表中的所有数据，是否全部存在。另外，keyName字段在数据表中必须是唯一键值，否则返回结果会出现误判。
      *
-     * @param inFilterField 待校验的数据字段，这里使用Java对象中的属性，如courseId，而不是数据字段名course_id。
+     * @param inFilterField  待校验的数据字段，这里使用Java对象中的属性，如courseId，而不是数据字段名course_id。
      * @param inFilterValues 数据值集合。
      * @return 全部存在返回true，否则false。
      */

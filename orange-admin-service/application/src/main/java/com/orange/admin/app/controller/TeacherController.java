@@ -1,7 +1,7 @@
 package com.orange.admin.app.controller;
 
 import cn.jimmyshi.beanquery.BeanQuery;
-import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.page.PageMethod;
 import com.orange.admin.app.model.*;
 import com.orange.admin.app.service.*;
 import com.orange.admin.upms.model.*;
@@ -22,7 +22,7 @@ import javax.validation.groups.Default;
  * 老师数据源操作控制器类。
  *
  * @author Stephen.Liu
- * @date 2020-04-11
+ * @date 2020-05-24
  */
 @Slf4j
 @RestController
@@ -39,28 +39,21 @@ public class TeacherController {
      * @return 应答结果对象，包含新增对象主键Id。
      */
     @PostMapping("/add")
-    public ResponseResult<?> add(@MyRequestBody Teacher teacher) {
-        ErrorCodeEnum errorCodeEnum = ErrorCodeEnum.NO_ERROR;
-        String errorMessage;
-        JSONObject responseData = null;
-        do {
-            errorMessage = MyCommonUtil.getModelValidationError(teacher);
-            if (errorMessage != null) {
-                errorCodeEnum = ErrorCodeEnum.DATA_VALIDATAED_FAILED;
-                break;
-            }
-            // 验证关联Id的数据合法性
-            VerifyResult verifyResult = teacherService.verifyRelatedData(teacher, null);
-            if (!verifyResult.isSuccess()) {
-                errorCodeEnum = ErrorCodeEnum.DATA_VALIDATAED_FAILED;
-                errorMessage = verifyResult.getErrorMessage();
-                break;
-            }
-            teacher = teacherService.saveNew(teacher);
-            responseData = new JSONObject();
-            responseData.put("teacherId", teacher.getTeacherId());
-        } while (false);
-        return ResponseResult.create(errorCodeEnum, errorMessage, responseData);
+    public ResponseResult<JSONObject> add(@MyRequestBody Teacher teacher) {
+        String errorMessage = MyCommonUtil.getModelValidationError(teacher);
+        if (errorMessage != null) {
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+        }
+        // 验证关联Id的数据合法性
+        CallResult callResult = teacherService.verifyRelatedData(teacher, null);
+        if (!callResult.isSuccess()) {
+            errorMessage = callResult.getErrorMessage();
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+        }
+        teacher = teacherService.saveNew(teacher);
+        JSONObject responseData = new JSONObject();
+        responseData.put("teacherId", teacher.getTeacherId());
+        return ResponseResult.success(responseData);
     }
 
     /**
@@ -70,36 +63,28 @@ public class TeacherController {
      * @return 应答结果对象。
      */
     @PostMapping("/update")
-    public ResponseResult<?> update(@MyRequestBody Teacher teacher) {
-        ErrorCodeEnum errorCodeEnum = ErrorCodeEnum.NO_ERROR;
-        String errorMessage;
-        do {
-            errorMessage = MyCommonUtil.getModelValidationError(teacher, Default.class, UpdateGroup.class);
-            if (errorMessage != null) {
-                errorCodeEnum = ErrorCodeEnum.DATA_VALIDATAED_FAILED;
-                break;
-            }
-            // 验证关联Id的数据合法性
-            Teacher originalTeacher = teacherService.getById(teacher.getTeacherId());
-            if (originalTeacher == null) {
-                errorCodeEnum = ErrorCodeEnum.DATA_NOT_EXIST;
-                //TODO 修改下面方括号中的话述
-                errorMessage = "数据验证失败，当前 [数据] 并不存在，请刷新后重试！";
-                break;
-            }
-            // 验证关联Id的数据合法性
-            VerifyResult verifyResult = teacherService.verifyRelatedData(teacher, originalTeacher);
-            if (!verifyResult.isSuccess()) {
-                errorCodeEnum = ErrorCodeEnum.DATA_VALIDATAED_FAILED;
-                errorMessage = verifyResult.getErrorMessage();
-                break;
-            }
-            if (!teacherService.update(teacher, originalTeacher)) {
-                errorCodeEnum = ErrorCodeEnum.DATA_NOT_EXIST;
-                break;
-            }
-        } while (false);
-        return ResponseResult.create(errorCodeEnum, errorMessage);
+    public ResponseResult<Void> update(@MyRequestBody Teacher teacher) {
+        String errorMessage = MyCommonUtil.getModelValidationError(teacher, Default.class, UpdateGroup.class);
+        if (errorMessage != null) {
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+        }
+        // 验证关联Id的数据合法性
+        Teacher originalTeacher = teacherService.getById(teacher.getTeacherId());
+        if (originalTeacher == null) {
+            //NOTE: 修改下面方括号中的话述
+            errorMessage = "数据验证失败，当前 [数据] 并不存在，请刷新后重试！";
+            return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST, errorMessage);
+        }
+        // 验证关联Id的数据合法性
+        CallResult callResult = teacherService.verifyRelatedData(teacher, originalTeacher);
+        if (!callResult.isSuccess()) {
+            errorMessage = callResult.getErrorMessage();
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+        }
+        if (!teacherService.update(teacher, originalTeacher)) {
+            return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST);
+        }
+        return ResponseResult.success();
     }
 
     /**
@@ -109,29 +94,23 @@ public class TeacherController {
      * @return 应答结果对象。
      */
     @PostMapping("/delete")
-    public ResponseResult<?> delete(@MyRequestBody Long teacherId) {
-        ErrorCodeEnum errorCodeEnum = ErrorCodeEnum.NO_ERROR;
-        String errorMessage = null;
-        do {
-            if (MyCommonUtil.existBlankArgument(teacherId)) {
-                errorCodeEnum = ErrorCodeEnum.ARGUMENT_NULL_EXIST;
-                break;
-            }
-            // 验证关联Id的数据合法性
-            Teacher originalTeacher = teacherService.getById(teacherId);
-            if (originalTeacher == null) {
-                errorCodeEnum = ErrorCodeEnum.DATA_NOT_EXIST;
-                //TODO 修改下面方括号中的话述
-                errorMessage = "数据验证失败，当前 [对象] 并不存在，请刷新后重试！";
-                break;
-            }
-            if (!teacherService.remove(teacherId)) {
-                errorCodeEnum = ErrorCodeEnum.DATA_NOT_EXIST;
-                errorMessage = "数据操作失败，删除的对象不存在，请刷新后重试！";
-                break;
-            }
-        } while (false);
-        return ResponseResult.create(errorCodeEnum, errorMessage);
+    public ResponseResult<Void> delete(@MyRequestBody Long teacherId) {
+        String errorMessage;
+        if (MyCommonUtil.existBlankArgument(teacherId)) {
+            return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
+        }
+        // 验证关联Id的数据合法性
+        Teacher originalTeacher = teacherService.getById(teacherId);
+        if (originalTeacher == null) {
+            // NOTE: 修改下面方括号中的话述
+            errorMessage = "数据验证失败，当前 [对象] 并不存在，请刷新后重试！";
+            return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST, errorMessage);
+        }
+        if (!teacherService.remove(teacherId)) {
+            errorMessage = "数据操作失败，删除的对象不存在，请刷新后重试！";
+            return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST, errorMessage);
+        }
+        return ResponseResult.success();
     }
 
     /**
@@ -144,13 +123,13 @@ public class TeacherController {
      * @return 应答结果对象，包含查询结果集。
      */
     @PostMapping("/list")
-    public ResponseResult<?> list(
+    public ResponseResult<JSONObject> list(
             @MyRequestBody Teacher teacherFilter,
             @MyRequestBody SysDept sysDeptFilter,
             @MyRequestBody MyOrderParam orderParam,
             @MyRequestBody MyPageParam pageParam) {
         if (pageParam != null) {
-            PageHelper.startPage(pageParam.getPageNum(), pageParam.getPageSize());
+            PageMethod.startPage(pageParam.getPageNum(), pageParam.getPageSize());
         }
         String orderBy = MyOrderParam.buildOrderBy(orderParam, Teacher.class);
         List<Teacher> resultList =
@@ -166,21 +145,14 @@ public class TeacherController {
      */
     @GetMapping("/view")
     public ResponseResult<Teacher> view(@RequestParam Long teacherId) {
-        ErrorCodeEnum errorCodeEnum = ErrorCodeEnum.NO_ERROR;
-        String errorMessage = null;
-        Teacher teacher = null;
-        do {
-            if (MyCommonUtil.existBlankArgument(teacherId)) {
-                errorCodeEnum = ErrorCodeEnum.ARGUMENT_NULL_EXIST;
-                break;
-            }
-            teacher = teacherService.getByIdWithRelation(teacherId);
-            if (teacher == null) {
-                errorCodeEnum = ErrorCodeEnum.DATA_NOT_EXIST;
-                break;
-            }
-        } while (false);
-        return ResponseResult.create(errorCodeEnum, errorMessage, teacher);
+        if (MyCommonUtil.existBlankArgument(teacherId)) {
+            return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
+        }
+        Teacher teacher = teacherService.getByIdWithRelation(teacherId, MyRelationParam.full());
+        if (teacher == null) {
+            return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST);
+        }
+        return ResponseResult.success(teacher);
     }
 
     /**
@@ -191,8 +163,8 @@ public class TeacherController {
      * @return 应答结果对象，包含的数据为 List<Map<String, String>>，map中包含两条记录，key的值分别是id和name，value对应具体数据。
      */
     @GetMapping("/listDictTeacher")
-    public ResponseResult<?> listDictTeacher(Teacher filter) {
-        List<Teacher> resultList = teacherService.getListByFilter(filter);
+    public ResponseResult<List<Map<String, Object>>> listDictTeacher(Teacher filter) {
+        List<Teacher> resultList = teacherService.getListByFilter(filter, null);
         return ResponseResult.success(BeanQuery.select(
                 "teacherId as id", "teacherName as name").executeFrom(resultList));
     }

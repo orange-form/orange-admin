@@ -11,7 +11,7 @@ import java.lang.annotation.Target;
  * 定义在Model对象中，标注字段值引用自指定的常量字典，和ConstDictRefValidator对象配合完成数据验证。
  *
  * @author Stephen.Liu
- * @date 2020-04-11
+ * @date 2020-05-24
  */
 @Target({ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)

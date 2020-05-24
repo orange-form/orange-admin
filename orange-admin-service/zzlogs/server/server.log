@@ -1,66 +1,10 @@
-[INFO ] 时间[2020-04-11 15:54:36] 线程[main] ==> Starting MyApplication on bogon with PID 1665 (/Users/stephen-liu/Desktop/OrangeAdmin/application/target/classes started by stephen-liu in /Users/stephen-liu/Desktop/OrangeAdmin)
-[INFO ] 时间[2020-04-11 15:54:36] 线程[main] ==> The following profiles are active: dev
-[INFO ] 时间[2020-04-11 15:57:14] 线程[main] ==> Starting MyApplication on bogon with PID 1680 (/Users/stephen-liu/Desktop/OrangeAdmin/application/target/classes started by stephen-liu in /Users/stephen-liu/Desktop/OrangeAdmin)
-[INFO ] 时间[2020-04-11 15:57:14] 线程[main] ==> The following profiles are active: dev
-[INFO ] 时间[2020-04-11 15:57:19] 线程[main] ==> Started MyApplication in 5.698 seconds (JVM running for 6.816)
-[ERROR] 时间[2020-04-11 15:58:29] 线程[http-nio-8082-exec-2] ==> Unhandled exception from URL [/admin/login/doLogin]
-org.springframework.web.HttpRequestMethodNotSupportedException: Request method 'POST' not supported
-	at org.springframework.web.servlet.mvc.method.RequestMappingInfoHandlerMapping.handleNoMatch(RequestMappingInfoHandlerMapping.java:213) ~[spring-webmvc-5.2.4.RELEASE.jar:5.2.4.RELEASE]
-	at org.springframework.web.servlet.handler.AbstractHandlerMethodMapping.lookupHandlerMethod(AbstractHandlerMethodMapping.java:421) ~[spring-webmvc-5.2.4.RELEASE.jar:5.2.4.RELEASE]
-	at org.springframework.web.servlet.handler.AbstractHandlerMethodMapping.getHandlerInternal(AbstractHandlerMethodMapping.java:367) ~[spring-webmvc-5.2.4.RELEASE.jar:5.2.4.RELEASE]
-	at org.springframework.web.servlet.mvc.method.RequestMappingInfoHandlerMapping.getHandlerInternal(RequestMappingInfoHandlerMapping.java:110) ~[spring-webmvc-5.2.4.RELEASE.jar:5.2.4.RELEASE]
-	at org.springframework.web.servlet.mvc.method.RequestMappingInfoHandlerMapping.getHandlerInternal(RequestMappingInfoHandlerMapping.java:59) ~[spring-webmvc-5.2.4.RELEASE.jar:5.2.4.RELEASE]
-	at org.springframework.web.servlet.handler.AbstractHandlerMapping.getHandler(AbstractHandlerMapping.java:395) ~[spring-webmvc-5.2.4.RELEASE.jar:5.2.4.RELEASE]
-	at org.springframework.web.servlet.DispatcherServlet.getHandler(DispatcherServlet.java:1234) [spring-webmvc-5.2.4.RELEASE.jar:5.2.4.RELEASE]
-	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:1016) [spring-webmvc-5.2.4.RELEASE.jar:5.2.4.RELEASE]
-	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:943) [spring-webmvc-5.2.4.RELEASE.jar:5.2.4.RELEASE]
-	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1006) [spring-webmvc-5.2.4.RELEASE.jar:5.2.4.RELEASE]
-	at org.springframework.web.servlet.FrameworkServlet.doPost(FrameworkServlet.java:909) [spring-webmvc-5.2.4.RELEASE.jar:5.2.4.RELEASE]
-	at javax.servlet.http.HttpServlet.service(HttpServlet.java:660) [tomcat-embed-core-9.0.31.jar:9.0.31]
-	at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:883) [spring-webmvc-5.2.4.RELEASE.jar:5.2.4.RELEASE]
-	at javax.servlet.http.HttpServlet.service(HttpServlet.java:741) [tomcat-embed-core-9.0.31.jar:9.0.31]
-	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:231) [tomcat-embed-core-9.0.31.jar:9.0.31]
-	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166) [tomcat-embed-core-9.0.31.jar:9.0.31]
-	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:53) [tomcat-embed-websocket-9.0.31.jar:9.0.31]
-	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193) [tomcat-embed-core-9.0.31.jar:9.0.31]
-	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166) [tomcat-embed-core-9.0.31.jar:9.0.31]
-	at org.springframework.web.filter.CorsFilter.doFilterInternal(CorsFilter.java:92) [spring-web-5.2.4.RELEASE.jar:5.2.4.RELEASE]
-	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:119) [spring-web-5.2.4.RELEASE.jar:5.2.4.RELEASE]
-	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193) [tomcat-embed-core-9.0.31.jar:9.0.31]
-	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166) [tomcat-embed-core-9.0.31.jar:9.0.31]
-	at com.alibaba.druid.support.http.WebStatFilter.doFilter(WebStatFilter.java:124) [druid-1.1.21.jar:1.1.21]
-	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193) [tomcat-embed-core-9.0.31.jar:9.0.31]
-	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166) [tomcat-embed-core-9.0.31.jar:9.0.31]
-	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100) [spring-web-5.2.4.RELEASE.jar:5.2.4.RELEASE]
-	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:119) [spring-web-5.2.4.RELEASE.jar:5.2.4.RELEASE]
-	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193) [tomcat-embed-core-9.0.31.jar:9.0.31]
-	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166) [tomcat-embed-core-9.0.31.jar:9.0.31]
-	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93) [spring-web-5.2.4.RELEASE.jar:5.2.4.RELEASE]
-	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:119) [spring-web-5.2.4.RELEASE.jar:5.2.4.RELEASE]
-	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193) [tomcat-embed-core-9.0.31.jar:9.0.31]
-	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166) [tomcat-embed-core-9.0.31.jar:9.0.31]
-	at org.springframework.boot.actuate.metrics.web.servlet.WebMvcMetricsFilter.doFilterInternal(WebMvcMetricsFilter.java:109) [spring-boot-actuator-2.2.5.RELEASE.jar:2.2.5.RELEASE]
-	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:119) [spring-web-5.2.4.RELEASE.jar:5.2.4.RELEASE]
-	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193) [tomcat-embed-core-9.0.31.jar:9.0.31]
-	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166) [tomcat-embed-core-9.0.31.jar:9.0.31]
-	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:201) [spring-web-5.2.4.RELEASE.jar:5.2.4.RELEASE]
-	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:119) [spring-web-5.2.4.RELEASE.jar:5.2.4.RELEASE]
-	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193) [tomcat-embed-core-9.0.31.jar:9.0.31]
-	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166) [tomcat-embed-core-9.0.31.jar:9.0.31]
-	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:202) [tomcat-embed-core-9.0.31.jar:9.0.31]
-	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:96) [tomcat-embed-core-9.0.31.jar:9.0.31]
-	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:541) [tomcat-embed-core-9.0.31.jar:9.0.31]
-	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:139) [tomcat-embed-core-9.0.31.jar:9.0.31]
-	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:92) [tomcat-embed-core-9.0.31.jar:9.0.31]
-	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:74) [tomcat-embed-core-9.0.31.jar:9.0.31]
-	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:343) [tomcat-embed-core-9.0.31.jar:9.0.31]
-	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:367) [tomcat-embed-core-9.0.31.jar:9.0.31]
-	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:65) [tomcat-embed-core-9.0.31.jar:9.0.31]
-	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:868) [tomcat-embed-core-9.0.31.jar:9.0.31]
-	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1639) [tomcat-embed-core-9.0.31.jar:9.0.31]
-	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:49) [tomcat-embed-core-9.0.31.jar:9.0.31]
-	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149) [?:1.8.0_151]
-	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624) [?:1.8.0_151]
-	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61) [tomcat-embed-core-9.0.31.jar:9.0.31]
-	at java.lang.Thread.run(Thread.java:748) [?:1.8.0_151]
-[INFO ] 时间[2020-04-11 15:58:41] 线程[http-nio-8082-exec-3] ==> access: com.orange.admin.upms.controller.LoginController.doLogin -- elapse 487 ms -- /admin/login/doLogin.
+[INFO ] 时间[2020-05-24 22:35:48] 线程[main] ==> Starting MyApplication on stephendembp with PID 2363 (/Users/stephen-liu/Desktop/OrangeAdmin/application/target/classes started by stephen-liu in /Users/stephen-liu/Desktop/OrangeAdmin)
+[INFO ] 时间[2020-05-24 22:35:48] 线程[main] ==> The following profiles are active: dev
+[INFO ] 时间[2020-05-24 22:36:53] 线程[main] ==> Starting MyApplication on stephendembp with PID 2366 (/Users/stephen-liu/Desktop/OrangeAdmin/application/target/classes started by stephen-liu in /Users/stephen-liu/Desktop/OrangeAdmin)
+[INFO ] 时间[2020-05-24 22:36:53] 线程[main] ==> The following profiles are active: dev
+[INFO ] 时间[2020-05-24 22:37:00] 线程[main] ==> Started MyApplication in 7.554 seconds (JVM running for 8.747)
+[INFO ] 时间[2020-05-24 22:37:39] 线程[http-nio-8082-exec-1] ==> access: com.orange.admin.upms.controller.LoginController.doLogin -- elapse 173 ms -- /admin/login/doLogin.
+[INFO ] 时间[2020-05-24 22:38:34] 线程[main] ==> Starting MyApplication on stephendembp with PID 2385 (/Users/stephen-liu/Desktop/OrangeAdmin/application/target/classes started by stephen-liu in /Users/stephen-liu/Desktop/OrangeAdmin)
+[INFO ] 时间[2020-05-24 22:38:34] 线程[main] ==> The following profiles are active: dev
+[INFO ] 时间[2020-05-24 22:38:41] 线程[main] ==> Started MyApplication in 7.343 seconds (JVM running for 8.439)
+[INFO ] 时间[2020-05-24 22:39:22] 线程[http-nio-8082-exec-2] ==> access: com.orange.admin.upms.controller.LoginController.doLogin -- elapse 126 ms -- /admin/login/doLogin.

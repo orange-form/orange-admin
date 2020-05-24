@@ -1,7 +1,7 @@
 package com.orange.admin.upms.controller;
 
 import com.alibaba.fastjson.JSONObject;
-import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.page.PageMethod;
 import lombok.extern.slf4j.Slf4j;
 import com.orange.admin.upms.model.SysRole;
 import com.orange.admin.upms.model.SysUser;
@@ -14,7 +14,8 @@ import com.orange.admin.common.core.constant.ErrorCodeEnum;
 import com.orange.admin.common.core.object.MyOrderParam;
 import com.orange.admin.common.core.object.MyPageParam;
 import com.orange.admin.common.core.object.ResponseResult;
-import com.orange.admin.common.core.object.VerifyResult;
+import com.orange.admin.common.core.object.CallResult;
+import com.orange.admin.common.core.object.MyRelationParam;
 import com.orange.admin.common.core.util.MyPageUtil;
 import com.orange.admin.common.core.annotation.MyRequestBody;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +29,7 @@ import java.util.stream.Collectors;
  * 角色管理接口控制器类。
  *
  * @author Stephen.Liu
- * @date 2020-04-11
+ * @date 2020-05-24
  */
 @Slf4j
 @RestController
@@ -49,29 +50,23 @@ public class SysRoleController {
      */
     @SuppressWarnings("unchecked")
     @PostMapping("/add")
-    public ResponseResult<?> add(@MyRequestBody SysRole sysRole, @MyRequestBody String menuIdListString) {
-        ErrorCodeEnum errorCodeEnum = ErrorCodeEnum.NO_ERROR;
-        String errorMessage;
-        JSONObject responseData = null;
-        do {
-            errorMessage = MyCommonUtil.getModelValidationError(sysRole);
-            if (errorMessage != null) {
-                errorCodeEnum = ErrorCodeEnum.DATA_VALIDATAED_FAILED;
-                break;
-            }
-            VerifyResult result = sysRoleService.verifyRelatedData(sysRole, null, menuIdListString);
-            if (!result.isSuccess()) {
-                return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, result.getErrorMessage());
-            }
-            Set<Long> menuIdSet = null;
-            if (result.getData() != null) {
-                menuIdSet = (Set<Long>) result.getData().get("menuIdSet");
-            }
-            sysRoleService.saveNew(sysRole, menuIdSet);
-            responseData = new JSONObject();
-            responseData.put("roleId", sysRole.getRoleId());
-        } while (false);
-        return ResponseResult.create(errorCodeEnum, errorMessage, responseData);
+    public ResponseResult<JSONObject> add(@MyRequestBody SysRole sysRole, @MyRequestBody String menuIdListString) {
+        String errorMessage = MyCommonUtil.getModelValidationError(sysRole);
+        if (errorMessage != null) {
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+        }
+        CallResult result = sysRoleService.verifyRelatedData(sysRole, null, menuIdListString);
+        if (!result.isSuccess()) {
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, result.getErrorMessage());
+        }
+        Set<Long> menuIdSet = null;
+        if (result.getData() != null) {
+            menuIdSet = (Set<Long>) result.getData().get("menuIdSet");
+        }
+        sysRoleService.saveNew(sysRole, menuIdSet);
+        JSONObject responseData = new JSONObject();
+        responseData.put("roleId", sysRole.getRoleId());
+        return ResponseResult.success(responseData);
     }
 
     /**
@@ -83,36 +78,29 @@ public class SysRoleController {
      */
     @SuppressWarnings("unchecked")
     @PostMapping("/update")
-    public ResponseResult<?> update(@MyRequestBody SysRole sysRole, @MyRequestBody String menuIdListString) {
-        ErrorCodeEnum errorCodeEnum = ErrorCodeEnum.NO_ERROR;
-        String errorMessage;
-        do {
-            errorMessage = MyCommonUtil.getModelValidationError(sysRole, Default.class, UpdateGroup.class);
-            if (errorMessage != null) {
-                errorCodeEnum = ErrorCodeEnum.DATA_VALIDATAED_FAILED;
-                break;
-            }
-            SysRole originalSysRole = sysRoleService.getById(sysRole.getRoleId());
-            if (originalSysRole == null) {
-                errorCodeEnum = ErrorCodeEnum.DATA_NOT_EXIST;
-                errorMessage = "数据验证失败，当前角色并不存在，请刷新后重试！";
-                break;
-            }
-            VerifyResult result = sysRoleService.verifyRelatedData(sysRole, originalSysRole, menuIdListString);
-            if (!result.isSuccess()) {
-                return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, result.getErrorMessage());
-            }
-            Set<Long> menuIdSet = null;
-            if (result.getData() != null) {
-                menuIdSet = (Set<Long>) result.getData().get("menuIdSet");
-            }
-            if (!sysRoleService.update(sysRole, originalSysRole, menuIdSet)) {
-                errorCodeEnum = ErrorCodeEnum.DATA_NOT_EXIST;
-                errorMessage = "更新失败，数据不存在，请刷新后重试！";
-                break;
-            }
-        } while (false);
-        return ResponseResult.create(errorCodeEnum, errorMessage);
+    public ResponseResult<Void> update(@MyRequestBody SysRole sysRole, @MyRequestBody String menuIdListString) {
+        String errorMessage = MyCommonUtil.getModelValidationError(sysRole, Default.class, UpdateGroup.class);
+        if (errorMessage != null) {
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+        }
+        SysRole originalSysRole = sysRoleService.getById(sysRole.getRoleId());
+        if (originalSysRole == null) {
+            errorMessage = "数据验证失败，当前角色并不存在，请刷新后重试！";
+            return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST, errorMessage);
+        }
+        CallResult result = sysRoleService.verifyRelatedData(sysRole, originalSysRole, menuIdListString);
+        if (!result.isSuccess()) {
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, result.getErrorMessage());
+        }
+        Set<Long> menuIdSet = null;
+        if (result.getData() != null) {
+            menuIdSet = (Set<Long>) result.getData().get("menuIdSet");
+        }
+        if (!sysRoleService.update(sysRole, originalSysRole, menuIdSet)) {
+            errorMessage = "更新失败，数据不存在，请刷新后重试！";
+            return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST, errorMessage);
+        }
+        return ResponseResult.success();
     }
 
     /**
@@ -122,21 +110,15 @@ public class SysRoleController {
      * @return 应答结果对象。
      */
     @PostMapping("/delete")
-    public ResponseResult<?> delete(@MyRequestBody Long roleId) {
-        ErrorCodeEnum errorCodeEnum = ErrorCodeEnum.NO_ERROR;
-        String errorMessage = null;
-        do {
-            if (MyCommonUtil.existBlankArgument(roleId)) {
-                errorCodeEnum = ErrorCodeEnum.ARGUMENT_NULL_EXIST;
-                break;
-            }
-            if (!sysRoleService.remove(roleId)) {
-                errorCodeEnum = ErrorCodeEnum.DATA_NOT_EXIST;
-                errorMessage = "数据操作失败，角色不存在，请刷新后重试！";
-                break;
-            }
-        } while (false);
-        return ResponseResult.create(errorCodeEnum, errorMessage);
+    public ResponseResult<Void> delete(@MyRequestBody Long roleId) {
+        if (MyCommonUtil.existBlankArgument(roleId)) {
+            return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
+        }
+        if (!sysRoleService.remove(roleId)) {
+            String errorMessage = "数据操作失败，角色不存在，请刷新后重试！";
+            return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST, errorMessage);
+        }
+        return ResponseResult.success();
     }
 
     /**
@@ -148,12 +130,12 @@ public class SysRoleController {
      * @return 应答结果对象，包含角色列表。
      */
     @PostMapping("/list")
-    public ResponseResult<?> list(
+    public ResponseResult<JSONObject> list(
             @MyRequestBody SysRole sysRoleFilter,
             @MyRequestBody MyOrderParam orderParam,
             @MyRequestBody MyPageParam pageParam) {
         if (pageParam != null) {
-            PageHelper.startPage(pageParam.getPageNum(), pageParam.getPageSize());
+            PageMethod.startPage(pageParam.getPageNum(), pageParam.getPageSize());
         }
         List<SysRole> roleList = sysRoleService.getSysRoleList(
                 sysRoleFilter, MyOrderParam.buildOrderBy(orderParam, SysRole.class));
@@ -168,21 +150,14 @@ public class SysRoleController {
      */
     @GetMapping("/view")
     public ResponseResult<SysRole> view(@RequestParam Long roleId) {
-        ErrorCodeEnum errorCodeEnum = ErrorCodeEnum.NO_ERROR;
-        String errorMessage = null;
-        SysRole sysRole = null;
-        do {
-            if (MyCommonUtil.existBlankArgument(roleId)) {
-                errorCodeEnum = ErrorCodeEnum.ARGUMENT_NULL_EXIST;
-                break;
-            }
-            sysRole = sysRoleService.getSysRoleWithRelation(roleId);
-            if (sysRole == null) {
-                errorCodeEnum = ErrorCodeEnum.DATA_NOT_EXIST;
-                break;
-            }
-        } while (false);
-        return ResponseResult.create(errorCodeEnum, errorMessage, sysRole);
+        if (MyCommonUtil.existBlankArgument(roleId)) {
+            return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
+        }
+        SysRole sysRole = sysRoleService.getByIdWithRelation(roleId, MyRelationParam.full());
+        if (sysRole == null) {
+            return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST);
+        }
+        return ResponseResult.success(sysRole);
     }
 
     /**
@@ -196,32 +171,23 @@ public class SysRoleController {
      * @return 应答结果对象，包含用户列表数据。
      */
     @PostMapping("/listNotInUserRole")
-    public ResponseResult<?> listNotInUserRole(
+    public ResponseResult<JSONObject> listNotInUserRole(
             @MyRequestBody Long roleId,
             @MyRequestBody SysUser sysUserFilter,
             @MyRequestBody MyOrderParam orderParam,
             @MyRequestBody MyPageParam pageParam) {
-        ErrorCodeEnum errorCodeEnum = ErrorCodeEnum.NO_ERROR;
-        String errorMessage = null;
-        JSONObject responseData = null;
-        do {
-            if (MyCommonUtil.existBlankArgument(roleId)) {
-                errorCodeEnum = ErrorCodeEnum.ARGUMENT_NULL_EXIST;
-                break;
-            }
-            if (!sysRoleService.existId(roleId)) {
-                errorCodeEnum = ErrorCodeEnum.INVALID_RELATED_RECORD_ID;
-                break;
-            }
-            if (pageParam != null) {
-                PageHelper.startPage(pageParam.getPageNum(), pageParam.getPageSize());
-            }
-            String orderBy = MyOrderParam.buildOrderBy(orderParam, SysUser.class);
-            List<SysUser> resultList =
-                    sysUserService.getNotInSysUserListByRoleId(roleId, sysUserFilter, orderBy);
-            responseData = MyPageUtil.makeResponseData(resultList);
-        } while (false);
-        return ResponseResult.create(errorCodeEnum, errorMessage, responseData);
+        ResponseResult<Void> verifyResult = this.doRoleUserVerify(roleId);
+        if (!verifyResult.isSuccess()) {
+            return ResponseResult.errorFrom(verifyResult);
+        }
+        if (pageParam != null) {
+            PageMethod.startPage(pageParam.getPageNum(), pageParam.getPageSize());
+        }
+        String orderBy = MyOrderParam.buildOrderBy(orderParam, SysUser.class);
+        List<SysUser> resultList =
+                sysUserService.getNotInSysUserListByRoleId(roleId, sysUserFilter, orderBy);
+        JSONObject responseData = MyPageUtil.makeResponseData(resultList);
+        return ResponseResult.success(responseData);
     }
 
     /**
@@ -234,31 +200,32 @@ public class SysRoleController {
      * @return 应答结果对象，包含用户列表数据。
      */
     @PostMapping("/listUserRole")
-    public ResponseResult<?> listUserRole(
+    public ResponseResult<JSONObject> listUserRole(
             @MyRequestBody Long roleId,
             @MyRequestBody SysUser sysUserFilter,
             @MyRequestBody MyOrderParam orderParam,
             @MyRequestBody MyPageParam pageParam) {
-        ErrorCodeEnum errorCodeEnum = ErrorCodeEnum.NO_ERROR;
-        String errorMessage = null;
-        JSONObject responseData = null;
-        do {
-            if (MyCommonUtil.existBlankArgument(roleId)) {
-                errorCodeEnum = ErrorCodeEnum.ARGUMENT_NULL_EXIST;
-                break;
-            }
-            if (!sysRoleService.existId(roleId)) {
-                errorCodeEnum = ErrorCodeEnum.INVALID_RELATED_RECORD_ID;
-                break;
-            }
-            if (pageParam != null) {
-                PageHelper.startPage(pageParam.getPageNum(), pageParam.getPageSize());
-            }
-            String orderBy = MyOrderParam.buildOrderBy(orderParam, SysUser.class);
-            List<SysUser> resultList = sysUserService.getSysUserListByRoleId(roleId, sysUserFilter, orderBy);
-            responseData = MyPageUtil.makeResponseData(resultList);
-        } while (false);
-        return ResponseResult.create(errorCodeEnum, errorMessage, responseData);
+        ResponseResult<Void> verifyResult = this.doRoleUserVerify(roleId);
+        if (!verifyResult.isSuccess()) {
+            return ResponseResult.errorFrom(verifyResult);
+        }
+        if (pageParam != null) {
+            PageMethod.startPage(pageParam.getPageNum(), pageParam.getPageSize());
+        }
+        String orderBy = MyOrderParam.buildOrderBy(orderParam, SysUser.class);
+        List<SysUser> resultList = sysUserService.getSysUserListByRoleId(roleId, sysUserFilter, orderBy);
+        JSONObject responseData = MyPageUtil.makeResponseData(resultList);
+        return ResponseResult.success(responseData);
+    }
+
+    private ResponseResult<Void> doRoleUserVerify(Long roleId) {
+        if (MyCommonUtil.existBlankArgument(roleId)) {
+            return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
+        }
+        if (!sysRoleService.existId(roleId)) {
+            return ResponseResult.error(ErrorCodeEnum.INVALID_RELATED_RECORD_ID);
+        }
+        return ResponseResult.success();
     }
 
     /**
@@ -269,32 +236,26 @@ public class SysRoleController {
      * @return 应答结果对象。
      */
     @PostMapping("/addUserRole")
-    public ResponseResult<?> addUserRole(
+    public ResponseResult<Void> addUserRole(
             @MyRequestBody Long roleId, @MyRequestBody String userIdListString) {
-        ErrorCodeEnum errorCodeEnum = ErrorCodeEnum.NO_ERROR;
-        String errorMessage = null;
-        do {
-            if (MyCommonUtil.existBlankArgument(roleId, userIdListString)) {
-                errorCodeEnum = ErrorCodeEnum.ARGUMENT_NULL_EXIST;
-                break;
-            }
-            Set<Long> userIdSet = Arrays.stream(
-                    userIdListString.split(",")).map(Long::valueOf).collect(Collectors.toSet());
-            if (!sysRoleService.existId(roleId)
-                    || !sysUserService.existUniqueKeyList("userId", userIdSet)) {
-                errorCodeEnum = ErrorCodeEnum.INVALID_RELATED_RECORD_ID;
-                break;
-            }
-            List<SysUserRole> userRoleList = new LinkedList<>();
-            for (Long userId : userIdSet) {
-                SysUserRole userRole = new SysUserRole();
-                userRole.setRoleId(roleId);
-                userRole.setUserId(userId);
-                userRoleList.add(userRole);
-            }
-            sysRoleService.addUserRoleList(userRoleList);
-        } while (false);
-        return ResponseResult.create(errorCodeEnum, errorMessage);
+        if (MyCommonUtil.existBlankArgument(roleId, userIdListString)) {
+            return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
+        }
+        Set<Long> userIdSet = Arrays.stream(
+                userIdListString.split(",")).map(Long::valueOf).collect(Collectors.toSet());
+        if (!sysRoleService.existId(roleId)
+                || !sysUserService.existUniqueKeyList("userId", userIdSet)) {
+            return ResponseResult.error(ErrorCodeEnum.INVALID_RELATED_RECORD_ID);
+        }
+        List<SysUserRole> userRoleList = new LinkedList<>();
+        for (Long userId : userIdSet) {
+            SysUserRole userRole = new SysUserRole();
+            userRole.setRoleId(roleId);
+            userRole.setUserId(userId);
+            userRoleList.add(userRole);
+        }
+        sysRoleService.addUserRoleList(userRoleList);
+        return ResponseResult.success();
     }
 
     /**
@@ -305,21 +266,15 @@ public class SysRoleController {
      * @return 应答数据结果。
      */
     @PostMapping("/deleteUserRole")
-    public ResponseResult<?> deleteUserRole(
+    public ResponseResult<Void> deleteUserRole(
             @MyRequestBody Long roleId, @MyRequestBody Long userId) {
-        ErrorCodeEnum errorCodeEnum = ErrorCodeEnum.NO_ERROR;
-        String errorMessage = null;
-        do {
-            if (MyCommonUtil.existBlankArgument(roleId, userId)) {
-                errorCodeEnum = ErrorCodeEnum.ARGUMENT_NULL_EXIST;
-                break;
-            }
-            if (!sysRoleService.removeUserRole(roleId, userId)) {
-                errorCodeEnum = ErrorCodeEnum.DATA_NOT_EXIST;
-                break;
-            }
-        } while (false);
-        return ResponseResult.create(errorCodeEnum, errorMessage);
+        if (MyCommonUtil.existBlankArgument(roleId, userId)) {
+            return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
+        }
+        if (!sysRoleService.removeUserRole(roleId, userId)) {
+            return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST);
+        }
+        return ResponseResult.success();
     }
 
     /**
@@ -331,23 +286,17 @@ public class SysRoleController {
      * @return 符合条件的角色列表。
      */
     @PostMapping("/listAllRolesByPermCode")
-    public ResponseResult<?> listAllRolesByPermCode(
+    public ResponseResult<JSONObject> listAllRolesByPermCode(
             @MyRequestBody Long permCodeId, @MyRequestBody MyPageParam pageParam) {
-        ErrorCodeEnum errorCodeEnum = ErrorCodeEnum.NO_ERROR;
-        String errorMessage = null;
-        JSONObject responseData = null;
-        do {
-            if (MyCommonUtil.existBlankArgument(permCodeId)) {
-                errorCodeEnum = ErrorCodeEnum.ARGUMENT_NULL_EXIST;
-                break;
-            }
-            if (pageParam != null) {
-                PageHelper.startPage(pageParam.getPageNum(), pageParam.getPageSize());
-            }
-            List<SysRole> roleList = sysRoleService.getSysRoleListByPermCodeId(permCodeId);
-            responseData = MyPageUtil.makeResponseData(roleList);
-        } while (false);
-        return ResponseResult.create(errorCodeEnum, errorMessage, responseData);
+        if (MyCommonUtil.existBlankArgument(permCodeId)) {
+            return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
+        }
+        if (pageParam != null) {
+            PageMethod.startPage(pageParam.getPageNum(), pageParam.getPageSize());
+        }
+        List<SysRole> roleList = sysRoleService.getSysRoleListByPermCodeId(permCodeId);
+        JSONObject responseData = MyPageUtil.makeResponseData(roleList);
+        return ResponseResult.success(responseData);
     }
 
     /**
@@ -359,22 +308,16 @@ public class SysRoleController {
      * @return 符合条件的角色列表。
      */
     @PostMapping("/listAllRolesByPerm")
-    public ResponseResult<?> listAllRolesByPerm(
+    public ResponseResult<JSONObject> listAllRolesByPerm(
             @MyRequestBody String url, @MyRequestBody MyPageParam pageParam) {
-        ErrorCodeEnum errorCodeEnum = ErrorCodeEnum.NO_ERROR;
-        String errorMessage = null;
-        JSONObject responseData = null;
-        do {
-            if (MyCommonUtil.existBlankArgument(url)) {
-                errorCodeEnum = ErrorCodeEnum.ARGUMENT_NULL_EXIST;
-                break;
-            }
-            if (pageParam != null) {
-                PageHelper.startPage(pageParam.getPageNum(), pageParam.getPageSize());
-            }
-            List<SysRole> roleList = sysRoleService.getSysRoleListByPerm(url);
-            responseData = MyPageUtil.makeResponseData(roleList);
-        } while (false);
-        return ResponseResult.create(errorCodeEnum, errorMessage, responseData);
+        if (MyCommonUtil.existBlankArgument(url)) {
+            return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
+        }
+        if (pageParam != null) {
+            PageMethod.startPage(pageParam.getPageNum(), pageParam.getPageSize());
+        }
+        List<SysRole> roleList = sysRoleService.getSysRoleListByPerm(url);
+        JSONObject responseData = MyPageUtil.makeResponseData(roleList);
+        return ResponseResult.success(responseData);
     }    
 }

@@ -101,5 +101,4 @@ export default {
   .active {
     color: #EF5E1C;
   }
-
 </style>

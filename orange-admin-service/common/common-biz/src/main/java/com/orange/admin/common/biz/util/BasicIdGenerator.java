@@ -14,7 +14,7 @@ import javax.annotation.PostConstruct;
  * 升级为基于分布式Id生成服务的实现时，仅需修改内部实现，外部业务方法不会受到任何影响。
  *
  * @author Stephen.Liu
- * @date 2020-04-11
+ * @date 2020-05-24
  */
 @Component
 public class BasicIdGenerator {

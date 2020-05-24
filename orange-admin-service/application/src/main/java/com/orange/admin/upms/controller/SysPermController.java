@@ -1,14 +1,14 @@
 package com.orange.admin.upms.controller;
 
 import com.alibaba.fastjson.JSONObject;
-import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.page.PageMethod;
 import lombok.extern.slf4j.Slf4j;
 import com.orange.admin.upms.model.SysPerm;
 import com.orange.admin.upms.model.SysPermModule;
 import com.orange.admin.upms.service.SysPermService;
 import com.orange.admin.common.core.constant.ErrorCodeEnum;
 import com.orange.admin.common.core.object.ResponseResult;
-import com.orange.admin.common.core.object.VerifyResult;
+import com.orange.admin.common.core.object.CallResult;
 import com.orange.admin.common.core.object.MyPageParam;
 import com.orange.admin.common.core.util.MyCommonUtil;
 import com.orange.admin.common.core.util.MyPageUtil;
@@ -25,7 +25,7 @@ import java.util.Map;
  * 权限资源管理接口控制器类。
  *
  * @author Stephen.Liu
- * @date 2020-04-11
+ * @date 2020-05-24
  */
 @Slf4j
 @RestController
@@ -42,25 +42,19 @@ public class SysPermController {
      * @return 应答结果对象，包含新增权限资源的主键Id。
      */
     @PostMapping("/add")
-    public ResponseResult<?> add(@MyRequestBody SysPerm sysPerm) {
-        ErrorCodeEnum errorCodeEnum = ErrorCodeEnum.NO_ERROR;
-        String errorMessage;
-        JSONObject responseData = null;
-        do {
-            errorMessage = MyCommonUtil.getModelValidationError(sysPerm);
-            if (errorMessage != null) {
-                errorCodeEnum = ErrorCodeEnum.DATA_VALIDATAED_FAILED;
-                break;
-            }
-            VerifyResult result = sysPermService.verifyRelatedData(sysPerm, null);
-            if (!result.isSuccess()) {
-                return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, result.getErrorMessage());
-            }
-            sysPerm = sysPermService.saveNew(sysPerm);
-            responseData = new JSONObject();
-            responseData.put("permId", sysPerm.getPermId());
-        } while (false);
-        return ResponseResult.create(errorCodeEnum, errorMessage, responseData);
+    public ResponseResult<JSONObject> add(@MyRequestBody SysPerm sysPerm) {
+        String errorMessage = MyCommonUtil.getModelValidationError(sysPerm);
+        if (errorMessage != null) {
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+        }
+        CallResult result = sysPermService.verifyRelatedData(sysPerm, null);
+        if (!result.isSuccess()) {
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, result.getErrorMessage());
+        }
+        sysPerm = sysPermService.saveNew(sysPerm);
+        JSONObject responseData = new JSONObject();
+        responseData.put("permId", sysPerm.getPermId());
+        return ResponseResult.success(responseData);
     }
 
     /**
@@ -70,32 +64,26 @@ public class SysPermController {
      * @return 应答结果对象，包含更新权限资源的主键Id。
      */
     @PostMapping("/update")
-    public ResponseResult<?> update(@MyRequestBody SysPerm sysPerm) {
-        ErrorCodeEnum errorCodeEnum = ErrorCodeEnum.NO_ERROR;
-        String errorMessage;
-        do {
-            errorMessage = MyCommonUtil.getModelValidationError(sysPerm, Default.class, UpdateGroup.class);
-            if (errorMessage != null) {
-                errorCodeEnum = ErrorCodeEnum.DATA_VALIDATAED_FAILED;
-                break;
-            }
-            SysPerm originalPerm = sysPermService.getById(sysPerm.getPermId());
-            if (originalPerm == null) {
-                errorCodeEnum = ErrorCodeEnum.DATA_NOT_EXIST;
-                errorMessage = "数据验证失败，当前权限资源并不存在，请刷新后重试！";
-                break;
-            }
-            VerifyResult result = sysPermService.verifyRelatedData(sysPerm, originalPerm);
-            if (!result.isSuccess()) {
-                return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, result.getErrorMessage());
-            }
-            if (result.getData() != null) {
-                SysPermModule permModule = (SysPermModule) result.getData().get("permModule");
-                sysPerm.setModuleId(permModule.getModuleId());
-            }
-            sysPermService.update(sysPerm, originalPerm);
-        } while (false);
-        return ResponseResult.create(errorCodeEnum, errorMessage);
+    public ResponseResult<Void> update(@MyRequestBody SysPerm sysPerm) {
+        String errorMessage = MyCommonUtil.getModelValidationError(sysPerm, Default.class, UpdateGroup.class);
+        if (errorMessage != null) {
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+        }
+        SysPerm originalPerm = sysPermService.getById(sysPerm.getPermId());
+        if (originalPerm == null) {
+            errorMessage = "数据验证失败，当前权限资源并不存在，请刷新后重试！";
+            return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST, errorMessage);
+        }
+        CallResult result = sysPermService.verifyRelatedData(sysPerm, originalPerm);
+        if (!result.isSuccess()) {
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, result.getErrorMessage());
+        }
+        if (result.getData() != null) {
+            SysPermModule permModule = (SysPermModule) result.getData().get("permModule");
+            sysPerm.setModuleId(permModule.getModuleId());
+        }
+        sysPermService.update(sysPerm, originalPerm);
+        return ResponseResult.success();
     }
 
     /**
@@ -105,21 +93,15 @@ public class SysPermController {
      * @return 应答结果对象。
      */
     @PostMapping("/delete")
-    public ResponseResult<?> delete(@MyRequestBody Long permId) {
-        ErrorCodeEnum errorCodeEnum = ErrorCodeEnum.NO_ERROR;
-        String errorMessage = null;
-        do {
-            if (MyCommonUtil.existBlankArgument(permId)) {
-                errorCodeEnum = ErrorCodeEnum.ARGUMENT_NULL_EXIST;
-                break;
-            }
-            if (!sysPermService.remove(permId)) {
-                errorCodeEnum = ErrorCodeEnum.DATA_NOT_EXIST;
-                errorMessage = "数据操作失败，权限不存在，请刷新后重试！";
-                break;
-            }
-        } while (false);
-        return ResponseResult.create(errorCodeEnum, errorMessage);
+    public ResponseResult<Void> delete(@MyRequestBody Long permId) {
+        if (MyCommonUtil.existBlankArgument(permId)) {
+            return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
+        }
+        if (!sysPermService.remove(permId)) {
+            String errorMessage = "数据操作失败，权限不存在，请刷新后重试！";
+            return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST, errorMessage);
+        }
+        return ResponseResult.success();
     }
 
     /**
@@ -130,21 +112,14 @@ public class SysPermController {
      */
     @GetMapping("/view")
     public ResponseResult<SysPerm> view(@RequestParam Long permId) {
-        ErrorCodeEnum errorCodeEnum = ErrorCodeEnum.NO_ERROR;
-        String errorMessage = null;
-        SysPerm perm = null;
-        do {
-            if (MyCommonUtil.existBlankArgument(permId)) {
-                errorCodeEnum = ErrorCodeEnum.ARGUMENT_NULL_EXIST;
-                break;
-            }
-            perm = sysPermService.getById(permId);
-            if (perm == null) {
-                errorCodeEnum = ErrorCodeEnum.DATA_NOT_EXIST;
-                break;
-            }
-        } while (false);
-        return ResponseResult.create(errorCodeEnum, errorMessage, perm);
+        if (MyCommonUtil.existBlankArgument(permId)) {
+            return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
+        }
+        SysPerm perm = sysPermService.getById(permId);
+        if (perm == null) {
+            return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST);
+        }
+        return ResponseResult.success(perm);
     }
 
     /**
@@ -155,9 +130,9 @@ public class SysPermController {
      * @return 应答结果对象，包含权限资源列表。
      */
     @PostMapping("/list")
-    public ResponseResult<?> list(@MyRequestBody SysPerm sysPermFilter, @MyRequestBody MyPageParam pageParam) {
+    public ResponseResult<JSONObject> list(@MyRequestBody SysPerm sysPermFilter, @MyRequestBody MyPageParam pageParam) {
         if (pageParam != null) {
-            PageHelper.startPage(pageParam.getPageNum(), pageParam.getPageSize());
+            PageMethod.startPage(pageParam.getPageNum(), pageParam.getPageSize());
         }
         List<SysPerm> resultList = sysPermService.getPermListWithRelation(sysPermFilter);
         return ResponseResult.success(MyPageUtil.makeResponseData(resultList));
@@ -173,27 +148,21 @@ public class SysPermController {
      * @return 应答结果对象，包含该用户的全部权限资源列表。
      */
     @PostMapping("/listAllPermsByUserFilter")
-    public ResponseResult<?> listAllPermsByUserFilter(
+    public ResponseResult<JSONObject> listAllPermsByUserFilter(
             @MyRequestBody String loginName,
             @MyRequestBody Long moduleId,
             @MyRequestBody String url,
             @MyRequestBody MyPageParam pageParam) {
-        ErrorCodeEnum errorCodeEnum = ErrorCodeEnum.NO_ERROR;
-        String errorMessage = null;
-        JSONObject responseData = null;
-        do {
-            if (MyCommonUtil.existBlankArgument(loginName)) {
-                errorCodeEnum = ErrorCodeEnum.ARGUMENT_NULL_EXIST;
-                break;
-            }
-            if (pageParam != null) {
-                PageHelper.startPage(pageParam.getPageNum(), pageParam.getPageSize());
-            }
-            List<Map<String, Object>> userPermMapList =
-                    sysPermService.getUserPermListByFilter(loginName, moduleId, url);
-            responseData = MyPageUtil.makeResponseData(userPermMapList);
-        } while (false);
-        return ResponseResult.create(errorCodeEnum, errorMessage, responseData);
+        if (MyCommonUtil.existBlankArgument(loginName)) {
+            return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
+        }
+        if (pageParam != null) {
+            PageMethod.startPage(pageParam.getPageNum(), pageParam.getPageSize());
+        }
+        List<Map<String, Object>> userPermMapList =
+                sysPermService.getUserPermListByFilter(loginName, moduleId, url);
+        JSONObject responseData = MyPageUtil.makeResponseData(userPermMapList);
+        return ResponseResult.success(responseData);
     }
 
     /**
@@ -203,18 +172,12 @@ public class SysPermController {
      * @return 应答结果对象，包含用户数据列表。
      */
     @PostMapping("/listAllUsers")
-    public ResponseResult<?> listAllUsers(@MyRequestBody Long permId) {
-        ErrorCodeEnum errorCodeEnum = ErrorCodeEnum.NO_ERROR;
-        String errorMessage = null;
-        List<Map<String, Object>> permUserMapList = null;
-        do {
-            if (MyCommonUtil.existBlankArgument(permId)) {
-                errorCodeEnum = ErrorCodeEnum.ARGUMENT_NULL_EXIST;
-                break;
-            }
-            permUserMapList = sysPermService.getPermUserListById(permId);
-        } while (false);
-        return ResponseResult.create(errorCodeEnum, errorMessage, permUserMapList);
+    public ResponseResult<List<Map<String, Object>>> listAllUsers(@MyRequestBody Long permId) {
+        if (MyCommonUtil.existBlankArgument(permId)) {
+            return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
+        }
+        List<Map<String, Object>> permUserMapList = sysPermService.getPermUserListById(permId);
+        return ResponseResult.success(permUserMapList);
     }
 
     /**
@@ -224,17 +187,11 @@ public class SysPermController {
      * @return 应答结果对象，包含角色数据列表。
      */
     @PostMapping("/listAllRoles")
-    public ResponseResult<?> listAllRoles(@MyRequestBody Long permId) {
-        ErrorCodeEnum errorCodeEnum = ErrorCodeEnum.NO_ERROR;
-        String errorMessage = null;
-        List<Map<String, Object>> permRoleMapList = null;
-        do {
-            if (MyCommonUtil.existBlankArgument(permId)) {
-                errorCodeEnum = ErrorCodeEnum.ARGUMENT_NULL_EXIST;
-                break;
-            }
-            permRoleMapList = sysPermService.getPermRoleListById(permId);
-        } while (false);
-        return ResponseResult.create(errorCodeEnum, errorMessage, permRoleMapList);
+    public ResponseResult<List<Map<String, Object>>> listAllRoles(@MyRequestBody Long permId) {
+        if (MyCommonUtil.existBlankArgument(permId)) {
+            return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
+        }
+        List<Map<String, Object>> permRoleMapList = sysPermService.getPermRoleListById(permId);
+        return ResponseResult.success(permRoleMapList);
     }
 }

@@ -11,7 +11,7 @@ import java.util.Map;
  * 权限资源数据访问操作接口。
  *
  * @author Stephen.Liu
- * @date 2020-04-11
+ * @date 2020-05-24
  */
 public interface SysPermMapper extends BaseDaoMapper<SysPerm> {
 
@@ -28,7 +28,7 @@ public interface SysPermMapper extends BaseDaoMapper<SysPerm> {
      *
      * @param loginName 精确匹配用户登录名。
      * @param moduleId  精确匹配权限模块Id。
-     * @param url 权限的url过滤条件，LIKE %url%。
+     * @param url       权限的url过滤条件，LIKE %url%。
      * @return 权限列表。
      */
     List<Map<String, Object>> getUserPermListByFilter(

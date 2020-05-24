@@ -1,7 +1,6 @@
 package com.orange.admin.config;
 
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,26 +15,21 @@ import java.nio.charset.StandardCharsets;
  * 这里主要配置Web的各种过滤器和监听器等Servlet容器组件。
  *
  * @author Stephen.Liu
- * @date 2020-04-11
+ * @date 2020-05-24
  */
 @Configuration
 public class FilterConfig {
 
-    @Autowired
-    private ApplicationConfig applicationConfig;
-
     /**
-     * 配置Ajax跨域过滤器
+     * 配置Ajax跨域过滤器。
      */
     @Bean
-    public CorsFilter corsFilterRegistration() {
+    public CorsFilter corsFilterRegistration(ApplicationConfig applicationConfig) {
         UrlBasedCorsConfigurationSource configSource = new UrlBasedCorsConfigurationSource();
         CorsConfiguration corsConfiguration = new CorsConfiguration();
         if (StringUtils.isNotBlank(applicationConfig.getCredentialIpList())) {
             String[] credentialIpList = StringUtils.split(applicationConfig.getCredentialIpList(), ",");
-            if (credentialIpList.length == 0) {
-                corsConfiguration.addAllowedOrigin("*");
-            } else {
+            if (credentialIpList.length > 0) {
                 for (String ip : credentialIpList) {
                     corsConfiguration.addAllowedOrigin(ip);
                 }

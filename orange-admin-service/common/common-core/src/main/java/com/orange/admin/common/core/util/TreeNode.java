@@ -15,7 +15,7 @@ import java.util.function.Function;
  * @param <K> 节点之间关联键的类型。
  *
  * @author Stephen.Liu
- * @date 2020-04-11
+ * @date 2020-05-24
  */
 @Data
 public class TreeNode<T, K> {
@@ -28,12 +28,12 @@ public class TreeNode<T, K> {
     /**
      * 将列表结构组建为树结构的工具方法。
      *
-     * @param dataList 数据列表结构。
-     * @param idFunc 获取关联id的函数对象。
+     * @param dataList     数据列表结构。
+     * @param idFunc       获取关联id的函数对象。
      * @param parentIdFunc 获取关联ParentId的函数对象。
-     * @param root 根节点。
-     * @param <T> 数据对象类型。
-     * @param <K> 节点之间关联键的类型。
+     * @param root         根节点。
+     * @param <T>          数据对象类型。
+     * @param <K>          节点之间关联键的类型。
      * @return 源数据对象的树结构存储。
      */
     public static <T, K> List<TreeNode<T, K>> build(
@@ -90,5 +90,4 @@ public class TreeNode<T, K> {
     private void add(TreeNode<T, K> node) {
         childList.add(node);
     }
-
 }

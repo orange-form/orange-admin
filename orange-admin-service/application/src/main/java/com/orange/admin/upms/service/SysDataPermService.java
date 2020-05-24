@@ -1,13 +1,13 @@
 package com.orange.admin.upms.service;
 
 import com.alibaba.fastjson.JSONObject;
+import com.orange.admin.common.biz.base.service.BaseBizService;
 import com.orange.admin.common.biz.util.BasicIdGenerator;
 import com.orange.admin.common.core.constant.DataPermRuleType;
 import com.orange.admin.common.core.base.dao.BaseDaoMapper;
-import com.orange.admin.common.core.base.service.BaseService;
 import com.orange.admin.common.core.constant.GlobalDeletedFlag;
 import com.orange.admin.common.core.object.TokenData;
-import com.orange.admin.common.core.object.VerifyResult;
+import com.orange.admin.common.core.object.CallResult;
 import com.orange.admin.upms.dao.SysDataPermDeptMapper;
 import com.orange.admin.upms.dao.SysDataPermMapper;
 import com.orange.admin.upms.dao.SysDataPermUserMapper;
@@ -29,10 +29,10 @@ import java.util.stream.Collectors;
  * 数据权限数据服务类。
  *
  * @author Stephen.Liu
- * @date 2020-04-11
+ * @date 2020-05-24
  */
 @Service
-public class SysDataPermService extends BaseService<SysDataPerm, Long> {
+public class SysDataPermService extends BaseBizService<SysDataPerm, Long> {
 
     @Autowired
     private SysDataPermMapper sysDataPermMapper;
@@ -67,7 +67,7 @@ public class SysDataPermService extends BaseService<SysDataPerm, Long> {
      * @param dataPermMenuList 关联的菜单对象列表。
      * @return 新增后的数据权限对象。
      */
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public SysDataPerm saveNew(SysDataPerm dataPerm, Set<Long> deptIdSet, List<SysDataPermMenu> dataPermMenuList) {
         dataPerm.setDataPermId(idGenerator.nextLongId());
         TokenData tokenData = TokenData.takeFromRequest();
@@ -91,7 +91,7 @@ public class SysDataPermService extends BaseService<SysDataPerm, Long> {
      * @param dataPermMenuList 关联的菜单对象列表。
      * @return 更新成功返回true，否则false。
      */
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public boolean update(
             SysDataPerm dataPerm,
             SysDataPerm originalDataPerm,
@@ -121,7 +121,7 @@ public class SysDataPermService extends BaseService<SysDataPerm, Long> {
      * @param dataPermId 数据权限主键Id。
      * @return 删除成功返回true，否则false。
      */
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public boolean remove(Long dataPermId) {
         SysDataPerm dataPerm = new SysDataPerm();
         dataPerm.setDataPermId(dataPermId);
@@ -153,27 +153,6 @@ public class SysDataPermService extends BaseService<SysDataPerm, Long> {
     }
 
     /**
-     * 获取指定数据权限，同时包含其关联数据。
-     *
-     * @param dataPermId 数据权限主键Id。
-     * @return 数据权限对象。
-     */
-    public SysDataPerm getSysDataPermWithRelation(Long dataPermId) {
-        SysDataPerm dataPerm = this.getById(dataPermId);
-        if (dataPerm != null) {
-            SysDataPermDept dataPermDept = new SysDataPermDept();
-            dataPermDept.setDataPermId(dataPermId);
-            List<SysDataPermDept> dataPermDeptList = sysDataPermDeptMapper.select(dataPermDept);
-            dataPerm.setDataPermDeptList(dataPermDeptList);
-            SysDataPermMenu dataPermMenu = new SysDataPermMenu();
-            dataPermMenu.setDataPermId(dataPermId);
-            List<SysDataPermMenu> dataPermMenuList = sysDataPermMenuMapper.select(dataPermMenu);
-            dataPerm.setDataPermMenuList(dataPermMenuList);
-        }
-        return dataPerm;
-    }
-
-    /**
      * 将指定用户的指定会话的数据权限集合存入缓存。
      *
      * @param sessionId 会话Id。
@@ -182,7 +161,7 @@ public class SysDataPermService extends BaseService<SysDataPerm, Long> {
      * @param isAdmin   是否是管理员。
      * @return 查询并缓存后的数据权限集合。返回格式为，Map<MenuId, Map<RuleType, DeptIdString>>。
      */
-    @CachePut(value = "DataPermissionCache", key = "#sessionId")
+    @CachePut(value = "DATA_PERMISSION_CACHE", key = "#sessionId")
     public Map<Object, Map<Integer, String>> putDataPermCache(
             String sessionId, Long userId, Long deptId, boolean isAdmin) {
         // 管理员账户返回空对象，便于缓存的统一处理。
@@ -194,7 +173,7 @@ public class SysDataPermService extends BaseService<SysDataPerm, Long> {
      *
      * @param sessionId 会话Id。
      */
-    @CacheEvict(value = "DataPermissionCache", key = "#sessionId")
+    @CacheEvict(value = "DATA_PERMISSION_CACHE", key = "#sessionId")
     public void removeDataPermCache(String sessionId) {
         // 空实现即可，只是通过注解将当前sessionId从cache中删除。
     }
@@ -208,7 +187,7 @@ public class SysDataPermService extends BaseService<SysDataPerm, Long> {
      */
     public Map<Object, Map<Integer, String>> getSysDataPermMenuListByUserId(Long userId, Long deptId) {
         List<SysDataPermMenu> dataPermMenuList = sysDataPermMenuMapper.getSysDataPermMenuListByUserId(userId);
-        if (dataPermMenuList.size() == 0) {
+        if (dataPermMenuList.isEmpty()) {
             return new HashMap<>(1);
         }
         // 这里用代码的方式把deptId组装到SysDataPermMenu中。
@@ -226,7 +205,12 @@ public class SysDataPermService extends BaseService<SysDataPerm, Long> {
                 dataPermMenu.setDeptIdListString(StringUtils.join(deptIdSet, ","));
             }
         }
-        // 由于同一用户可能属于多个数据权限，所以需要先进行基于menuId的权限合并。
+        // 由于同一用户可能属于多个数据权限，所以需要进行基于menuId的权限合并。
+        return mergeDataPermMenuList(dataPermMenuList, deptId);
+    }
+
+    private Map<Object, Map<Integer, String>> mergeDataPermMenuList(
+            List<SysDataPermMenu> dataPermMenuList, Long deptId) {
         Map<Object, List<SysDataPermMenu>> menuMap =
                 dataPermMenuList.stream().collect(Collectors.groupingBy(SysDataPermMenu::getMenuId));
         Map<Object, Map<Integer, String>> resultMap = new HashMap<>(menuMap.size());
@@ -244,18 +228,9 @@ public class SysDataPermService extends BaseService<SysDataPerm, Long> {
                 continue;
             }
             // 合并自定义部门了。
-            List<SysDataPermMenu> customDeptList = ruleMap.get(DataPermRuleType.TYPE_CUSTOM_DETP_LIST);
-            if (customDeptList != null) {
-                Set<Long> deptIdSet = new HashSet<>();
-                for (SysDataPermMenu customDept : customDeptList) {
-                    deptIdSet.addAll(Arrays.stream(StringUtils.split(
-                            customDept.getDeptIdListString(), ",")).map(Long::valueOf).collect(Collectors.toSet()));
-                }
-                if (ruleMap.containsKey(DataPermRuleType.TYPE_DEPT_ONLY)) {
-                    deptIdSet.add(deptId);
-                    ruleMap.remove(DataPermRuleType.TYPE_DEPT_ONLY);
-                }
-                m.put(DataPermRuleType.TYPE_CUSTOM_DETP_LIST, StringUtils.join(deptIdSet, ','));
+            String deptIds = processMultiDept(ruleMap, deptId);
+            if (deptIds != null) {
+                m.put(DataPermRuleType.TYPE_CUSTOM_DETP_LIST, deptIds);
             }
             // 最后处理当前部门和当前用户。
             if (ruleMap.get(DataPermRuleType.TYPE_DEPT_ONLY) != null) {
@@ -269,13 +244,30 @@ public class SysDataPermService extends BaseService<SysDataPerm, Long> {
         return resultMap;
     }
 
+    private String processMultiDept(Map<Integer, List<SysDataPermMenu>> ruleMap, Long deptId) {
+        List<SysDataPermMenu> customDeptList = ruleMap.get(DataPermRuleType.TYPE_CUSTOM_DETP_LIST);
+        if (customDeptList == null) {
+            return null;
+        }
+        Set<Long> deptIdSet = new HashSet<>();
+        for (SysDataPermMenu customDept : customDeptList) {
+            deptIdSet.addAll(Arrays.stream(StringUtils.split(
+                    customDept.getDeptIdListString(), ",")).map(Long::valueOf).collect(Collectors.toSet()));
+        }
+        if (ruleMap.containsKey(DataPermRuleType.TYPE_DEPT_ONLY)) {
+            deptIdSet.add(deptId);
+            ruleMap.remove(DataPermRuleType.TYPE_DEPT_ONLY);
+        }
+        return StringUtils.join(deptIdSet, ',');
+    }
+
     /**
      * 添加用户和数据权限之间的多对多关联关系。
      *
      * @param dataPermId 数据权限Id。
-     * @param userIdSet 关联的用户Id列表。
+     * @param userIdSet  关联的用户Id列表。
      */
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void addDataPermUserList(Long dataPermId, Set<Long> userIdSet) {
         List<SysDataPermUser> dataPermUserList = new LinkedList<>();
         for (Long userId : userIdSet) {
@@ -293,7 +285,7 @@ public class SysDataPermService extends BaseService<SysDataPerm, Long> {
      * @param dataPermId 数据权限主键Id。
      * @param userId     用户主键Id。
      */
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public boolean removeDataPermUser(Long dataPermId, Long userId) {
         SysDataPermUser dataPermUser = new SysDataPermUser();
         dataPermUser.setDataPermId(dataPermId);
@@ -304,44 +296,38 @@ public class SysDataPermService extends BaseService<SysDataPerm, Long> {
     /**
      * 验证数据权限对象关联菜单数据是否都合法。
      *
-     * @param dataPerm 数据权限关对象。
+     * @param dataPerm         数据权限关对象。
      * @param deptIdListString 与数据权限关联的部门Id列表。
      * @param menuIdListString 与数据权限关联的菜单Id列表。
      * @return 验证结果。
      */
-    public VerifyResult verifyRelatedData(SysDataPerm dataPerm, String deptIdListString, String menuIdListString) {
-        String errorMessage = null;
+    public CallResult verifyRelatedData(SysDataPerm dataPerm, String deptIdListString, String menuIdListString) {
         JSONObject jsonObject = new JSONObject();
-        do {
-            if (dataPerm.getRuleType() == DataPermRuleType.TYPE_CUSTOM_DETP_LIST) {
-                if (StringUtils.isBlank(deptIdListString)) {
-                    errorMessage = "数据验证失败，部门列表不能为空！";
-                    break;
-                }
-                Set<Long> deptIdSet = Arrays.stream(StringUtils.split(
-                        deptIdListString, ",")).map(Long::valueOf).collect(Collectors.toSet());
-                if (!sysDeptService.existUniqueKeyList("deptId", deptIdSet)) {
-                    errorMessage = "数据验证失败，存在不合法的部门数据，请刷新后重试！";
-                    break;
-                }
-                jsonObject.put("deptIdSet", deptIdSet);
+        if (dataPerm.getRuleType() == DataPermRuleType.TYPE_CUSTOM_DETP_LIST) {
+            if (StringUtils.isBlank(deptIdListString)) {
+                return CallResult.error("数据验证失败，部门列表不能为空！");
             }
-            String[] menuIdArray = StringUtils.split(menuIdListString, ",");
-            Set<Long> menuIdSet = Arrays.stream(menuIdArray).map(Long::valueOf).collect(Collectors.toSet());
-            // 验证菜单Id的合法性
-            if (!sysMenuService.existUniqueKeyList("menuId", menuIdSet)) {
-                errorMessage = "数据验证失败，存在不合法的菜单，请刷新后重试！";
-                break;
+            Set<Long> deptIdSet = Arrays.stream(StringUtils.split(
+                    deptIdListString, ",")).map(Long::valueOf).collect(Collectors.toSet());
+            if (!sysDeptService.existAllPrimaryKeys(deptIdSet)) {
+                return CallResult.error("数据验证失败，存在不合法的部门数据，请刷新后重试！");
             }
-            List<SysDataPermMenu> dataPermMenuList = new LinkedList<>();
-            for (Long menuId : menuIdSet) {
-                SysDataPermMenu dataPermMenu = new SysDataPermMenu();
-                dataPermMenu.setMenuId(menuId);
-                dataPermMenuList.add(dataPermMenu);
-            }
-            jsonObject.put("dataPermMenuList", dataPermMenuList);
-        } while (false);
-        return VerifyResult.create(errorMessage, jsonObject);
+            jsonObject.put("deptIdSet", deptIdSet);
+        }
+        String[] menuIdArray = StringUtils.split(menuIdListString, ",");
+        Set<Long> menuIdSet = Arrays.stream(menuIdArray).map(Long::valueOf).collect(Collectors.toSet());
+        // 验证菜单Id的合法性
+        if (!sysMenuService.existAllPrimaryKeys(menuIdSet)) {
+            return CallResult.error("数据验证失败，存在不合法的菜单，请刷新后重试！");
+        }
+        List<SysDataPermMenu> dataPermMenuList = new LinkedList<>();
+        for (Long menuId : menuIdSet) {
+            SysDataPermMenu dataPermMenu = new SysDataPermMenu();
+            dataPermMenu.setMenuId(menuId);
+            dataPermMenuList.add(dataPermMenu);
+        }
+        jsonObject.put("dataPermMenuList", dataPermMenuList);
+        return CallResult.ok(jsonObject);
     }
 
     private void insertRelationData(

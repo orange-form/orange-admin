@@ -13,7 +13,7 @@ import javax.servlet.http.HttpServletResponse;
  * 服务访问日志的拦截器，主要完成记录接口调用时长。
  *
  * @author Stephen.Liu
- * @date 2020-04-11
+ * @date 2020-05-24
  */
 @Slf4j
 public class AccessInterceptor implements HandlerInterceptor {
@@ -33,6 +33,7 @@ public class AccessInterceptor implements HandlerInterceptor {
     @Override
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler,
                            ModelAndView modelAndView) throws Exception {
+        // 这里需要加注释，否则sonar不happy。
     }
 
     @Override

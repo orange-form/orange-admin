@@ -7,7 +7,7 @@
     </el-row>
     <!-- 弹窗下发按钮栏，必须设置class为dialog-btn-layer -->
     <el-row type="flex" justify="end" class="dialog-btn-layer">
-      <el-button size="mini" @click="onCancel" >取消</el-button>
+      <el-button size="mini" @click="onCancel(false)" >取消</el-button>
       <el-button type="primary" size="mini" @click="onSubmit">确定</el-button>
     </el-row>
   </el-form>

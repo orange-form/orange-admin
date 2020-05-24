@@ -1,6 +1,10 @@
 package com.orange.admin.common.core.object;
 
 import cn.hutool.core.util.ReflectUtil;
+import com.orange.admin.common.core.constant.ApplicationConstant;
+import com.orange.admin.common.core.exception.InvalidClassFieldException;
+import com.orange.admin.common.core.exception.InvalidDataFieldException;
+import com.orange.admin.common.core.exception.InvalidDataModelException;
 import com.orange.admin.common.core.util.MyModelUtil;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -16,7 +20,7 @@ import java.util.List;
  * 查询分组参数请求对象。
  *
  * @author Stephen.Liu
- * @date 2020-04-11
+ * @date 2020-05-24
  */
 @EqualsAndHashCode(callSuper = true)
 @Slf4j
@@ -51,62 +55,15 @@ public class MyGroupParam extends ArrayList<MyGroupParam.GroupInfo> {
         StringBuilder groupSelectBuilder = new StringBuilder(128);
         int i = 0;
         for (GroupInfo groupInfo : groupParam) {
-            String modelName, fieldName, tableName, columnName;
-            String[] stringArray = StringUtils.split(groupInfo.fieldName,'.');
-            if (stringArray.length == 1) {
-                modelName = modelClazz.getSimpleName();
-                fieldName = groupInfo.fieldName;
-                tableName = MyModelUtil.mapToTableName(modelClazz);
-                columnName = MyModelUtil.mapToColumnName(fieldName, modelClazz);
-            } else {
-                Field field = ReflectUtil.getField(modelClazz, stringArray[0]);
-                if (field == null) {
-                    log.error("Relation Field [{}] doesn't exist in Class [{}]!",
-                            stringArray[0], modelClazz.getSimpleName());
-                    return null;
-                }
-                Class<?> fieldClazz = field.getType();
-                modelName = fieldClazz.getSimpleName();
-                fieldName = stringArray[1];
-                tableName = MyModelUtil.mapToTableName(fieldClazz);
-                columnName = MyModelUtil.mapToColumnName(fieldName, fieldClazz);
+            GroupBaseData groupBaseData = parseGroupBaseData(groupInfo, modelClazz);
+            if (StringUtils.isBlank(groupBaseData.tableName)) {
+                throw new InvalidDataModelException(groupBaseData.modelName);
             }
-            if (StringUtils.isBlank(tableName)) {
-                log.error("ModelName [{}] can't be mapped to Table!", modelName);
-                return null;
+            if (StringUtils.isBlank(groupBaseData.columnName)) {
+                throw new InvalidDataFieldException(groupBaseData.modelName, groupBaseData.fieldName);
             }
-            if (StringUtils.isBlank(columnName)) {
-                log.error("FieldName [{}] in Class [{}`] can't be mapped to Column!", fieldName, modelName);
-                return null;
-            }
-            if (StringUtils.isNotBlank(groupInfo.dateAggregateBy)) {
-                groupByBuilder.append("DATE_FORMAT(").append(tableName).append(".").append(columnName);
-                groupSelectBuilder.append("DATE_FORMAT(").append(tableName).append(".").append(columnName);
-                if ("day".equals(groupInfo.dateAggregateBy)) {
-                    groupByBuilder.append(", '%Y-%m-%d')");
-                    groupSelectBuilder.append(", '%Y-%m-%d')");
-                } else if ("month".equals(groupInfo.dateAggregateBy)) {
-                    groupByBuilder.append(", '%Y-%m-01')");
-                    groupSelectBuilder.append(", '%Y-%m-01')");
-                } else if ("year".equals(groupInfo.dateAggregateBy)) {
-                    groupByBuilder.append(", '%Y-01-01')");
-                    groupSelectBuilder.append(", '%Y-01-01')");
-                } else {
-                    throw new IllegalArgumentException("Illegal DATE_FORMAT for GROUP ID list.");
-                }
-                if (StringUtils.isNotBlank(groupInfo.aliasName)) {
-                    groupSelectBuilder.append(" ").append(groupInfo.aliasName);
-                } else {
-                    groupSelectBuilder.append(" ").append(columnName);
-                }
-            } else {
-                groupByBuilder.append(tableName).append(".").append(columnName);
-                groupSelectBuilder.append(tableName).append(".").append(columnName);
-                if (StringUtils.isNotBlank(groupInfo.aliasName)) {
-                    groupSelectBuilder.append(" ").append(groupInfo.aliasName);
-                }
-            }
-            String aliasName = StringUtils.isBlank(groupInfo.aliasName) ? fieldName : groupInfo.aliasName;
+            processGroupInfo(groupInfo, groupBaseData, groupByBuilder, groupSelectBuilder);
+            String aliasName = StringUtils.isBlank(groupInfo.aliasName) ? groupInfo.fieldName : groupInfo.aliasName;
             // selectGroupFieldList中的元素，目前只是被export操作使用。会根据集合中的元素名称匹配导出表头。
             groupParam.selectGroupFieldList.add(aliasName);
             if (++i < groupParam.size()) {
@@ -118,6 +75,67 @@ public class MyGroupParam extends ArrayList<MyGroupParam.GroupInfo> {
         return groupParam;
     }
 
+    private static GroupBaseData parseGroupBaseData(GroupInfo groupInfo, Class<?> modelClazz) {
+        GroupBaseData baseData = new GroupBaseData();
+        String[] stringArray = StringUtils.split(groupInfo.fieldName,'.');
+        if (stringArray.length == 1) {
+            baseData.modelName = modelClazz.getSimpleName();
+            baseData.fieldName = groupInfo.fieldName;
+            baseData.tableName = MyModelUtil.mapToTableName(modelClazz);
+            baseData.columnName = MyModelUtil.mapToColumnName(groupInfo.fieldName, modelClazz);
+        } else {
+            Field field = ReflectUtil.getField(modelClazz, stringArray[0]);
+            if (field == null) {
+                throw new InvalidClassFieldException(modelClazz.getSimpleName(), stringArray[0]);
+            }
+            Class<?> fieldClazz = field.getType();
+            baseData.modelName = fieldClazz.getSimpleName();
+            baseData.fieldName = stringArray[1];
+            baseData.tableName = MyModelUtil.mapToTableName(fieldClazz);
+            baseData.columnName = MyModelUtil.mapToColumnName(baseData.fieldName, fieldClazz);
+        }
+        return baseData;
+    }
+
+    private static void processGroupInfo(
+            GroupInfo groupInfo,
+            GroupBaseData baseData,
+            StringBuilder groupByBuilder,
+            StringBuilder groupSelectBuilder) {
+        String tableName = baseData.tableName;
+        String columnName = baseData.columnName;
+        if (StringUtils.isNotBlank(groupInfo.dateAggregateBy)) {
+            groupByBuilder.append("DATE_FORMAT(").append(tableName).append(".").append(columnName);
+            groupSelectBuilder.append("DATE_FORMAT(").append(tableName).append(".").append(columnName);
+            if (ApplicationConstant.DAY_AGGREGATION.equals(groupInfo.dateAggregateBy)) {
+                groupByBuilder.append(", '%Y-%m-%d')");
+                groupSelectBuilder.append(", '%Y-%m-%d')");
+            } else if (ApplicationConstant.MONTH_AGGREGATION.equals(groupInfo.dateAggregateBy)) {
+                groupByBuilder.append(", '%Y-%m-01')");
+                groupSelectBuilder.append(", '%Y-%m-01')");
+            } else if (ApplicationConstant.YEAR_AGGREGATION.equals(groupInfo.dateAggregateBy)) {
+                groupByBuilder.append(", '%Y-01-01')");
+                groupSelectBuilder.append(", '%Y-01-01')");
+            } else {
+                throw new IllegalArgumentException("Illegal DATE_FORMAT for GROUP ID list.");
+            }
+            if (StringUtils.isNotBlank(groupInfo.aliasName)) {
+                groupSelectBuilder.append(" ").append(groupInfo.aliasName);
+            } else {
+                groupSelectBuilder.append(" ").append(columnName);
+            }
+        } else {
+            groupByBuilder.append(tableName).append(".").append(columnName);
+            groupSelectBuilder.append(tableName).append(".").append(columnName);
+            if (StringUtils.isNotBlank(groupInfo.aliasName)) {
+                groupSelectBuilder.append(" ").append(groupInfo.aliasName);
+            }
+        }
+    }
+
+    /**
+     * 分组信息对象。
+     */
     @Data
     public static class GroupInfo {
         /**
@@ -139,5 +157,12 @@ public class MyGroupParam extends ArrayList<MyGroupParam.GroupInfo> {
          * year:  表示按照年聚合，将会截取到年。DATE_FORMAT(columnName, '%Y-01-01')
          */
         private String dateAggregateBy;
+    }
+
+    private static class GroupBaseData {
+        private String modelName;
+        private String fieldName;
+        private String tableName;
+        private String columnName;
     }
 }

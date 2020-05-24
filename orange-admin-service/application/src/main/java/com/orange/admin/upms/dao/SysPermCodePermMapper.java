@@ -7,7 +7,7 @@ import com.orange.admin.upms.model.SysPermCodePerm;
  * 权限字与权限资源关系数据访问操作接口。
  *
  * @author Stephen.Liu
- * @date 2020-04-11
+ * @date 2020-05-24
  */
 public interface SysPermCodePermMapper extends BaseDaoMapper<SysPermCodePerm> {
 }

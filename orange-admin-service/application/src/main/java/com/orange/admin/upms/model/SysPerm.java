@@ -11,6 +11,12 @@ import javax.validation.constraints.*;
 import java.util.Date;
 import java.util.Map;
 
+/**
+ * 权限资源实体对象。
+ *
+ * @author Stephen.Liu
+ * @date 2020-05-24
+ */
 @Data
 @Table(name = "zz_sys_perm")
 public class SysPerm {

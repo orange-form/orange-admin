@@ -3,9 +3,10 @@ package com.orange.admin.app.service;
 import com.orange.admin.app.dao.*;
 import com.orange.admin.app.model.*;
 import com.orange.admin.upms.service.SysDeptService;
-import com.orange.admin.common.core.base.service.BaseService;
 import com.orange.admin.common.core.base.dao.BaseDaoMapper;
 import com.orange.admin.common.core.object.MyWhereCriteria;
+import com.orange.admin.common.core.object.MyRelationParam;
+import com.orange.admin.common.biz.base.service.BaseBizService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,10 +16,10 @@ import java.util.*;
  * 老师流水统计数据操作服务类。
  *
  * @author Stephen.Liu
- * @date 2020-04-11
+ * @date 2020-05-24
  */
 @Service
-public class TeacherTransStatsService extends BaseService<TeacherTransStats, Long> {
+public class TeacherTransStatsService extends BaseBizService<TeacherTransStats, Long> {
 
     @Autowired
     private TeacherTransStatsMapper teacherTransStatsMapper;
@@ -43,7 +44,7 @@ public class TeacherTransStatsService extends BaseService<TeacherTransStats, Lon
      * 获取单表查询结果。由于没有关联数据查询，因此在仅仅获取单表数据的场景下，效率更高。
      * 如果需要同时获取关联数据，请移步(getTeacherTransStatsListWithRelation)方法。
      *
-     * @param filter 过滤对象。
+     * @param filter  过滤对象。
      * @param orderBy 排序参数。
      * @return 查询结果集。
      */
@@ -62,7 +63,7 @@ public class TeacherTransStatsService extends BaseService<TeacherTransStats, Lon
     public List<TeacherTransStats> getTeacherTransStatsListWithRelation(TeacherTransStats filter, String orderBy) {
         List<TeacherTransStats> resultList = teacherTransStatsMapper.getTeacherTransStatsList(filter, orderBy);
         Map<String, List<MyWhereCriteria>> criteriaMap = buildAggregationAdditionalWhereCriteria();
-        this.buildAllRelationForDataList(resultList, false, criteriaMap);
+        this.buildRelationForDataList(resultList, MyRelationParam.normal(), criteriaMap);
         return resultList;
     }
 
@@ -81,7 +82,7 @@ public class TeacherTransStatsService extends BaseService<TeacherTransStats, Lon
                 teacherTransStatsMapper.getGroupedTeacherTransStatsList(filter, groupSelect, groupBy, orderBy);
         // NOTE: 这里只是包含了关联数据，聚合计算数据没有包含。
         // 主要原因是，由于聚合字段通常被视为普通字段使用，不会在group by的从句中出现，语义上也不会在此关联。
-        this.buildRelationForDataList(resultList, false);
+        this.buildRelationForDataList(resultList, MyRelationParam.normal(), null);
         return resultList;
     }
 }

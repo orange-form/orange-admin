@@ -10,7 +10,7 @@ import java.lang.reflect.Method;
  * 数据字段自定义验证，用于验证Model中字符串字段的最大长度和最小长度。
  *
  * @author Stephen.Liu
- * @date 2020-04-11
+ * @date 2020-05-24
  */
 public class ConstDictValidator implements ConstraintValidator<ConstDictRef, Object> {
 

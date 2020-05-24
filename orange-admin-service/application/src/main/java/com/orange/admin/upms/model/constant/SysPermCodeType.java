@@ -7,7 +7,7 @@ import java.util.Map;
  * 权限字类型常量对象。
  *
  * @author Stephen.Liu
- * @date 2020-04-11
+ * @date 2020-05-24
  */
 public final class SysPermCodeType {
 
@@ -24,7 +24,7 @@ public final class SysPermCodeType {
      */
     public static final int TYPE_OPERATION = 2;
 
-    public static final Map<Object, String> DICT_MAP = new HashMap<>(3);
+    private static final Map<Object, String> DICT_MAP = new HashMap<>(3);
     static {
         DICT_MAP.put(0, "表单权限字");
         DICT_MAP.put(1, "表单片段布局权限字");
@@ -37,8 +37,8 @@ public final class SysPermCodeType {
      * @param value 待验证的参数值。
      * @return 合法返回true，否则false。
      */
-    public static boolean isValid(int value) {
-        return DICT_MAP.containsKey(value);
+    public static boolean isValid(Integer value) {
+        return value != null && DICT_MAP.containsKey(value);
     }
 
     /**

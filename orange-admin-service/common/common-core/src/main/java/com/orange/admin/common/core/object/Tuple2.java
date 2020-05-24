@@ -4,7 +4,7 @@ package com.orange.admin.common.core.object;
  * 二元组对象。主要用于可以一次返回多个结果的场景，同时还能避免强制转换。
  *
  * @author Stephen.Liu
- * @date 2020-04-11
+ * @date 2020-05-24
  */
 public class Tuple2<T1, T2> {
 

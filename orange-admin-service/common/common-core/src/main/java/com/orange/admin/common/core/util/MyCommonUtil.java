@@ -1,6 +1,6 @@
 package com.orange.admin.common.core.util;
 
-import org.apache.commons.codec.digest.DigestUtils;
+import cn.hutool.crypto.digest.DigestUtil;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -16,7 +16,7 @@ import java.util.UUID;
  * 脚手架中常用的基本工具方法集合，一般而言工程内部使用的方法。
  *
  * @author Stephen.Liu
- * @date 2020-04-11
+ * @date 2020-05-24
  */
 public class MyCommonUtil {
 
@@ -32,17 +32,18 @@ public class MyCommonUtil {
      * @return 返回uuid。
      */
     public static String generateUuid() {
-        return UUID.randomUUID().toString().replaceAll("-", "");
+        return UUID.randomUUID().toString().replace("-", "");
     }
 
     /**
      * 对用户密码进行加盐后加密。
      *
-     * @param password 明文密码。
+     * @param password     明文密码。
+     * @param passwordSalt 盐值。
      * @return 加密后的密码。
      */
     public static String encrptedPassword(String password, String passwordSalt) {
-        return DigestUtils.md5Hex(password + passwordSalt);
+        return DigestUtil.md5Hex(password + passwordSalt);
     }
 
     /**
@@ -119,7 +120,7 @@ public class MyCommonUtil {
     /**
      * 拼接参数中的字符串列表，用指定分隔符进行分割，同时每个字符串对象用单引号括起来。
      *
-     * @param dataList 字符串集合。
+     * @param dataList  字符串集合。
      * @param separator 分隔符。
      * @return 拼接后的字符串。
      */
@@ -133,5 +134,11 @@ public class MyCommonUtil {
             }
         }
         return sb.toString();
+    }
+
+    /**
+     * 私有构造函数，明确标识该常量类的作用。
+     */
+    private MyCommonUtil() {
     }
 }

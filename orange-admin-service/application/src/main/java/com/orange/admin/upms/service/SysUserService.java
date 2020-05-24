@@ -4,13 +4,14 @@ import com.alibaba.fastjson.JSONObject;
 import com.orange.admin.upms.dao.*;
 import com.orange.admin.upms.model.*;
 import com.orange.admin.upms.model.constant.SysUserStatus;
-import com.orange.admin.common.core.base.service.BaseService;
 import com.orange.admin.common.core.base.dao.BaseDaoMapper;
 import com.orange.admin.common.core.constant.GlobalDeletedFlag;
 import com.orange.admin.common.core.object.TokenData;
 import com.orange.admin.common.core.object.MyWhereCriteria;
-import com.orange.admin.common.core.object.VerifyResult;
+import com.orange.admin.common.core.object.MyRelationParam;
+import com.orange.admin.common.core.object.CallResult;
 import com.orange.admin.common.core.util.MyCommonUtil;
+import com.orange.admin.common.biz.base.service.BaseBizService;
 import com.orange.admin.common.biz.util.BasicIdGenerator;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -26,10 +27,10 @@ import java.util.stream.Collectors;
  * 用户管理数据操作服务类。
  *
  * @author Stephen.Liu
- * @date 2020-04-11
+ * @date 2020-05-24
  */
 @Service
-public class SysUserService extends BaseService<SysUser, Long> {
+public class SysUserService extends BaseBizService<SysUser, Long> {
 
     @Autowired
     private SysUserMapper sysUserMapper;
@@ -77,7 +78,7 @@ public class SysUserService extends BaseService<SysUser, Long> {
      * @param passwdSalt    密码的盐。
      * @return 新增后的用户对象。
      */
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public SysUser saveNew(SysUser user, Set<Long> roleIdSet, Set<Long> dataPermIdSet, String passwdSalt) {
         user.setUserId(idGenerator.nextLongId());
         user.setPassword(MyCommonUtil.encrptedPassword(user.getPassword(), passwdSalt));
@@ -116,13 +117,13 @@ public class SysUserService extends BaseService<SysUser, Long> {
     /**
      * 更新用户对象。
      *
-    * @param user          更新的用户对象。
-    * @param originalUser  原有的用户对象。
-    * @param roleIdSet     用户角色Id列表。
-    * @param dataPermIdSet 数据权限Id集合。
+     * @param user          更新的用户对象。
+     * @param originalUser  原有的用户对象。
+     * @param roleIdSet     用户角色Id列表。
+     * @param dataPermIdSet 数据权限Id集合。
      * @return 更新成功返回true，否则false。
      */
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public boolean update(SysUser user, SysUser originalUser, Set<Long> roleIdSet, Set<Long> dataPermIdSet) {
         user.setLoginName(originalUser.getLoginName());
         user.setPassword(originalUser.getPassword());
@@ -134,9 +135,9 @@ public class SysUserService extends BaseService<SysUser, Long> {
             return false;
         }
         // 先删除原有的User-Role关联关系，再重新插入新的关联关系
-        Example e = new Example(SysUserRole.class);
-        e.createCriteria().andEqualTo("userId", user.getUserId());
-        sysUserRoleMapper.deleteByExample(e);
+        SysUserRole deletedUserRole = new SysUserRole();
+        deletedUserRole.setUserId(user.getUserId());
+        sysUserRoleMapper.delete(deletedUserRole);
         if (CollectionUtils.isNotEmpty(roleIdSet)) {
             List<SysUserRole> userRoleList = new LinkedList<>();
             for (Long roleId : roleIdSet) {
@@ -148,9 +149,9 @@ public class SysUserService extends BaseService<SysUser, Long> {
             sysUserRoleMapper.insertList(userRoleList);
         }
         // 先删除原有的DataPerm-User关联关系，在重新插入新的关联关系
-        Example e2 = new Example(SysDataPermUser.class);
-        e2.createCriteria().andEqualTo("userId", user.getUserId());
-        sysDataPermUserMapper.deleteByExample(e2);
+        SysDataPermUser deletedDataPermUser = new SysDataPermUser();
+        deletedDataPermUser.setUserId(user.getUserId());
+        sysDataPermUserMapper.delete(deletedDataPermUser);
         if (CollectionUtils.isNotEmpty(dataPermIdSet)) {
             List<SysDataPermUser> dataPermUserList = new LinkedList<>();
             for (Long dataPermId : dataPermIdSet) {
@@ -166,16 +167,16 @@ public class SysUserService extends BaseService<SysUser, Long> {
 
     /**
      * 重置用户密码。
-     * @param userId 用户主键Id。
+     * @param userId        用户主键Id。
      * @param defaultPasswd 缺省密码。
-     * @param passwdSalt 密码的盐。
+     * @param passwdSalt    密码的盐。
      * @return 成功返回true，否则false。
      */
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public boolean resetPassword(Long userId, String defaultPasswd, String passwdSalt) {
         Example e = new Example(SysUser.class);
-        e.createCriteria().andEqualTo("userId", userId);
-        e.createCriteria().andEqualTo("deletedFlag", GlobalDeletedFlag.NORMAL);
+        e.createCriteria().andEqualTo(super.idFieldName, userId);
+        e.createCriteria().andEqualTo(super.deletedFlagFieldName, GlobalDeletedFlag.NORMAL);
         SysUser updatedUser = new SysUser();
         updatedUser.setPassword(MyCommonUtil.encrptedPassword(defaultPasswd, passwdSalt));
         return sysUserMapper.updateByExampleSelective(updatedUser, e) == 1;
@@ -187,12 +188,12 @@ public class SysUserService extends BaseService<SysUser, Long> {
      * @param userId 主键Id。
      * @return 成功返回true，否则false。
      */
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public boolean remove(Long userId) {
         Example sysUserExample = new Example(SysUser.class);
         Example.Criteria c = sysUserExample.createCriteria();
-        c.andEqualTo("userId", userId);
-        c.andEqualTo("deletedFlag", GlobalDeletedFlag.NORMAL);
+        c.andEqualTo(super.idFieldName, userId);
+        c.andEqualTo(super.deletedFlagFieldName, GlobalDeletedFlag.NORMAL);
         // 这里先删除主数据
         SysUser deletedObject = new SysUser();
         deletedObject.setDeletedFlag(GlobalDeletedFlag.DELETED);
@@ -200,36 +201,20 @@ public class SysUserService extends BaseService<SysUser, Long> {
             return false;
         }
         // 这里可继续删除关联数据。
-        Example userRoleExample = new Example(SysUserRole.class);
-        userRoleExample.createCriteria().andEqualTo("userId", userId);
-        sysUserRoleMapper.deleteByExample(userRoleExample);
-        Example dataPermUserExample = new Example(SysDataPermUser.class);
-        dataPermUserExample.createCriteria().andEqualTo("userId", userId);
-        sysDataPermUserMapper.deleteByExample(dataPermUserExample);
+        SysUserRole userRole = new SysUserRole();
+        userRole.setUserId(userId);
+        sysUserRoleMapper.delete(userRole);
+        SysDataPermUser dataPermUser = new SysDataPermUser();
+        dataPermUser.setUserId(userId);
+        sysDataPermUserMapper.delete(dataPermUser);
         return true;
-    }
-
-    /**
-     * 获取指定用户的详情数据。
-     *
-     * @param userId 用户主键Id。
-     * @return 用户详情数据。
-     */
-    @Override
-    public SysUser getByIdWithRelation(Long userId) {
-        SysUser user = super.getByIdWithRelation(userId);
-        if (user != null) {
-            user.setRoleIdList(sysUserRoleMapper.getRoleIdListByUserId(userId));
-            user.setDataPermIdList(sysDataPermUserMapper.getDataPermIdListByUserId(userId));
-        }
-        return user;
     }
 
     /**
      * 获取单表查询结果。由于没有关联数据查询，因此在仅仅获取单表数据的场景下，效率更高。
      * 如果需要同时获取关联数据，请移步(getSysUserListWithRelation)方法。
      *
-     * @param filter 过滤对象。
+     * @param filter  过滤对象。
      * @param orderBy 排序参数。
      * @return 查询结果集。
      */
@@ -248,15 +233,15 @@ public class SysUserService extends BaseService<SysUser, Long> {
     public List<SysUser> getSysUserListWithRelation(SysUser filter, String orderBy) {
         List<SysUser> resultList = sysUserMapper.getSysUserList(filter, orderBy);
         Map<String, List<MyWhereCriteria>> criteriaMap = buildAggregationAdditionalWhereCriteria();
-        this.buildAllRelationForDataList(resultList, false, criteriaMap);
+        this.buildRelationForDataList(resultList, MyRelationParam.normal(), criteriaMap);
         return resultList;
     }
 
     /**
      * 获取指定角色的用户列表。
      *
-     * @param roleId 角色主键Id。
-     * @param filter 用户过滤对象。
+     * @param roleId  角色主键Id。
+     * @param filter  用户过滤对象。
      * @param orderBy 排序参数。
      * @return 用户列表。
      */
@@ -267,8 +252,8 @@ public class SysUserService extends BaseService<SysUser, Long> {
     /**
      * 获取不属于指定角色的用户列表。
      *
-     * @param roleId 角色主键Id。
-     * @param filter 用户过滤对象。
+     * @param roleId  角色主键Id。
+     * @param filter  用户过滤对象。
      * @param orderBy 排序参数。
      * @return 用户列表。
      */
@@ -280,8 +265,8 @@ public class SysUserService extends BaseService<SysUser, Long> {
      * 获取指定数据权限的用户列表。
      *
      * @param dataPermId 数据权限主键Id。
-     * @param filter 用户过滤对象。
-     * @param orderBy 排序参数。
+     * @param filter     用户过滤对象。
+     * @param orderBy    排序参数。
      * @return 用户列表。
      */
     public List<SysUser> getSysUserListByDataPermId(Long dataPermId, SysUser filter, String orderBy) {
@@ -292,8 +277,8 @@ public class SysUserService extends BaseService<SysUser, Long> {
      * 获取不属于指定数据权限的用户列表。
      *
      * @param dataPermId 数据权限主键Id。
-     * @param filter 用户过滤对象。
-     * @param orderBy 排序参数。
+     * @param filter     用户过滤对象。
+     * @param orderBy    排序参数。
      * @return 用户列表。
      */
     public List<SysUser> getNotInSysUserListByDataPermId(Long dataPermId, SysUser filter, String orderBy) {
@@ -309,34 +294,27 @@ public class SysUserService extends BaseService<SysUser, Long> {
      * @param dataPermIdListString 逗号分隔的数据权限Id列表字符串。
      * @return 验证结果。
      */
-    public VerifyResult verifyRelatedData(
+    public CallResult verifyRelatedData(
             SysUser sysUser, SysUser originalSysUser, String roleIdListString, String dataPermIdListString) {
-        String errorMessage = null;
         JSONObject jsonObject = new JSONObject();
-        do {
-            if (StringUtils.isBlank(roleIdListString)) {
-                errorMessage = "数据验证失败，用户的角色数据不能为空！";
-                break;
-            }
-            Set<Long> roleIdSet = Arrays.stream(
-                    roleIdListString.split(",")).map(Long::valueOf).collect(Collectors.toSet());
-            if (!sysRoleService.existUniqueKeyList("roleId", roleIdSet)) {
-                errorMessage = "数据验证失败，存在不合法的用户角色，请刷新后重试！";
-                break;
-            }
-            jsonObject.put("roleIdSet", roleIdSet);
-            if (StringUtils.isBlank(dataPermIdListString)) {
-                errorMessage = "数据验证失败，用户的数据权限不能为空！";
-                break;
-            }
-            Set<Long> dataPermIdSet = Arrays.stream(
-                    dataPermIdListString.split(",")).map(Long::valueOf).collect(Collectors.toSet());
-            if (!sysDataPermService.existUniqueKeyList("dataPermId", dataPermIdSet)) {
-                errorMessage = "数据验证失败，存在不合法的数据权限，请刷新后重试！";
-                break;
-            }
-            jsonObject.put("dataPermIdSet", dataPermIdSet);
-        } while (false);
-        return VerifyResult.create(errorMessage, jsonObject);
+        if (StringUtils.isBlank(roleIdListString)) {
+            return CallResult.error("数据验证失败，用户的角色数据不能为空！");
+        }
+        Set<Long> roleIdSet = Arrays.stream(
+                roleIdListString.split(",")).map(Long::valueOf).collect(Collectors.toSet());
+        if (!sysRoleService.existAllPrimaryKeys(roleIdSet)) {
+            return CallResult.error("数据验证失败，存在不合法的用户角色，请刷新后重试！");
+        }
+        jsonObject.put("roleIdSet", roleIdSet);
+        if (StringUtils.isBlank(dataPermIdListString)) {
+            return CallResult.error("数据验证失败，用户的数据权限不能为空！");
+        }
+        Set<Long> dataPermIdSet = Arrays.stream(
+                dataPermIdListString.split(",")).map(Long::valueOf).collect(Collectors.toSet());
+        if (!sysDataPermService.existAllPrimaryKeys(dataPermIdSet)) {
+            return CallResult.error("数据验证失败，存在不合法的数据权限，请刷新后重试！");
+        }
+        jsonObject.put("dataPermIdSet", dataPermIdSet);
+        return CallResult.ok(jsonObject);
     }
 }

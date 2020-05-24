@@ -4,9 +4,8 @@ import com.orange.admin.common.core.annotation.*;
 import com.orange.admin.common.core.base.dao.BaseDaoMapper;
 import com.orange.admin.common.core.constant.AggregationType;
 import com.orange.admin.common.core.constant.GlobalDeletedFlag;
-import com.orange.admin.common.core.object.GlobalThreadLocal;
-import com.orange.admin.common.core.object.MyWhereCriteria;
-import com.orange.admin.common.core.object.Tuple2;
+import com.orange.admin.common.core.exception.MyRuntimeException;
+import com.orange.admin.common.core.object.*;
 import com.orange.admin.common.core.util.ApplicationContextHolder;
 import com.orange.admin.common.core.util.MyModelUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +33,7 @@ import static java.util.stream.Collectors.*;
  * @param <M> Model对象的类型。
  * @param <K> Model对象主键的类型。
  * @author Stephen.Liu
- * @date 2020-04-11
+ * @date 2020-05-24
  */
 @Slf4j
 public abstract class BaseService<M, K> {
@@ -86,26 +85,31 @@ public abstract class BaseService<M, K> {
     /**
      * 当前Service关联的主Model对象的所有字典关联的结构列表，该字段在系统启动阶段一次性预加载，提升运行时效率。
      */
-    private List<RelationStruct> relationDictStructList;
+    private List<RelationStruct> relationDictStructList = new LinkedList<>();
     /**
      * 当前Service关联的主Model对象的所有常量字典关联的结构列表，该字段在系统启动阶段一次性预加载，提升运行时效率。
      */
-    private List<RelationStruct> relationConstDictStructList;
+    private List<RelationStruct> relationConstDictStructList = new LinkedList<>();
     /**
      * 当前Service关联的主Model对象的所有一对一关联的结构列表，该字段在系统启动阶段一次性预加载，提升运行时效率。
      */
-    private List<RelationStruct> relationOneToOneStructList;
+    private List<RelationStruct> relationOneToOneStructList = new LinkedList<>();
+    /**
+     * 当前Service关联的主Model对象的所有多对多关联的结构列表，该字段在系统启动阶段一次性预加载，提升运行时效率。
+     */
+    private List<RelationStruct> relationManyToManyStructList = new LinkedList<>();
     /**
      * 当前Service关联的主Model对象的所有一对多聚合关联的结构列表，该字段在系统启动阶段一次性预加载，提升运行时效率。
      */
-    private List<RelationStruct> relationOneToManyAggrStructList;
+    private List<RelationStruct> relationOneToManyAggrStructList = new LinkedList<>();
     /**
      * 当前Service关联的主Model对象的所有多对多聚合关联的结构列表，该字段在系统启动阶段一次性预加载，提升运行时效率。
      */
-    private List<RelationStruct> relationManyToManyAggrStructList;
+    private List<RelationStruct> relationManyToManyAggrStructList = new LinkedList<>();
 
     private static final String GROUPED_KEY = "groupedKey";
     private static final String AGGREGATED_VALUE = "aggregatedValue";
+    private static final String AND_OP = " AND ";
 
     /**
      * 构造函数，在实例化的时候，一次性完成所有有关主Model对象信息的加载。
@@ -116,31 +120,29 @@ public abstract class BaseService<M, K> {
         this.tableName = modelClass.getAnnotation(Table.class).name();
         Field[] fields = ReflectUtil.getFields(modelClass);
         for (Field field : fields) {
-            if (idFieldName == null) {
-                if (null != field.getAnnotation(Id.class)) {
-                    idFieldName = field.getName();
-                    idField = field;
-                    Column c = field.getAnnotation(Column.class);
-                    idColumnName = c == null ? idFieldName : c.name();
-                }
-            }
-            if (updateTimeFieldName == null) {
-                if (null != field.getAnnotation(JobUpdateTimeColumn.class)) {
-                    updateTimeFieldName = field.getName();
-                    Column c = field.getAnnotation(Column.class);
-                    updateTimeColumnName = c == null ? updateTimeFieldName : c.name();
-                }
-            }
-            if (deletedFlagFieldName == null) {
-                if (null != field.getAnnotation(DeletedFlagColumn.class)) {
-                    deletedFlagFieldName = field.getName();
-                    Column c = field.getAnnotation(Column.class);
-                    deletedFlagColumnName = c == null ? deletedFlagFieldName : c.name();
-                    deletedFlagField = field;
-                    setDeletedFlagMethod = ReflectUtil.getMethod(
-                            modelClass, "set" + StringUtils.capitalize(deletedFlagFieldName), Integer.class);
-                }
-            }
+            initializeField(field);
+        }
+    }
+
+    private void initializeField(Field field) {
+        if (idFieldName == null && null != field.getAnnotation(Id.class)) {
+            idFieldName = field.getName();
+            idField = field;
+            Column c = field.getAnnotation(Column.class);
+            idColumnName = c == null ? idFieldName : c.name();
+        }
+        if (updateTimeFieldName == null && null != field.getAnnotation(JobUpdateTimeColumn.class)) {
+            updateTimeFieldName = field.getName();
+            Column c = field.getAnnotation(Column.class);
+            updateTimeColumnName = c == null ? updateTimeFieldName : c.name();
+        }
+        if (deletedFlagFieldName == null && null != field.getAnnotation(DeletedFlagColumn.class)) {
+            deletedFlagFieldName = field.getName();
+            Column c = field.getAnnotation(Column.class);
+            deletedFlagColumnName = c == null ? deletedFlagFieldName : c.name();
+            deletedFlagField = field;
+            setDeletedFlagMethod = ReflectUtil.getMethod(
+                    modelClass, "set" + StringUtils.capitalize(deletedFlagFieldName), Integer.class);
         }
     }
 
@@ -199,12 +201,14 @@ public abstract class BaseService<M, K> {
     /**
      * 获取主表的查询结果，以及主表关联的字典数据和一对一从表数据，以及一对一从表的字典数据。
      *
-     * @param id 主表主键Id。
+     * @param id             主表主键Id。
+     * @param relationParam  实体对象数据组装的参数构建器。
      * @return 查询结果对象。
      */
-    public M getByIdWithRelation(K id) {
-        return this.buildAllRelationForData(
-                this.getById(id), false, buildAggregationAdditionalWhereCriteria());
+    public M getByIdWithRelation(K id, MyRelationParam relationParam) {
+        M dataObject = this.getById(id);
+        this.buildRelationForData(dataObject, relationParam, buildAggregationAdditionalWhereCriteria());
+        return dataObject;
     }
 
     /**
@@ -224,12 +228,12 @@ public abstract class BaseService<M, K> {
     /**
      * 获取所有主数据，及其关联数据。
      *
-     * @param dictOnly true 将只是关联字典数据，false将同时关联字典数据和一对一关联数据。
+     * @param relationParam  实体对象数据组装的参数构建器。
      * @return 返回所有主数据，及其关联数据。
      */
-    public List<M> getAllListWithRelation(boolean dictOnly) {
+    public List<M> getAllListWithRelation(MyRelationParam relationParam) {
         List<M> resultList = getAllList();
-        this.buildRelationForDataList(resultList, dictOnly);
+        this.buildRelationForDataList(resultList, relationParam, null);
         return resultList;
     }
 
@@ -248,6 +252,19 @@ public abstract class BaseService<M, K> {
             e.and().andEqualTo(deletedFlagFieldName, GlobalDeletedFlag.NORMAL);
         }
         return mapper().selectByExample(e);
+    }
+
+    /**
+     * 判断参数值主键集合中的所有数据，是否全部存在
+     *
+     * @param idSet  待校验的主键集合。
+     * @return 全部存在返回true，否则false。
+     */
+    public boolean existAllPrimaryKeys(Set<K> idSet) {
+        if (CollectionUtils.isEmpty(idSet)) {
+            return false;
+        }
+        return this.existUniqueKeyList(idFieldName, idSet);
     }
 
     /**
@@ -364,8 +381,8 @@ public abstract class BaseService<M, K> {
             setDeletedFlagMethod.invoke(filter, GlobalDeletedFlag.NORMAL);
             return mapper().selectCount(filter);
         } catch (Exception e) {
-            log.error("Failed to call reflection code.", e);
-            throw new RuntimeException(e);
+            log.error("Failed to call reflection code of BaseService.getCountByFilter.", e);
+            throw new MyRuntimeException(e);
         }
     }
 
@@ -385,7 +402,7 @@ public abstract class BaseService<M, K> {
      * @param filter 该方法基于mybatis的通用mapper。如果参数为null，则返回全部数据。
      * @return 返回过滤后的数据。
      */
-    public List<M> getListByFilter(M filter) {
+    private List<M> getListByFilter(M filter) {
         if (filter == null) {
             return this.getAllList();
         }
@@ -396,8 +413,8 @@ public abstract class BaseService<M, K> {
             setDeletedFlagMethod.invoke(filter, GlobalDeletedFlag.NORMAL);
             return mapper().select(filter);
         } catch (Exception ex) {
-            log.error("Failed to call reflection code.", ex);
-            throw new RuntimeException(ex);
+            log.error("Failed to call reflection code of BaseService.getListByFilter.", ex);
+            throw new MyRuntimeException(ex);
         }
     }
 
@@ -409,6 +426,9 @@ public abstract class BaseService<M, K> {
      * @return 返回过滤后的数据。
      */
     public List<M> getListByFilter(M filter, String orderBy) {
+        if (StringUtils.isBlank(orderBy)) {
+            return this.getListByFilter(filter);
+        }
         Example e = new Example(modelClass);
         if (StringUtils.isNotBlank(orderBy)) {
             e.setOrderByClause(orderBy);
@@ -417,56 +437,48 @@ public abstract class BaseService<M, K> {
             Example.Criteria c = e.createCriteria();
             Field[] fields = ReflectUtil.getFields(modelClass);
             for (Field field : fields) {
-                if (field.getAnnotation(Transient.class) != null) {
-                    continue;
-                }
-                int modifiers = field.getModifiers();
-                // transient类型的字段不能作为查询条件
-                if ((modifiers & 128) == 0) {
-                    if (field.getName().equals(deletedFlagFieldName)) {
-                        c.andEqualTo(deletedFlagFieldName, GlobalDeletedFlag.NORMAL);
-                    } else {
-                        field.setAccessible(true);
-                        try {
-                            Object o = field.get(filter);
-                            if (o != null) {
-                                c.andEqualTo(field.getName(), field.get(filter));
-                            }
-                        } catch (IllegalAccessException ex) {
-                            log.error("Failed to call reflection code.", ex);
-                            throw new RuntimeException(ex);
-                        }
-                    }
+                if (field.getAnnotation(Transient.class) == null) {
+                    assembleCriteriaByFilter(filter, field, c);
                 }
             }
         }
         return mapper().selectByExample(e);
     }
 
-    /**
-     * 用参数对象作为过滤条件，获取查询结果。同时组装实体对象中基于RelationXXXX注解关联的数据。
-     *
-     * @param filter 该方法基于mybatis的通用mapper。如果参数为null，则返回全部数据。
-     * @return 返回过滤后的数据。
-     */
-    public List<M> getListWithRelationByFilter(M filter) {
-        List<M> resultList = this.getListByFilter(filter);
-        Map<String, List<MyWhereCriteria>> criteriaMap = buildAggregationAdditionalWhereCriteria();
-        this.buildAllRelationForDataList(resultList, false, criteriaMap);
-        return resultList;
+    private void assembleCriteriaByFilter(M filter, Field field, Example.Criteria c) {
+        int modifiers = field.getModifiers();
+        // transient类型的字段不能作为查询条件
+        int transientMask = 128;
+        if ((modifiers & transientMask) == 0) {
+            if (field.getName().equals(deletedFlagFieldName)) {
+                c.andEqualTo(deletedFlagFieldName, GlobalDeletedFlag.NORMAL);
+            } else {
+                ReflectUtil.setAccessible(field);
+                try {
+                    Object o = field.get(filter);
+                    if (o != null) {
+                        c.andEqualTo(field.getName(), field.get(filter));
+                    }
+                } catch (IllegalAccessException ex) {
+                    log.error("Failed to call reflection code of BaseService.getListByFilter.", ex);
+                    throw new MyRuntimeException(ex);
+                }
+            }
+        }
     }
 
     /**
      * 用参数对象作为过滤条件，获取查询结果。同时组装实体对象中基于RelationXXXX注解关联的数据。
      *
-     * @param filter  该方法基于mybatis的通用mapper。如果参数为null，则返回全部数据。
-     * @param orderBy SQL中ORDER BY从句。
+     * @param filter         该方法基于mybatis的通用mapper。如果参数为null，则返回全部数据。
+     * @param orderBy        SQL中ORDER BY从句。
+     * @param relationParam  实体对象数据组装的参数构建器。
      * @return 返回过滤后的数据。
      */
-    public List<M> getListWithRelationByFilter(M filter, String orderBy) {
+    public List<M> getListWithRelationByFilter(M filter, String orderBy, MyRelationParam relationParam) {
         List<M> resultList = this.getListByFilter(filter, orderBy);
         Map<String, List<MyWhereCriteria>> criteriaMap = buildAggregationAdditionalWhereCriteria();
-        this.buildAllRelationForDataList(resultList, false, criteriaMap);
+        this.buildRelationForDataList(resultList, relationParam, criteriaMap);
         return resultList;
     }
 
@@ -505,9 +517,9 @@ public abstract class BaseService<M, K> {
     /**
      * 根据指定的显示字段列表、过滤条件字符串和排序字符串，返回查询结果。(基本是内部框架使用，不建议外部接口直接使用)。
      *
-     * @param selectList   选择的Java字段列表。如果为空表示返回全部字段。
-     * @param whereClause  SQL常量形式的条件从句。
-     * @param orderBy      SQL常量形式排序字段列表，逗号分隔。
+     * @param selectList  选择的Java字段列表。如果为空表示返回全部字段。
+     * @param whereClause SQL常量形式的条件从句。
+     * @param orderBy     SQL常量形式排序字段列表，逗号分隔。
      * @return 查询结果。
      */
     public List<M> getListByCondition(List<String> selectList, String whereClause, String orderBy) {
@@ -542,16 +554,37 @@ public abstract class BaseService<M, K> {
      * NOTE: 该方法内执行的SQL将禁用数据权限过滤。
      *
      * @param resultList      主表实体对象列表。数据集成将直接作用于该对象列表。
-     * @param dictOnly        是否只是集成字典，包括注解RelationDict和RelationConstDict标注的字段。
+     * @param relationParam   实体对象数据组装的参数构建器。
      * @param criteriaListMap 仅仅用于一对多和多对多聚合计算的附加过滤条件。如果没有可以为NULL。
      */
-    public void buildAllRelationForDataList(
-            List<? extends M> resultList, boolean dictOnly, Map<String, List<MyWhereCriteria>> criteriaListMap) {
-        // 集成本地一对一和字段级别的数据关联。
-        this.buildRelationForDataList(resultList, dictOnly);
-        if (!dictOnly) {
+    public void buildRelationForDataList(
+            List<M> resultList, MyRelationParam relationParam, Map<String, List<MyWhereCriteria>> criteriaListMap) {
+        if (relationParam == null || CollectionUtils.isEmpty(resultList)) {
+            return;
+        }
+        boolean dataPermValue = GlobalThreadLocal.setDataPerm(false);
+        try {
+            // 集成本地一对一和字段级别的数据关联。
+            boolean buildOneToOne = relationParam.isBuildOneToOne() || relationParam.isBuildOneToOneWithDict();
+            // 这里集成一对一关联。
+            if (buildOneToOne) {
+                this.buildOneToOneForDataList(resultList, relationParam.isBuildOneToOneWithDict());
+            }
+            // 这里集成字典关联
+            if (relationParam.isBuildDict()) {
+                // 构建常量字典关联关系
+                this.buildConstDictForDataList(resultList);
+                this.buildDictForDataList(resultList, buildOneToOne);
+            }
             // 组装本地聚合计算关联数据
-            this.buildAggregationRelationForDataList(resultList, criteriaListMap);
+            if (relationParam.isBuildRelationAggregation()) {
+                // 处理多对多场景下，根据主表的结果，进行从表聚合数据的计算。
+                this.buildManyToManyAggregationForDataList(resultList, criteriaListMap);
+                // 处理多一多场景下，根据主表的结果，进行从表聚合数据的计算。
+                this.buildOneToManyAggregationForDataList(resultList, criteriaListMap);
+            }
+        } finally {
+            GlobalThreadLocal.setDataPerm(dataPermValue);
         }
     }
 
@@ -561,54 +594,73 @@ public abstract class BaseService<M, K> {
      * NOTE: 该方法内执行的SQL将禁用数据权限过滤。
      *
      * @param dataObject      主表实体对象。数据集成将直接作用于该对象。
-     * @param dictOnly        是否只是集成字典，包括注解RelationDict和RelationConstDict标注的字段。
+     * @param relationParam   实体对象数据组装的参数构建器。
      * @param criteriaListMap 仅仅用于一对多和多对多聚合计算的附加过滤条件。如果没有可以为NULL。
      * @param <T>             实体对象类型。
-     * @return 集成后的原实体对象。
      */
-    public <T extends M> T buildAllRelationForData(
-            T dataObject, boolean dictOnly, Map<String, List<MyWhereCriteria>> criteriaListMap) {
-        // 集成本地一对一和字段级别的数据关联。
-        this.buildRelationForData(dataObject, dictOnly);
-        if (!dictOnly) {
-            // 组装本地聚合计算关联数据
-            this.buildAggregationRelationForData(dataObject, criteriaListMap);
+    public <T extends M> void buildRelationForData(
+            T dataObject, MyRelationParam relationParam, Map<String, List<MyWhereCriteria>> criteriaListMap) {
+        if (dataObject == null || relationParam == null) {
+            return;
         }
-        return dataObject;
+        boolean dataPermValue = GlobalThreadLocal.setDataPerm(false);
+        try {
+            // 集成本地一对一和字段级别的数据关联。
+            boolean buildOneToOne = relationParam.isBuildOneToOne() || relationParam.isBuildOneToOneWithDict();
+            if (buildOneToOne) {
+                this.buildOneToOneForData(dataObject, relationParam.isBuildOneToOneWithDict());
+            }
+            if (relationParam.isBuildDict()) {
+                // 构建常量字典关联关系
+                this.buildConstDictForData(dataObject);
+                // 构建本地数据字典关联关系。
+                this.buildDictForData(dataObject, buildOneToOne);
+            }
+            // 组装本地聚合计算关联数据
+            if (relationParam.isBuildRelationAggregation()) {
+                // 开始处理多对多场景。
+                buildManyToManyAggregationForData(dataObject, criteriaListMap);
+                // 构建一对多场景
+                buildOneToManyAggregationForData(dataObject, criteriaListMap);
+            }
+            if (relationParam.isBuildRelationManyToMany()) {
+                this.buildManyToManyRelation(dataObject);
+            }
+        } finally {
+            GlobalThreadLocal.setDataPerm(dataPermValue);
+        }
     }
 
     /**
-     * 为参数列表数据集成本地静态字典关联数据。
+     * 集成主表和多对多中间表之间的关联关系。
+     *
+     * @param dataObject 关联后的主表数据对象。
+     */
+    private <T extends M> void buildManyToManyRelation(T dataObject) {
+        if (dataObject == null || CollectionUtils.isEmpty(this.relationManyToManyStructList)) {
+            return;
+        }
+        for (RelationStruct relationStruct : this.relationManyToManyStructList) {
+            Object masterIdValue = ReflectUtil.getFieldValue(dataObject, relationStruct.masterIdField);
+            Example e = new Example(relationStruct.relationManyToMany.relationModelClass());
+            e.createCriteria().andEqualTo(relationStruct.masterIdField.getName(), masterIdValue);
+            List<?> manyToManyList = relationStruct.manyToManyMapper.selectByExample(e);
+            ReflectUtil.setFieldValue(dataObject, relationStruct.relationField, manyToManyList);
+        }
+    }
+
+    /**
+     * 为实体对象参数列表数据集成本地静态字典关联数据。
      *
      * @param resultList 主表数据列表。
      */
-    public void buildConstDictForDataList(List<? extends M> resultList) {
-        if (CollectionUtils.isNotEmpty(this.relationConstDictStructList)) {
-            for (RelationStruct relationStruct : this.relationConstDictStructList) {
-                for (M dataObject : resultList) {
-                    Object id = ReflectUtil.getFieldValue(dataObject, relationStruct.masterIdField);
-                    if (id != null) {
-                        String name = relationStruct.dictMap.get(id);
-                        if (name != null) {
-                            Map<String, Object> dictMap = new HashMap<>(2);
-                            dictMap.put("id", id);
-                            dictMap.put("name", name);
-                            ReflectUtil.setFieldValue(dataObject, relationStruct.relationField, dictMap);
-                        }
-                    }
-                }
-            }
+    private void buildConstDictForDataList(List<M> resultList) {
+        if (CollectionUtils.isEmpty(this.relationConstDictStructList)
+                || CollectionUtils.isEmpty(resultList)) {
+            return;
         }
-    }
-
-    /**
-     * 为参数实体对象数据集成本地静态字典关联数据。
-     *
-     * @param dataObject 实体对象。
-     */
-    public <T extends M> void buildConstDictForData(T dataObject) {
-        if (CollectionUtils.isNotEmpty(this.relationConstDictStructList)) {
-            for (RelationStruct relationStruct : this.relationConstDictStructList) {
+        for (RelationStruct relationStruct : this.relationConstDictStructList) {
+            for (M dataObject : resultList) {
                 Object id = ReflectUtil.getFieldValue(dataObject, relationStruct.masterIdField);
                 if (id != null) {
                     String name = relationStruct.dictMap.get(id);
@@ -624,507 +676,373 @@ public abstract class BaseService<M, K> {
     }
 
     /**
-     * 集成字典关联数据列表和一对一从表关联数据列表。
-     * NOTE: 该方法内执行的SQL将禁用数据权限过滤。
+     * 为参数实体对象数据集成本地静态字典关联数据。
      *
-     * @param resultList 主表数据列表。数据集成将直接作用于该对象列表。
-     * @param dictOnly   是否只是关联字典数据。
+     * @param dataObject 实体对象。
      */
-    public void buildRelationForDataList(List<? extends M> resultList, boolean dictOnly) {
-        if (CollectionUtils.isEmpty(resultList)) {
+    private <T extends M> void buildConstDictForData(T dataObject) {
+        if (dataObject == null || CollectionUtils.isEmpty(this.relationConstDictStructList)) {
             return;
         }
-        boolean dataPermEnabled = GlobalThreadLocal.setDataPerm(false);
-        if (!dictOnly) {
-            if (CollectionUtils.isNotEmpty(this.relationOneToOneStructList)) {
-                for (RelationStruct relationStruct : this.relationOneToOneStructList) {
-                    Set<Object> masterIdSet = resultList.stream()
-                            .map(obj -> ReflectUtil.getFieldValue(obj, relationStruct.masterIdField))
-                            .filter(Objects::nonNull)
-                            .collect(toSet());
-                    if (CollectionUtils.isNotEmpty(masterIdSet)) {
-                        BaseService<Object, Object> relationService = relationStruct.service;
-                        List<Object> relationList =
-                                relationService.getInList(relationStruct.relationOneToOne.slaveIdField(), masterIdSet);
-                        // 仅仅当需要加载从表字典关联时，才去加载。
-                        if (relationStruct.relationOneToOne.loadSlaveDict() && CollectionUtils.isNotEmpty(relationList)) {
-                            relationService.buildRelationForDataList(relationList, true);
-                            MyModelUtil.makeOneToOneRelation(
-                                    modelClass, resultList, relationList, relationStruct.relationField.getName());
-                        }
-                    }
+        for (RelationStruct relationStruct : this.relationConstDictStructList) {
+            Object id = ReflectUtil.getFieldValue(dataObject, relationStruct.masterIdField);
+            if (id != null) {
+                String name = relationStruct.dictMap.get(id);
+                if (name != null) {
+                    Map<String, Object> dictMap = new HashMap<>(2);
+                    dictMap.put("id", id);
+                    dictMap.put("name", name);
+                    ReflectUtil.setFieldValue(dataObject, relationStruct.relationField, dictMap);
                 }
             }
         }
-        // 构建常量字典关联关系
-        this.buildConstDictForDataList(resultList);
-        if (CollectionUtils.isNotEmpty(this.relationDictStructList)) {
-            for (RelationStruct relationStruct : this.relationDictStructList) {
-                List<Object> relationList = null;
-                if (!dictOnly && relationStruct.equalOneToOneRelationField != null) {
-                    relationList = resultList.stream()
-                            .map(obj -> ReflectUtil.getFieldValue(obj, relationStruct.equalOneToOneRelationField))
-                            .filter(Objects::nonNull)
-                            .collect(toList());
-                } else {
-                    String slaveId = relationStruct.relationDict.slaveIdField();
-                    Set<Object> masterIdSet = resultList.stream()
-                            .map(obj -> ReflectUtil.getFieldValue(obj, relationStruct.masterIdField))
-                            .filter(Objects::nonNull)
-                            .collect(toSet());
-                    if (CollectionUtils.isNotEmpty(masterIdSet)) {
-                        relationList = relationStruct.service.getInList(slaveId, masterIdSet);
-                    }
+    }
+
+    /**
+     * 为实体对象参数列表数据集成本地字典关联数据。
+     *
+     * @param resultList       实体对象数据列表。
+     * @param hasBuiltOneToOne 性能优化参数。如果该值为true，同时注解参数RelationDict.equalOneToOneRelationField
+     *                         不为空，则直接从已经完成一对一数据关联的从表对象中获取数据，减少一次数据库交互。
+     */
+    private void buildDictForDataList(List<M> resultList, boolean hasBuiltOneToOne) {
+        if (CollectionUtils.isEmpty(this.relationDictStructList)
+                || CollectionUtils.isEmpty(resultList)) {
+            return;
+        }
+        for (RelationStruct relationStruct : this.relationDictStructList) {
+            List<Object> relationList = null;
+            if (hasBuiltOneToOne && relationStruct.equalOneToOneRelationField != null) {
+                relationList = resultList.stream()
+                        .map(obj -> ReflectUtil.getFieldValue(obj, relationStruct.equalOneToOneRelationField))
+                        .filter(Objects::nonNull)
+                        .collect(toList());
+            } else {
+                String slaveId = relationStruct.relationDict.slaveIdField();
+                Set<Object> masterIdSet = resultList.stream()
+                        .map(obj -> ReflectUtil.getFieldValue(obj, relationStruct.masterIdField))
+                        .filter(Objects::nonNull)
+                        .collect(toSet());
+                if (CollectionUtils.isNotEmpty(masterIdSet)) {
+                    relationList = relationStruct.service.getInList(slaveId, masterIdSet);
                 }
-                MyModelUtil.makeDictRelation(
+            }
+            MyModelUtil.makeDictRelation(
+                    modelClass, resultList, relationList, relationStruct.relationField.getName());
+        }
+    }
+
+    /**
+     * 为实体对象数据集成本地数据字典关联数据。
+     *
+     * @param dataObject       实体对象。
+     * @param hasBuiltOneToOne 性能优化参数。如果该值为true，同时注解参数RelationDict.equalOneToOneRelationField
+     *                         不为空，则直接从已经完成一对一数据关联的从表对象中获取数据，减少一次数据库交互。
+     */
+    private <T extends M> void buildDictForData(T dataObject, boolean hasBuiltOneToOne) {
+        if (dataObject == null || CollectionUtils.isEmpty(this.relationDictStructList)) {
+            return;
+        }
+        for (RelationStruct relationStruct : this.relationDictStructList) {
+            Object relationObject = null;
+            if (hasBuiltOneToOne && relationStruct.equalOneToOneRelationField != null) {
+                relationObject = ReflectUtil.getFieldValue(dataObject, relationStruct.equalOneToOneRelationField);
+            } else {
+                Object id = ReflectUtil.getFieldValue(dataObject, relationStruct.masterIdField);
+                if (id != null) {
+                    relationObject = relationStruct.service.getById(id);
+                }
+            }
+            MyModelUtil.makeDictRelation(
+                    modelClass, dataObject, relationObject, relationStruct.relationField.getName());
+        }
+    }
+
+    /**
+     * 为实体对象参数列表数据集成本地一对一关联数据。
+     *
+     * @param resultList 实体对象数据列表。
+     * @param withDict   关联从表数据后，是否把从表的字典数据也一起关联了。。
+     */
+    private void buildOneToOneForDataList(List<M> resultList, boolean withDict) {
+        if (CollectionUtils.isEmpty(this.relationOneToOneStructList)
+                || CollectionUtils.isEmpty(resultList)) {
+            return;
+        }
+        for (RelationStruct relationStruct : this.relationOneToOneStructList) {
+            Set<Object> masterIdSet = resultList.stream()
+                    .map(obj -> ReflectUtil.getFieldValue(obj, relationStruct.masterIdField))
+                    .filter(Objects::nonNull)
+                    .collect(toSet());
+            // 从主表集合中，抽取主表关联字段的集合，再以in list形式去从表中查询。
+            if (CollectionUtils.isNotEmpty(masterIdSet)) {
+                BaseService<Object, Object> relationService = relationStruct.service;
+                List<Object> relationList =
+                        relationService.getInList(relationStruct.relationOneToOne.slaveIdField(), masterIdSet);
+                MyModelUtil.makeOneToOneRelation(
                         modelClass, resultList, relationList, relationStruct.relationField.getName());
-            }
-        }
-        GlobalThreadLocal.setDataPerm(dataPermEnabled);
-    }
-
-    /**
-     * 集成字典关联数据和一对一从表关联数据。
-     * NOTE: 该方法内执行的SQL将禁用数据权限过滤。
-     *
-     * @param dataObject 主表数据对象。数据集成将直接作用于该对象。
-     * @param dictOnly   是否只是关联字典数据。
-     * @return 关联后的主表数据对象。
-     */
-    public <T extends M> T buildRelationForData(T dataObject, boolean dictOnly) {
-        if (dataObject == null) {
-            return dataObject;
-        }
-        boolean dataPermEnabled = GlobalThreadLocal.setDataPerm(false);
-        if (!dictOnly) {
-            if (CollectionUtils.isNotEmpty(this.relationOneToOneStructList)) {
-                for (RelationStruct relationStruct : this.relationOneToOneStructList) {
-                    Object id = ReflectUtil.getFieldValue(dataObject, relationStruct.masterIdField);
-                    if (id != null) {
-                        BaseService<Object, Object> relationService = relationStruct.service;
-                        Object relationObject = relationService.getById(id);
-                        // 仅仅当需要加载从表字典关联时，才去加载。
-                        if (relationStruct.relationOneToOne.loadSlaveDict() && relationObject != null) {
-                            relationService.buildRelationForData(relationObject, true);
-                            ReflectUtil.setFieldValue(dataObject, relationStruct.relationField, relationObject);
-                        }
-                    }
+                // 仅仅当需要加载从表字典关联时，才去加载。
+                if (withDict && relationStruct.relationOneToOne.loadSlaveDict()
+                        && CollectionUtils.isNotEmpty(relationList)) {
+                    // 关联本地字典。
+                    relationService.buildDictForDataList(relationList, false);
+                    // 关联常量字典
+                    relationService.buildConstDictForDataList(relationList);
                 }
             }
         }
-        // 构建常量字典关联关系
-        this.buildConstDictForData(dataObject);
-        if (CollectionUtils.isNotEmpty(this.relationDictStructList)) {
-            for (RelationStruct relationStruct : this.relationDictStructList) {
-                Object relationObject = null;
-                if (!dictOnly && relationStruct.equalOneToOneRelationField != null) {
-                    relationObject = ReflectUtil.getFieldValue(dataObject, relationStruct.equalOneToOneRelationField);
-                } else {
-                    Object id = ReflectUtil.getFieldValue(dataObject, relationStruct.masterIdField);
-                    if (id != null) {
-                        relationObject = relationStruct.service.getById(id);
-                    }
-                }
-                MyModelUtil.makeDictRelation(
-                        modelClass, dataObject, relationObject, relationStruct.relationField.getName());
-            }
-        }
-        GlobalThreadLocal.setDataPerm(dataPermEnabled);
-        return dataObject;
     }
 
     /**
-     * 集成本地服务中，多个表之间的聚合计算关系，主要覆盖一对多和多对多两种场景。
-     * 其中一对多关系，比如课程表的章节统计字段sectionCount，可能依赖于课程章节表中关联章节的数量。
-     * NOTE: 该方法内执行的SQL将禁用数据权限过滤。
+     * 为实体对象数据集成本地一对一关联数据。
      *
-     * @param resultList      主数据表结果集。数据集成将直接作用于该对象列表。
-     * @param criteriaListMap 自定义的过滤条件列表。每个key对应不同的聚合关联字段名称，既注解应用的Java字段，如courseSectionCount。
+     * @param dataObject 实体对象。
+     * @param withDict   关联从表数据后，是否把从表的字典数据也一起关联了。。
      */
-    public void buildAggregationRelationForDataList(
-            List<? extends M> resultList, Map<String, List<MyWhereCriteria>> criteriaListMap) {
-        if (CollectionUtils.isEmpty(resultList)) {
+    private void buildOneToOneForData(M dataObject, boolean withDict) {
+        if (dataObject == null || CollectionUtils.isEmpty(this.relationOneToOneStructList)) {
             return;
         }
-        boolean dataPermEnabled = GlobalThreadLocal.setDataPerm(false);
-        // 处理多对多场景下，根据主表的结果，进行从表聚合数据的计算。
-        if (CollectionUtils.isNotEmpty(this.relationManyToManyAggrStructList)) {
-            if (criteriaListMap == null) {
-                criteriaListMap = new HashMap<>(this.relationManyToManyAggrStructList.size());
-            }
-            for (RelationStruct relationStruct : this.relationManyToManyAggrStructList) {
-                Set<Object> masterIdSet = resultList.stream()
-                        .map(obj -> ReflectUtil.getFieldValue(obj, relationStruct.masterIdField))
-                        .filter(Objects::nonNull)
-                        .collect(toSet());
-                if (CollectionUtils.isNotEmpty(masterIdSet)) {
-                    RelationManyToManyAggregation relation = relationStruct.relationManyToManyAggregation;
-                    // 提取关联中用到的各种字段和表数据。
-                    String slaveTable = MyModelUtil.mapToTableName(relation.slaveModelClass());
-                    String relationTable = MyModelUtil.mapToTableName(relation.relationModelClass());
-                    String relationMasterColumn =
-                            MyModelUtil.mapToColumnName(relation.relationMasterIdField(), relation.relationModelClass());
-                    String relationSlaveColumn =
-                            MyModelUtil.mapToColumnName(relation.relationSlaveIdField(), relation.relationModelClass());
-                    String slaveColumn =
-                            MyModelUtil.mapToColumnName(relation.slaveIdField(), relation.slaveModelClass());
-                    // 判断是否只需要关联中间表即可，从而提升查询统计的效率。
-                    // 1. 统计字段为中间表字段。2. 自定义过滤条件中没有基于从表字段的过滤条件。
-                    boolean onlySelectRelationTable =
-                            relation.aggregationModelClass().equals(relation.relationModelClass());
-                    if (onlySelectRelationTable && MapUtils.isNotEmpty(criteriaListMap)) {
-                        List<MyWhereCriteria> criteriaList =
-                                criteriaListMap.get(relationStruct.relationField.getName());
-                        if (CollectionUtils.isNotEmpty(criteriaList)) {
-                            for (MyWhereCriteria whereCriteria : criteriaList) {
-                                if (whereCriteria.getModelClazz().equals(relation.slaveModelClass())) {
-                                    onlySelectRelationTable = false;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                    String aggregationTable =
-                            relation.aggregationModelClass().equals(relation.relationModelClass()) ? relationTable : slaveTable;
-                    Tuple2<String, String> selectAndGroupByTuple = makeSelectListAndGroupByClause(
-                            relationTable, relationMasterColumn, relation.aggregationModelClass(),
-                            aggregationTable, relation.aggregationField(), relation.aggregationType());
-                    String selectList = selectAndGroupByTuple.getFirst();
-                    String groupBy = selectAndGroupByTuple.getSecond();
-                    // 构建多表关联的where语句
-                    StringBuilder whereClause = new StringBuilder(256);
-                    // 如果需要从表聚合计算或参与过滤，则需要把中间表和从表之间的关联条件加上。
-                    if (!onlySelectRelationTable) {
-                        whereClause.append(relationTable)
-                                .append(".")
-                                .append(relationSlaveColumn)
-                                .append(" = ")
-                                .append(slaveTable)
-                                .append(".")
-                                .append(slaveColumn);
-                    } else {
-                        whereClause.append("1 = 1");
-                    }
-                    List<MyWhereCriteria> criteriaList = criteriaListMap.get(relationStruct.relationField.getName());
-                    if (criteriaList == null) {
-                        criteriaList = new LinkedList<>();
-                    }
-                    MyWhereCriteria inlistFilter = new MyWhereCriteria();
-                    inlistFilter.setCriteria(relation.relationModelClass(),
-                            relation.relationMasterIdField(), MyWhereCriteria.OPERATOR_IN, masterIdSet);
-                    criteriaList.add(inlistFilter);
-                    if (StringUtils.isNotBlank(relationStruct.service.deletedFlagFieldName)) {
-                        MyWhereCriteria deleteFilter = new MyWhereCriteria();
-                        deleteFilter.setCriteria(
-                                relation.slaveModelClass(),
-                                relationStruct.service.deletedFlagFieldName,
-                                MyWhereCriteria.OPERATOR_EQUAL,
-                                GlobalDeletedFlag.NORMAL);
-                        criteriaList.add(deleteFilter);
-                    }
-                    String criteriaString = MyWhereCriteria.getCriteriaString(criteriaList);
-                    whereClause.append(" AND ").append(criteriaString);
-                    StringBuilder tableNames = new StringBuilder(64);
-                    tableNames.append(relationTable);
-                    if (!onlySelectRelationTable) {
-                        tableNames.append(", ").append(slaveTable);
-                    }
-                    List<Map<String, Object>> aggregationMapList = mapper().getGroupedListByCondition(
-                            tableNames.toString(), selectList, whereClause.toString(), groupBy);
-                    doMakeLocalAggregationData(aggregationMapList, resultList, relationStruct);
+        for (RelationStruct relationStruct : this.relationOneToOneStructList) {
+            Object id = ReflectUtil.getFieldValue(dataObject, relationStruct.masterIdField);
+            if (id != null) {
+                BaseService<Object, Object> relationService = relationStruct.service;
+                Object relationObject = relationService.getById(id);
+                ReflectUtil.setFieldValue(dataObject, relationStruct.relationField, relationObject);
+                // 仅仅当需要加载从表字典关联时，才去加载。
+                if (withDict && relationStruct.relationOneToOne.loadSlaveDict() && relationObject != null) {
+                    // 关联本地字典
+                    relationService.buildDictForData(relationObject, false);
+                    // 关联常量字典
+                    relationService.buildConstDictForData(relationObject);
                 }
             }
         }
-        // 处理多一多场景下，根据主表的结果，进行从表聚合数据的计算。
-        if (CollectionUtils.isNotEmpty(this.relationOneToManyAggrStructList)) {
-            if (criteriaListMap == null) {
-                criteriaListMap = new HashMap<>(relationOneToManyAggrStructList.size());
-            }
-            for (RelationStruct relationStruct : this.relationOneToManyAggrStructList) {
-                Set<Object> masterIdSet = resultList.stream()
-                        .map(obj -> ReflectUtil.getFieldValue(obj, relationStruct.masterIdField))
-                        .filter(Objects::nonNull)
-                        .collect(toSet());
-                if (CollectionUtils.isNotEmpty(masterIdSet)) {
-                    RelationOneToManyAggregation relation = relationStruct.relationOneToManyAggregation;
-                    // 开始获取后面所需的各种关联数据。此部分今后可以移植到缓存中，无需每次计算。
-                    String slaveTable = MyModelUtil.mapToTableName(relation.slaveModelClass());
-                    String slaveColumnName =
-                            MyModelUtil.mapToColumnName(relation.slaveIdField(), relation.slaveModelClass());
-                    Tuple2<String, String> selectAndGroupByTuple = makeSelectListAndGroupByClause(
-                            slaveTable, slaveColumnName, relation.slaveModelClass(),
-                            slaveTable, relation.aggregationField(), relation.aggregationType());
-                    String selectList = selectAndGroupByTuple.getFirst();
-                    String groupBy = selectAndGroupByTuple.getSecond();
-                    List<MyWhereCriteria> criteriaList = criteriaListMap.get(relationStruct.relationField.getName());
-                    if (criteriaList == null) {
-                        criteriaList = new LinkedList<>();
-                    }
-                    MyWhereCriteria inlistFilter = new MyWhereCriteria();
-                    inlistFilter.setCriteria(relation.slaveModelClass(),
-                            relation.slaveIdField(), MyWhereCriteria.OPERATOR_IN, masterIdSet);
-                    criteriaList.add(inlistFilter);
-                    if (StringUtils.isNotBlank(relationStruct.service.deletedFlagFieldName)) {
-                        MyWhereCriteria deleteFilter = new MyWhereCriteria();
-                        deleteFilter.setCriteria(
-                                relation.slaveModelClass(),
-                                relationStruct.service.deletedFlagFieldName,
-                                MyWhereCriteria.OPERATOR_EQUAL,
-                                GlobalDeletedFlag.NORMAL);
-                        criteriaList.add(deleteFilter);
-                    }
-                    String criteriaString = MyWhereCriteria.getCriteriaString(criteriaList);
-                    List<Map<String, Object>> aggregationMapList =
-                            mapper().getGroupedListByCondition(slaveTable, selectList, criteriaString, groupBy);
-                    doMakeLocalAggregationData(aggregationMapList, resultList, relationStruct);
-                }
-            }
-        }
-        GlobalThreadLocal.setDataPerm(dataPermEnabled);
     }
 
     /**
-     * 集成本地服务中，多个表之间的聚合计算关系，主要覆盖一对多和多对多两种场景。
-     * 其中一对多关系，比如课程表的章节统计字段sectionCount，可能依赖于课程章节表中关联章节的数量。
-     * NOTE: 该方法内执行的SQL将禁用数据权限过滤。
+     * 根据实体对象参数列表和过滤条件，集成本地多对多关联聚合计算数据。
      *
-     * @param dataObject      主表对象。数据集成将直接作用于该对象。
-     * @param criteriaListMap 自定义的过滤条件列表。每个key对应不同的聚合关联字段名称，既注解应用的Java字段，如courseSectionCount。
-     * @param <T>             参数类型。
-     * @return 集成后的主表对象。
+     * @param resultList      实体对象数据列表。
+     * @param criteriaListMap 过滤参数。key为主表字段名称，value是过滤条件列表。
      */
-    public <T extends M> T buildAggregationRelationForData(T dataObject, Map<String, List<MyWhereCriteria>> criteriaListMap) {
-        if (dataObject == null) {
-            return null;
+    private void buildManyToManyAggregationForDataList(
+            List<M> resultList, Map<String, List<MyWhereCriteria>> criteriaListMap) {
+        if (CollectionUtils.isEmpty(this.relationManyToManyAggrStructList)
+                || CollectionUtils.isEmpty(resultList)) {
+            return;
         }
-        boolean dataPermEnabled = GlobalThreadLocal.setDataPerm(false);
-        // 开始处理多对多场景。
-        if (CollectionUtils.isNotEmpty(this.relationManyToManyAggrStructList)) {
-            if (criteriaListMap == null) {
-                criteriaListMap = new HashMap<>(relationOneToManyAggrStructList.size());
+        if (criteriaListMap == null) {
+            criteriaListMap = new HashMap<>(this.relationManyToManyAggrStructList.size());
+        }
+        for (RelationStruct relationStruct : this.relationManyToManyAggrStructList) {
+            Set<Object> masterIdSet = resultList.stream()
+                    .map(obj -> ReflectUtil.getFieldValue(obj, relationStruct.masterIdField))
+                    .filter(Objects::nonNull)
+                    .collect(toSet());
+            if (CollectionUtils.isEmpty(masterIdSet)) {
+                continue;
             }
-            for (RelationStruct relationStruct : this.relationManyToManyAggrStructList) {
-                Object masterIdValue = ReflectUtil.getFieldValue(dataObject, relationStruct.masterIdField);
-                if (masterIdValue != null) {
-                    RelationManyToManyAggregation relation = relationStruct.relationManyToManyAggregation;
-                    String slaveTable = MyModelUtil.mapToTableName(relation.slaveModelClass());
-                    String relationTable = MyModelUtil.mapToTableName(relation.relationModelClass());
-                    String relationMasterColumn =
-                            MyModelUtil.mapToColumnName(relation.relationMasterIdField(), relation.relationModelClass());
-                    String relationSlaveColumn =
-                            MyModelUtil.mapToColumnName(relation.relationSlaveIdField(), relation.relationModelClass());
-                    String slaveColumn = MyModelUtil.mapToColumnName(relation.slaveIdField(), relation.slaveModelClass());
-                    // 判断是否只需要关联中间表即可，从而提升查询统计的效率。
-                    // 1. 统计字段为中间表字段。2. 自定义过滤条件中没有基于从表字段的过滤条件。
-                    boolean onlySelectRelationTable = relation.aggregationModelClass().equals(relation.relationModelClass());
-                    if (onlySelectRelationTable && MapUtils.isNotEmpty(criteriaListMap)) {
-                        List<MyWhereCriteria> criteriaList =
-                                criteriaListMap.get(relationStruct.relationField.getName());
-                        if (CollectionUtils.isNotEmpty(criteriaList)) {
-                            for (MyWhereCriteria whereCriteria : criteriaList) {
-                                if (whereCriteria.getModelClazz().equals(relation.slaveModelClass())) {
-                                    onlySelectRelationTable = false;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                    String aggregationTable =
-                            relation.aggregationModelClass().equals(relation.relationModelClass()) ? relationTable : slaveTable;
-                    Tuple2<String, String> selectAndGroupByTuple = makeSelectListAndGroupByClause(
-                            relationTable, relationMasterColumn, relation.aggregationModelClass(),
-                            aggregationTable, relation.aggregationField(), relation.aggregationType());
-                    String selectList = selectAndGroupByTuple.getFirst();
-                    String groupBy = selectAndGroupByTuple.getSecond();
-                    // 组装过滤条件
-                    StringBuilder whereClause = new StringBuilder(256);
-                    whereClause.append(relationTable).append(".").append(relationMasterColumn);
-                    if (masterIdValue instanceof Number) {
-                        whereClause.append(" = ").append(masterIdValue);
-                    } else {
-                        whereClause.append(" = '").append(masterIdValue).append("'");
-                    }
-                    // 如果需要从表聚合计算或参与过滤，则需要把中间表和从表之间的关联条件加上。
-                    if (!onlySelectRelationTable) {
-                        whereClause.append(" AND ")
-                                .append(relationTable)
-                                .append(".")
-                                .append(relationSlaveColumn)
-                                .append(" = ")
-                                .append(slaveTable)
-                                .append(".")
-                                .append(slaveColumn);
-                    }
-                    List<MyWhereCriteria> criteriaList = criteriaListMap.get(relationStruct.relationField.getName());
-                    if (criteriaList == null) {
-                        criteriaList = new LinkedList<>();
-                    }
-                    if (StringUtils.isNotBlank(relationStruct.service.deletedFlagFieldName)) {
-                        MyWhereCriteria deleteFilter = new MyWhereCriteria();
-                        deleteFilter.setCriteria(
-                                relation.slaveModelClass(),
-                                relationStruct.service.deletedFlagFieldName,
-                                MyWhereCriteria.OPERATOR_EQUAL,
-                                GlobalDeletedFlag.NORMAL);
-                        criteriaList.add(deleteFilter);
-                    }
-                    if (CollectionUtils.isNotEmpty(criteriaList)) {
-                        String criteriaString = MyWhereCriteria.getCriteriaString(criteriaList);
-                        whereClause.append(" AND ").append(criteriaString);
-                    }
-                    StringBuilder tableNames = new StringBuilder(64);
-                    tableNames.append(relationTable);
-                    if (!onlySelectRelationTable) {
-                        tableNames.append(", ").append(slaveTable);
-                    }
-                    List<Map<String, Object>> aggregationMapList = mapper().getGroupedListByCondition(
-                            tableNames.toString(), selectList, whereClause.toString(), groupBy);
-                    // 将查询后的结果回填到主表数据中。
-                    if (CollectionUtils.isNotEmpty(aggregationMapList)) {
-                        Object value = aggregationMapList.get(0).get(AGGREGATED_VALUE);
-                        if (value != null) {
-                            ReflectUtil.setFieldValue(dataObject, relationStruct.relationField, value);
-                        }
-                    }
+            RelationManyToManyAggregation relation = relationStruct.relationManyToManyAggregation;
+            // 提取关联中用到的各种字段和表数据。
+            BasicAggregationRelationInfo basicRelationInfo =
+                    this.parseBasicAggregationRelationInfo(relationStruct, criteriaListMap);
+            // 构建多表关联的where语句
+            StringBuilder whereClause = new StringBuilder(256);
+            // 如果需要从表聚合计算或参与过滤，则需要把中间表和从表之间的关联条件加上。
+            if (!basicRelationInfo.onlySelectRelationTable) {
+                whereClause.append(basicRelationInfo.relationTable)
+                        .append(".")
+                        .append(basicRelationInfo.relationSlaveColumn)
+                        .append(" = ")
+                        .append(basicRelationInfo.slaveTable)
+                        .append(".")
+                        .append(basicRelationInfo.slaveColumn);
+            } else {
+                whereClause.append("1 = 1");
+            }
+            List<MyWhereCriteria> criteriaList = criteriaListMap.get(relationStruct.relationField.getName());
+            if (criteriaList == null) {
+                criteriaList = new LinkedList<>();
+            }
+            MyWhereCriteria inlistFilter = new MyWhereCriteria();
+            inlistFilter.setCriteria(relation.relationModelClass(),
+                    relation.relationMasterIdField(), MyWhereCriteria.OPERATOR_IN, masterIdSet);
+            criteriaList.add(inlistFilter);
+            if (StringUtils.isNotBlank(relationStruct.service.deletedFlagFieldName)) {
+                MyWhereCriteria deleteFilter = new MyWhereCriteria();
+                deleteFilter.setCriteria(
+                        relation.slaveModelClass(),
+                        relationStruct.service.deletedFlagFieldName,
+                        MyWhereCriteria.OPERATOR_EQUAL,
+                        GlobalDeletedFlag.NORMAL);
+                criteriaList.add(deleteFilter);
+            }
+            String criteriaString = MyWhereCriteria.getCriteriaString(criteriaList);
+            whereClause.append(AND_OP).append(criteriaString);
+            StringBuilder tableNames = new StringBuilder(64);
+            tableNames.append(basicRelationInfo.relationTable);
+            if (!basicRelationInfo.onlySelectRelationTable) {
+                tableNames.append(", ").append(basicRelationInfo.slaveTable);
+            }
+            List<Map<String, Object>> aggregationMapList =
+                    mapper().getGroupedListByCondition(tableNames.toString(),
+                            basicRelationInfo.selectList, whereClause.toString(), basicRelationInfo.groupBy);
+            doMakeLocalAggregationData(aggregationMapList, resultList, relationStruct);
+        }
+    }
+
+    /**
+     * 根据实体对象和过滤条件，集成本地多对多关联聚合计算数据。
+     *
+     * @param dataObject      实体对象。
+     * @param criteriaListMap 过滤参数。key为主表字段名称，value是过滤条件列表。
+     */
+    private <T extends M> void buildManyToManyAggregationForData(
+            T dataObject, Map<String, List<MyWhereCriteria>> criteriaListMap) {
+        if (dataObject == null || CollectionUtils.isEmpty(this.relationManyToManyAggrStructList)) {
+            return;
+        }
+        if (criteriaListMap == null) {
+            criteriaListMap = new HashMap<>(relationManyToManyAggrStructList.size());
+        }
+        for (RelationStruct relationStruct : this.relationManyToManyAggrStructList) {
+            Object masterIdValue = ReflectUtil.getFieldValue(dataObject, relationStruct.masterIdField);
+            if (masterIdValue == null) {
+                continue;
+            }
+            BasicAggregationRelationInfo basicRelationInfo =
+                    this.parseBasicAggregationRelationInfo(relationStruct, criteriaListMap);
+            // 组装过滤条件
+            String whereClause = this.makeManyToManyWhereClause(
+                    relationStruct, masterIdValue, basicRelationInfo, criteriaListMap);
+            StringBuilder tableNames = new StringBuilder(64);
+            tableNames.append(basicRelationInfo.relationTable);
+            if (!basicRelationInfo.onlySelectRelationTable) {
+                tableNames.append(", ").append(basicRelationInfo.slaveTable);
+            }
+            List<Map<String, Object>> aggregationMapList =
+                    mapper().getGroupedListByCondition(tableNames.toString(),
+                            basicRelationInfo.selectList, whereClause, basicRelationInfo.groupBy);
+            // 将查询后的结果回填到主表数据中。
+            if (CollectionUtils.isNotEmpty(aggregationMapList)) {
+                Object value = aggregationMapList.get(0).get(AGGREGATED_VALUE);
+                if (value != null) {
+                    ReflectUtil.setFieldValue(dataObject, relationStruct.relationField, value);
                 }
             }
         }
-        // 构建一对多场景
-        if (CollectionUtils.isNotEmpty(this.relationOneToManyAggrStructList)) {
-            if (criteriaListMap == null) {
-                criteriaListMap = new HashMap<>(relationOneToManyAggrStructList.size());
+    }
+
+    /**
+     * 根据实体对象参数列表和过滤条件，集成本地一对多关联聚合计算数据。
+     *
+     * @param resultList      实体对象数据列表。
+     * @param criteriaListMap 过滤参数。key为主表字段名称，value是过滤条件列表。
+     */
+    private void buildOneToManyAggregationForDataList(
+            List<M> resultList, Map<String, List<MyWhereCriteria>> criteriaListMap) {
+        // 处理多一多场景下，根据主表的结果，进行从表聚合数据的计算。
+        if (CollectionUtils.isEmpty(this.relationOneToManyAggrStructList)
+                || CollectionUtils.isEmpty(resultList)) {
+            return;
+        }
+        if (criteriaListMap == null) {
+            criteriaListMap = new HashMap<>(relationOneToManyAggrStructList.size());
+        }
+        for (RelationStruct relationStruct : this.relationOneToManyAggrStructList) {
+            Set<Object> masterIdSet = resultList.stream()
+                    .map(obj -> ReflectUtil.getFieldValue(obj, relationStruct.masterIdField))
+                    .filter(Objects::nonNull)
+                    .collect(toSet());
+            if (CollectionUtils.isEmpty(masterIdSet)) {
+                continue;
             }
-            for (RelationStruct relationStruct : this.relationOneToManyAggrStructList) {
-                Object masterIdValue = ReflectUtil.getFieldValue(dataObject, relationStruct.masterIdField);
-                if (masterIdValue != null) {
-                    RelationOneToManyAggregation relation = relationStruct.relationOneToManyAggregation;
-                    String slaveTable = MyModelUtil.mapToTableName(relation.slaveModelClass());
-                    String slaveColumnName =
-                            MyModelUtil.mapToColumnName(relation.slaveIdField(), relation.slaveModelClass());
-                    Tuple2<String, String> selectAndGroupByTuple = makeSelectListAndGroupByClause(
-                            slaveTable, slaveColumnName, relation.slaveModelClass(),
-                            slaveTable, relation.aggregationField(), relation.aggregationType());
-                    String selectList = selectAndGroupByTuple.getFirst();
-                    String groupBy = selectAndGroupByTuple.getSecond();
-                    StringBuilder whereClause = new StringBuilder(64);
-                    if (masterIdValue instanceof Number) {
-                        whereClause.append(slaveColumnName).append(" = ").append(masterIdValue);
-                    } else {
-                        whereClause.append(slaveColumnName).append(" = '").append(masterIdValue).append("'");
-                    }
-                    List<MyWhereCriteria> criteriaList = criteriaListMap.get(relationStruct.relationField.getName());
-                    if (criteriaList == null) {
-                        criteriaList = new LinkedList<>();
-                    }
-                    if (StringUtils.isNotBlank(relationStruct.service.deletedFlagFieldName)) {
-                        MyWhereCriteria deleteFilter = new MyWhereCriteria();
-                        deleteFilter.setCriteria(
-                                relation.slaveModelClass(),
-                                relationStruct.service.deletedFlagFieldName,
-                                MyWhereCriteria.OPERATOR_EQUAL,
-                                GlobalDeletedFlag.NORMAL);
-                        criteriaList.add(deleteFilter);
-                    }
-                    if (CollectionUtils.isNotEmpty(criteriaList)) {
-                        String criteriaString = MyWhereCriteria.getCriteriaString(criteriaList);
-                        whereClause.append(" AND ").append(criteriaString);
-                    }
-                    // 获取分组聚合计算结果
-                    List<Map<String, Object>> aggregationMapList = mapper().getGroupedListByCondition(
-                            slaveTable, selectList, whereClause.toString(), groupBy);
-                    // 将计算结果回填到主表关联字段
-                    if (CollectionUtils.isNotEmpty(aggregationMapList)) {
-                        Object value = aggregationMapList.get(0).get(AGGREGATED_VALUE);
-                        if (value != null) {
-                            ReflectUtil.setFieldValue(dataObject, relationStruct.relationField, value);
-                        }
-                    }
+            RelationOneToManyAggregation relation = relationStruct.relationOneToManyAggregation;
+            // 开始获取后面所需的各种关联数据。此部分今后可以移植到缓存中，无需每次计算。
+            String slaveTable = MyModelUtil.mapToTableName(relation.slaveModelClass());
+            String slaveColumnName = MyModelUtil.mapToColumnName(relation.slaveIdField(), relation.slaveModelClass());
+            Tuple2<String, String> selectAndGroupByTuple = makeSelectListAndGroupByClause(
+                    slaveTable, slaveColumnName, relation.slaveModelClass(),
+                    slaveTable, relation.aggregationField(), relation.aggregationType());
+            String selectList = selectAndGroupByTuple.getFirst();
+            String groupBy = selectAndGroupByTuple.getSecond();
+            List<MyWhereCriteria> criteriaList = criteriaListMap.get(relationStruct.relationField.getName());
+            if (criteriaList == null) {
+                criteriaList = new LinkedList<>();
+            }
+            MyWhereCriteria inlistFilter = new MyWhereCriteria();
+            inlistFilter.setCriteria(relation.slaveModelClass(),
+                    relation.slaveIdField(), MyWhereCriteria.OPERATOR_IN, masterIdSet);
+            criteriaList.add(inlistFilter);
+            if (StringUtils.isNotBlank(relationStruct.service.deletedFlagFieldName)) {
+                MyWhereCriteria deleteFilter = new MyWhereCriteria();
+                deleteFilter.setCriteria(
+                        relation.slaveModelClass(),
+                        relationStruct.service.deletedFlagFieldName,
+                        MyWhereCriteria.OPERATOR_EQUAL,
+                        GlobalDeletedFlag.NORMAL);
+                criteriaList.add(deleteFilter);
+            }
+            String criteriaString = MyWhereCriteria.getCriteriaString(criteriaList);
+            List<Map<String, Object>> aggregationMapList =
+                    mapper().getGroupedListByCondition(slaveTable, selectList, criteriaString, groupBy);
+            doMakeLocalAggregationData(aggregationMapList, resultList, relationStruct);
+        }
+    }
+
+    /**
+     * 根据实体对象和过滤条件，集成本地一对多关联聚合计算数据。
+     *
+     * @param dataObject      实体对象。
+     * @param criteriaListMap 过滤参数。key为主表字段名称，value是过滤条件列表。
+     */
+    private <T extends M> void buildOneToManyAggregationForData(
+            T dataObject, Map<String, List<MyWhereCriteria>> criteriaListMap) {
+        if (dataObject == null || CollectionUtils.isEmpty(this.relationOneToManyAggrStructList)) {
+            return;
+        }
+        if (criteriaListMap == null) {
+            criteriaListMap = new HashMap<>(relationOneToManyAggrStructList.size());
+        }
+        for (RelationStruct relationStruct : this.relationOneToManyAggrStructList) {
+            Object masterIdValue = ReflectUtil.getFieldValue(dataObject, relationStruct.masterIdField);
+            if (masterIdValue == null) {
+                continue;
+            }
+            RelationOneToManyAggregation relation = relationStruct.relationOneToManyAggregation;
+            String slaveTable = MyModelUtil.mapToTableName(relation.slaveModelClass());
+            String slaveColumnName =
+                    MyModelUtil.mapToColumnName(relation.slaveIdField(), relation.slaveModelClass());
+            Tuple2<String, String> selectAndGroupByTuple = makeSelectListAndGroupByClause(
+                    slaveTable, slaveColumnName, relation.slaveModelClass(),
+                    slaveTable, relation.aggregationField(), relation.aggregationType());
+            String selectList = selectAndGroupByTuple.getFirst();
+            String groupBy = selectAndGroupByTuple.getSecond();
+            String whereClause = this.makeOneToManyWhereClause(
+                    relationStruct, masterIdValue, slaveColumnName, criteriaListMap);
+            // 获取分组聚合计算结果
+            List<Map<String, Object>> aggregationMapList =
+                    mapper().getGroupedListByCondition(slaveTable, selectList, whereClause, groupBy);
+            // 将计算结果回填到主表关联字段
+            if (CollectionUtils.isNotEmpty(aggregationMapList)) {
+                Object value = aggregationMapList.get(0).get(AGGREGATED_VALUE);
+                if (value != null) {
+                    ReflectUtil.setFieldValue(dataObject, relationStruct.relationField, value);
                 }
             }
         }
-        GlobalThreadLocal.setDataPerm(dataPermEnabled);
-        return dataObject;
     }
 
     /**
      * 仅仅在spring boot 启动后的监听器事件中调用，缓存所有service的关联关系，加速后续的数据绑定效率。
      */
-    @SuppressWarnings("unchecked")
     public void loadRelationStruct() {
         Field[] fields = ReflectUtil.getFields(modelClass);
         for (Field f : fields) {
-            RelationConstDict relationConstDict = f.getAnnotation(RelationConstDict.class);
-            if (relationConstDict != null) {
-                if (relationConstDictStructList == null) {
-                    relationConstDictStructList = new LinkedList<>();
-                }
-                RelationStruct relationStruct = new RelationStruct();
-                relationStruct.relationField = f;
-                relationStruct.masterIdField = ReflectUtil.getField(modelClass, relationConstDict.masterIdField());
-                Field dictMapField = ReflectUtil.getField(relationConstDict.constantDictClass(), "DICT_MAP");
-                relationStruct.dictMap = (Map<Object, String>) ReflectUtil.getFieldValue(modelClass, dictMapField);
-                relationConstDictStructList.add(relationStruct);
-                continue;
-            }
-            RelationDict relationDict = f.getAnnotation(RelationDict.class);
-            if (relationDict != null) {
-                if (relationDictStructList == null) {
-                    relationDictStructList = new LinkedList<>();
-                }
-                RelationStruct relationStruct = new RelationStruct();
-                relationStruct.relationField = f;
-                relationStruct.masterIdField = ReflectUtil.getField(modelClass, relationDict.masterIdField());
-                relationStruct.relationDict = relationDict;
-                if (StringUtils.isNotBlank(relationDict.equalOneToOneRelationField())) {
-                    relationStruct.equalOneToOneRelationField =
-                            ReflectUtil.getField(modelClass, relationDict.equalOneToOneRelationField());
-                }
-                relationStruct.service = ApplicationContextHolder.getBean(
-                        StringUtils.uncapitalize(relationDict.slaveServiceName()));
-                relationDictStructList.add(relationStruct);
-                continue;
-            }
-            RelationOneToOne relationOneToOne = f.getAnnotation(RelationOneToOne.class);
-            if (relationOneToOne != null) {
-                if (relationOneToOneStructList == null) {
-                    relationOneToOneStructList = new LinkedList<>();
-                }
-                RelationStruct relationStruct = new RelationStruct();
-                relationStruct.relationField = f;
-                relationStruct.masterIdField = ReflectUtil.getField(modelClass, relationOneToOne.masterIdField());
-                relationStruct.relationOneToOne = relationOneToOne;
-                relationStruct.service = ApplicationContextHolder.getBean(
-                        StringUtils.uncapitalize(relationOneToOne.slaveServiceName()));
-                relationOneToOneStructList.add(relationStruct);
-                continue;
-            }
-            RelationOneToManyAggregation relationOneToManyAggregation = f.getAnnotation(RelationOneToManyAggregation.class);
-            if (relationOneToManyAggregation != null) {
-                if (relationOneToManyAggrStructList == null) {
-                    relationOneToManyAggrStructList = new LinkedList<>();
-                }
-                RelationStruct relationStruct = new RelationStruct();
-                relationStruct.relationField = f;
-                relationStruct.masterIdField = ReflectUtil.getField(modelClass, relationOneToManyAggregation.masterIdField());
-                relationStruct.relationOneToManyAggregation = relationOneToManyAggregation;
-                relationStruct.service = ApplicationContextHolder.getBean(
-                        StringUtils.uncapitalize(relationOneToManyAggregation.slaveServiceName()));
-                relationOneToManyAggrStructList.add(relationStruct);
-                continue;
-            }
-            RelationManyToManyAggregation relationManyToManyAggregation = f.getAnnotation(RelationManyToManyAggregation.class);
-            if (relationManyToManyAggregation != null) {
-                if (relationManyToManyAggrStructList == null) {
-                    relationManyToManyAggrStructList = new LinkedList<>();
-                }
-                RelationStruct relationStruct = new RelationStruct();
-                relationStruct.relationField = f;
-                relationStruct.masterIdField = ReflectUtil.getField(modelClass, relationManyToManyAggregation.masterIdField());
-                relationStruct.relationManyToManyAggregation = relationManyToManyAggregation;
-                relationStruct.service = ApplicationContextHolder.getBean(
-                        StringUtils.uncapitalize(relationManyToManyAggregation.slaveServiceName()));
-                relationManyToManyAggrStructList.add(relationStruct);
-            }
+            initializeRelationDictStruct(f);
+            initializeRelationStruct(f);
+            initializeRelationAggregationStruct(f);
         }
     }
 
@@ -1189,10 +1107,208 @@ public abstract class BaseService<M, K> {
         return e;
     }
 
+    private void initializeRelationStruct(Field f) {
+        RelationOneToOne relationOneToOne = f.getAnnotation(RelationOneToOne.class);
+        if (relationOneToOne != null) {
+            RelationStruct relationStruct = new RelationStruct();
+            relationStruct.relationField = f;
+            relationStruct.masterIdField = ReflectUtil.getField(modelClass, relationOneToOne.masterIdField());
+            relationStruct.relationOneToOne = relationOneToOne;
+            relationStruct.service = ApplicationContextHolder.getBean(
+                    StringUtils.uncapitalize(relationOneToOne.slaveServiceName()));
+            relationOneToOneStructList.add(relationStruct);
+            return;
+        }
+        RelationManyToMany relationManyToMany = f.getAnnotation(RelationManyToMany.class);
+        if (relationManyToMany != null) {
+            RelationStruct relationStruct = new RelationStruct();
+            relationStruct.relationField = f;
+            relationStruct.masterIdField = ReflectUtil.getField(modelClass, relationManyToMany.relationMasterIdField());
+            relationStruct.relationManyToMany = relationManyToMany;
+            relationStruct.manyToManyMapper = ApplicationContextHolder.getBean(
+                    StringUtils.uncapitalize(relationManyToMany.relationMapperName()));
+            relationManyToManyStructList.add(relationStruct);
+        }
+    }
+
+    private void initializeRelationAggregationStruct(Field f) {
+        RelationOneToManyAggregation relationOneToManyAggregation = f.getAnnotation(RelationOneToManyAggregation.class);
+        if (relationOneToManyAggregation != null) {
+            RelationStruct relationStruct = new RelationStruct();
+            relationStruct.relationField = f;
+            relationStruct.masterIdField = ReflectUtil.getField(modelClass, relationOneToManyAggregation.masterIdField());
+            relationStruct.relationOneToManyAggregation = relationOneToManyAggregation;
+            relationStruct.service = ApplicationContextHolder.getBean(
+                    StringUtils.uncapitalize(relationOneToManyAggregation.slaveServiceName()));
+            relationOneToManyAggrStructList.add(relationStruct);
+            return;
+        }
+        RelationManyToManyAggregation relationManyToManyAggregation = f.getAnnotation(RelationManyToManyAggregation.class);
+        if (relationManyToManyAggregation != null) {
+            RelationStruct relationStruct = new RelationStruct();
+            relationStruct.relationField = f;
+            relationStruct.masterIdField = ReflectUtil.getField(modelClass, relationManyToManyAggregation.masterIdField());
+            relationStruct.relationManyToManyAggregation = relationManyToManyAggregation;
+            relationStruct.service = ApplicationContextHolder.getBean(
+                    StringUtils.uncapitalize(relationManyToManyAggregation.slaveServiceName()));
+            relationManyToManyAggrStructList.add(relationStruct);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private void initializeRelationDictStruct(Field f) {
+        RelationConstDict relationConstDict = f.getAnnotation(RelationConstDict.class);
+        if (relationConstDict != null) {
+            RelationStruct relationStruct = new RelationStruct();
+            relationStruct.relationField = f;
+            relationStruct.masterIdField = ReflectUtil.getField(modelClass, relationConstDict.masterIdField());
+            Field dictMapField = ReflectUtil.getField(relationConstDict.constantDictClass(), "DICT_MAP");
+            relationStruct.dictMap = (Map<Object, String>) ReflectUtil.getFieldValue(modelClass, dictMapField);
+            relationConstDictStructList.add(relationStruct);
+            return;
+        }
+        RelationDict relationDict = f.getAnnotation(RelationDict.class);
+        if (relationDict != null) {
+            RelationStruct relationStruct = new RelationStruct();
+            relationStruct.relationField = f;
+            relationStruct.masterIdField = ReflectUtil.getField(modelClass, relationDict.masterIdField());
+            relationStruct.relationDict = relationDict;
+            if (StringUtils.isNotBlank(relationDict.equalOneToOneRelationField())) {
+                relationStruct.equalOneToOneRelationField =
+                        ReflectUtil.getField(modelClass, relationDict.equalOneToOneRelationField());
+            }
+            relationStruct.service = ApplicationContextHolder.getBean(
+                    StringUtils.uncapitalize(relationDict.slaveServiceName()));
+            relationDictStructList.add(relationStruct);
+        }
+    }
+
+    private BasicAggregationRelationInfo parseBasicAggregationRelationInfo(
+            RelationStruct relationStruct, Map<String, List<MyWhereCriteria>> criteriaListMap) {
+        RelationManyToManyAggregation relation = relationStruct.relationManyToManyAggregation;
+        BasicAggregationRelationInfo relationInfo = new BasicAggregationRelationInfo();
+        // 提取关联中用到的各种字段和表数据。
+        relationInfo.slaveTable = MyModelUtil.mapToTableName(relation.slaveModelClass());
+        relationInfo.relationTable = MyModelUtil.mapToTableName(relation.relationModelClass());
+        relationInfo.relationMasterColumn =
+                MyModelUtil.mapToColumnName(relation.relationMasterIdField(), relation.relationModelClass());
+        relationInfo.relationSlaveColumn =
+                MyModelUtil.mapToColumnName(relation.relationSlaveIdField(), relation.relationModelClass());
+        relationInfo.slaveColumn = MyModelUtil.mapToColumnName(relation.slaveIdField(), relation.slaveModelClass());
+        // 判断是否只需要关联中间表即可，从而提升查询统计的效率。
+        // 1. 统计字段为中间表字段。2. 自定义过滤条件中没有基于从表字段的过滤条件。
+        relationInfo.onlySelectRelationTable =
+                relation.aggregationModelClass().equals(relation.relationModelClass());
+        if (relationInfo.onlySelectRelationTable && MapUtils.isNotEmpty(criteriaListMap)) {
+            List<MyWhereCriteria> criteriaList =
+                    criteriaListMap.get(relationStruct.relationField.getName());
+            if (CollectionUtils.isNotEmpty(criteriaList)) {
+                for (MyWhereCriteria whereCriteria : criteriaList) {
+                    if (whereCriteria.getModelClazz().equals(relation.slaveModelClass())) {
+                        relationInfo.onlySelectRelationTable = false;
+                        break;
+                    }
+                }
+            }
+        }
+        String aggregationTable = relation.aggregationModelClass().equals(relation.relationModelClass())
+                ? relationInfo.relationTable : relationInfo.slaveTable;
+        Tuple2<String, String> selectAndGroupByTuple = makeSelectListAndGroupByClause(
+                relationInfo.relationTable, relationInfo.relationMasterColumn, relation.aggregationModelClass(),
+                aggregationTable, relation.aggregationField(), relation.aggregationType());
+        relationInfo.selectList = selectAndGroupByTuple.getFirst();
+        relationInfo.groupBy = selectAndGroupByTuple.getSecond();
+        return relationInfo;
+    }
+
+    private String makeManyToManyWhereClause(
+            RelationStruct relationStruct,
+            Object masterIdValue,
+            BasicAggregationRelationInfo basicRelationInfo,
+            Map<String, List<MyWhereCriteria>> criteriaListMap) {
+        StringBuilder whereClause = new StringBuilder(256);
+        whereClause.append(basicRelationInfo.relationTable)
+                .append(".").append(basicRelationInfo.relationMasterColumn);
+        if (masterIdValue instanceof Number) {
+            whereClause.append(" = ").append(masterIdValue);
+        } else {
+            whereClause.append(" = '").append(masterIdValue).append("'");
+        }
+        // 如果需要从表聚合计算或参与过滤，则需要把中间表和从表之间的关联条件加上。
+        if (!basicRelationInfo.onlySelectRelationTable) {
+            whereClause.append(AND_OP)
+                    .append(basicRelationInfo.relationTable)
+                    .append(".")
+                    .append(basicRelationInfo.relationSlaveColumn)
+                    .append(" = ")
+                    .append(basicRelationInfo.slaveTable)
+                    .append(".")
+                    .append(basicRelationInfo.slaveColumn);
+        }
+        List<MyWhereCriteria> criteriaList = criteriaListMap.get(relationStruct.relationField.getName());
+        if (criteriaList == null) {
+            criteriaList = new LinkedList<>();
+        }
+        if (StringUtils.isNotBlank(relationStruct.service.deletedFlagFieldName)) {
+            MyWhereCriteria deleteFilter = new MyWhereCriteria();
+            deleteFilter.setCriteria(
+                    relationStruct.relationManyToManyAggregation.slaveModelClass(),
+                    relationStruct.service.deletedFlagFieldName,
+                    MyWhereCriteria.OPERATOR_EQUAL,
+                    GlobalDeletedFlag.NORMAL);
+            criteriaList.add(deleteFilter);
+        }
+        if (CollectionUtils.isNotEmpty(criteriaList)) {
+            String criteriaString = MyWhereCriteria.getCriteriaString(criteriaList);
+            whereClause.append(AND_OP).append(criteriaString);
+        }
+        return whereClause.toString();
+    }
+
+    private String makeOneToManyWhereClause(
+            RelationStruct relationStruct,
+            Object masterIdValue,
+            String slaveColumnName,
+            Map<String, List<MyWhereCriteria>> criteriaListMap) {
+        StringBuilder whereClause = new StringBuilder(64);
+        if (masterIdValue instanceof Number) {
+            whereClause.append(slaveColumnName).append(" = ").append(masterIdValue);
+        } else {
+            whereClause.append(slaveColumnName).append(" = '").append(masterIdValue).append("'");
+        }
+        List<MyWhereCriteria> criteriaList = criteriaListMap.get(relationStruct.relationField.getName());
+        if (criteriaList == null) {
+            criteriaList = new LinkedList<>();
+        }
+        if (StringUtils.isNotBlank(relationStruct.service.deletedFlagFieldName)) {
+            MyWhereCriteria deleteFilter = new MyWhereCriteria();
+            deleteFilter.setCriteria(
+                    relationStruct.relationOneToManyAggregation.slaveModelClass(),
+                    relationStruct.service.deletedFlagFieldName,
+                    MyWhereCriteria.OPERATOR_EQUAL,
+                    GlobalDeletedFlag.NORMAL);
+            criteriaList.add(deleteFilter);
+        }
+        if (CollectionUtils.isNotEmpty(criteriaList)) {
+            String criteriaString = MyWhereCriteria.getCriteriaString(criteriaList);
+            whereClause.append(AND_OP).append(criteriaString);
+        }
+        return whereClause.toString();
+    }
+
+    private static class BasicAggregationRelationInfo {
+        private String slaveTable;
+        private String slaveColumn;
+        private String relationTable;
+        private String relationMasterColumn;
+        private String relationSlaveColumn;
+        private String selectList;
+        private String groupBy;
+        private boolean onlySelectRelationTable;
+    }
+
     private void doMakeLocalAggregationData(
-            List<Map<String, Object>> aggregationMapList,
-            List<? extends M> resultList,
-            RelationStruct relationStruct) {
+            List<Map<String, Object>> aggregationMapList, List<M> resultList, RelationStruct relationStruct) {
         if (CollectionUtils.isEmpty(resultList)) {
             return;
         }
@@ -1254,15 +1370,16 @@ public abstract class BaseService<M, K> {
     }
 
     static class RelationStruct {
-        public Field relationField;
-        public Field masterIdField;
-        public Field equalOneToOneRelationField;
-        public BaseService<Object, Object> service;
-        public Map<Object, String> dictMap;
-        public RelationDict relationDict;
-        public RelationOneToOne relationOneToOne;
-        public RelationConstDict relationConstDict;
-        public RelationOneToManyAggregation relationOneToManyAggregation;
-        public RelationManyToManyAggregation relationManyToManyAggregation;
+        private Field relationField;
+        private Field masterIdField;
+        private Field equalOneToOneRelationField;
+        private BaseService<Object, Object> service;
+        private BaseDaoMapper<Object> manyToManyMapper;
+        private Map<Object, String> dictMap;
+        private RelationDict relationDict;
+        private RelationOneToOne relationOneToOne;
+        private RelationManyToMany relationManyToMany;
+        private RelationOneToManyAggregation relationOneToManyAggregation;
+        private RelationManyToManyAggregation relationManyToManyAggregation;
     }
 }

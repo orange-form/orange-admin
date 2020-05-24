@@ -13,6 +13,12 @@ import javax.validation.constraints.*;
 import java.util.Date;
 import java.util.Map;
 
+/**
+ * TeacherTransStats实体对象。
+ *
+ * @author Stephen.Liu
+ * @date 2020-05-24
+ */
 @Data
 @Table(name = "zz_teacher_trans_stats")
 public class TeacherTransStats {

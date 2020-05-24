@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
  * 标记Controller中的方法参数，参数解析器会根据该注解将请求中的JSON数据，映射到参数中的绑定字段。
  *
  * @author Stephen.Liu
- * @date 2020-04-11
+ * @date 2020-05-24
  */
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)

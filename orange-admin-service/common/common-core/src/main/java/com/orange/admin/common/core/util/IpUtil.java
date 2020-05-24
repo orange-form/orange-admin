@@ -16,7 +16,7 @@ import java.util.List;
  * Ip工具类。
  *
  * @author Stephen.Liu
- * @date 2020-04-11
+ * @date 2020-05-24
  */
 @Slf4j
 public class IpUtil {
@@ -81,12 +81,9 @@ public class IpUtil {
             Enumeration<InetAddress> allAddress = ni.getInetAddresses();
             while (allAddress.hasMoreElements()) {
                 InetAddress address = allAddress.nextElement();
-                if (address.isLoopbackAddress()) {
-                    // skip the loopback addr
-                    continue;
-                }
-                if (address instanceof Inet6Address) {
-                    // skip the IPv6 addr
+                // skip the IPv6 addr
+                // skip the IPv6 addr
+                if (address.isLoopbackAddress() || address instanceof Inet6Address) {
                     continue;
                 }
                 String hostAddress = address.getHostAddress();
@@ -94,5 +91,11 @@ public class IpUtil {
             }
         }
         return ipList;
+    }
+
+    /**
+     * 私有构造函数，明确标识该常量类的作用。
+     */
+    private IpUtil() {
     }
 }

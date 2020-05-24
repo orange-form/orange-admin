@@ -1,6 +1,6 @@
 package com.orange.admin.common.core.util;
 
-import org.springframework.beans.BeansException;
+import com.orange.admin.common.core.exception.MyRuntimeException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.lang.NonNull;
@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
  * Spring 系统启动应用感知对象，主要用于获取Spring Bean的上下文对象，后续的代码中可以直接查找系统中加载的Bean对象。
  *
  * @author Stephen.Liu
- * @date 2020-04-11
+ * @date 2020-05-24
  */
 @Component
 public class ApplicationContextHolder implements ApplicationContextAware {
@@ -21,11 +21,10 @@ public class ApplicationContextHolder implements ApplicationContextAware {
      * Spring 启动的过程中会自动调用，并将应用上下文对象赋值进来。
      *
      * @param applicationContext 应用上下文对象，可通过该对象查找Spring中已经加载的Bean。
-     * @throws BeansException Bean处理相关的异常。
      */
     @Override
-    public void setApplicationContext(@NonNull ApplicationContext applicationContext) throws BeansException {
-        ApplicationContextHolder.applicationContext = applicationContext;
+    public void setApplicationContext(@NonNull ApplicationContext applicationContext) {
+        doSetApplicationContext(applicationContext);
     }
 
     /**
@@ -65,8 +64,11 @@ public class ApplicationContextHolder implements ApplicationContextAware {
 
     private static void assertApplicationContext() {
         if (ApplicationContextHolder.applicationContext == null) {
-            throw new RuntimeException("applicaitonContext属性为null,请检查是否注入了ApplicationContextHolder!");
+            throw new MyRuntimeException("applicaitonContext属性为null,请检查是否注入了ApplicationContextHolder!");
         }
     }
 
+    private static void doSetApplicationContext(ApplicationContext applicationContext) {
+        ApplicationContextHolder.applicationContext = applicationContext;
+    }
 }

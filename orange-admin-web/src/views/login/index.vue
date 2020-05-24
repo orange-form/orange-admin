@@ -25,6 +25,7 @@
 import { SystemController } from '@/api';
 import { mapMutations } from 'vuex';
 import projectConfig from '@/core/config';
+import { encrypt } from '@/utils';
 
 export default {
   data () {
@@ -50,7 +51,7 @@ export default {
         if (valid) {
           let params = {
             loginName: this.dataForm.mobilePhone,
-            password: this.dataForm.password
+            password: encrypt(this.dataForm.password)
           };
 
           SystemController.login(this, params, null, {showMask: false}).then(data => {

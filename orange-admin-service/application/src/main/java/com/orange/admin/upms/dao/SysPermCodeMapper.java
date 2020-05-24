@@ -11,7 +11,7 @@ import java.util.Map;
  * 权限字数据访问操作接口。
  *
  * @author Stephen.Liu
- * @date 2020-04-11
+ * @date 2020-05-24
  */
 public interface SysPermCodeMapper extends BaseDaoMapper<SysPermCode> {
 
@@ -35,7 +35,7 @@ public interface SysPermCodeMapper extends BaseDaoMapper<SysPermCode> {
      * 获取指定用户的权限字列表。
      *
      * @param loginName 精确匹配用户登录名。
-     * @param permCode 模糊匹配的权限字名，LIKE %permCode%。
+     * @param permCode  模糊匹配的权限字名，LIKE %permCode%。
      * @return 权限字列表。
      */
     List<SysPermCode> getUserPermCodeListByFilter(

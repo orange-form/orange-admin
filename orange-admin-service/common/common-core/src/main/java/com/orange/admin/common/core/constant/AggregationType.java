@@ -7,32 +7,32 @@ import java.util.Map;
  * 聚合计算的常量类型对象。
  *
  * @author Stephen.Liu
- * @date 2020-04-11
+ * @date 2020-05-24
  */
 public final class AggregationType {
 
     /**
      * sum 计数
      */
-    public final static int SUM = 0;
+    public static final int SUM = 0;
     /**
      * count 汇总
      */
-    public final static int COUNT = 1;
+    public static final int COUNT = 1;
     /**
      * average 平均值
      */
-    public final static int AVG = 2;
+    public static final int AVG = 2;
     /**
      * min 最小值
      */
-    public final static int MIN = 3;
+    public static final int MIN = 3;
     /**
      * max 最大值
      */
-    public final static int MAX = 4;
+    public static final int MAX = 4;
 
-    public static final Map<Object, String> DICT_MAP = new HashMap<>(5);
+    private static final Map<Object, String> DICT_MAP = new HashMap<>(5);
     static {
         DICT_MAP.put(0, "累计总和");
         DICT_MAP.put(1, "数量总和");
@@ -48,7 +48,7 @@ public final class AggregationType {
      * @return 合法返回true，否则false。
      */
     public static boolean isValid(Integer value) {
-        return DICT_MAP.containsKey(value);
+        return value != null && DICT_MAP.containsKey(value);
     }
 
     /**
@@ -71,5 +71,11 @@ public final class AggregationType {
             default:
                 throw new IllegalArgumentException("无效的聚合类型！");
         }
+    }
+
+    /**
+     * 私有构造函数，明确标识该常量类的作用。
+     */
+    private AggregationType() {
     }
 }

@@ -136,7 +136,12 @@ export default {
     }
   },
   mounted () {
-    if (this.rowData) this.formData = {...this.formData, ...this.rowData};
+    if (this.rowData) {
+      this.formData = {...this.formData, ...this.rowData};
+      if (Array.isArray(this.formData.sysRoleMenuList)) {
+      	this.formData.menuIdList = this.formData.sysRoleMenuList.map(item => item.menuId);
+      }
+    }
     this.loadAuthData();
   },
   watch: {

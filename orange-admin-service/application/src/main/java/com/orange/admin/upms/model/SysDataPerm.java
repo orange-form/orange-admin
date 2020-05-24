@@ -2,16 +2,23 @@ package com.orange.admin.upms.model;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import com.orange.admin.common.core.annotation.DeletedFlagColumn;
+import com.orange.admin.common.core.annotation.JobUpdateTimeColumn;
+import com.orange.admin.common.core.annotation.RelationManyToMany;
 import com.orange.admin.common.core.validator.ConstDictRef;
 import com.orange.admin.common.core.validator.UpdateGroup;
 import com.orange.admin.common.core.constant.DataPermRuleType;
-import com.orange.admin.common.core.annotation.JobUpdateTimeColumn;
 import lombok.Data;
 
 import javax.persistence.*;
 import javax.validation.constraints.*;
 import java.util.*;
 
+/**
+ * 数据权限实体对象。
+ *
+ * @author Stephen.Liu
+ * @date 2020-05-24
+ */
 @Data
 @Table(name = "zz_sys_data_perm")
 public class SysDataPerm {
@@ -72,9 +79,17 @@ public class SysDataPerm {
     @Column(name = "deleted_flag")
     private Integer deletedFlag;
 
+    @RelationManyToMany(
+            relationMapperName = "sysDataPermDeptMapper",
+            relationMasterIdField = "dataPermId",
+            relationModelClass = SysDataPermDept.class)
     @Transient
     private List<SysDataPermDept> dataPermDeptList;
 
+    @RelationManyToMany(
+            relationMapperName = "sysDataPermMenuMapper",
+            relationMasterIdField = "dataPermId",
+            relationModelClass = SysDataPermMenu.class)
     @Transient
     private List<SysDataPermMenu> dataPermMenuList;
 

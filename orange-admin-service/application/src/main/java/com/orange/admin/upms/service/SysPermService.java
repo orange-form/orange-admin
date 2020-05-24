@@ -2,11 +2,12 @@ package com.orange.admin.upms.service;
 
 import cn.hutool.core.util.ObjectUtil;
 import com.alibaba.fastjson.JSONObject;
+import com.orange.admin.common.biz.base.service.BaseBizService;
 import com.orange.admin.common.biz.util.BasicIdGenerator;
 import com.orange.admin.common.core.base.dao.BaseDaoMapper;
-import com.orange.admin.common.core.base.service.BaseService;
+import com.orange.admin.common.core.object.MyRelationParam;
 import com.orange.admin.common.core.constant.GlobalDeletedFlag;
-import com.orange.admin.common.core.object.VerifyResult;
+import com.orange.admin.common.core.object.CallResult;
 import com.orange.admin.upms.dao.SysPermCodePermMapper;
 import com.orange.admin.upms.dao.SysPermMapper;
 import com.orange.admin.upms.model.SysPerm;
@@ -29,10 +30,10 @@ import java.util.stream.Collectors;
  * 权限资源数据服务类。
  *
  * @author Stephen.Liu
- * @date 2020-04-11
+ * @date 2020-05-24
  */
 @Service
-public class SysPermService extends BaseService<SysPerm, Long> {
+public class SysPermService extends BaseBizService<SysPerm, Long> {
 
     @Autowired
     private SysPermMapper sysPermMapper;
@@ -61,7 +62,7 @@ public class SysPermService extends BaseService<SysPerm, Long> {
      * @param perm 新增的权限资源对象。
      * @return 新增后的权限资源对象。
      */
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public SysPerm saveNew(SysPerm perm) {
         perm.setPermId(idGenerator.nextLongId());
         perm.setCreateTime(new Date());
@@ -73,11 +74,11 @@ public class SysPermService extends BaseService<SysPerm, Long> {
     /**
      * 更新权限资源对象。
      *
-     * @param perm 更新的权限资源对象。
-     * @param originalPerm 更新的权限资源对象。
+     * @param perm         更新的权限资源对象。
+     * @param originalPerm 原有的权限资源对象。
      * @return 更新成功返回true，否则false。
      */
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public boolean update(SysPerm perm, SysPerm originalPerm) {
         perm.setCreateTime(originalPerm.getCreateTime());
         perm.setDeletedFlag(GlobalDeletedFlag.NORMAL);
@@ -90,7 +91,7 @@ public class SysPermService extends BaseService<SysPerm, Long> {
      * @param permId 权限资源主键Id。
      * @return 删除成功返回true，否则false。
      */
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public boolean remove(Long permId) {
         SysPerm perm = new SysPerm();
         perm.setPermId(permId);
@@ -112,7 +113,7 @@ public class SysPermService extends BaseService<SysPerm, Long> {
      */
     public List<SysPerm> getPermListWithRelation(SysPerm sysPermFilter) {
         Example e = new Example(SysPerm.class);
-        e.orderBy("permId");
+        e.orderBy("showOrder");
         Example.Criteria c = e.createCriteria();
         if (ObjectUtil.isNotNull(sysPermFilter.getModuleId())) {
             c.andEqualTo("moduleId", sysPermFilter.getModuleId());
@@ -123,7 +124,7 @@ public class SysPermService extends BaseService<SysPerm, Long> {
         c.andEqualTo("deletedFlag", GlobalDeletedFlag.NORMAL);
         List<SysPerm> permList = sysPermMapper.selectByExample(e);
         // 这里因为权限只有字典数据，所以仅仅做字典关联。
-        this.buildRelationForDataList(permList, true);
+        this.buildRelationForDataList(permList, MyRelationParam.dictOnly(), null);
         return permList;
     }
 
@@ -131,15 +132,15 @@ public class SysPermService extends BaseService<SysPerm, Long> {
      * 获取指定用户的权限资源集合，并存储于缓存，从而提升后续读取效率。
      *
      * @param sessionId 用户会话Id。
-     * @param userId 用户主键Id。
+     * @param userId    用户主键Id。
      * @return 当前用户权限集合。
      */
-    @Cacheable(value = "UserPermissionCache", key = "#sessionId", unless = "#result == null")
+    @Cacheable(value = "USER_PERMISSION_CACHE", key = "#sessionId", unless = "#result == null")
     public Set<String> getCacheableSysPermSetByUserId(String sessionId, Long userId) {
         // 这里可以防止非法的userId直接访问权限受限的url
         SysUser user = sysUserService.getById(userId);
         if (user == null) {
-            return null;
+            return new HashSet<>(1);
         }
         // 管理员账户返回空对象，便于缓存的统一处理。
         return user.getUserType() == SysUserType.TYPE_ADMIN
@@ -150,11 +151,11 @@ public class SysPermService extends BaseService<SysPerm, Long> {
      * 将指定用户的指定会话的权限集合存入缓存。
      *
      * @param sessionId 会话Id。
-     * @param userId 用户主键Id。
-     * @param isAdmin 是否是管理员。
+     * @param userId    用户主键Id。
+     * @param isAdmin   是否是管理员。
      * @return 查询并缓存后的权限集合。
      */
-    @CachePut(value = "UserPermissionCache", key = "#sessionId")
+    @CachePut(value = "USER_PERMISSION_CACHE", key = "#sessionId")
     public Set<String> putUserSysPermCache(String sessionId, Long userId, boolean isAdmin) {
         // 管理员账户返回空对象，便于缓存的统一处理。
         return isAdmin ? new HashSet<>(1) : this.getSysPermSetByUserId(userId);
@@ -165,7 +166,7 @@ public class SysPermService extends BaseService<SysPerm, Long> {
      *
      * @param sessionId 会话Id。
      */
-    @CacheEvict(value = "UserPermissionCache", key = "#sessionId")
+    @CacheEvict(value = "USER_PERMISSION_CACHE", key = "#sessionId")
     public void removeUserSysPermCache(String sessionId) {
         // 空实现即可，只是通过注解将当前sessionId从cache中删除。
     }
@@ -185,7 +186,7 @@ public class SysPermService extends BaseService<SysPerm, Long> {
      * 获取与指定权限字关联的权限资源列表。
      *
      * @param permCodeId 关联的权限字主键Id。
-     * @param orderBy 排序参数。
+     * @param orderBy    排序参数。
      * @return 与指定权限字Id关联的权限资源列表。
      */
     public List<SysPerm> getPermListByPermCodeId(Long permCodeId, String orderBy) {
@@ -206,8 +207,8 @@ public class SysPermService extends BaseService<SysPerm, Long> {
      * 获取指定用户的用户权限关联列表。
      *
      * @param loginName 精确匹配用户登录名。
-     * @param moduleId 精确匹配权限模块Id。
-     * @param url 模糊匹配的url过滤条件。
+     * @param moduleId  精确匹配权限模块Id。
+     * @param url       模糊匹配的url过滤条件。
      * @return 用户权限关联列表。
      */
     public List<Map<String, Object>> getUserPermListByFilter(String loginName, Long moduleId, String url) {
@@ -237,24 +238,20 @@ public class SysPermService extends BaseService<SysPerm, Long> {
     /**
      * 验证权限资源对象关联的数据是否都合法。
      *
-     * @param sysPerm 当前操作的对象。
+     * @param sysPerm         当前操作的对象。
      * @param originalSysPerm 原有对象。
      * @return 验证结果。
      */
-    public VerifyResult verifyRelatedData(SysPerm sysPerm, SysPerm originalSysPerm) {
-        String errorMessage = null;
+    public CallResult verifyRelatedData(SysPerm sysPerm, SysPerm originalSysPerm) {
         JSONObject jsonObject = null;
-        do {
-            if (this.needToVerify(sysPerm, originalSysPerm, SysPerm::getModuleId)) {
-                SysPermModule permModule = sysPermModuleService.getById(sysPerm.getModuleId());
-                if (permModule == null) {
-                    errorMessage = "数据验证失败，关联的权限模块Id并不存在，请刷新后重试！";
-                    break;
-                }
-                jsonObject = new JSONObject();
-                jsonObject.put("permModule", permModule);
+        if (this.needToVerify(sysPerm, originalSysPerm, SysPerm::getModuleId)) {
+            SysPermModule permModule = sysPermModuleService.getById(sysPerm.getModuleId());
+            if (permModule == null) {
+                return CallResult.error("数据验证失败，关联的权限模块Id并不存在，请刷新后重试！");
             }
-        } while (false);
-        return VerifyResult.create(errorMessage, jsonObject);
+            jsonObject = new JSONObject();
+            jsonObject.put("permModule", permModule);
+        }
+        return CallResult.ok(jsonObject);
     }
 }

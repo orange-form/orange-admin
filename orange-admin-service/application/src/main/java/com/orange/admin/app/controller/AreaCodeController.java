@@ -17,7 +17,7 @@ import java.util.*;
  * 行政区划数据访问接口类。
  *
  * @author Stephen.Liu
- * @date 2020-04-11
+ * @date 2020-05-24
  */
 @RestController
 @RequestMapping("/admin/app/areaCode")
@@ -32,7 +32,7 @@ public class AreaCodeController {
      * @return 字典形式的行政区划列表。
      */
     @GetMapping("/listDictAreaCode")
-    public ResponseResult<?> listDictAreaCode() {
+    public ResponseResult<List<Map<String, Object>>> listDictAreaCode() {
         List<AreaCode> resultList = areaCodeService.getAllList();
         return ResponseResult.success(BeanQuery.select(
                 "parentId as parentId", "areaId as id", "areaName as name").executeFrom(resultList));
@@ -45,7 +45,7 @@ public class AreaCodeController {
      * @return 按照字典的形式返回下级行政区划列表。
      */
     @GetMapping("/listDictAreaCodeByParentId")
-    public ResponseResult<?> listDictAreaCodeByParentId(@RequestParam(required = false) Long parentId) {
+    public ResponseResult<List<Map<String, Object>>> listDictAreaCodeByParentId(@RequestParam(required = false) Long parentId) {
         Collection<AreaCode> resultList = areaCodeService.getListByParentId(parentId);
         if (CollectionUtils.isEmpty(resultList)) {
             return ResponseResult.success(new LinkedList<>());

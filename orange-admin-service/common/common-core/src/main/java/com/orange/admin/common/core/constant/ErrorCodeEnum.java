@@ -4,11 +4,17 @@ package com.orange.admin.common.core.constant;
  * 返回应答中的错误代码和错误信息。
  *
  * @author Stephen.Liu
- * @date 2020-04-11
+ * @date 2020-05-24
  */
 public enum ErrorCodeEnum {
 
+    /**
+     * 没有错误
+     */
     NO_ERROR("没有错误"),
+    /**
+     * 未处理的异常！
+     */
     UNHANDLED_EXCEPTION("未处理的异常！"),
 
     ARGUMENT_NULL_EXIST("数据验证失败，接口调用参数存在空值，请核对！"),
@@ -37,24 +43,35 @@ public enum ErrorCodeEnum {
     DATA_PARENT_LEVEL_ID_NOT_EXIST("数据验证失败，父级别关联Id不存在，请刷新后重试！"),
     DATA_PARENT_ID_NOT_EXIST("数据验证失败，ParentId不存在，请核对！"),
     INVALID_RELATED_RECORD_ID("数据验证失败，关联数据并不存在，请刷新后重试！"),
-    INVALID_DATA_FIELD("数据验证失败，无效的数据字段！"),
+    INVALID_DATA_MODEL("数据验证失败，无效的数据实体对象！"),
+    INVALID_DATA_FIELD("数据验证失败，无效的数据实体对象字段！"),
+    INVALID_CLASS_FIELD("数据验证失败，无效的类对象字段！"),
     SERVER_INTERNAL_ERROR("服务器内部错误，请联系管理员！"),
     REDIS_CACHE_ACCESS_TIMEOUT("Redis缓存数据访问超时，请刷新后重试！"),
     REDIS_CACHE_ACCESS_STATE_ERROR("Redis缓存数据访问状态错误，请刷新后重试！");
 
     // 下面的枚举值为特定枚举值，即开发者可以根据自己的项目需求定义更多的非通用枚举值
 
+    /**
+     * 构造函数。
+     *
+     * @param errorMessage 错误消息。
+     */
     ErrorCodeEnum(String errorMessage) {
         this.errorMessage = errorMessage;
     }
 
+    /**
+     * 错误信息。
+     */
     private String errorMessage;
 
+    /**
+     * 获取错误信息。
+     *
+     * @return 错误信息。
+     */
     public String getErrorMessage() {
         return errorMessage;
-    }
-
-    public void setErrorMessage(String errorMessage) {
-        this.errorMessage = errorMessage;
     }
 }

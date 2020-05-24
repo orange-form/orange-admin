@@ -6,7 +6,7 @@ import cn.hutool.core.util.BooleanUtil;
  * 线程本地化数据管理的工具类。可根据需求自行添加更多的线程本地化变量及其操作方法。
  *
  * @author Stephen.Liu
- * @date 2020-04-11
+ * @date 2020-05-24
  */
 public class GlobalThreadLocal {
 
@@ -41,5 +41,11 @@ public class GlobalThreadLocal {
      */
     public static void clearDataPerm() {
         DATA_PERM_ENABLE.remove();
+    }
+
+    /**
+     * 私有构造函数，明确标识该常量类的作用。
+     */
+    private GlobalThreadLocal() {
     }
 }
