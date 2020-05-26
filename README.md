@@ -12,7 +12,7 @@
 
 #### 橙单网站
 - 网站首页。[http://101.200.178.51](http://101.200.178.51)
-- 教学视频。[http://101.200.178.51](https://www.bilibili.com/video/bv1Wg4y1i7vP)
+- 教学视频。[https://www.bilibili.com/video/bv1Wg4y1i7vP](https://www.bilibili.com/video/bv1Wg4y1i7vP)
 - 生成器操作指南。[http://101.200.178.51/orange-doc/](http://101.200.178.51/orange-doc/)
 - 后端代码文档。[http://101.200.178.51/development-doc/](http://101.200.178.51/development-doc/)
 - 前端代码文档。[http://101.200.178.51/development-vue/](http://101.200.178.51/development-vue/)
