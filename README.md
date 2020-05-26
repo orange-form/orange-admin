@@ -12,6 +12,7 @@
 
 #### 橙单网站
 - 网站首页。[http://101.200.178.51](http://101.200.178.51)
+- 教学视频。[http://101.200.178.51](https://www.bilibili.com/video/bv1Wg4y1i7vP)
 - 生成器操作指南。[http://101.200.178.51/orange-doc/](http://101.200.178.51/orange-doc/)
 - 后端代码文档。[http://101.200.178.51/development-doc/](http://101.200.178.51/development-doc/)
 - 前端代码文档。[http://101.200.178.51/development-vue/](http://101.200.178.51/development-vue/)
@@ -20,7 +21,7 @@
 #### 竞争优势
 - 真正的代码生成器，而非脚手架。
 - 主流框架任意组合，可生成相对复杂的平台业务代码。
-- 图文并茂，手把手教您的配置操作指南。
+- 图文并茂，手把手教您的配置操作指南和教学视频。
 - 专业、详尽、完善、完全免费、以及暗黑护眼的开发文档。
 - 合理、超低价的商业授权。
 
@@ -47,7 +48,7 @@
 - 前端: Element (Vue) / Ant Design (React) + ECharts / AntV + Axios + Webpack。
 - 后端: Spring Boot / Spring Cloud / Spring Cloud Alibaba + Mybatis + Jwt。
 - 工具库: Hutool + Guava + Caffeine + Lombok + MapStruct + 通用Mapper。
-- 服务组件: Redis + Zookeeper + Apollo + XXL-Job + Kafka + Nacos + Sentinel + Seata。
+- 服务组件: Redis + Zookeeper + Consul + Apollo + XXL-Job + Kafka + Nacos + Sentinel + Seata。
 - 日志监控: ELK + PinPoint / SkyWalking + Grafana + Prometheus。
 
 #### 基础功能
