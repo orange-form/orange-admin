@@ -1,4 +1,4 @@
-CREATE DATABASE zz-orange-admin DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci
+CREATE DATABASE zz-orange-admin DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_bin
 USE zz-orange-admin
 
 SET NAMES utf8mb4;
