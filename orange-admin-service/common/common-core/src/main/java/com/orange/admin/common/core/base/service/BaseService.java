@@ -1,13 +1,14 @@
-package com.orange.admin.common.core.base.service;
+package com.demo.single.common.core.base.service;
 
-import com.orange.admin.common.core.annotation.*;
-import com.orange.admin.common.core.base.dao.BaseDaoMapper;
-import com.orange.admin.common.core.constant.AggregationType;
-import com.orange.admin.common.core.constant.GlobalDeletedFlag;
-import com.orange.admin.common.core.exception.MyRuntimeException;
-import com.orange.admin.common.core.object.*;
-import com.orange.admin.common.core.util.ApplicationContextHolder;
-import com.orange.admin.common.core.util.MyModelUtil;
+import com.demo.single.common.core.annotation.*;
+import com.demo.single.common.core.base.dao.BaseDaoMapper;
+import com.demo.single.common.core.constant.AggregationType;
+import com.demo.single.common.core.constant.GlobalDeletedFlag;
+import com.demo.single.common.core.exception.MyRuntimeException;
+import com.demo.single.common.core.object.*;
+import com.demo.single.common.core.util.AopTargetUtil;
+import com.demo.single.common.core.util.ApplicationContextHolder;
+import com.demo.single.common.core.util.MyModelUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
@@ -33,7 +34,7 @@ import static java.util.stream.Collectors.*;
  * @param <M> Model对象的类型。
  * @param <K> Model对象主键的类型。
  * @author Stephen.Liu
- * @date 2020-05-24
+ * @date 2020-05-22
  */
 @Slf4j
 public abstract class BaseService<M, K> {
@@ -784,10 +785,13 @@ public abstract class BaseService<M, K> {
                 // 仅仅当需要加载从表字典关联时，才去加载。
                 if (withDict && relationStruct.relationOneToOne.loadSlaveDict()
                         && CollectionUtils.isNotEmpty(relationList)) {
+                    @SuppressWarnings("unchecked")
+                    BaseService<Object, Object> proxyTarget =
+                            (BaseService<Object, Object>) AopTargetUtil.getTarget(relationService);
                     // 关联本地字典。
-                    relationService.buildDictForDataList(relationList, false);
+                    proxyTarget.buildDictForDataList(relationList, false);
                     // 关联常量字典
-                    relationService.buildConstDictForDataList(relationList);
+                    proxyTarget.buildConstDictForDataList(relationList);
                 }
             }
         }
@@ -811,10 +815,13 @@ public abstract class BaseService<M, K> {
                 ReflectUtil.setFieldValue(dataObject, relationStruct.relationField, relationObject);
                 // 仅仅当需要加载从表字典关联时，才去加载。
                 if (withDict && relationStruct.relationOneToOne.loadSlaveDict() && relationObject != null) {
+                    @SuppressWarnings("unchecked")
+                    BaseService<Object, Object> proxyTarget =
+                            (BaseService<Object, Object>) AopTargetUtil.getTarget(relationService);
                     // 关联本地字典
-                    relationService.buildDictForData(relationObject, false);
+                    proxyTarget.buildDictForData(relationObject, false);
                     // 关联常量字典
-                    relationService.buildConstDictForData(relationObject);
+                    proxyTarget.buildConstDictForData(relationObject);
                 }
             }
         }
