@@ -82,7 +82,4 @@ public class SysRole {
 
     @Transient
     private String createTimeEnd;
-
-    @Transient
-    private String searchString;
 }
