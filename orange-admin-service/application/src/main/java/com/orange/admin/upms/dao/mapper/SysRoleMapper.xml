@@ -15,9 +15,9 @@
         SELECT * FROM zz_sys_role
         <where>
             <if test="sysRoleFilter != null">
-                <if test="sysRoleFilter.searchString != null and sysRoleFilter.searchString != ''">
-                    <bind name= "safeSearchString" value= "'%' + sysRoleFilter.searchString + '%'"/>
-                    AND IFNULL(role_name,'') LIKE #{safeSearchString}
+                <if test="sysRoleFilter.roleName != null and sysRoleFilter.roleName != ''">
+                    <bind name= "safeRoleName" value= "'%' + sysRoleFilter.roleName + '%'"/>
+                    AND role_name LIKE #{safeRoleName}
                 </if>
             </if>
             AND deleted_flag = ${@com.orange.admin.common.core.constant.GlobalDeletedFlag@NORMAL}
