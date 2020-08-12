@@ -11,12 +11,12 @@
 > 如果基础框架是技术轮子，那么我们提供的就是一条生产线，不仅可以造轮子，还能生产您的更多业务所需。与此同时，也希望我们前沿的系统设计理念，能为您的企业中台化改造提供些许的技术思路。
 
 #### 橙单网站
-- 网站首页。[http://101.200.178.51](http://101.200.178.51)
+- 网站首页。[http://www.orangeforms.com](http://www.orangeforms.com)
 - 教学视频。[https://www.bilibili.com/video/bv1Wg4y1i7vP](https://www.bilibili.com/video/bv1Wg4y1i7vP)
-- 生成器操作指南。[http://101.200.178.51/orange-doc/](http://101.200.178.51/orange-doc/)
-- 后端代码文档。[http://101.200.178.51/development-doc/](http://101.200.178.51/development-doc/)
-- 前端代码文档。[http://101.200.178.51/development-vue/](http://101.200.178.51/development-vue/)
-- 基于在线教育后台业务生成的，更完整的演示项目。[http://101.200.178.51:8000](http://101.200.178.51:8000)
+- 生成器操作指南。[http://www.orangeforms.com/orange-doc/](http://www.orangeforms.com/orange-doc/)
+- 后端代码文档。[http://www.orangeforms.com/development-doc/](http://www.orangeforms.com/development-doc/)
+- 前端代码文档。[http://www.orangeforms.com/development-vue/](http://www.orangeforms.com/development-vue/)
+- 基于在线教育后台业务生成的，更完整的演示项目。[http://demo.orangeforms.com](http://demo.orangeforms.com)
 
 #### 竞争优势
 - 真正的代码生成器，而非脚手架。
@@ -117,19 +117,43 @@
 - 未来将支持更多开发的语言，并逐步演化为云原生架构。
 
 #### 系统运行
-1. 初始化数据库。
-- 缺省用户名和密码为: root/123456。如果与本地不一致，可修改工程的application.yml文件。
-- 执行工程目录下的zz-orange-admin.sql，创建数据库、表结构，同时插入初始化数据。
-2. 后台工程。
-- 以Maven的形式导入IDE，直接编译运行即可。
-- 配置文件为resources/application.yml，配置项在此修改。
-- 如遇问题，可参考我们的开发文档[系统启动章节](http://101.200.178.51/development-doc/system-start/#单体服务启动)。
-3. 前端工程。
+1. 数据初始化。
+- 通过常用的数据库访问工具(如：navicat)，执行工程目录下的zz-orange-demo.sql文件。
+- 导入脚本主要负责，数据库创建、数据表创建和测试数据的插入。
+
+2. 环境准备。    
+docker是必选组件。通过docker-compose命令，可快速启停服务所依赖的服务中间件，如nacos、redis、zookeeper、kafka和sentinel dashboard等。中间件的控制台访问方式，可参考工程目录下的README文件。
+```shell
+# 假定当前目录为工程根目录。
+cd zz-resource/docker-files
+# 启动和停止带有基础服务中间件的docker-compose.yml文件
+docker-compose up -d
+# 彻底终止容器
+docker-compose down
+# 在第一次启动之后，可以考虑每次执行下面的命令启动和停止容器。
+docker-compose start
+docker-compose stop
+```
+
+3. 后台工程导入。    
+以Maven的形式导入IDE，直接编译运行即可。具体可参考我们的开发文档[教学版微服务工程导入章节](http://www.orangeforms.com/development-doc/edu-multi/#工程导入)。
+
+4. 后台服务配置。
+- 进入工程目录下的 zz-resource/config-data/ 子目录，修改和数据库相关的配置，具体操作详见下图及文字注释。
+![](https://images.gitee.com/uploads/images/2020/0812/203758_0f3fd28e_7431510.png)
+- 将该目录下的所有配置文件导入nacos。nacos控制台访问地址 localhost:8848/nacos，用户名和密码 nacos/nacos。
+- 具体导入方式可参考我们的开发文档[服务配置章节](http://www.orangeforms.com/development-doc/service-config/#微服务-nacos)。
+
+5. 后台服务启动。    
+这里仅以upms服务为例。在开发环境中，为每个微服务启动项配置main class，下图为IntelliJ IDEA中的配置截图，配置后点击Debug/Run按钮即可启动。
+![](https://images.gitee.com/uploads/images/2020/0812/205946_da5bf311_7431510.png)
+
+6. 前端工程导入和启动。
 - 将前端工程导入vscode。
 - 修改 src -> core -> config 下的配置文件，将baseUrl修改为您服务器地址。
 - 安装依赖，执行 npm install。
 - 启动前端服务，执行 npm run dev。
-- 如遇问题，可参考我们的前端开发文档[工程启动章节](http://101.200.178.51/development-vue/deployment/#工程启动)。
+- 具体可参考我们的开发文档[教学版前端工程启动段落](http://www.orangeforms.com/development-doc/edu-multi/#前端工程-2)。
 
 ### 主要截图
 
