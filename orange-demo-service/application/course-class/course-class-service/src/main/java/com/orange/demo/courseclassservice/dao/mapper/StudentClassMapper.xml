@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.orange.demo.courseclassservice.dao.StudentClassMapper">
+    <resultMap id="BaseResultMap" type="com.orange.demo.courseclassservice.model.StudentClass">
+        <id column="class_id" jdbcType="BIGINT" property="classId"/>
+        <result column="class_name" jdbcType="VARCHAR" property="className"/>
+        <result column="school_id" jdbcType="BIGINT" property="schoolId"/>
+        <result column="leader_id" jdbcType="BIGINT" property="leaderId"/>
+        <result column="finish_class_hour" jdbcType="INTEGER" property="finishClassHour"/>
+        <result column="class_level" jdbcType="TINYINT" property="classLevel"/>
+        <result column="create_user_id" jdbcType="BIGINT" property="createUserId"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="status" jdbcType="TINYINT" property="status"/>
+    </resultMap>
+
+    <sql id="filterRef">
+        <if test="studentClassFilter != null">
+            <if test="studentClassFilter.className != null and studentClassFilter.className != ''">
+                AND zz_class.class_name = #{studentClassFilter.className}
+            </if>
+            <if test="studentClassFilter.schoolId != null">
+                AND zz_class.school_id = #{studentClassFilter.schoolId}
+            </if>
+            <if test="studentClassFilter.classLevel != null">
+                AND zz_class.class_level = #{studentClassFilter.classLevel}
+            </if>
+        </if>
+        AND zz_class.status = ${@com.orange.demo.common.core.constant.GlobalDeletedFlag@NORMAL}
+    </sql>
+
+    <select id="getStudentClassList" resultMap="BaseResultMap" parameterType="com.orange.demo.courseclassservice.model.StudentClass">
+        SELECT * FROM zz_class
+        <where>
+            <if test="inFilterColumn != null and inFilterColumn != '' and inFilterValues != null and inFilterValues.size &gt; 0">
+                AND ${inFilterColumn} IN
+                <foreach collection="inFilterValues" item="item" open="(" separator="," close=")">
+                    '${item}'
+                </foreach>
+            </if>
+            <include refid="filterRef"/>
+        </where>
+        <if test="orderBy != null">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+
+    <select id="getStudentClassCount" resultType="java.lang.Integer" parameterType="com.orange.demo.courseclassservice.model.StudentClass">
+        SELECT COUNT(1) FROM zz_class
+        <where>
+            <if test="inFilterColumn != null and inFilterColumn != '' and inFilterValues != null and inFilterValues.size &gt; 0">
+                AND ${inFilterColumn} IN
+                <foreach collection="inFilterValues" item="item" open="(" separator="," close=")">
+                    '${item}'
+                </foreach>
+            </if>
+            <include refid="filterRef"/>
+        </where>
+    </select>
+
+    <insert id="addClassCourseList">
+        REPLACE INTO zz_class_course(class_id, course_id) VALUES
+        <foreach collection="list" index="index" item="item" separator=",">
+            (#{item.classId}, #{item.courseId})
+        </foreach>
+    </insert>
+
+    <insert id="addClassStudentList">
+        REPLACE INTO zz_class_student(class_id, student_id) VALUES
+        <foreach collection="list" index="index" item="item" separator=",">
+            (#{item.classId}, #{item.studentId})
+        </foreach>
+    </insert>
+</mapper>

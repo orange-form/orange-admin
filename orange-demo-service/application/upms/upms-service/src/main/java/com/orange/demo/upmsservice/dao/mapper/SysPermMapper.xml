@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.orange.demo.upmsservice.dao.SysPermMapper">
+    <resultMap id="BaseResultMap" type="com.orange.demo.upmsservice.model.SysPerm">
+        <id column="perm_id" jdbcType="BIGINT" property="permId"/>
+        <result column="module_id" jdbcType="BIGINT" property="moduleId"/>
+        <result column="perm_name" jdbcType="VARCHAR" property="permName"/>
+        <result column="url" jdbcType="VARCHAR" property="url"/>
+        <result column="show_order" jdbcType="INTEGER" property="showOrder"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="deleted_flag" jdbcType="INTEGER" property="deletedFlag"/>
+    </resultMap>
+
+    <select id="getPermListByUserId" resultMap="BaseResultMap">
+        SELECT
+            p.*
+        FROM
+            zz_sys_user u,
+            zz_sys_user_role ur,
+            zz_sys_role_menu rm,
+            zz_sys_menu_perm_code mpc,
+            zz_sys_perm_code_perm pcp,
+            zz_sys_perm p
+        <where>
+            AND u.user_id = #{userId}
+            AND u.deleted_flag = ${@com.orange.demo.common.core.constant.GlobalDeletedFlag@NORMAL}
+            AND u.user_id = ur.user_id
+            AND ur.role_id = rm.role_id
+            AND rm.menu_id = mpc.menu_id
+            AND mpc.perm_code_id = pcp.perm_code_id
+            AND pcp.perm_id = p.perm_id
+            AND p.deleted_flag = ${@com.orange.demo.common.core.constant.GlobalDeletedFlag@NORMAL}
+        </where>
+    </select>
+
+    <select id="getUserPermListByFilter" resultType="map">
+        SELECT
+            pm.module_id moduleId,
+            pm.module_name moduleName,
+            p.perm_id permId,
+            p.perm_name permName,
+            p.create_time createTime,
+            p.url
+        FROM
+            zz_sys_user u,
+            zz_sys_user_role ur,
+            zz_sys_role_menu rm,
+            zz_sys_menu_perm_code mpc,
+            zz_sys_perm_code_perm pcp,
+            zz_sys_perm p,
+            zz_sys_perm_module pm
+        <where>
+            AND u.login_name = #{loginName}
+            AND u.deleted_flag = ${@com.orange.demo.common.core.constant.GlobalDeletedFlag@NORMAL}
+            AND u.user_id = ur.user_id
+            AND ur.role_id = rm.role_id
+            AND rm.menu_id = mpc.menu_id
+            AND mpc.perm_code_id = pcp.perm_code_id
+            AND pcp.perm_id = p.perm_id
+            AND p.module_id = pm.module_id
+            AND p.deleted_flag = ${@com.orange.demo.common.core.constant.GlobalDeletedFlag@NORMAL}
+            AND pm.deleted_flag = ${@com.orange.demo.common.core.constant.GlobalDeletedFlag@NORMAL}
+            <if test="url != null and url != ''">
+                <bind name= "safeUrl" value= "'%' + url + '%'" />
+                AND p.url LIKE #{safeUrl}
+            </if>
+            <if test="moduleId != null">
+                AND p.module_id = #{moduleId}
+            </if>
+        </where>
+        ORDER BY pm.module_id, p.create_time
+    </select>
+
+    <select id="getPermListByPermCodeId" resultMap="BaseResultMap">
+        SELECT
+            p.*
+        FROM
+            zz_sys_perm_code_perm pcp,
+            zz_sys_perm p
+        <where>
+            AND pcp.perm_code_id = #{permCodeId}
+            AND pcp.perm_id = p.perm_id
+            AND p.deleted_flag = ${@com.orange.demo.common.core.constant.GlobalDeletedFlag@NORMAL}
+        </where>
+        <if test="orderBy != null">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+
+    <select id="getPermUserListById" resultType="map">
+        SELECT
+            u.user_id,
+            u.login_name
+            u.show_name
+        FROM
+            zz_sys_perm p,
+            zz_sys_perm_code_perm pcp,
+            zz_sys_menu_perm_code mpc,
+            zz_sys_role_menu rm,
+            zz_sys_user_role ur,
+            zz_sys_user u
+        <where>
+            AND p.perm_id = #{permId}
+            AND p.perm_id = pcp.perm_id
+            AND pcp.perm_code_id = mpc.perm_code_id
+            AND mpc.menu_id = rm.menu_id
+            AND rm.role_id = ur.role_id
+            AND ur.user_id = u.user_id
+            AND u.deleted_flag = ${@com.orange.demo.common.core.constant.GlobalDeletedFlag@NORMAL}
+            AND p.deleted_flag = ${@com.orange.demo.common.core.constant.GlobalDeletedFlag@NORMAL}
+        </where>
+    </select>
+
+    <select id="getPermRoleListById" resultType="map">
+        SELECT
+            r.role_id,
+            r.role_name
+        FROM
+            zz_sys_perm p,
+            zz_sys_perm_code_perm pcp,
+            zz_sys_menu_perm_code mpc,
+            zz_sys_role_menu rm,
+            zz_sys_role r
+        <where>
+            AND p.perm_id = #{permId}
+            AND p.perm_id = pcp.perm_id
+            AND p.deleted_flag = ${@com.orange.demo.common.core.constant.GlobalDeletedFlag@NORMAL}
+            AND r.deleted_flag = ${@com.orange.demo.common.core.constant.GlobalDeletedFlag@NORMAL}
+            AND pcp.perm_code_id = mpc.perm_code_id
+            AND mpc.menu_id = rm.menu_id
+            AND rm.role_id = r.role_id
+        </where>
+    </select>
+</mapper>

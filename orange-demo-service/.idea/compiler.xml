@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile default="true" name="Default" enabled="true" />
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="admin-monitor" />
+        <module name="gateway" />
+        <module name="common-core" />
+        <module name="stats-service" />
+        <module name="application-common" />
+        <module name="upms-interface" />
+        <module name="common-redis" />
+        <module name="course-class-service" />
+        <module name="common-sequence" />
+        <module name="upms-service" />
+        <module name="course-class-interface" />
+        <module name="stats-interface" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="admin-monitor" target="1.8" />
+      <module name="application" target="1.8" />
+      <module name="application-common" target="1.8" />
+      <module name="common" target="1.8" />
+      <module name="common-core" target="1.8" />
+      <module name="common-redis" target="1.8" />
+      <module name="common-sequence" target="1.8" />
+      <module name="course-class" target="1.8" />
+      <module name="course-class-interface" target="1.8" />
+      <module name="course-class-service" target="1.8" />
+      <module name="gateway" target="1.8" />
+      <module name="OrangeDemo" target="1.8" />
+      <module name="stats" target="1.8" />
+      <module name="stats-interface" target="1.8" />
+      <module name="stats-service" target="1.8" />
+      <module name="upms" target="1.8" />
+      <module name="upms-interface" target="1.8" />
+      <module name="upms-service" target="1.8" />
+    </bytecodeTargetLevel>
+  </component>
+</project>

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.orange.demo.upmsservice.dao.SysRoleMapper">
+    <resultMap id="BaseResultMap" type="com.orange.demo.upmsservice.model.SysRole">
+        <id column="role_id" jdbcType="BIGINT" property="roleId"/>
+        <result column="role_name" jdbcType="VARCHAR" property="roleName"/>
+        <result column="create_user_id" jdbcType="BIGINT" property="createUserId"/>
+        <result column="create_username" jdbcType="VARCHAR" property="createUsername"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="deleted_flag" jdbcType="INTEGER" property="deletedFlag"/>
+    </resultMap>
+
+    <select id="getSysRoleList" resultMap="BaseResultMap" parameterType="com.orange.demo.upmsservice.model.SysRole">
+        SELECT * FROM zz_sys_role
+        <where>
+            <if test="sysRoleFilter != null">
+                <if test="sysRoleFilter.roleName != null and sysRoleFilter.roleName != ''">
+                    <bind name= "safeRoleName" value= "'%' + sysRoleFilter.roleName + '%'"/>
+                    AND role_name LIKE #{safeRoleName}
+                </if>
+            </if>
+            AND deleted_flag = ${@com.orange.demo.common.core.constant.GlobalDeletedFlag@NORMAL}
+        </where>
+        <if test="orderBy != null">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+    
+    <select id="getSysRoleListByPermCodeId" resultMap="BaseResultMap">
+        SELECT
+            DISTINCT r.*
+        FROM
+            my_sys_role r,
+            my_sys_role_menu rm,
+            my_sys_menu_perm_code mpc
+        <where>
+            mpc.perm_code_id = #{permCodeId}
+            AND mpc.menu_id = rm.menu_id
+            AND rm.role_id = r.role_id
+            AND r.deleted_flag = ${@com.orange.demo.common.core.constant.GlobalDeletedFlag@NORMAL}
+        </where>
+        ORDER BY r.create_time
+    </select>
+
+    <select id="getSysRoleListByPerm" resultMap="BaseResultMap">
+        SELECT
+            DISTINCT r.*
+        FROM
+            my_sys_role r,
+            my_sys_role_menu rm,
+            my_sys_menu_perm_code mpc,
+            my_sys_perm_code_perm pcp,
+            my_sys_perm p
+        <where>
+            <bind name= "safeUrl" value= "'%' + url + '%'"/>
+            p.url LIKE #{safeUrl}
+            AND p.perm_id = pcp.perm_id
+            AND pcp.perm_code_id = mpc.perm_code_id
+            AND mpc.menu_id = rm.menu_id
+            AND rm.role_id = r.role_id
+            AND r.deleted_flag = ${@com.orange.demo.common.core.constant.GlobalDeletedFlag@NORMAL}
+            AND p.deleted_flag = ${@com.orange.demo.common.core.constant.GlobalDeletedFlag@NORMAL}
+        </where>
+        ORDER BY r.create_time
+    </select>
+</mapper>

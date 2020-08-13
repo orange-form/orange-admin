@@ -1,0 +1,67 @@
+server:
+  port: 8082
+
+application:
+  # Jwt令牌加密的签名值。
+  tokenSigningKey: OrangeDemo
+  # Jwt令牌在Http Header中的键名称。
+  tokenHeaderKey: Authorization
+  # Jwt令牌刷新后在Http Header中的键名称。
+  refreshedTokenHeaderKey: RefreshedToken
+  # Jwt令牌过期时间(毫秒)。
+  expiration: 72000000
+  # 跨域的IP白名单列表，多个IP之间逗号分隔(* 表示全部信任，空白表示禁用跨域信任)。
+  credentialIpList: "*"
+  # Session在Redis中的过期时间(秒)。
+  sessionIdRedisExpiredSeconds: 86460
+  # Session的用户权限在Redis中的过期时间(秒)。
+  permRedisExpiredSeconds: 86400
+
+spring:
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: false
+          lower-case-service-id: true
+      routes:
+      - id: upms-login
+        uri: lb://upms
+        predicates:
+        - Path=/admin/login/**
+        filters:
+        - StripPrefix=0
+        - name: Hystrix
+          args:
+            name: default
+            fallbackUri: forward:/fallback
+      - id: course-class
+        uri: lb://course-class
+        predicates:
+        - Path=/admin/CourseClass/**
+        filters:
+        - StripPrefix=2
+        - name: Hystrix
+          args:
+            name: default
+            fallbackUri: forward:/fallback
+      - id: stats
+        uri: lb://stats
+        predicates:
+        - Path=/admin/stats/**
+        filters:
+        - StripPrefix=2
+        - name: Hystrix
+          args:
+            name: default
+            fallbackUri: forward:/fallback
+      - id: upms
+        uri: lb://upms
+        predicates:
+        - Path=/admin/upms/**
+        filters:
+        - StripPrefix=2
+        - name: Hystrix
+          args:
+            name: default
+            fallbackUri: forward:/fallback
