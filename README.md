@@ -49,7 +49,7 @@
 - 后端: Spring Boot / Spring Cloud / Spring Cloud Alibaba + Mybatis + Jwt。
 - 工具库: Hutool + Guava + Caffeine + Lombok + MapStruct + 通用Mapper。
 - 服务组件: Redis + Zookeeper + Consul + Apollo + XXL-Job + Kafka + Nacos + Sentinel + Seata。
-- 日志监控: ELK + PinPoint / SkyWalking + Grafana + Prometheus。
+- 系统监控: ELK + PinPoint / SkyWalking + Grafana + Prometheus。
 
 #### 基础功能
 - 前端框架：单页面、多标签、多栏目和子路由，多种模式可供选择。
@@ -62,7 +62,7 @@
 - 多数据源：可根据配置动态生成，路由策略灵活可扩展。
 - 数据组装：Java 注解方式实现数据组装，可支持**服务内和跨服务**的一对一、一对多、多对多、字典、聚合计算等。
 - 定时任务：支持多种类型的Job处理器代码模板，灵活可配、高度优化、二次开发简单。
-- 日志监控：基于 Kafka + ELK 的日志跟踪，基于 PinPoint/SkyWalking 的服务链路跟踪，基于 GPE 的服务性能指标监控。
+- 系统监控：基于 Kafka + ELK 的日志跟踪，基于 PinPoint/SkyWalking 的服务链路跟踪，基于 GPE 的服务性能指标监控。
 
 #### 代码质量
 - 无任何二次封装，只生成您最懂的代码。
