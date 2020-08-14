@@ -127,8 +127,8 @@ public class MyCommonUtil {
     public static String joinString(Collection<String> dataList, final char separator) {
         int index = 0;
         StringBuilder sb = new StringBuilder(128);
-        for (String deptId : dataList) {
-            sb.append("'").append(deptId).append("'");
+        for (String data : dataList) {
+            sb.append("'").append(data).append("'");
             if (index++ != dataList.size() - 1) {
                 sb.append(separator);
             }

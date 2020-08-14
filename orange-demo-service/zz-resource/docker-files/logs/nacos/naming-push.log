@@ -1,0 +1,46 @@
+2020-08-14 09:54:07,513 INFO DEFAULT_GROUP@@stats is changed, add it to push queue.
+
+2020-08-14 09:55:35,278 INFO DEFAULT_GROUP@@upms is changed, add it to push queue.
+
+2020-08-14 09:56:20,205 INFO DEFAULT_GROUP@@course-class is changed, add it to push queue.
+
+2020-08-14 09:56:44,588 INFO DEFAULT_GROUP@@gateway is changed, add it to push queue.
+
+2020-08-14 10:26:07,704 INFO DEFAULT_GROUP@@stats is changed, add it to push queue.
+
+2020-08-14 10:26:07,767 INFO serviceName: DEFAULT_GROUP@@stats changed, schedule push for: 10.24.82.239:54901, agent: Nacos-Java-Client:v1.2.1, key: 10.24.82.239,54901,4391770003998
+
+2020-08-14 10:26:07,770 INFO send udp packet: 10.24.82.239,54901,4391770003998
+
+2020-08-14 10:26:07,776 INFO DEFAULT_GROUP@@upms is changed, add it to push queue.
+
+2020-08-14 10:26:07,778 INFO serviceName: DEFAULT_GROUP@@upms changed, schedule push for: 10.24.82.239:54901, agent: Nacos-Java-Client:v1.2.1, key: 10.24.82.239,54901,4391835693726
+
+2020-08-14 10:26:07,779 INFO send udp packet: 10.24.82.239,54901,4391835693726
+
+2020-08-14 10:26:07,795 INFO received ack: {"type": "push-ack", "lastRefTime":"4391770003998", "data":""} from: 10.24.82.239:54901, cost: 25 ms, unacked: 1, total push: 2
+
+2020-08-14 10:26:07,798 INFO received ack: {"type": "push-ack", "lastRefTime":"4391835693726", "data":""} from: 10.24.82.239:54901, cost: 19 ms, unacked: 0, total push: 2
+
+2020-08-14 10:26:07,866 INFO DEFAULT_GROUP@@course-class is changed, add it to push queue.
+
+2020-08-14 10:26:07,867 INFO serviceName: DEFAULT_GROUP@@course-class changed, schedule push for: 127.0.0.1:49678, agent: Nacos-Java-Client:v1.2.1, key: 127.0.0.1,49678,4391924135075
+
+2020-08-14 10:26:07,867 INFO send udp packet: 127.0.0.1,49678,4391924135075
+
+2020-08-14 10:26:07,868 INFO serviceName: DEFAULT_GROUP@@course-class changed, schedule push for: 10.24.82.239:54901, agent: Nacos-Java-Client:v1.2.1, key: 10.24.82.239,54901,4391924135075
+
+2020-08-14 10:26:07,870 INFO send udp packet: 10.24.82.239,54901,4391924135075
+
+2020-08-14 10:26:07,873 INFO received ack: {"type": "push-ack", "lastRefTime":"4391924135075", "data":""} from: 10.24.82.239:54901, cost: 3 ms, unacked: 1, total push: 4
+
+2020-08-14 10:26:08,045 INFO DEFAULT_GROUP@@gateway is changed, add it to push queue.
+
+2020-08-14 10:26:17,846 INFO retry to push data, key: 127.0.0.1,49678,4391924135075
+
+2020-08-14 10:26:17,850 INFO send udp packet: 127.0.0.1,49678,4391924135075
+
+2020-08-14 10:26:27,852 INFO retry to push data, key: 127.0.0.1,49678,4391924135075
+
+2020-08-14 10:26:27,854 WARN max re-push times reached, retry times 2, key: 127.0.0.1,49678,4391924135075
+

@@ -630,7 +630,6 @@ CREATE TABLE `zz_sys_menu` (
 BEGIN;
 INSERT INTO `zz_sys_menu` VALUES (1093376634899927040, NULL, '系统管理', 0, NULL, 1, 'el-icon-setting', CURDATE(), 1);
 INSERT INTO `zz_sys_menu` VALUES (1093376634916704256, 1093376634899927040, '用户管理', 1, 'formSysUser', 100, NULL, CURDATE(), 1);
-INSERT INTO `zz_sys_menu` VALUES (1093376634916704257, 1093376634899927040, '部门管理', 1, 'formSysDept', 105, NULL, CURDATE(), 1);
 INSERT INTO `zz_sys_menu` VALUES (1093376634916704258, 1093376634899927040, '角色管理', 1, 'formSysRole', 110, NULL, CURDATE(), 1);
 INSERT INTO `zz_sys_menu` VALUES (1093376634916704259, 1093376634899927040, '菜单管理', 1, 'formSysMenu', 120, NULL, CURDATE(), 1);
 INSERT INTO `zz_sys_menu` VALUES (1093376634916704260, 1093376634899927040, '权限字管理', 1, 'formSysPermCode', 125, NULL, CURDATE(), 1);
@@ -1097,11 +1096,6 @@ INSERT INTO `zz_sys_perm_code` VALUES (1093809448598376539, 1093809448598376538,
 INSERT INTO `zz_sys_perm_code` VALUES (1093809448598376540, 1093809448598376538, 'formSysUser:fragmentSysUser:update', 2, '编辑', 2, CURDATE(), 1);
 INSERT INTO `zz_sys_perm_code` VALUES (1093809448598376541, 1093809448598376538, 'formSysUser:fragmentSysUser:delete', 2, '删除', 3, CURDATE(), 1);
 INSERT INTO `zz_sys_perm_code` VALUES (1093809448598376542, 1093809448598376538, 'formSysUser:fragmentSysUser:resetPassword', 2, '重置密码', 4, CURDATE(), 1);
-INSERT INTO `zz_sys_perm_code` VALUES (1093809448598376548, NULL, 'formSysDept', 0, '部门管理', 10100, CURDATE(), 1);
-INSERT INTO `zz_sys_perm_code` VALUES (1093809448598376549, 1093809448598376548, 'formSysDept:fragmentSysDept', 1, '部门管理', 1, CURDATE(), 1);
-INSERT INTO `zz_sys_perm_code` VALUES (1093809448598376550, 1093809448598376549, 'formSysDept:fragmentSysDept:add', 2, '新增', 1, CURDATE(), 1);
-INSERT INTO `zz_sys_perm_code` VALUES (1093809448598376551, 1093809448598376549, 'formSysDept:fragmentSysDept:update', 2, '编辑', 2, CURDATE(), 1);
-INSERT INTO `zz_sys_perm_code` VALUES (1093809448598376552, 1093809448598376549, 'formSysDept:fragmentSysDept:delete', 2, '删除', 3, CURDATE(), 1);
 INSERT INTO `zz_sys_perm_code` VALUES (1093809448598376563, NULL, 'formSysRole', 0, '角色管理', 10200, CURDATE(), 1);
 INSERT INTO `zz_sys_perm_code` VALUES (1093809448598376564, 1093809448598376563, 'formSysRole:fragmentSysRole', 1, '角色管理', 1, CURDATE(), 1);
 INSERT INTO `zz_sys_perm_code` VALUES (1093809448598376565, 1093809448598376563, 'formSysRole:fragmentSysRoleUser', 1, '用户授权', 2, CURDATE(), 1);

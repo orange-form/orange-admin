@@ -1,0 +1,10 @@
+2020-08-14 09:16:08,099 INFO [dump-all-ok] application-dev.yaml+DEFAULT_GROUP, 1597304668160, length=2892, md5=a0b405a492d6db603f86b424f1ceec08
+
+2020-08-14 09:16:08,101 INFO [dump-all-ok] course-class-dev.yaml+DEFAULT_GROUP, 1597304687391, length=2126, md5=b3fb24257b26d9148848dd5b85f3907b
+
+2020-08-14 09:16:08,103 INFO [dump-all-ok] gateway-dev.yaml+DEFAULT_GROUP, 1597304707450, length=1596, md5=821442e876de959071c4aff70f490b7a
+
+2020-08-14 09:16:08,104 INFO [dump-all-ok] stats-dev.yaml+DEFAULT_GROUP, 1597304724979, length=2106, md5=a3cf6613526cc57a2d45aa8f8dcdcbed
+
+2020-08-14 09:16:08,106 INFO [dump-all-ok] upms-dev.yaml+DEFAULT_GROUP, 1597304747741, length=2129, md5=fe6b5e5f66ca77513a51871e778b46f6
+
