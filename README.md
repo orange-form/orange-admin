@@ -46,7 +46,7 @@
 
 #### 技术选型
 - 前端: Element (Vue) / Ant Design (React) + ECharts / AntV + Axios + Webpack。
-- 后端: Spring Boot / Spring Cloud / Spring Cloud Alibaba + Mybatis + Jwt。
+- 后端: Spring Boot / Spring Cloud / Spring Cloud Alibaba + Spring Security OAuth2 + Mybatis + Jwt。
 - 工具库: Hutool + Guava + Caffeine + Lombok + MapStruct + 通用Mapper。
 - 服务组件: Redis + Zookeeper + Consul + Apollo + XXL-Job + Kafka + Nacos + Sentinel + Seata。
 - 系统监控: ELK + PinPoint / SkyWalking + Grafana + Prometheus。
@@ -73,7 +73,7 @@
 - 15年架构师优化的每一处细节。
 
 #### 规则扫描
-此为在线演示工程的代码审查报告，而非当前开源示例工程。前者为微服务架构，代码量更大，结构更复杂。
+此为在线演示工程的代码审查报告，而非当前开源示例工程。前者代码量更大，结构更复杂。
 1. SonarQube 扫描
 - 基于SonarQube8.2缺省最严格的代码扫描规则，其中代码复杂度要求为15。
 - 有气味代码共90处，其中85处为DTO、Model、常量字典、RPC接口等定义出现重复名称所致，均与模拟实际业务有关。
@@ -116,7 +116,7 @@
 - 前后端基于约定各司其职，默契配合，让系统运行飞起来。
 - 未来将支持更多开发的语言，并逐步演化为云原生架构。
 
-#### 系统运行
+#### 开源项目部署
 1. 数据初始化。
 - 通过常用的数据库访问工具(如：navicat)，执行工程目录下的zz-orange-demo.sql文件。
 - 导入脚本主要负责，数据库创建、数据表创建和测试数据的插入。
