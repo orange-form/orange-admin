@@ -16,7 +16,7 @@
 - 生成器操作指南。[http://www.orangeforms.com/orange-doc/](http://www.orangeforms.com/orange-doc/)
 - 后端代码文档。[http://www.orangeforms.com/development-doc/](http://www.orangeforms.com/development-doc/)
 - 前端代码文档。[http://www.orangeforms.com/development-vue/](http://www.orangeforms.com/development-vue/)
-- 基于在线教育后台业务生成的，更完整的演示项目。[http://demo.orangeforms.com](http://demo.orangeforms.com)
+- 更完整的演示项目。[http://demo.orangeforms.com](http://demo.orangeforms.com)
 
 #### 竞争优势
 - 真正的代码生成器，而非脚手架。
