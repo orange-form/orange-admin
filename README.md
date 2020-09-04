@@ -1,5 +1,5 @@
 ### 项目简介
-专为推广"***橙单平台生成器***"而开源的代码演示项目，该项目的前后端代码完全由生成器配置后动态生成。相信在您耐心阅读五分钟后，一定会发现更多与众不同。
+专为推广"***橙单业务中台生成器***"而开源的代码演示项目，该项目的前后端代码完全由生成器配置后动态生成。相信在您耐心阅读五分钟后，一定会发现更多与众不同。
 >友情提示，一定要放大看每一张截图，直到最后。如果图片不能正常显示，可以考虑科学上网，或者移步到[码云这里](https://gitee.com/orangeform/orange-admin)
 <table>
 <tr>
@@ -68,7 +68,7 @@
 - 无任何二次封装，只生成您最懂的代码。
 - 遵循阿里巴巴标准的代码规范。
 - 主流技术栈组合，对面试大有裨益。
-- 产品级代码强度，层次清晰、滴水不漏。
+- 产品级代码质量，层次清晰、滴水不漏。
 - 近乎于0的代码重复率，35%以上的注释覆盖率。
 - 15年架构师优化的每一处细节。
 
@@ -95,7 +95,7 @@
 <table>
 <tr>
   <td><img src="https://images.gitee.com/uploads/images/2020/0504/134052_c3196376_7431510.png"/></td>
-  <td><img src="https://images.gitee.com/uploads/images/2020/0504/133514_32d8faad_7431510.png"/></td>
+  <td><img src="https://images.gitee.com/uploads/images/2020/0904/092352_3fa8f2e7_7431510.png"/></td>
 </tr>
 </table>
 
@@ -104,8 +104,8 @@
 - Java代码覆盖率为37%。
 <table>
 <tr>
-  <td><img src="https://images.gitee.com/uploads/images/2020/0504/133554_8df8ff51_7431510.png"/></td>
-  <td><img src="https://images.gitee.com/uploads/images/2020/0504/133613_68dd5482_7431510.png"/></td>
+  <td><img src="https://images.gitee.com/uploads/images/2020/0904/092417_b280457b_7431510.png"/></td>
+  <td><img src="https://images.gitee.com/uploads/images/2020/0904/092434_f718c982_7431510.png"/></td>
 </tr>
 </table>
 
