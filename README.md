@@ -100,7 +100,7 @@
 </table>
 
 3. Statistic 代码统计
-- 生成代码总量约为73000行，主要包括Java、XML、YAML和SQL初始化脚本等。
+- 生成代码总量约为86000多行，主要包括Java、XML、YAML和SQL初始化脚本等。
 - Java代码覆盖率为37%。
 <table>
 <tr>
