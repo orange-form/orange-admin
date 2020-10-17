@@ -54,8 +54,8 @@
 #### 技术选型
 - 前端: Element (Vue) / Ant Design (React) + ECharts / AntV + Axios + Webpack。
 - 后端: Spring Boot / Spring Cloud / Spring Cloud Alibaba + Spring Security OAuth2 + Mybatis + Jwt。
-- 工具库: Hutool + Guava + Caffeine + Lombok + MapStruct + 通用Mapper。
-- 服务组件: Redis + Zookeeper + Consul + Apollo + XXL-Job + Kafka + Nacos + Sentinel + Seata + Nepxion Discovery。
+- 工具库: Hutool + Guava + Caffeine + Lombok + MapStruct + 通用Mapper + Knife4j + qdox。
+- 服务组件: Redis + Zookeeper + Consul + Apollo + XXL-Job + Minio + Kafka + Nacos + Sentinel + Seata + Nepxion Discovery。
 - 系统监控: ELK + PinPoint / SkyWalking + Grafana + Prometheus。
 
 #### 基础功能
@@ -71,6 +71,7 @@
 - 数据组装：Java 注解方式实现数据组装，支持统一接口的**服务内和跨服务**的一对一、一对多、多对多、字典、聚合计算等关系数据组合。
 - 定时任务：我们不仅提供了 Job 基础框架的集成，更能生成灵活可配、高度优化、便于二次开发的 Job 业务逻辑代码。
 - 系统监控：基于 Kafka + ELK 的日志收集，基于 PinPoint/SkyWalking 的服务链路跟踪，基于 GPE 的服务性能指标监控。
+- 接口文档：目前已集成 Knife4j，同时支持基于 qdox 解析生成后工程的 Java 代码，并实现了 0 注解的 Postman 接口导出。
 
 #### 设计理念
 - 前沿的单表组合式设计，使业务服务的拆分与再合并 SO EASY。
