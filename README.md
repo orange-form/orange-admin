@@ -197,6 +197,38 @@ docker-compose stop
 </tr>
 </table>
 
+#### 演示工程
+<table>
+<tr>
+  <td><img src="https://images.gitee.com/uploads/images/2020/1029/193003_4d88919b_7431510.png"/></td>
+  <td><img src="https://images.gitee.com/uploads/images/2020/1029/193215_90eac360_7431510.png"/></td>
+  <td><img src="https://images.gitee.com/uploads/images/2020/1029/193354_a02b1181_7431510.png"/></td>
+  <td><img src="https://images.gitee.com/uploads/images/2020/1029/193619_e2673c0b_7431510.png"/></td>
+</tr>
+<tr>
+  <td><img src="https://images.gitee.com/uploads/images/2020/1029/194043_9ea4b42f_7431510.png"/></td>
+  <td><img src="https://images.gitee.com/uploads/images/2020/1029/194246_0f29d8ae_7431510.png"/></td>
+  <td><img src="https://images.gitee.com/uploads/images/2020/1029/194503_000901d9_7431510.png"/></td>
+  <td><img src="https://images.gitee.com/uploads/images/2020/1029/194620_4c1047ea_7431510.png"/></td>
+</tr>
+</table>
+
+#### 集成组件
+<table>
+<tr>
+  <td><img src="https://images.gitee.com/uploads/images/2020/0411/190701_24eed9f4_7431510.png"/></td>
+  <td><img src="https://images.gitee.com/uploads/images/2020/0423/204529_06fb1cd3_7431510.png"/></td>
+  <td><img src="https://images.gitee.com/uploads/images/2020/0511/214604_b266bcda_7431510.png"/></td>
+  <td><img src="https://images.gitee.com/uploads/images/2020/0411/191404_6eff2e07_7431510.png"/></td>
+</tr>
+<tr>
+  <td><img src="https://images.gitee.com/uploads/images/2020/0411/193120_eb24d1c4_7431510.png"/></td>
+  <td><img src="https://images.gitee.com/uploads/images/2020/0411/194208_3dd70cd2_7431510.png"/></td>
+  <td><img src="https://images.gitee.com/uploads/images/2020/0511/214049_1f035fbb_7431510.png"/></td>
+  <td><img src="https://images.gitee.com/uploads/images/2020/0411/192424_04baa0a6_7431510.png"/></td>
+</tr>
+</table>
+
 #### 开发文档
 <table>
 <tr>
@@ -210,37 +242,5 @@ docker-compose stop
   <td><img src="https://images.gitee.com/uploads/images/2020/0411/181456_978cbad8_7431510.png"/></td>
   <td><img src="https://images.gitee.com/uploads/images/2020/0423/204233_619b47b9_7431510.png"/></td>
   <td><img src="https://images.gitee.com/uploads/images/2020/0423/204335_51273157_7431510.png"/></td>
-</tr>
-</table>
-
-#### 演示工程
-<table>
-<tr>
-  <td><img src="https://images.gitee.com/uploads/images/2020/0411/170631_e325d367_7431510.png"/></td>
-  <td><img src="https://images.gitee.com/uploads/images/2020/0411/180705_a2c8a441_7431510.png"/></td>
-  <td><img src="https://images.gitee.com/uploads/images/2020/0411/163813_f610c413_7431510.png"/></td>
-  <td><img src="https://images.gitee.com/uploads/images/2020/0411/163912_4c1b3007_7431510.png"/></td>
-</tr>
-<tr>
-  <td><img src="https://images.gitee.com/uploads/images/2020/0411/162844_d7731374_7431510.png"/></td>
-  <td><img src="https://images.gitee.com/uploads/images/2020/0411/163012_78374da1_7431510.png"/></td>
-  <td><img src="https://images.gitee.com/uploads/images/2020/0411/163124_92373034_7431510.png"/></td>
-  <td><img src="https://images.gitee.com/uploads/images/2020/0411/163222_c95aae03_7431510.png"/></td>
-</tr>
-</table>
-
-#### 微服务中间件
-<table>
-<tr>
-  <td><img src="https://images.gitee.com/uploads/images/2020/0411/190701_24eed9f4_7431510.png"/></td>
-  <td><img src="https://images.gitee.com/uploads/images/2020/0423/204529_06fb1cd3_7431510.png"/></td>
-  <td><img src="https://images.gitee.com/uploads/images/2020/0511/214604_b266bcda_7431510.png"/></td>
-  <td><img src="https://images.gitee.com/uploads/images/2020/0411/191404_6eff2e07_7431510.png"/></td>
-</tr>
-<tr>
-  <td><img src="https://images.gitee.com/uploads/images/2020/0411/193120_eb24d1c4_7431510.png"/></td>
-  <td><img src="https://images.gitee.com/uploads/images/2020/0411/194208_3dd70cd2_7431510.png"/></td>
-  <td><img src="https://images.gitee.com/uploads/images/2020/0511/214049_1f035fbb_7431510.png"/></td>
-  <td><img src="https://images.gitee.com/uploads/images/2020/0411/192424_04baa0a6_7431510.png"/></td>
 </tr>
 </table>
