@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.orange.demo.app.dao.SchoolInfoMapper">
+    <resultMap id="BaseResultMap" type="com.orange.demo.app.model.SchoolInfo">
+        <id column="school_id" jdbcType="BIGINT" property="schoolId"/>
+        <result column="school_name" jdbcType="VARCHAR" property="schoolName"/>
+        <result column="province_id" jdbcType="BIGINT" property="provinceId"/>
+        <result column="city_id" jdbcType="BIGINT" property="cityId"/>
+    </resultMap>
+
+    <sql id="filterRef">
+        <if test="schoolInfoFilter != null">
+            <if test="schoolInfoFilter.schoolName != null and schoolInfoFilter.schoolName != ''">
+                <bind name = "safeSchoolName" value = "'%' + schoolInfoFilter.schoolName + '%'" />
+                AND zz_school_info.school_name LIKE #{safeSchoolName}
+            </if>
+            <if test="schoolInfoFilter.provinceId != null">
+                AND zz_school_info.province_id = #{schoolInfoFilter.provinceId}
+            </if>
+            <if test="schoolInfoFilter.cityId != null">
+                AND zz_school_info.city_id = #{schoolInfoFilter.cityId}
+            </if>
+        </if>
+    </sql>
+
+    <select id="getSchoolInfoList" resultMap="BaseResultMap" parameterType="com.orange.demo.app.model.SchoolInfo">
+        SELECT * FROM zz_school_info
+        <where>
+            <include refid="filterRef"/>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+</mapper>

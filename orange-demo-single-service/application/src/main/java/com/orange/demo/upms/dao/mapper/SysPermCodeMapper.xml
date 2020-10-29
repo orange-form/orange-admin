@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.orange.demo.upms.dao.SysPermCodeMapper">
+    <resultMap id="BaseResultMap" type="com.orange.demo.upms.model.SysPermCode">
+        <id column="perm_code_id" jdbcType="BIGINT" property="permCodeId"/>
+        <result column="parent_id" jdbcType="BIGINT" property="parentId"/>
+        <result column="perm_code" jdbcType="VARCHAR" property="permCode"/>
+        <result column="perm_code_type" jdbcType="INTEGER" property="permCodeType"/>
+        <result column="show_name" jdbcType="VARCHAR" property="showName"/>
+        <result column="show_order" jdbcType="INTEGER" property="showOrder"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="deleted_flag" jdbcType="INTEGER" property="deletedFlag"/>
+    </resultMap>
+
+    <select id="getPermCodeListByUserId" resultType="java.lang.String">
+        SELECT
+            DISTINCT pc.perm_code
+        FROM
+            zz_sys_user u,
+            zz_sys_user_role ur,
+            zz_sys_role_menu rm,
+            zz_sys_menu_perm_code mpc,
+            zz_sys_perm_code pc
+        <where>
+            AND u.user_id = #{userId}
+            AND u.deleted_flag = ${@com.orange.demo.common.core.constant.GlobalDeletedFlag@NORMAL}
+            AND u.user_id = ur.user_id
+            AND ur.role_id = rm.role_id
+            AND rm.menu_id = mpc.menu_id
+            AND mpc.perm_code_id = pc.perm_code_id
+            AND pc.deleted_flag = ${@com.orange.demo.common.core.constant.GlobalDeletedFlag@NORMAL}
+        </where>
+    </select>
+
+    <select id="getUserPermCodeListByFilter" resultMap="BaseResultMap">
+        SELECT
+            DISTINCT pc.*
+        FROM
+            zz_sys_user u,
+            zz_sys_user_role ur,
+            zz_sys_role_menu rm,
+            zz_sys_menu_perm_code mpc,
+            zz_sys_perm_code pc
+        <where>
+            AND u.login_name = #{loginName}
+            AND u.deleted_flag = ${@com.orange.demo.common.core.constant.GlobalDeletedFlag@NORMAL}
+            AND u.user_id = ur.user_id
+            AND ur.role_id = rm.role_id
+            AND rm.menu_id = mpc.menu_id
+            AND mpc.perm_code_id = pc.perm_code_id
+            AND pc.deleted_flag = ${@com.orange.demo.common.core.constant.GlobalDeletedFlag@NORMAL}
+            <if test="permCode != null and permCode != ''">
+                <bind name= "safePermCode" value= "'%' + permCode + '%'" />
+                AND pc.perm_code LIKE #{safePermCode}
+            </if>
+        </where>
+        ORDER BY pc.create_time
+    </select>
+
+    <select id="getPermCodeListByMenuId" resultType="map">
+        SELECT
+            pc.perm_code_id permCodeId,
+            pc.show_name showName,
+            pc.perm_code_type permCodeType,
+            pc.perm_code permCode,
+            p.perm_id permId,
+            p.perm_name permName,
+            p.url
+        FROM
+            zz_sys_menu_perm_code mpc,
+            zz_sys_perm_code_perm pcp,
+            zz_sys_perm_code pc,
+            zz_sys_perm p
+        <where>
+            AND mpc.menu_id = #{menuId}
+            AND mpc.perm_code_id = pc.perm_code_id
+            AND mpc.perm_code_id = pcp.perm_code_id
+            AND pcp.perm_id = p.perm_id
+            AND pc.deleted_flag = ${@com.orange.demo.common.core.constant.GlobalDeletedFlag@NORMAL}
+            AND p.deleted_flag = ${@com.orange.demo.common.core.constant.GlobalDeletedFlag@NORMAL}
+        </where>
+        ORDER BY pc.perm_code_id, p.show_order
+    </select>
+</mapper>

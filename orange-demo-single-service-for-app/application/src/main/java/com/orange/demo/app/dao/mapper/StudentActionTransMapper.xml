@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.orange.demo.app.dao.StudentActionTransMapper">
+    <resultMap id="BaseResultMap" type="com.orange.demo.app.model.StudentActionTrans">
+        <id column="trans_id" jdbcType="BIGINT" property="transId"/>
+        <result column="student_id" jdbcType="BIGINT" property="studentId"/>
+        <result column="student_name" jdbcType="VARCHAR" property="studentName"/>
+        <result column="school_id" jdbcType="BIGINT" property="schoolId"/>
+        <result column="grade_id" jdbcType="INTEGER" property="gradeId"/>
+        <result column="action_type" jdbcType="TINYINT" property="actionType"/>
+        <result column="device_type" jdbcType="TINYINT" property="deviceType"/>
+        <result column="watch_video_seconds" jdbcType="INTEGER" property="watchVideoSeconds"/>
+        <result column="flower_count" jdbcType="INTEGER" property="flowerCount"/>
+        <result column="paper_count" jdbcType="INTEGER" property="paperCount"/>
+        <result column="video_count" jdbcType="INTEGER" property="videoCount"/>
+        <result column="course_count" jdbcType="INTEGER" property="courseCount"/>
+        <result column="coin_count" jdbcType="INTEGER" property="coinCount"/>
+        <result column="exercise_correct_flag" jdbcType="TINYINT" property="exerciseCorrectFlag"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+    </resultMap>
+
+    <sql id="filterRef">
+        <if test="studentActionTransFilter != null">
+            <if test="studentActionTransFilter.studentId != null">
+                AND zz_student_action_trans.student_id = #{studentActionTransFilter.studentId}
+            </if>
+            <if test="studentActionTransFilter.schoolId != null">
+                AND zz_student_action_trans.school_id = #{studentActionTransFilter.schoolId}
+            </if>
+            <if test="studentActionTransFilter.gradeId != null">
+                AND zz_student_action_trans.grade_id = #{studentActionTransFilter.gradeId}
+            </if>
+            <if test="studentActionTransFilter.actionType != null">
+                AND zz_student_action_trans.action_type = #{studentActionTransFilter.actionType}
+            </if>
+            <if test="studentActionTransFilter.deviceType != null">
+                AND zz_student_action_trans.device_type = #{studentActionTransFilter.deviceType}
+            </if>
+            <if test="studentActionTransFilter.createTimeStart != null and studentActionTransFilter.createTimeStart != ''">
+                AND zz_student_action_trans.create_time &gt;= #{studentActionTransFilter.createTimeStart}
+            </if>
+            <if test="studentActionTransFilter.createTimeEnd != null and studentActionTransFilter.createTimeEnd != ''">
+                AND zz_student_action_trans.create_time &lt;= #{studentActionTransFilter.createTimeEnd}
+            </if>
+        </if>
+    </sql>
+
+    <select id="getStudentActionTransList" resultMap="BaseResultMap" parameterType="com.orange.demo.app.model.StudentActionTrans">
+        SELECT * FROM zz_student_action_trans
+        <where>
+            <include refid="filterRef"/>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+</mapper>

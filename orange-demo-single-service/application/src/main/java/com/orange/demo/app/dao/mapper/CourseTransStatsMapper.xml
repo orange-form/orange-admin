@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.orange.demo.app.dao.CourseTransStatsMapper">
+    <resultMap id="BaseResultMap" type="com.orange.demo.app.model.CourseTransStats">
+        <id column="stats_id" jdbcType="BIGINT" property="statsId"/>
+        <result column="stats_date" jdbcType="DATE" property="statsDate"/>
+        <result column="subject_id" jdbcType="TINYINT" property="subjectId"/>
+        <result column="grade_id" jdbcType="TINYINT" property="gradeId"/>
+        <result column="grade_name" jdbcType="VARCHAR" property="gradeName"/>
+        <result column="course_id" jdbcType="BIGINT" property="courseId"/>
+        <result column="course_name" jdbcType="VARCHAR" property="courseName"/>
+        <result column="student_attend_count" jdbcType="INTEGER" property="studentAttendCount"/>
+        <result column="student_flower_amount" jdbcType="INTEGER" property="studentFlowerAmount"/>
+        <result column="student_flower_count" jdbcType="INTEGER" property="studentFlowerCount"/>
+    </resultMap>
+
+    <sql id="filterRef">
+        <if test="courseTransStatsFilter != null">
+            <if test="courseTransStatsFilter.statsDateStart != null and courseTransStatsFilter.statsDateStart != ''">
+                AND zz_course_trans_stats.stats_date &gt;= #{courseTransStatsFilter.statsDateStart}
+            </if>
+            <if test="courseTransStatsFilter.statsDateEnd != null and courseTransStatsFilter.statsDateEnd != ''">
+                AND zz_course_trans_stats.stats_date &lt;= #{courseTransStatsFilter.statsDateEnd}
+            </if>
+            <if test="courseTransStatsFilter.subjectId != null">
+                AND zz_course_trans_stats.subject_id = #{courseTransStatsFilter.subjectId}
+            </if>
+            <if test="courseTransStatsFilter.gradeId != null">
+                AND zz_course_trans_stats.grade_id = #{courseTransStatsFilter.gradeId}
+            </if>
+        </if>
+    </sql>
+
+    <select id="getGroupedCourseTransStatsList" resultMap="BaseResultMap" parameterType="com.orange.demo.app.model.CourseTransStats">
+        SELECT * FROM
+            (SELECT
+                SUM(student_attend_count) student_attend_count,
+                SUM(student_flower_amount) student_flower_amount,
+                SUM(student_flower_count) student_flower_count,
+                ${groupSelect}
+            FROM zz_course_trans_stats
+            <where>
+                <include refid="filterRef"/>
+            </where>
+            GROUP BY ${groupBy}) zz_course_trans_stats
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+
+    <select id="getCourseTransStatsList" resultMap="BaseResultMap" parameterType="com.orange.demo.app.model.CourseTransStats">
+        SELECT * FROM zz_course_trans_stats
+        <where>
+            <include refid="filterRef"/>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+</mapper>

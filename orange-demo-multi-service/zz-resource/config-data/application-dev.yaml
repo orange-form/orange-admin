@@ -1,0 +1,146 @@
+server:
+  tomcat:
+    uri-encoding: UTF-8
+    max-threads: 100
+    min-spare-threads: 10
+
+logging:
+  config: classpath:log4j2.xml
+
+spring:
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
+  http:
+    converters:
+      preferred-json-mapper: fastjson
+    encoding:
+      force: true
+      charset: UTF-8
+      enabled: true
+  freemarker:
+    template-loader-path: classpath:/template/
+    cache: false
+    charset: UTF-8
+    check-template-location: true
+    content-type: text/html
+    expose-request-attributes: false
+    expose-session-attributes: false
+    request-context-attribute: request
+    suffix: .ftl
+  cloud:
+    sentinel:
+      transport:
+        # sentinel控制台地址。
+        # 由于8080端口容易与其他服务端口冲突，可以在启动sentinel控制台时动态修改，如：
+        # java -Dserver.port=8858 -jar sentinel-dashboard-$VERSION.jar
+        # 改为8858后，下面的配置端口也需要改为：localhost:8858。
+        dashboard: localhost:8858
+
+# feign 配置
+feign:
+  hystrix:
+    enabled: true
+  httpclient:
+    enabled: true
+    max-connections: 200
+    max-connections-per-route: 50
+  client:
+    config:
+      default:
+        # 输出feignclient的日志，缺省值为none，可选值为none/basic/headers/full
+        # 注意：需要把feignclient类所在包的日志级别设置为debug时才生效。如：
+        # logging:
+        #   level:
+        #     com.demo.multi: info
+        #     com.demo.multi.coursepaperinterface.client: debug
+        loggerLevel: full
+        connectTimeout: 5000
+        readTimeout: 10000
+  compression:
+    request:
+      enabled: true
+    response:
+      enabled: true
+
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          strategy: SEMAPHORE
+          thread:
+            timeoutInMilliseconds: 30000
+  shareSecurityContext: true
+
+#请求处理的超时时间
+ribbon:
+  ReadTimeout: 7000
+  ConnectTimeout: 3000
+  MaxAutoRetries: 1
+  MaxAutoRetriesNextServer: 1
+
+swagger:
+  # 当enabled为false的时候，则可禁用swagger。
+  enabled: true
+  # 工程的基础包名。
+  basePackage: com.orange.demo
+  title: 橙单微服务开源版
+  description: 橙单微服务开源版详情
+  version: 1.0
+
+# 暴露监控端点
+management:
+  metrics:
+    tags:
+      application: 
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+    jmx:
+      exposure:
+        include: '*'
+  endpoint:
+    # 与中间件相关的健康详情也会被展示
+    health:
+      show-details: always
+    configprops:
+      # 在/actuator/configprops中，所有包含password的配置，将用 * 隐藏。
+      # 如果不想隐藏任何配置项的值，可以直接使用如下被注释的空值。
+      # keys-to-sanitize:
+      keys-to-sanitize: password
+  server:
+    servlet:
+      context-path: "/"
+
+# 存储session数据的Redis，所有服务均需要，因此放到公共配置中。
+# 根据实际情况，该Redis也可以用于存储其他数据。
+redis:
+  jedis:
+    enabled: true
+    host: localhost
+    port: 6379
+    timeout: 60000
+    pool:
+      maxTotal: 20
+      maxIdle: 8
+      minIdle: 0
+      maxWait: 2000
+  # redisson的配置。每个服务可以自己的配置文件中覆盖此选项。
+  redisson:
+    # 如果该值为false，系统将不会创建RedissionClient的bean。
+    enabled: true
+    # redis地址，多个地址之间逗号分隔。如果是从主机制，第一个为master，其余为slave。
+    address: localhost:6379
+    # 链接超时，单位毫秒。
+    timeout: 6000
+    # 单位毫秒。分布式锁的超时检测时长。
+    # 如果一次锁内操作超该毫秒数，或在释放锁之前异常退出，Redis会在该时长之后主动删除该锁使用的key。
+    lockWatchdogTimeout: 60000
+    pool:
+      # 连接池数量。
+      poolSize: 20
+      # 连接池中最小空闲数量。
+      minIdle: 5

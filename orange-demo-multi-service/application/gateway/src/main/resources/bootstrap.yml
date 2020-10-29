@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: gateway
+  profiles:
+    active: dev
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+      config:
+        server-addr: localhost:8848
+        file-extension: yaml
+        # 共享配置文件，排序越高后，优先级越高。
+        shared-configs:
+        - data-id: application-dev.yaml
+          group: DEFAULT_GROUP
+          refresh: true
+  main:
+    allow-bean-definition-overriding: true

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.orange.demo.app.dao.MaterialEditionMapper">
+    <resultMap id="BaseResultMap" type="com.orange.demo.app.model.MaterialEdition">
+        <id column="edition_id" jdbcType="INTEGER" property="editionId"/>
+        <result column="edition_name" jdbcType="VARCHAR" property="editionName"/>
+        <result column="status" jdbcType="INTEGER" property="status"/>
+    </resultMap>
+</mapper>

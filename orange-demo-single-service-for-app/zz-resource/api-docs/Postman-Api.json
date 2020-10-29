@@ -1,0 +1,2493 @@
+{
+	"info": {
+		"_postman_id": "92b51dc5-3611-49ac-8d94-a0718dba5bf1",
+		"name": "橙单单体开源版",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "application",
+			"item": [
+				{
+					"name": "app",
+					"item": [
+						{
+              "name": "AreaCodeController",
+              "item": [
+              	{
+              		"name": "listDictAreaCode",
+              		"request": {
+              			"method": "GET",
+              			"header": [
+              				{
+              					"key": "Authorization",
+              					"value": "{{token}}",
+              					"type": "text"
+              				}
+              			],
+              			"url": {
+              				"raw": "http://{{host}}:8082//admin/app/areaCode/listDictAreaCode",
+              				"protocol": "http",
+              				"host": [
+              					"{{host}}"
+              				],
+              				"port": "8082",
+              				"path": [
+              					"admin",
+              					"app",
+              					"areaCode",
+              					"listDictAreaCode"
+              				]
+              			}
+              		},
+              		"response": []
+              	},
+              	{
+              		"name": "listDictAreaCodeByParentId",
+              		"request": {
+              			"method": "GET",
+              			"header": [
+              				{
+              					"key": "Authorization",
+              					"value": "{{token}}",
+              					"type": "text"
+              				}
+              			],
+              			"url": {
+              				"raw": "http://{{host}}:8082//admin/app/areaCode/listDictAreaCodeByParentId",
+              				"protocol": "http",
+              				"host": [
+              					"{{host}}"
+              				],
+              				"port": "8082",
+              				"path": [
+              					"admin",
+              					"app",
+              					"areaCode",
+              					"listDictAreaCodeByParentId"
+              				],
+              				"query": [
+              					{
+              						"key": "parentId",
+              						"value": ""
+              					}
+              				]
+              			}
+              		},
+              		"response": []
+              	}
+              ],
+              "protocolProfileBehavior": {},
+              "_postman_isSubFolder": true
+						},
+						{
+              "name": "CourseController",
+              "item": [
+              	{
+              		"name": "add",
+              		"request": {
+              			"method": "POST",
+              			"header": [
+              				{
+              					"key": "Authorization",
+              					"value": "{{token}}",
+              					"type": "text"
+              				}
+              			],
+              			"url": {
+              				"raw": "http://{{host}}:8082//admin/app/course/add",
+              				"protocol": "http",
+              				"host": [
+              					"{{host}}"
+              				],
+              				"port": "8082",
+              				"path": [
+              					"admin",
+              					"app",
+              					"course",
+              					"add"
+              				]
+              			},
+              			"body": {
+              				"mode": "raw",
+              				"raw": "{\n\t\"course\" : {\n\t\t\"courseName\" : \"\",\n\t\t\"price\" : \"\",\n\t\t\"description\" : \"\",\n\t\t\"difficulty\" : \"\",\n\t\t\"gradeId\" : \"\",\n\t\t\"subjectId\" : \"\",\n\t\t\"classHour\" : \"\",\n\t\t\"pictureUrl\" : \"\",\n\t\t\"createUserId\" : \"\",\n\t\t\"createTime\" : \"\",\n\t\t\"updateTime\" : \"\"\n\t}\n}\n",
+              				"options": {
+              					"raw": {
+              						"language": "json"
+              					}
+              				}
+              			}
+              		},
+              		"response": []
+              	},
+              	{
+              		"name": "update",
+              		"request": {
+              			"method": "POST",
+              			"header": [
+              				{
+              					"key": "Authorization",
+              					"value": "{{token}}",
+              					"type": "text"
+              				}
+              			],
+              			"url": {
+              				"raw": "http://{{host}}:8082//admin/app/course/update",
+              				"protocol": "http",
+              				"host": [
+              					"{{host}}"
+              				],
+              				"port": "8082",
+              				"path": [
+              					"admin",
+              					"app",
+              					"course",
+              					"update"
+              				]
+              			},
+              			"body": {
+              				"mode": "raw",
+              				"raw": "{\n\t\"course\" : {\n\t\t\"courseId\" : \"\",\n\t\t\"courseName\" : \"\",\n\t\t\"price\" : \"\",\n\t\t\"description\" : \"\",\n\t\t\"difficulty\" : \"\",\n\t\t\"gradeId\" : \"\",\n\t\t\"subjectId\" : \"\",\n\t\t\"classHour\" : \"\",\n\t\t\"pictureUrl\" : \"\",\n\t\t\"createUserId\" : \"\",\n\t\t\"createTime\" : \"\",\n\t\t\"updateTime\" : \"\"\n\t}\n}\n",
+              				"options": {
+              					"raw": {
+              						"language": "json"
+              					}
+              				}
+              			}
+              		},
+              		"response": []
+              	},
+              	{
+              		"name": "delete",
+              		"request": {
+              			"method": "POST",
+              			"header": [
+              				{
+              					"key": "Authorization",
+              					"value": "{{token}}",
+              					"type": "text"
+              				}
+              			],
+              			"url": {
+              				"raw": "http://{{host}}:8082//admin/app/course/delete",
+              				"protocol": "http",
+              				"host": [
+              					"{{host}}"
+              				],
+              				"port": "8082",
+              				"path": [
+              					"admin",
+              					"app",
+              					"course",
+              					"delete"
+              				]
+              			},
+              			"body": {
+              				"mode": "raw",
+              				"raw": "{\n\t\"courseId\" : \"\"\n}\n",
+              				"options": {
+              					"raw": {
+              						"language": "json"
+              					}
+              				}
+              			}
+              		},
+              		"response": []
+              	},
+              	{
+              		"name": "list",
+              		"request": {
+              			"method": "POST",
+              			"header": [
+              				{
+              					"key": "Authorization",
+              					"value": "{{token}}",
+              					"type": "text"
+              				}
+              			],
+              			"url": {
+              				"raw": "http://{{host}}:8082//admin/app/course/list",
+              				"protocol": "http",
+              				"host": [
+              					"{{host}}"
+              				],
+              				"port": "8082",
+              				"path": [
+              					"admin",
+              					"app",
+              					"course",
+              					"list"
+              				]
+              			},
+              			"body": {
+              				"mode": "raw",
+              				"raw": "{\n\t\"courseFilter\" : {\n\t\t\"courseName\" : \"\",\n\t\t\"difficulty\" : \"\",\n\t\t\"gradeId\" : \"\",\n\t\t\"subjectId\" : \"\",\n\t\t\"priceStart\" : \"\",\n\t\t\"priceEnd\" : \"\",\n\t\t\"classHourStart\" : \"\",\n\t\t\"classHourEnd\" : \"\",\n\t\t\"createTimeStart\" : \"\",\n\t\t\"createTimeEnd\" : \"\"\n\t},\n\t\"orderParam\" : [\n\t\t{\n\t\t\t\"fieldName\" : \"\",\n\t\t\t\"asc\" : \"true\"\n\t\t}\n\t],\n\t\"pageParam\" : {\n\t\t\"pageNum\": \"1\",\n\t\t\"pageSize\": \"10\"\n\t}\n}\n",
+              				"options": {
+              					"raw": {
+              						"language": "json"
+              					}
+              				}
+              			}
+              		},
+              		"response": []
+              	},
+              	{
+              		"name": "view",
+              		"request": {
+              			"method": "GET",
+              			"header": [
+              				{
+              					"key": "Authorization",
+              					"value": "{{token}}",
+              					"type": "text"
+              				}
+              			],
+              			"url": {
+              				"raw": "http://{{host}}:8082//admin/app/course/view",
+              				"protocol": "http",
+              				"host": [
+              					"{{host}}"
+              				],
+              				"port": "8082",
+              				"path": [
+              					"admin",
+              					"app",
+              					"course",
+              					"view"
+              				],
+              				"query": [
+              					{
+              						"key": "courseId",
+              						"value": ""
+              					}
+              				]
+              			}
+              		},
+              		"response": []
+              	},
+              	{
+              		"name": "download",
+              		"request": {
+              			"method": "GET",
+              			"header": [
+              				{
+              					"key": "Authorization",
+              					"value": "{{token}}",
+              					"type": "text"
+              				}
+              			],
+              			"url": {
+              				"raw": "http://{{host}}:8082//admin/app/course/download",
+              				"protocol": "http",
+              				"host": [
+              					"{{host}}"
+              				],
+              				"port": "8082",
+              				"path": [
+              					"admin",
+              					"app",
+              					"course",
+              					"download"
+              				],
+              				"query": [
+              					{
+              						"key": "courseId",
+              						"value": ""
+              					},
+              					{
+              						"key": "fieldName",
+              						"value": ""
+              					},
+              					{
+              						"key": "filename",
+              						"value": ""
+              					},
+              					{
+              						"key": "asImage",
+              						"value": ""
+              					}
+              				]
+              			}
+              		},
+              		"response": []
+              	},
+              	{
+              		"name": "upload",
+              		"request": {
+              			"method": "POST",
+              			"header": [
+              				{
+              					"key": "Authorization",
+              					"value": "{{token}}",
+              					"type": "text"
+              				}
+              			],
+              			"url": {
+              				"raw": "http://{{host}}:8082//admin/app/course/upload",
+              				"protocol": "http",
+              				"host": [
+              					"{{host}}"
+              				],
+              				"port": "8082",
+              				"path": [
+              					"admin",
+              					"app",
+              					"course",
+              					"upload"
+              				],
+              				"query": [
+              					{
+              						"key": "fieldName",
+              						"value": ""
+              					},
+              					{
+              						"key": "asImage",
+              						"value": ""
+              					}
+              				]
+              			},
+              			"body": {
+              				"mode": "formdata",
+              				"formdata": [
+              					{
+              						"key": "uploadFile",
+              						"type": "file",
+              						"src": []
+              					}
+              				]
+              			}
+              		},
+              		"response": []
+              	},
+              	{
+              		"name": "listDictCourse",
+              		"request": {
+              			"method": "GET",
+              			"header": [
+              				{
+              					"key": "Authorization",
+              					"value": "{{token}}",
+              					"type": "text"
+              				}
+              			],
+              			"url": {
+              				"raw": "http://{{host}}:8082//admin/app/course/listDictCourse",
+              				"protocol": "http",
+              				"host": [
+              					"{{host}}"
+              				],
+              				"port": "8082",
+              				"path": [
+              					"admin",
+              					"app",
+              					"course",
+              					"listDictCourse"
+              				],
+              				"query": [
+              					{
+              						"key": "courseId",
+              						"value": ""
+              					},
+              					{
+              						"key": "courseName",
+              						"value": ""
+              					},
+              					{
+              						"key": "price",
+              						"value": ""
+              					},
+              					{
+              						"key": "description",
+              						"value": ""
+              					},
+              					{
+              						"key": "difficulty",
+              						"value": ""
+              					},
+              					{
+              						"key": "gradeId",
+              						"value": ""
+              					},
+              					{
+              						"key": "subjectId",
+              						"value": ""
+              					},
+              					{
+              						"key": "classHour",
+              						"value": ""
+              					},
+              					{
+              						"key": "pictureUrl",
+              						"value": ""
+              					},
+              					{
+              						"key": "createUserId",
+              						"value": ""
+              					},
+              					{
+              						"key": "createTime",
+              						"value": ""
+              					},
+              					{
+              						"key": "updateTime",
+              						"value": ""
+              					}
+              				]
+              			}
+              		},
+              		"response": []
+              	}
+              ],
+              "protocolProfileBehavior": {},
+              "_postman_isSubFolder": true
+						},
+						{
+              "name": "CourseTransStatsController",
+              "item": [
+              	{
+              		"name": "list",
+              		"request": {
+              			"method": "POST",
+              			"header": [
+              				{
+              					"key": "Authorization",
+              					"value": "{{token}}",
+              					"type": "text"
+              				}
+              			],
+              			"url": {
+              				"raw": "http://{{host}}:8082//admin/app/courseTransStats/list",
+              				"protocol": "http",
+              				"host": [
+              					"{{host}}"
+              				],
+              				"port": "8082",
+              				"path": [
+              					"admin",
+              					"app",
+              					"courseTransStats",
+              					"list"
+              				]
+              			},
+              			"body": {
+              				"mode": "raw",
+              				"raw": "{\n\t\"courseTransStatsFilter\" : {\n\t\t\"subjectId\" : \"\",\n\t\t\"gradeId\" : \"\",\n\t\t\"statsDateStart\" : \"\",\n\t\t\"statsDateEnd\" : \"\"\n\t},\n\t\"orderParam\" : [\n\t\t{\n\t\t\t\"fieldName\" : \"\",\n\t\t\t\"asc\" : \"true\"\n\t\t}\n\t],\n\t\"pageParam\" : {\n\t\t\"pageNum\": \"1\",\n\t\t\"pageSize\": \"10\"\n\t}\n}\n",
+              				"options": {
+              					"raw": {
+              						"language": "json"
+              					}
+              				}
+              			}
+              		},
+              		"response": []
+              	},
+              	{
+              		"name": "listWithGroup",
+              		"request": {
+              			"method": "POST",
+              			"header": [
+              				{
+              					"key": "Authorization",
+              					"value": "{{token}}",
+              					"type": "text"
+              				}
+              			],
+              			"url": {
+              				"raw": "http://{{host}}:8082//admin/app/courseTransStats/listWithGroup",
+              				"protocol": "http",
+              				"host": [
+              					"{{host}}"
+              				],
+              				"port": "8082",
+              				"path": [
+              					"admin",
+              					"app",
+              					"courseTransStats",
+              					"listWithGroup"
+              				]
+              			},
+              			"body": {
+              				"mode": "raw",
+              				"raw": "{\n\t\"courseTransStatsFilter\" : {\n\t\t\"subjectId\" : \"\",\n\t\t\"gradeId\" : \"\",\n\t\t\"statsDateStart\" : \"\",\n\t\t\"statsDateEnd\" : \"\"\n\t},\n\t\"groupParam\" : [\n\t\t{\n\t\t\t\"fieldName\" : \"\",\n\t\t\t\"aliasName\" : \"\",\n\t\t\t\"dateAggregateBy\" : \"\"\n\t\t}\n\t],\n\t\"orderParam\" : [\n\t\t{\n\t\t\t\"fieldName\" : \"\",\n\t\t\t\"asc\" : \"true\"\n\t\t}\n\t],\n\t\"pageParam\" : {\n\t\t\"pageNum\": \"1\",\n\t\t\"pageSize\": \"10\"\n\t}\n}\n",
+              				"options": {
+              					"raw": {
+              						"language": "json"
+              					}
+              				}
+              			}
+              		},
+              		"response": []
+              	},
+              	{
+              		"name": "view",
+              		"request": {
+              			"method": "GET",
+              			"header": [
+              				{
+              					"key": "Authorization",
+              					"value": "{{token}}",
+              					"type": "text"
+              				}
+              			],
+              			"url": {
+              				"raw": "http://{{host}}:8082//admin/app/courseTransStats/view",
+              				"protocol": "http",
+              				"host": [
+              					"{{host}}"
+              				],
+              				"port": "8082",
+              				"path": [
+              					"admin",
+              					"app",
+              					"courseTransStats",
+              					"view"
+              				],
+              				"query": [
+              					{
+              						"key": "statsId",
+              						"value": ""
+              					}
+              				]
+              			}
+              		},
+              		"response": []
+              	}
+              ],
+              "protocolProfileBehavior": {},
+              "_postman_isSubFolder": true
+						},
+						{
+              "name": "GradeController",
+              "item": [
+              	{
+              		"name": "add",
+              		"request": {
+              			"method": "POST",
+              			"header": [
+              				{
+              					"key": "Authorization",
+              					"value": "{{token}}",
+              					"type": "text"
+              				}
+              			],
+              			"url": {
+              				"raw": "http://{{host}}:8082//admin/app/grade/add",
+              				"protocol": "http",
+              				"host": [
+              					"{{host}}"
+              				],
+              				"port": "8082",
+              				"path": [
+              					"admin",
+              					"app",
+              					"grade",
+              					"add"
+              				]
+              			},
+              			"body": {
+              				"mode": "raw",
+              				"raw": "{\n\t\"grade\" : {\n\t\t\"gradeName\" : \"\"\n\t}\n}\n",
+              				"options": {
+              					"raw": {
+              						"language": "json"
+              					}
+              				}
+              			}
+              		},
+              		"response": []
+              	},
+              	{
+              		"name": "update",
+              		"request": {
+              			"method": "POST",
+              			"header": [
+              				{
+              					"key": "Authorization",
+              					"value": "{{token}}",
+              					"type": "text"
+              				}
+              			],
+              			"url": {
+              				"raw": "http://{{host}}:8082//admin/app/grade/update",
+              				"protocol": "http",
+              				"host": [
+              					"{{host}}"
+              				],
+              				"port": "8082",
+              				"path": [
+              					"admin",
+              					"app",
+              					"grade",
+              					"update"
+              				]
+              			},
+              			"body": {
+              				"mode": "raw",
+              				"raw": "{\n\t\"grade\" : {\n\t\t\"gradeId\" : \"\",\n\t\t\"gradeName\" : \"\"\n\t}\n}\n",
+              				"options": {
+              					"raw": {
+              						"language": "json"
+              					}
+              				}
+              			}
+              		},
+              		"response": []
+              	},
+              	{
+              		"name": "delete",
+              		"request": {
+              			"method": "POST",
+              			"header": [
+              				{
+              					"key": "Authorization",
+              					"value": "{{token}}",
+              					"type": "text"
+              				}
+              			],
+              			"url": {
+              				"raw": "http://{{host}}:8082//admin/app/grade/delete",
+              				"protocol": "http",
+              				"host": [
+              					"{{host}}"
+              				],
+              				"port": "8082",
+              				"path": [
+              					"admin",
+              					"app",
+              					"grade",
+              					"delete"
+              				]
+              			},
+              			"body": {
+              				"mode": "raw",
+              				"raw": "{\n\t\"gradeId\" : \"\"\n}\n",
+              				"options": {
+              					"raw": {
+              						"language": "json"
+              					}
+              				}
+              			}
+              		},
+              		"response": []
+              	},
+              	{
+              		"name": "listDictGrade",
+              		"request": {
+              			"method": "GET",
+              			"header": [
+              				{
+              					"key": "Authorization",
+              					"value": "{{token}}",
+              					"type": "text"
+              				}
+              			],
+              			"url": {
+              				"raw": "http://{{host}}:8082//admin/app/grade/listDictGrade",
+              				"protocol": "http",
+              				"host": [
+              					"{{host}}"
+              				],
+              				"port": "8082",
+              				"path": [
+              					"admin",
+              					"app",
+              					"grade",
+              					"listDictGrade"
+              				]
+              			}
+              		},
+              		"response": []
+              	},
+              	{
+              		"name": "reloadCachedData",
+              		"request": {
+              			"method": "GET",
+              			"header": [
+              				{
+              					"key": "Authorization",
+              					"value": "{{token}}",
+              					"type": "text"
+              				}
+              			],
+              			"url": {
+              				"raw": "http://{{host}}:8082//admin/app/grade/reloadCachedData",
+              				"protocol": "http",
+              				"host": [
+              					"{{host}}"
+              				],
+              				"port": "8082",
+              				"path": [
+              					"admin",
+              					"app",
+              					"grade",
+              					"reloadCachedData"
+              				]
+              			}
+              		},
+              		"response": []
+              	}
+              ],
+              "protocolProfileBehavior": {},
+              "_postman_isSubFolder": true
+						},
+						{
+              "name": "SchoolInfoController",
+              "item": [
+              	{
+              		"name": "add",
+              		"request": {
+              			"method": "POST",
+              			"header": [
+              				{
+              					"key": "Authorization",
+              					"value": "{{token}}",
+              					"type": "text"
+              				}
+              			],
+              			"url": {
+              				"raw": "http://{{host}}:8082//admin/app/schoolInfo/add",
+              				"protocol": "http",
+              				"host": [
+              					"{{host}}"
+              				],
+              				"port": "8082",
+              				"path": [
+              					"admin",
+              					"app",
+              					"schoolInfo",
+              					"add"
+              				]
+              			},
+              			"body": {
+              				"mode": "raw",
+              				"raw": "{\n\t\"schoolInfo\" : {\n\t\t\"schoolName\" : \"\",\n\t\t\"provinceId\" : \"\",\n\t\t\"cityId\" : \"\"\n\t}\n}\n",
+              				"options": {
+              					"raw": {
+              						"language": "json"
+              					}
+              				}
+              			}
+              		},
+              		"response": []
+              	},
+              	{
+              		"name": "update",
+              		"request": {
+              			"method": "POST",
+              			"header": [
+              				{
+              					"key": "Authorization",
+              					"value": "{{token}}",
+              					"type": "text"
+              				}
+              			],
+              			"url": {
+              				"raw": "http://{{host}}:8082//admin/app/schoolInfo/update",
+              				"protocol": "http",
+              				"host": [
+              					"{{host}}"
+              				],
+              				"port": "8082",
+              				"path": [
+              					"admin",
+              					"app",
+              					"schoolInfo",
+              					"update"
+              				]
+              			},
+              			"body": {
+              				"mode": "raw",
+              				"raw": "{\n\t\"schoolInfo\" : {\n\t\t\"schoolId\" : \"\",\n\t\t\"schoolName\" : \"\",\n\t\t\"provinceId\" : \"\",\n\t\t\"cityId\" : \"\"\n\t}\n}\n",
+              				"options": {
+              					"raw": {
+              						"language": "json"
+              					}
+              				}
+              			}
+              		},
+              		"response": []
+              	},
+              	{
+              		"name": "delete",
+              		"request": {
+              			"method": "POST",
+              			"header": [
+              				{
+              					"key": "Authorization",
+              					"value": "{{token}}",
+              					"type": "text"
+              				}
+              			],
+              			"url": {
+              				"raw": "http://{{host}}:8082//admin/app/schoolInfo/delete",
+              				"protocol": "http",
+              				"host": [
+              					"{{host}}"
+              				],
+              				"port": "8082",
+              				"path": [
+              					"admin",
+              					"app",
+              					"schoolInfo",
+              					"delete"
+              				]
+              			},
+              			"body": {
+              				"mode": "raw",
+              				"raw": "{\n\t\"schoolId\" : \"\"\n}\n",
+              				"options": {
+              					"raw": {
+              						"language": "json"
+              					}
+              				}
+              			}
+              		},
+              		"response": []
+              	},
+              	{
+              		"name": "list",
+              		"request": {
+              			"method": "POST",
+              			"header": [
+              				{
+              					"key": "Authorization",
+              					"value": "{{token}}",
+              					"type": "text"
+              				}
+              			],
+              			"url": {
+              				"raw": "http://{{host}}:8082//admin/app/schoolInfo/list",
+              				"protocol": "http",
+              				"host": [
+              					"{{host}}"
+              				],
+              				"port": "8082",
+              				"path": [
+              					"admin",
+              					"app",
+              					"schoolInfo",
+              					"list"
+              				]
+              			},
+              			"body": {
+              				"mode": "raw",
+              				"raw": "{\n\t\"schoolInfoFilter\" : {\n\t\t\"schoolName\" : \"\",\n\t\t\"provinceId\" : \"\",\n\t\t\"cityId\" : \"\"\n\t},\n\t\"orderParam\" : [\n\t\t{\n\t\t\t\"fieldName\" : \"\",\n\t\t\t\"asc\" : \"true\"\n\t\t}\n\t],\n\t\"pageParam\" : {\n\t\t\"pageNum\": \"1\",\n\t\t\"pageSize\": \"10\"\n\t}\n}\n",
+              				"options": {
+              					"raw": {
+              						"language": "json"
+              					}
+              				}
+              			}
+              		},
+              		"response": []
+              	},
+              	{
+              		"name": "view",
+              		"request": {
+              			"method": "GET",
+              			"header": [
+              				{
+              					"key": "Authorization",
+              					"value": "{{token}}",
+              					"type": "text"
+              				}
+              			],
+              			"url": {
+              				"raw": "http://{{host}}:8082//admin/app/schoolInfo/view",
+              				"protocol": "http",
+              				"host": [
+              					"{{host}}"
+              				],
+              				"port": "8082",
+              				"path": [
+              					"admin",
+              					"app",
+              					"schoolInfo",
+              					"view"
+              				],
+              				"query": [
+              					{
+              						"key": "schoolId",
+              						"value": ""
+              					}
+              				]
+              			}
+              		},
+              		"response": []
+              	},
+              	{
+              		"name": "listDictSchoolInfo",
+              		"request": {
+              			"method": "GET",
+              			"header": [
+              				{
+              					"key": "Authorization",
+              					"value": "{{token}}",
+              					"type": "text"
+              				}
+              			],
+              			"url": {
+              				"raw": "http://{{host}}:8082//admin/app/schoolInfo/listDictSchoolInfo",
+              				"protocol": "http",
+              				"host": [
+              					"{{host}}"
+              				],
+              				"port": "8082",
+              				"path": [
+              					"admin",
+              					"app",
+              					"schoolInfo",
+              					"listDictSchoolInfo"
+              				],
+              				"query": [
+              					{
+              						"key": "schoolId",
+              						"value": ""
+              					},
+              					{
+              						"key": "schoolName",
+              						"value": ""
+              					},
+              					{
+              						"key": "provinceId",
+              						"value": ""
+              					},
+              					{
+              						"key": "cityId",
+              						"value": ""
+              					}
+              				]
+              			}
+              		},
+              		"response": []
+              	}
+              ],
+              "protocolProfileBehavior": {},
+              "_postman_isSubFolder": true
+						},
+						{
+              "name": "StudentActionStatsController",
+              "item": [
+              	{
+              		"name": "list",
+              		"request": {
+              			"method": "POST",
+              			"header": [
+              				{
+              					"key": "Authorization",
+              					"value": "{{token}}",
+              					"type": "text"
+              				}
+              			],
+              			"url": {
+              				"raw": "http://{{host}}:8082//admin/app/studentActionStats/list",
+              				"protocol": "http",
+              				"host": [
+              					"{{host}}"
+              				],
+              				"port": "8082",
+              				"path": [
+              					"admin",
+              					"app",
+              					"studentActionStats",
+              					"list"
+              				]
+              			},
+              			"body": {
+              				"mode": "raw",
+              				"raw": "{\n\t\"studentActionStatsFilter\" : {\n\t\t\"gradeId\" : \"\",\n\t\t\"provinceId\" : \"\",\n\t\t\"cityId\" : \"\",\n\t\t\"statsDateStart\" : \"\",\n\t\t\"statsDateEnd\" : \"\"\n\t},\n\t\"orderParam\" : [\n\t\t{\n\t\t\t\"fieldName\" : \"\",\n\t\t\t\"asc\" : \"true\"\n\t\t}\n\t],\n\t\"pageParam\" : {\n\t\t\"pageNum\": \"1\",\n\t\t\"pageSize\": \"10\"\n\t}\n}\n",
+              				"options": {
+              					"raw": {
+              						"language": "json"
+              					}
+              				}
+              			}
+              		},
+              		"response": []
+              	},
+              	{
+              		"name": "listWithGroup",
+              		"request": {
+              			"method": "POST",
+              			"header": [
+              				{
+              					"key": "Authorization",
+              					"value": "{{token}}",
+              					"type": "text"
+              				}
+              			],
+              			"url": {
+              				"raw": "http://{{host}}:8082//admin/app/studentActionStats/listWithGroup",
+              				"protocol": "http",
+              				"host": [
+              					"{{host}}"
+              				],
+              				"port": "8082",
+              				"path": [
+              					"admin",
+              					"app",
+              					"studentActionStats",
+              					"listWithGroup"
+              				]
+              			},
+              			"body": {
+              				"mode": "raw",
+              				"raw": "{\n\t\"studentActionStatsFilter\" : {\n\t\t\"gradeId\" : \"\",\n\t\t\"provinceId\" : \"\",\n\t\t\"cityId\" : \"\",\n\t\t\"statsDateStart\" : \"\",\n\t\t\"statsDateEnd\" : \"\"\n\t},\n\t\"groupParam\" : [\n\t\t{\n\t\t\t\"fieldName\" : \"\",\n\t\t\t\"aliasName\" : \"\",\n\t\t\t\"dateAggregateBy\" : \"\"\n\t\t}\n\t],\n\t\"orderParam\" : [\n\t\t{\n\t\t\t\"fieldName\" : \"\",\n\t\t\t\"asc\" : \"true\"\n\t\t}\n\t],\n\t\"pageParam\" : {\n\t\t\"pageNum\": \"1\",\n\t\t\"pageSize\": \"10\"\n\t}\n}\n",
+              				"options": {
+              					"raw": {
+              						"language": "json"
+              					}
+              				}
+              			}
+              		},
+              		"response": []
+              	},
+              	{
+              		"name": "view",
+              		"request": {
+              			"method": "GET",
+              			"header": [
+              				{
+              					"key": "Authorization",
+              					"value": "{{token}}",
+              					"type": "text"
+              				}
+              			],
+              			"url": {
+              				"raw": "http://{{host}}:8082//admin/app/studentActionStats/view",
+              				"protocol": "http",
+              				"host": [
+              					"{{host}}"
+              				],
+              				"port": "8082",
+              				"path": [
+              					"admin",
+              					"app",
+              					"studentActionStats",
+              					"view"
+              				],
+              				"query": [
+              					{
+              						"key": "statsId",
+              						"value": ""
+              					}
+              				]
+              			}
+              		},
+              		"response": []
+              	}
+              ],
+              "protocolProfileBehavior": {},
+              "_postman_isSubFolder": true
+						},
+						{
+              "name": "StudentActionTransController",
+              "item": [
+              	{
+              		"name": "add",
+              		"request": {
+              			"method": "POST",
+              			"header": [
+              				{
+              					"key": "Authorization",
+              					"value": "{{token}}",
+              					"type": "text"
+              				}
+              			],
+              			"url": {
+              				"raw": "http://{{host}}:8082//admin/app/studentActionTrans/add",
+              				"protocol": "http",
+              				"host": [
+              					"{{host}}"
+              				],
+              				"port": "8082",
+              				"path": [
+              					"admin",
+              					"app",
+              					"studentActionTrans",
+              					"add"
+              				]
+              			},
+              			"body": {
+              				"mode": "raw",
+              				"raw": "{\n\t\"studentActionTrans\" : {\n\t\t\"studentId\" : \"\",\n\t\t\"studentName\" : \"\",\n\t\t\"schoolId\" : \"\",\n\t\t\"gradeId\" : \"\",\n\t\t\"actionType\" : \"\",\n\t\t\"deviceType\" : \"\",\n\t\t\"watchVideoSeconds\" : \"\",\n\t\t\"flowerCount\" : \"\",\n\t\t\"paperCount\" : \"\",\n\t\t\"videoCount\" : \"\",\n\t\t\"courseCount\" : \"\",\n\t\t\"coinCount\" : \"\",\n\t\t\"exerciseCorrectFlag\" : \"\",\n\t\t\"createTime\" : \"\"\n\t}\n}\n",
+              				"options": {
+              					"raw": {
+              						"language": "json"
+              					}
+              				}
+              			}
+              		},
+              		"response": []
+              	},
+              	{
+              		"name": "update",
+              		"request": {
+              			"method": "POST",
+              			"header": [
+              				{
+              					"key": "Authorization",
+              					"value": "{{token}}",
+              					"type": "text"
+              				}
+              			],
+              			"url": {
+              				"raw": "http://{{host}}:8082//admin/app/studentActionTrans/update",
+              				"protocol": "http",
+              				"host": [
+              					"{{host}}"
+              				],
+              				"port": "8082",
+              				"path": [
+              					"admin",
+              					"app",
+              					"studentActionTrans",
+              					"update"
+              				]
+              			},
+              			"body": {
+              				"mode": "raw",
+              				"raw": "{\n\t\"studentActionTrans\" : {\n\t\t\"transId\" : \"\",\n\t\t\"studentId\" : \"\",\n\t\t\"studentName\" : \"\",\n\t\t\"schoolId\" : \"\",\n\t\t\"gradeId\" : \"\",\n\t\t\"actionType\" : \"\",\n\t\t\"deviceType\" : \"\",\n\t\t\"watchVideoSeconds\" : \"\",\n\t\t\"flowerCount\" : \"\",\n\t\t\"paperCount\" : \"\",\n\t\t\"videoCount\" : \"\",\n\t\t\"courseCount\" : \"\",\n\t\t\"coinCount\" : \"\",\n\t\t\"exerciseCorrectFlag\" : \"\",\n\t\t\"createTime\" : \"\"\n\t}\n}\n",
+              				"options": {
+              					"raw": {
+              						"language": "json"
+              					}
+              				}
+              			}
+              		},
+              		"response": []
+              	},
+              	{
+              		"name": "delete",
+              		"request": {
+              			"method": "POST",
+              			"header": [
+              				{
+              					"key": "Authorization",
+              					"value": "{{token}}",
+              					"type": "text"
+              				}
+              			],
+              			"url": {
+              				"raw": "http://{{host}}:8082//admin/app/studentActionTrans/delete",
+              				"protocol": "http",
+              				"host": [
+              					"{{host}}"
+              				],
+              				"port": "8082",
+              				"path": [
+              					"admin",
+              					"app",
+              					"studentActionTrans",
+              					"delete"
+              				]
+              			},
+              			"body": {
+              				"mode": "raw",
+              				"raw": "{\n\t\"transId\" : \"\"\n}\n",
+              				"options": {
+              					"raw": {
+              						"language": "json"
+              					}
+              				}
+              			}
+              		},
+              		"response": []
+              	},
+              	{
+              		"name": "list",
+              		"request": {
+              			"method": "POST",
+              			"header": [
+              				{
+              					"key": "Authorization",
+              					"value": "{{token}}",
+              					"type": "text"
+              				}
+              			],
+              			"url": {
+              				"raw": "http://{{host}}:8082//admin/app/studentActionTrans/list",
+              				"protocol": "http",
+              				"host": [
+              					"{{host}}"
+              				],
+              				"port": "8082",
+              				"path": [
+              					"admin",
+              					"app",
+              					"studentActionTrans",
+              					"list"
+              				]
+              			},
+              			"body": {
+              				"mode": "raw",
+              				"raw": "{\n\t\"studentActionTransFilter\" : {\n\t\t\"studentId\" : \"\",\n\t\t\"schoolId\" : \"\",\n\t\t\"gradeId\" : \"\",\n\t\t\"actionType\" : \"\",\n\t\t\"deviceType\" : \"\",\n\t\t\"createTimeStart\" : \"\",\n\t\t\"createTimeEnd\" : \"\"\n\t},\n\t\"orderParam\" : [\n\t\t{\n\t\t\t\"fieldName\" : \"\",\n\t\t\t\"asc\" : \"true\"\n\t\t}\n\t],\n\t\"pageParam\" : {\n\t\t\"pageNum\": \"1\",\n\t\t\"pageSize\": \"10\"\n\t}\n}\n",
+              				"options": {
+              					"raw": {
+              						"language": "json"
+              					}
+              				}
+              			}
+              		},
+              		"response": []
+              	},
+              	{
+              		"name": "view",
+              		"request": {
+              			"method": "GET",
+              			"header": [
+              				{
+              					"key": "Authorization",
+              					"value": "{{token}}",
+              					"type": "text"
+              				}
+              			],
+              			"url": {
+              				"raw": "http://{{host}}:8082//admin/app/studentActionTrans/view",
+              				"protocol": "http",
+              				"host": [
+              					"{{host}}"
+              				],
+              				"port": "8082",
+              				"path": [
+              					"admin",
+              					"app",
+              					"studentActionTrans",
+              					"view"
+              				],
+              				"query": [
+              					{
+              						"key": "transId",
+              						"value": ""
+              					}
+              				]
+              			}
+              		},
+              		"response": []
+              	}
+              ],
+              "protocolProfileBehavior": {},
+              "_postman_isSubFolder": true
+						},
+						{
+              "name": "StudentClassController",
+              "item": [
+              	{
+              		"name": "add",
+              		"request": {
+              			"method": "POST",
+              			"header": [
+              				{
+              					"key": "Authorization",
+              					"value": "{{token}}",
+              					"type": "text"
+              				}
+              			],
+              			"url": {
+              				"raw": "http://{{host}}:8082//admin/app/studentClass/add",
+              				"protocol": "http",
+              				"host": [
+              					"{{host}}"
+              				],
+              				"port": "8082",
+              				"path": [
+              					"admin",
+              					"app",
+              					"studentClass",
+              					"add"
+              				]
+              			},
+              			"body": {
+              				"mode": "raw",
+              				"raw": "{\n\t\"studentClass\" : {\n\t\t\"className\" : \"\",\n\t\t\"schoolId\" : \"\",\n\t\t\"leaderId\" : \"\",\n\t\t\"finishClassHour\" : \"\",\n\t\t\"classLevel\" : \"\",\n\t\t\"createUserId\" : \"\",\n\t\t\"createTime\" : \"\"\n\t}\n}\n",
+              				"options": {
+              					"raw": {
+              						"language": "json"
+              					}
+              				}
+              			}
+              		},
+              		"response": []
+              	},
+              	{
+              		"name": "update",
+              		"request": {
+              			"method": "POST",
+              			"header": [
+              				{
+              					"key": "Authorization",
+              					"value": "{{token}}",
+              					"type": "text"
+              				}
+              			],
+              			"url": {
+              				"raw": "http://{{host}}:8082//admin/app/studentClass/update",
+              				"protocol": "http",
+              				"host": [
+              					"{{host}}"
+              				],
+              				"port": "8082",
+              				"path": [
+              					"admin",
+              					"app",
+              					"studentClass",
+              					"update"
+              				]
+              			},
+              			"body": {
+              				"mode": "raw",
+              				"raw": "{\n\t\"studentClass\" : {\n\t\t\"classId\" : \"\",\n\t\t\"className\" : \"\",\n\t\t\"schoolId\" : \"\",\n\t\t\"leaderId\" : \"\",\n\t\t\"finishClassHour\" : \"\",\n\t\t\"classLevel\" : \"\",\n\t\t\"createUserId\" : \"\",\n\t\t\"createTime\" : \"\"\n\t}\n}\n",
+              				"options": {
+              					"raw": {
+              						"language": "json"
+              					}
+              				}
+              			}
+              		},
+              		"response": []
+              	},
+              	{
+              		"name": "delete",
+              		"request": {
+              			"method": "POST",
+              			"header": [
+              				{
+              					"key": "Authorization",
+              					"value": "{{token}}",
+              					"type": "text"
+              				}
+              			],
+              			"url": {
+              				"raw": "http://{{host}}:8082//admin/app/studentClass/delete",
+              				"protocol": "http",
+              				"host": [
+              					"{{host}}"
+              				],
+              				"port": "8082",
+              				"path": [
+              					"admin",
+              					"app",
+              					"studentClass",
+              					"delete"
+              				]
+              			},
+              			"body": {
+              				"mode": "raw",
+              				"raw": "{\n\t\"classId\" : \"\"\n}\n",
+              				"options": {
+              					"raw": {
+              						"language": "json"
+              					}
+              				}
+              			}
+              		},
+              		"response": []
+              	},
+              	{
+              		"name": "list",
+              		"request": {
+              			"method": "POST",
+              			"header": [
+              				{
+              					"key": "Authorization",
+              					"value": "{{token}}",
+              					"type": "text"
+              				}
+              			],
+              			"url": {
+              				"raw": "http://{{host}}:8082//admin/app/studentClass/list",
+              				"protocol": "http",
+              				"host": [
+              					"{{host}}"
+              				],
+              				"port": "8082",
+              				"path": [
+              					"admin",
+              					"app",
+              					"studentClass",
+              					"list"
+              				]
+              			},
+              			"body": {
+              				"mode": "raw",
+              				"raw": "{\n\t\"studentClassFilter\" : {\n\t\t\"className\" : \"\",\n\t\t\"schoolId\" : \"\",\n\t\t\"classLevel\" : \"\"\n\t},\n\t\"orderParam\" : [\n\t\t{\n\t\t\t\"fieldName\" : \"\",\n\t\t\t\"asc\" : \"true\"\n\t\t}\n\t],\n\t\"pageParam\" : {\n\t\t\"pageNum\": \"1\",\n\t\t\"pageSize\": \"10\"\n\t}\n}\n",
+              				"options": {
+              					"raw": {
+              						"language": "json"
+              					}
+              				}
+              			}
+              		},
+              		"response": []
+              	},
+              	{
+              		"name": "view",
+              		"request": {
+              			"method": "GET",
+              			"header": [
+              				{
+              					"key": "Authorization",
+              					"value": "{{token}}",
+              					"type": "text"
+              				}
+              			],
+              			"url": {
+              				"raw": "http://{{host}}:8082//admin/app/studentClass/view",
+              				"protocol": "http",
+              				"host": [
+              					"{{host}}"
+              				],
+              				"port": "8082",
+              				"path": [
+              					"admin",
+              					"app",
+              					"studentClass",
+              					"view"
+              				],
+              				"query": [
+              					{
+              						"key": "classId",
+              						"value": ""
+              					}
+              				]
+              			}
+              		},
+              		"response": []
+              	},
+              	{
+              		"name": "listNotInClassCourse",
+              		"request": {
+              			"method": "POST",
+              			"header": [
+              				{
+              					"key": "Authorization",
+              					"value": "{{token}}",
+              					"type": "text"
+              				}
+              			],
+              			"url": {
+              				"raw": "http://{{host}}:8082//admin/app/studentClass/listNotInClassCourse",
+              				"protocol": "http",
+              				"host": [
+              					"{{host}}"
+              				],
+              				"port": "8082",
+              				"path": [
+              					"admin",
+              					"app",
+              					"studentClass",
+              					"listNotInClassCourse"
+              				]
+              			},
+              			"body": {
+              				"mode": "raw",
+              				"raw": "{\n\t\"classId\" : \"\",\n\t\"courseFilter\" : {\n\t\t\"courseName\" : \"\",\n\t\t\"difficulty\" : \"\",\n\t\t\"gradeId\" : \"\",\n\t\t\"subjectId\" : \"\",\n\t\t\"priceStart\" : \"\",\n\t\t\"priceEnd\" : \"\",\n\t\t\"classHourStart\" : \"\",\n\t\t\"classHourEnd\" : \"\",\n\t\t\"createTimeStart\" : \"\",\n\t\t\"createTimeEnd\" : \"\"\n\t},\n\t\"orderParam\" : [\n\t\t{\n\t\t\t\"fieldName\" : \"\",\n\t\t\t\"asc\" : \"true\"\n\t\t}\n\t],\n\t\"pageParam\" : {\n\t\t\"pageNum\": \"1\",\n\t\t\"pageSize\": \"10\"\n\t}\n}\n",
+              				"options": {
+              					"raw": {
+              						"language": "json"
+              					}
+              				}
+              			}
+              		},
+              		"response": []
+              	},
+              	{
+              		"name": "listClassCourse",
+              		"request": {
+              			"method": "POST",
+              			"header": [
+              				{
+              					"key": "Authorization",
+              					"value": "{{token}}",
+              					"type": "text"
+              				}
+              			],
+              			"url": {
+              				"raw": "http://{{host}}:8082//admin/app/studentClass/listClassCourse",
+              				"protocol": "http",
+              				"host": [
+              					"{{host}}"
+              				],
+              				"port": "8082",
+              				"path": [
+              					"admin",
+              					"app",
+              					"studentClass",
+              					"listClassCourse"
+              				]
+              			},
+              			"body": {
+              				"mode": "raw",
+              				"raw": "{\n\t\"classId\" : \"\",\n\t\"courseFilter\" : {\n\t\t\"courseName\" : \"\",\n\t\t\"difficulty\" : \"\",\n\t\t\"gradeId\" : \"\",\n\t\t\"subjectId\" : \"\",\n\t\t\"priceStart\" : \"\",\n\t\t\"priceEnd\" : \"\",\n\t\t\"classHourStart\" : \"\",\n\t\t\"classHourEnd\" : \"\",\n\t\t\"createTimeStart\" : \"\",\n\t\t\"createTimeEnd\" : \"\"\n\t},\n\t\"orderParam\" : [\n\t\t{\n\t\t\t\"fieldName\" : \"\",\n\t\t\t\"asc\" : \"true\"\n\t\t}\n\t],\n\t\"pageParam\" : {\n\t\t\"pageNum\": \"1\",\n\t\t\"pageSize\": \"10\"\n\t}\n}\n",
+              				"options": {
+              					"raw": {
+              						"language": "json"
+              					}
+              				}
+              			}
+              		},
+              		"response": []
+              	},
+              	{
+              		"name": "addClassCourse",
+              		"request": {
+              			"method": "POST",
+              			"header": [
+              				{
+              					"key": "Authorization",
+              					"value": "{{token}}",
+              					"type": "text"
+              				}
+              			],
+              			"url": {
+              				"raw": "http://{{host}}:8082//admin/app/studentClass/addClassCourse",
+              				"protocol": "http",
+              				"host": [
+              					"{{host}}"
+              				],
+              				"port": "8082",
+              				"path": [
+              					"admin",
+              					"app",
+              					"studentClass",
+              					"addClassCourse"
+              				]
+              			},
+              			"body": {
+              				"mode": "raw",
+              				"raw": "{\n\t\"classId\" : \"\",\n\t\"classCourseList\" : [\n\t\t{\n\t\t\t\"classId\" : \"\",\n\t\t\t\"courseId\" : \"\",\n\t\t\t\"courseOrder\" : \"\"\n\t\t}\n\t]\n}\n",
+              				"options": {
+              					"raw": {
+              						"language": "json"
+              					}
+              				}
+              			}
+              		},
+              		"response": []
+              	},
+              	{
+              		"name": "updateClassCourse",
+              		"request": {
+              			"method": "POST",
+              			"header": [
+              				{
+              					"key": "Authorization",
+              					"value": "{{token}}",
+              					"type": "text"
+              				}
+              			],
+              			"url": {
+              				"raw": "http://{{host}}:8082//admin/app/studentClass/updateClassCourse",
+              				"protocol": "http",
+              				"host": [
+              					"{{host}}"
+              				],
+              				"port": "8082",
+              				"path": [
+              					"admin",
+              					"app",
+              					"studentClass",
+              					"updateClassCourse"
+              				]
+              			},
+              			"body": {
+              				"mode": "raw",
+              				"raw": "{\n\t\"classCourse\" : {\n\t\t\"classId\" : \"\",\n\t\t\"courseId\" : \"\",\n\t\t\"courseOrder\" : \"\"\n\t}\n}\n",
+              				"options": {
+              					"raw": {
+              						"language": "json"
+              					}
+              				}
+              			}
+              		},
+              		"response": []
+              	},
+              	{
+              		"name": "viewClassCourse",
+              		"request": {
+              			"method": "GET",
+              			"header": [
+              				{
+              					"key": "Authorization",
+              					"value": "{{token}}",
+              					"type": "text"
+              				}
+              			],
+              			"url": {
+              				"raw": "http://{{host}}:8082//admin/app/studentClass/viewClassCourse",
+              				"protocol": "http",
+              				"host": [
+              					"{{host}}"
+              				],
+              				"port": "8082",
+              				"path": [
+              					"admin",
+              					"app",
+              					"studentClass",
+              					"viewClassCourse"
+              				],
+              				"query": [
+              					{
+              						"key": "classId",
+              						"value": ""
+              					},
+              					{
+              						"key": "courseId",
+              						"value": ""
+              					}
+              				]
+              			}
+              		},
+              		"response": []
+              	},
+              	{
+              		"name": "deleteClassCourse",
+              		"request": {
+              			"method": "POST",
+              			"header": [
+              				{
+              					"key": "Authorization",
+              					"value": "{{token}}",
+              					"type": "text"
+              				}
+              			],
+              			"url": {
+              				"raw": "http://{{host}}:8082//admin/app/studentClass/deleteClassCourse",
+              				"protocol": "http",
+              				"host": [
+              					"{{host}}"
+              				],
+              				"port": "8082",
+              				"path": [
+              					"admin",
+              					"app",
+              					"studentClass",
+              					"deleteClassCourse"
+              				]
+              			},
+              			"body": {
+              				"mode": "raw",
+              				"raw": "{\n\t\"classId\" : \"\",\n\t\"courseId\" : \"\"\n}\n",
+              				"options": {
+              					"raw": {
+              						"language": "json"
+              					}
+              				}
+              			}
+              		},
+              		"response": []
+              	},
+              	{
+              		"name": "listNotInClassStudent",
+              		"request": {
+              			"method": "POST",
+              			"header": [
+              				{
+              					"key": "Authorization",
+              					"value": "{{token}}",
+              					"type": "text"
+              				}
+              			],
+              			"url": {
+              				"raw": "http://{{host}}:8082//admin/app/studentClass/listNotInClassStudent",
+              				"protocol": "http",
+              				"host": [
+              					"{{host}}"
+              				],
+              				"port": "8082",
+              				"path": [
+              					"admin",
+              					"app",
+              					"studentClass",
+              					"listNotInClassStudent"
+              				]
+              			},
+              			"body": {
+              				"mode": "raw",
+              				"raw": "{\n\t\"classId\" : \"\",\n\t\"studentFilter\" : {\n\t\t\"provinceId\" : \"\",\n\t\t\"cityId\" : \"\",\n\t\t\"districtId\" : \"\",\n\t\t\"gradeId\" : \"\",\n\t\t\"schoolId\" : \"\",\n\t\t\"status\" : \"\",\n\t\t\"birthdayStart\" : \"\",\n\t\t\"birthdayEnd\" : \"\",\n\t\t\"registerTimeStart\" : \"\",\n\t\t\"registerTimeEnd\" : \"\",\n\t\t\"searchString\" : \"\"\n\t},\n\t\"orderParam\" : [\n\t\t{\n\t\t\t\"fieldName\" : \"\",\n\t\t\t\"asc\" : \"true\"\n\t\t}\n\t],\n\t\"pageParam\" : {\n\t\t\"pageNum\": \"1\",\n\t\t\"pageSize\": \"10\"\n\t}\n}\n",
+              				"options": {
+              					"raw": {
+              						"language": "json"
+              					}
+              				}
+              			}
+              		},
+              		"response": []
+              	},
+              	{
+              		"name": "listClassStudent",
+              		"request": {
+              			"method": "POST",
+              			"header": [
+              				{
+              					"key": "Authorization",
+              					"value": "{{token}}",
+              					"type": "text"
+              				}
+              			],
+              			"url": {
+              				"raw": "http://{{host}}:8082//admin/app/studentClass/listClassStudent",
+              				"protocol": "http",
+              				"host": [
+              					"{{host}}"
+              				],
+              				"port": "8082",
+              				"path": [
+              					"admin",
+              					"app",
+              					"studentClass",
+              					"listClassStudent"
+              				]
+              			},
+              			"body": {
+              				"mode": "raw",
+              				"raw": "{\n\t\"classId\" : \"\",\n\t\"studentFilter\" : {\n\t\t\"provinceId\" : \"\",\n\t\t\"cityId\" : \"\",\n\t\t\"districtId\" : \"\",\n\t\t\"gradeId\" : \"\",\n\t\t\"schoolId\" : \"\",\n\t\t\"status\" : \"\",\n\t\t\"birthdayStart\" : \"\",\n\t\t\"birthdayEnd\" : \"\",\n\t\t\"registerTimeStart\" : \"\",\n\t\t\"registerTimeEnd\" : \"\",\n\t\t\"searchString\" : \"\"\n\t},\n\t\"orderParam\" : [\n\t\t{\n\t\t\t\"fieldName\" : \"\",\n\t\t\t\"asc\" : \"true\"\n\t\t}\n\t],\n\t\"pageParam\" : {\n\t\t\"pageNum\": \"1\",\n\t\t\"pageSize\": \"10\"\n\t}\n}\n",
+              				"options": {
+              					"raw": {
+              						"language": "json"
+              					}
+              				}
+              			}
+              		},
+              		"response": []
+              	},
+              	{
+              		"name": "addClassStudent",
+              		"request": {
+              			"method": "POST",
+              			"header": [
+              				{
+              					"key": "Authorization",
+              					"value": "{{token}}",
+              					"type": "text"
+              				}
+              			],
+              			"url": {
+              				"raw": "http://{{host}}:8082//admin/app/studentClass/addClassStudent",
+              				"protocol": "http",
+              				"host": [
+              					"{{host}}"
+              				],
+              				"port": "8082",
+              				"path": [
+              					"admin",
+              					"app",
+              					"studentClass",
+              					"addClassStudent"
+              				]
+              			},
+              			"body": {
+              				"mode": "raw",
+              				"raw": "{\n\t\"classId\" : \"\",\n\t\"classStudentList\" : [\n\t\t{\n\t\t\t\"classId\" : \"\",\n\t\t\t\"studentId\" : \"\"\n\t\t}\n\t]\n}\n",
+              				"options": {
+              					"raw": {
+              						"language": "json"
+              					}
+              				}
+              			}
+              		},
+              		"response": []
+              	},
+              	{
+              		"name": "deleteClassStudent",
+              		"request": {
+              			"method": "POST",
+              			"header": [
+              				{
+              					"key": "Authorization",
+              					"value": "{{token}}",
+              					"type": "text"
+              				}
+              			],
+              			"url": {
+              				"raw": "http://{{host}}:8082//admin/app/studentClass/deleteClassStudent",
+              				"protocol": "http",
+              				"host": [
+              					"{{host}}"
+              				],
+              				"port": "8082",
+              				"path": [
+              					"admin",
+              					"app",
+              					"studentClass",
+              					"deleteClassStudent"
+              				]
+              			},
+              			"body": {
+              				"mode": "raw",
+              				"raw": "{\n\t\"classId\" : \"\",\n\t\"studentId\" : \"\"\n}\n",
+              				"options": {
+              					"raw": {
+              						"language": "json"
+              					}
+              				}
+              			}
+              		},
+              		"response": []
+              	}
+              ],
+              "protocolProfileBehavior": {},
+              "_postman_isSubFolder": true
+						},
+						{
+              "name": "StudentController",
+              "item": [
+              	{
+              		"name": "add",
+              		"request": {
+              			"method": "POST",
+              			"header": [
+              				{
+              					"key": "Authorization",
+              					"value": "{{token}}",
+              					"type": "text"
+              				}
+              			],
+              			"url": {
+              				"raw": "http://{{host}}:8082//admin/app/student/add",
+              				"protocol": "http",
+              				"host": [
+              					"{{host}}"
+              				],
+              				"port": "8082",
+              				"path": [
+              					"admin",
+              					"app",
+              					"student",
+              					"add"
+              				]
+              			},
+              			"body": {
+              				"mode": "raw",
+              				"raw": "{\n\t\"student\" : {\n\t\t\"loginMobile\" : \"\",\n\t\t\"studentName\" : \"\",\n\t\t\"provinceId\" : \"\",\n\t\t\"cityId\" : \"\",\n\t\t\"districtId\" : \"\",\n\t\t\"gender\" : \"\",\n\t\t\"birthday\" : \"\",\n\t\t\"experienceLevel\" : \"\",\n\t\t\"totalCoin\" : \"\",\n\t\t\"leftCoin\" : \"\",\n\t\t\"gradeId\" : \"\",\n\t\t\"schoolId\" : \"\",\n\t\t\"registerTime\" : \"\",\n\t\t\"status\" : \"\"\n\t}\n}\n",
+              				"options": {
+              					"raw": {
+              						"language": "json"
+              					}
+              				}
+              			}
+              		},
+              		"response": []
+              	},
+              	{
+              		"name": "update",
+              		"request": {
+              			"method": "POST",
+              			"header": [
+              				{
+              					"key": "Authorization",
+              					"value": "{{token}}",
+              					"type": "text"
+              				}
+              			],
+              			"url": {
+              				"raw": "http://{{host}}:8082//admin/app/student/update",
+              				"protocol": "http",
+              				"host": [
+              					"{{host}}"
+              				],
+              				"port": "8082",
+              				"path": [
+              					"admin",
+              					"app",
+              					"student",
+              					"update"
+              				]
+              			},
+              			"body": {
+              				"mode": "raw",
+              				"raw": "{\n\t\"student\" : {\n\t\t\"studentId\" : \"\",\n\t\t\"loginMobile\" : \"\",\n\t\t\"studentName\" : \"\",\n\t\t\"provinceId\" : \"\",\n\t\t\"cityId\" : \"\",\n\t\t\"districtId\" : \"\",\n\t\t\"gender\" : \"\",\n\t\t\"birthday\" : \"\",\n\t\t\"experienceLevel\" : \"\",\n\t\t\"totalCoin\" : \"\",\n\t\t\"leftCoin\" : \"\",\n\t\t\"gradeId\" : \"\",\n\t\t\"schoolId\" : \"\",\n\t\t\"registerTime\" : \"\",\n\t\t\"status\" : \"\"\n\t}\n}\n",
+              				"options": {
+              					"raw": {
+              						"language": "json"
+              					}
+              				}
+              			}
+              		},
+              		"response": []
+              	},
+              	{
+              		"name": "delete",
+              		"request": {
+              			"method": "POST",
+              			"header": [
+              				{
+              					"key": "Authorization",
+              					"value": "{{token}}",
+              					"type": "text"
+              				}
+              			],
+              			"url": {
+              				"raw": "http://{{host}}:8082//admin/app/student/delete",
+              				"protocol": "http",
+              				"host": [
+              					"{{host}}"
+              				],
+              				"port": "8082",
+              				"path": [
+              					"admin",
+              					"app",
+              					"student",
+              					"delete"
+              				]
+              			},
+              			"body": {
+              				"mode": "raw",
+              				"raw": "{\n\t\"studentId\" : \"\"\n}\n",
+              				"options": {
+              					"raw": {
+              						"language": "json"
+              					}
+              				}
+              			}
+              		},
+              		"response": []
+              	},
+              	{
+              		"name": "list",
+              		"request": {
+              			"method": "POST",
+              			"header": [
+              				{
+              					"key": "Authorization",
+              					"value": "{{token}}",
+              					"type": "text"
+              				}
+              			],
+              			"url": {
+              				"raw": "http://{{host}}:8082//admin/app/student/list",
+              				"protocol": "http",
+              				"host": [
+              					"{{host}}"
+              				],
+              				"port": "8082",
+              				"path": [
+              					"admin",
+              					"app",
+              					"student",
+              					"list"
+              				]
+              			},
+              			"body": {
+              				"mode": "raw",
+              				"raw": "{\n\t\"studentFilter\" : {\n\t\t\"provinceId\" : \"\",\n\t\t\"cityId\" : \"\",\n\t\t\"districtId\" : \"\",\n\t\t\"gradeId\" : \"\",\n\t\t\"schoolId\" : \"\",\n\t\t\"status\" : \"\",\n\t\t\"birthdayStart\" : \"\",\n\t\t\"birthdayEnd\" : \"\",\n\t\t\"registerTimeStart\" : \"\",\n\t\t\"registerTimeEnd\" : \"\",\n\t\t\"searchString\" : \"\"\n\t},\n\t\"orderParam\" : [\n\t\t{\n\t\t\t\"fieldName\" : \"\",\n\t\t\t\"asc\" : \"true\"\n\t\t}\n\t],\n\t\"pageParam\" : {\n\t\t\"pageNum\": \"1\",\n\t\t\"pageSize\": \"10\"\n\t}\n}\n",
+              				"options": {
+              					"raw": {
+              						"language": "json"
+              					}
+              				}
+              			}
+              		},
+              		"response": []
+              	},
+              	{
+              		"name": "view",
+              		"request": {
+              			"method": "GET",
+              			"header": [
+              				{
+              					"key": "Authorization",
+              					"value": "{{token}}",
+              					"type": "text"
+              				}
+              			],
+              			"url": {
+              				"raw": "http://{{host}}:8082//admin/app/student/view",
+              				"protocol": "http",
+              				"host": [
+              					"{{host}}"
+              				],
+              				"port": "8082",
+              				"path": [
+              					"admin",
+              					"app",
+              					"student",
+              					"view"
+              				],
+              				"query": [
+              					{
+              						"key": "studentId",
+              						"value": ""
+              					}
+              				]
+              			}
+              		},
+              		"response": []
+              	},
+              	{
+              		"name": "listDictStudent",
+              		"request": {
+              			"method": "GET",
+              			"header": [
+              				{
+              					"key": "Authorization",
+              					"value": "{{token}}",
+              					"type": "text"
+              				}
+              			],
+              			"url": {
+              				"raw": "http://{{host}}:8082//admin/app/student/listDictStudent",
+              				"protocol": "http",
+              				"host": [
+              					"{{host}}"
+              				],
+              				"port": "8082",
+              				"path": [
+              					"admin",
+              					"app",
+              					"student",
+              					"listDictStudent"
+              				],
+              				"query": [
+              					{
+              						"key": "studentId",
+              						"value": ""
+              					},
+              					{
+              						"key": "loginMobile",
+              						"value": ""
+              					},
+              					{
+              						"key": "studentName",
+              						"value": ""
+              					},
+              					{
+              						"key": "provinceId",
+              						"value": ""
+              					},
+              					{
+              						"key": "cityId",
+              						"value": ""
+              					},
+              					{
+              						"key": "districtId",
+              						"value": ""
+              					},
+              					{
+              						"key": "gender",
+              						"value": ""
+              					},
+              					{
+              						"key": "birthday",
+              						"value": ""
+              					},
+              					{
+              						"key": "experienceLevel",
+              						"value": ""
+              					},
+              					{
+              						"key": "totalCoin",
+              						"value": ""
+              					},
+              					{
+              						"key": "leftCoin",
+              						"value": ""
+              					},
+              					{
+              						"key": "gradeId",
+              						"value": ""
+              					},
+              					{
+              						"key": "schoolId",
+              						"value": ""
+              					},
+              					{
+              						"key": "registerTime",
+              						"value": ""
+              					},
+              					{
+              						"key": "status",
+              						"value": ""
+              					}
+              				]
+              			}
+              		},
+              		"response": []
+              	}
+              ],
+              "protocolProfileBehavior": {},
+              "_postman_isSubFolder": true
+						}
+					],
+					"protocolProfileBehavior": {},
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "upms",
+					"item": [
+						{
+              "name": "SysUserController",
+              "item": [
+              	{
+              		"name": "add",
+              		"request": {
+              			"method": "POST",
+              			"header": [
+              				{
+              					"key": "Authorization",
+              					"value": "{{token}}",
+              					"type": "text"
+              				}
+              			],
+              			"url": {
+              				"raw": "http://{{host}}:8082//admin/upms/sysUser/add",
+              				"protocol": "http",
+              				"host": [
+              					"{{host}}"
+              				],
+              				"port": "8082",
+              				"path": [
+              					"admin",
+              					"upms",
+              					"sysUser",
+              					"add"
+              				]
+              			},
+              			"body": {
+              				"mode": "raw",
+              				"raw": "{\n\t\"sysUser\" : {\n\t\t\"loginName\" : \"\",\n\t\t\"password\" : \"\",\n\t\t\"showName\" : \"\",\n\t\t\"userType\" : \"\",\n\t\t\"headImageUrl\" : \"\",\n\t\t\"userStatus\" : \"\",\n\t\t\"createUserId\" : \"\",\n\t\t\"createUsername\" : \"\",\n\t\t\"createTime\" : \"\",\n\t\t\"updateTime\" : \"\"\n\t}\n}\n",
+              				"options": {
+              					"raw": {
+              						"language": "json"
+              					}
+              				}
+              			}
+              		},
+              		"response": []
+              	},
+              	{
+              		"name": "update",
+              		"request": {
+              			"method": "POST",
+              			"header": [
+              				{
+              					"key": "Authorization",
+              					"value": "{{token}}",
+              					"type": "text"
+              				}
+              			],
+              			"url": {
+              				"raw": "http://{{host}}:8082//admin/upms/sysUser/update",
+              				"protocol": "http",
+              				"host": [
+              					"{{host}}"
+              				],
+              				"port": "8082",
+              				"path": [
+              					"admin",
+              					"upms",
+              					"sysUser",
+              					"update"
+              				]
+              			},
+              			"body": {
+              				"mode": "raw",
+              				"raw": "{\n\t\"sysUser\" : {\n\t\t\"userId\" : \"\",\n\t\t\"loginName\" : \"\",\n\t\t\"password\" : \"\",\n\t\t\"showName\" : \"\",\n\t\t\"userType\" : \"\",\n\t\t\"headImageUrl\" : \"\",\n\t\t\"userStatus\" : \"\",\n\t\t\"createUserId\" : \"\",\n\t\t\"createUsername\" : \"\",\n\t\t\"createTime\" : \"\",\n\t\t\"updateTime\" : \"\"\n\t}\n}\n",
+              				"options": {
+              					"raw": {
+              						"language": "json"
+              					}
+              				}
+              			}
+              		},
+              		"response": []
+              	},
+              	{
+              		"name": "resetPassword",
+              		"request": {
+              			"method": "POST",
+              			"header": [
+              				{
+              					"key": "Authorization",
+              					"value": "{{token}}",
+              					"type": "text"
+              				}
+              			],
+              			"url": {
+              				"raw": "http://{{host}}:8082//admin/upms/sysUser/resetPassword",
+              				"protocol": "http",
+              				"host": [
+              					"{{host}}"
+              				],
+              				"port": "8082",
+              				"path": [
+              					"admin",
+              					"upms",
+              					"sysUser",
+              					"resetPassword"
+              				]
+              			},
+              			"body": {
+              				"mode": "raw",
+              				"raw": "{\n\t\"userId\" : \"\"\n}\n",
+              				"options": {
+              					"raw": {
+              						"language": "json"
+              					}
+              				}
+              			}
+              		},
+              		"response": []
+              	},
+              	{
+              		"name": "delete",
+              		"request": {
+              			"method": "POST",
+              			"header": [
+              				{
+              					"key": "Authorization",
+              					"value": "{{token}}",
+              					"type": "text"
+              				}
+              			],
+              			"url": {
+              				"raw": "http://{{host}}:8082//admin/upms/sysUser/delete",
+              				"protocol": "http",
+              				"host": [
+              					"{{host}}"
+              				],
+              				"port": "8082",
+              				"path": [
+              					"admin",
+              					"upms",
+              					"sysUser",
+              					"delete"
+              				]
+              			},
+              			"body": {
+              				"mode": "raw",
+              				"raw": "{\n\t\"userId\" : \"\"\n}\n",
+              				"options": {
+              					"raw": {
+              						"language": "json"
+              					}
+              				}
+              			}
+              		},
+              		"response": []
+              	},
+              	{
+              		"name": "list",
+              		"request": {
+              			"method": "POST",
+              			"header": [
+              				{
+              					"key": "Authorization",
+              					"value": "{{token}}",
+              					"type": "text"
+              				}
+              			],
+              			"url": {
+              				"raw": "http://{{host}}:8082//admin/upms/sysUser/list",
+              				"protocol": "http",
+              				"host": [
+              					"{{host}}"
+              				],
+              				"port": "8082",
+              				"path": [
+              					"admin",
+              					"upms",
+              					"sysUser",
+              					"list"
+              				]
+              			},
+              			"body": {
+              				"mode": "raw",
+              				"raw": "{\n\t\"sysUserFilter\" : {\n\t\t\"loginName\" : \"\",\n\t\t\"showName\" : \"\",\n\t\t\"userStatus\" : \"\",\n\t\t\"createTimeStart\" : \"\",\n\t\t\"createTimeEnd\" : \"\"\n\t},\n\t\"orderParam\" : [\n\t\t{\n\t\t\t\"fieldName\" : \"\",\n\t\t\t\"asc\" : \"true\"\n\t\t}\n\t],\n\t\"pageParam\" : {\n\t\t\"pageNum\": \"1\",\n\t\t\"pageSize\": \"10\"\n\t}\n}\n",
+              				"options": {
+              					"raw": {
+              						"language": "json"
+              					}
+              				}
+              			}
+              		},
+              		"response": []
+              	},
+              	{
+              		"name": "view",
+              		"request": {
+              			"method": "GET",
+              			"header": [
+              				{
+              					"key": "Authorization",
+              					"value": "{{token}}",
+              					"type": "text"
+              				}
+              			],
+              			"url": {
+              				"raw": "http://{{host}}:8082//admin/upms/sysUser/view",
+              				"protocol": "http",
+              				"host": [
+              					"{{host}}"
+              				],
+              				"port": "8082",
+              				"path": [
+              					"admin",
+              					"upms",
+              					"sysUser",
+              					"view"
+              				],
+              				"query": [
+              					{
+              						"key": "userId",
+              						"value": ""
+              					}
+              				]
+              			}
+              		},
+              		"response": []
+              	}
+              ],
+              "protocolProfileBehavior": {},
+              "_postman_isSubFolder": true
+						}
+					],
+					"protocolProfileBehavior": {},
+					"_postman_isSubFolder": true
+				}
+			],
+			"protocolProfileBehavior": {},
+			"_postman_isSubFolder": true
+		},
+		{
+			"name": "登录",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "c63506c1-46b6-4add-ab33-3b0080afd35f",
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"登录操作\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    var token = jsonData.data.tokenData;",
+							"    pm.environment.set(\"token\", token);",
+							"    console.log(\"login token \" + token);",
+							"});",
+							""
+						]
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "8cd658df-8043-4d1d-889e-4aa5fd3ec4ae",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "loginName",
+							"value": "admin",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "IP3ccke3GhH45iGHB5qP9p7iZw6xUyj28Ju10rnBiPKOI35sc%2BjI7%2FdsjOkHWMfUwGYGfz8ik31HC2Ruk%2Fhkd9f6RPULTHj7VpFdNdde2P9M4mQQnFBAiPM7VT9iW3RyCtPlJexQ3nAiA09OqG%2F0sIf1kcyveSrulxembARDbDo%3D",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://{{host}}:8082/admin/upms/login/doLogin",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"port": "8082",
+					"path": [
+						"admin",
+						"upms",
+						"login",
+						"doLogin"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "退出登录",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://{{host}}:8082/admin/upms/login/doLogout",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"port": "8082",
+					"path": [
+						"admin",
+						"upms",
+						"login",
+						"doLogout"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "修改密码",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "oldPass",
+							"value": "IP3ccke3GhH45iGHB5qP9p7iZw6xUyj28Ju10rnBiPKOI35sc%2BjI7%2FdsjOkHWMfUwGYGfz8ik31HC2Ruk%2Fhkd9f6RPULTHj7VpFdNdde2P9M4mQQnFBAiPM7VT9iW3RyCtPlJexQ3nAiA09OqG%2F0sIf1kcyveSrulxembARDbDo%3D",
+							"type": "text"
+						},
+						{
+							"key": "newPass",
+							"value": "IP3ccke3GhH45iGHB5qP9p7iZw6xUyj28Ju10rnBiPKOI35sc%2BjI7%2FdsjOkHWMfUwGYGfz8ik31HC2Ruk%2Fhkd9f6RPULTHj7VpFdNdde2P9M4mQQnFBAiPM7VT9iW3RyCtPlJexQ3nAiA09OqG%2F0sIf1kcyveSrulxembARDbDo%3D",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://{{host}}:8082/admin/upms/login/changePassword",
+					"protocol": "http",
+					"host": [
+						"{{host}}"
+					],
+					"port": "8082",
+					"path": [
+						"admin",
+						"upms",
+						"login",
+						"changePassword"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}
