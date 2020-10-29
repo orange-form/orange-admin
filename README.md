@@ -43,7 +43,7 @@
 #### 关于我们
 - S.L 老师，20年开发经验，后台全栈架构师，代码强迫症、性能洁癖、能看出一像素偏差。精通C++/Java/Scala/Web高并发/大数据/C++服务器/视频直播网络技术，略懂容器。
 - J.T 老师，15年开发经验，前端全栈架构师，思维极缜密、号边界王。精通C++/Java/Javascript/Vue & React/C++客户端/Android原生/小程序/视频直播编解码技术。
-- 欢迎加入我们的技术交流QQ群(788581363)。
+- 欢迎加入我们的技术交流QQ群，几乎每天都有30分钟的技术分享。 [![](https://img.shields.io/badge/加入QQ群-788581363-red.svg)](//shang.qq.com/wpa/qunwpa?idkey=590857a1b4c587e2be3d66b9a7e2015109772e777c6451c897dee393489b1661)
 - 由于被恶意举报，如果您通过群号搜索不到，请添加作者的QQ (3510245832)，我们会将您拉入群中。
 ![QQ群](https://images.gitee.com/uploads/images/2020/0924/092230_dda4c368_7431510.png "orange-group1.png")
 
