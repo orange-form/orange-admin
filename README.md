@@ -128,11 +128,24 @@
 </table>
 
 #### 开源项目部署
-1. 数据初始化。
+1. 目录说明
+> 根据用户的反馈，我们已经支持生成纯app后台服务。该服务并不包含权限和表单，以便于用户迅速上手开发app后台。
+- 微服务app后端工程：orange-demo-multi-service-for-app
+- 单体服务app后端工程：orange-demo-single-service-for-app
+- 微服务后端工程：orange-demo-multi-service
+- 微服务前端工程：orange-demo-multi-web
+- 单体服务后端工程：orange-demo-single-service
+- 单体服务前端工程：orange-demo-single-web
+
+2. 数据初始化。
 - 通过常用的数据库访问工具(如：navicat)，执行工程目录下的zz-orange-demo.sql文件。
 - 导入脚本主要负责，数据库创建、数据表创建和测试数据的插入。
 
-2. 环境准备。    
+3. Api接口文档
+- Knife4j文档访问方式为: http://localhost:8082/doc.html#/plus。(以上四个后台服务均支持)
+- Postman Api文档和Markdown文档，位于工程根目录的zz-resource/api-docs子目录下，Postman-Api.json可直接导入Postman。(仅app后台服务支持)
+
+4. 环境准备。    
 docker是必选组件。通过docker-compose命令，可快速启停服务所依赖的服务中间件，如nacos、redis、zookeeper、kafka和sentinel dashboard等。中间件的控制台访问方式，可参考工程目录下的README文件。
 ```shell
 # 假定当前目录为工程根目录。
@@ -146,20 +159,20 @@ docker-compose start
 docker-compose stop
 ```
 
-3. 后台工程导入。    
+5. 后台工程导入。    
 以Maven的形式导入IDE，直接编译运行即可。具体可参考我们的开发文档[教学版微服务工程导入章节](http://www.orangeforms.com/development-doc/edu-multi/#工程导入)。
 
-4. 后台服务配置。
+6. 后台服务配置。
 - 进入工程目录下的 zz-resource/config-data/ 子目录，修改和数据库相关的配置，具体操作详见下图及文字注释。
 ![](https://images.gitee.com/uploads/images/2020/0812/203758_0f3fd28e_7431510.png)
 - 将该目录下的所有配置文件导入nacos。nacos控制台访问地址 localhost:8848/nacos，用户名和密码 nacos/nacos。
 - 具体导入方式可参考我们的开发文档[服务配置章节](http://www.orangeforms.com/development-doc/service-config/#微服务-nacos)。
 
-5. 后台服务启动。    
+7. 后台服务启动。    
 这里仅以upms服务为例。在开发环境中，为每个微服务启动项配置main class，下图为IntelliJ IDEA中的配置截图，配置后点击Debug/Run按钮即可启动。
 ![](https://images.gitee.com/uploads/images/2020/0812/205946_da5bf311_7431510.png)
 
-6. 前端工程导入和启动。
+8. 前端工程导入和启动。
 - 将前端工程导入vscode。
 - 修改 src -> core -> config 下的配置文件，将baseUrl修改为您服务器地址。
 - 安装依赖，执行 npm install。
