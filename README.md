@@ -215,7 +215,7 @@ docker-compose stop
 <table>
 <tr>
   <td><img src="https://images.gitee.com/uploads/images/2020/1029/193003_4d88919b_7431510.png"/></td>
-  <td><img src="https://images.gitee.com/uploads/images/2020/1029/193215_90eac360_7431510.png"/></td>
+  <td><img src="https://images.gitee.com/uploads/images/2020/1101/142627_a55d1ff0_7431510.png"/></td>
 </tr>
 <tr>
   <td><img src="https://images.gitee.com/uploads/images/2020/1029/193354_a02b1181_7431510.png"/></td>
