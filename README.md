@@ -138,7 +138,7 @@
 - 单体服务前端工程：orange-demo-single-web
 
 2. 数据初始化。
-- 通过常用的数据库访问工具(如：navicat)，执行工程目录下的zz-orange-demo.sql文件。
+- 通过常用的数据库访问工具(如：navicat)，执行工程目录下的zz-resource/db-scripts/zz-orange-demo.sql文件。
 - 导入脚本主要负责，数据库创建、数据表创建和测试数据的插入。
 
 3. Api接口文档
