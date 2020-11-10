@@ -59,7 +59,7 @@
 - 前端: Element (Vue) / Ant Design (React) + ECharts / AntV + Axios + Webpack。
 - 后端: Spring Boot / Spring Cloud / Spring Cloud Alibaba + Spring Security OAuth2 + Mybatis + Jwt。
 - 工具库: Hutool + Guava + Caffeine + Lombok + MapStruct + 通用Mapper + Knife4j + qdox。
-- 服务组件: Redis + Zookeeper + Consul + Apollo + XXL-Job + Quartz + Minio + Kafka + Nacos + Sentinel + Nepxion Discovery。
+- 服务组件: Redis + Zookeeper + Consul + Apollo + XXL-Job + Quartz + Seata + Minio + Kafka + Nacos + Sentinel + Nepxion Discovery。
 - 系统监控: ELK + PinPoint / SkyWalking + Grafana + Prometheus。
 
 #### 基础功能
