@@ -28,7 +28,7 @@
     </el-form>
     <el-row>
       <el-col :span="24">
-        <el-table ref="StudentActionTrans" :data="formStudentActionDetail.StudentActionTrans.impl.dataList" size="mini" @sort-change="formStudentActionDetail.StudentActionTrans.impl.onSortChange"
+        <el-table ref="studentActionTrans" :data="formStudentActionDetail.StudentActionTrans.impl.dataList" size="mini" @sort-change="formStudentActionDetail.StudentActionTrans.impl.onSortChange"
           header-cell-class-name="table-header-gray">
           <el-table-column label="序号" header-align="center" align="center" type="index" width="55px" :index="formStudentActionDetail.StudentActionTrans.impl.getTableIndex" />
           <el-table-column label="学生名称" prop="studentName">
@@ -142,6 +142,12 @@ export default {
      * 学生行为流水数据获取函数，返回Promise
      */
     loadStudentActionTransData (params) {
+      if (
+        this.formStudentActionDetail.formFilterCopy.statsDate == null
+      ) {
+        this.formStudentActionDetail.StudentActionTrans.impl.clearTable();
+        return Promise.reject();
+      }
       if (params == null) params = {};
       params = {
         ...params,

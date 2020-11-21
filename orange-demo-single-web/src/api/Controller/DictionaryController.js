@@ -58,7 +58,7 @@ export default class DictionaryController {
   }
   static dictAreaCode (sender, params, axiosOption, httpOption) {
     return new Promise((resolve, reject) => {
-      sender.doUrl('/admin/app/areaCode/listDictAreaCode', 'get', params, axiosOption, httpOption).then(res => {
+      sender.doUrl('/admin/app/areaCode/listDict', 'get', params, axiosOption, httpOption).then(res => {
         let dictData = new staticDict.DictionaryBase();
         dictData.setList(res.data);
         resolve(dictData);
@@ -69,7 +69,7 @@ export default class DictionaryController {
   }
   static dictAreaCodeByParentId (sender, params, axiosOption, httpOption) {
     return new Promise((resolve, reject) => {
-      sender.doUrl('/admin/app/areaCode/listDictAreaCodeByParentId', 'get', params, axiosOption, httpOption).then(res => {
+      sender.doUrl('/admin/app/areaCode/listDictByParentId', 'get', params, axiosOption, httpOption).then(res => {
         let dictData = new staticDict.DictionaryBase();
         dictData.setList(res.data);
         resolve(dictData);
@@ -95,7 +95,7 @@ export default class DictionaryController {
   }
   static dictCourse (sender, params, axiosOption, httpOption) {
     return new Promise((resolve, reject) => {
-      sender.doUrl('/admin/app/course/listDictCourse', 'get', params, axiosOption, httpOption).then(res => {
+      sender.doUrl('/admin/app/course/listDict', 'get', params, axiosOption, httpOption).then(res => {
         let dictData = new staticDict.DictionaryBase();
         dictData.setList(res.data);
         resolve(dictData);
@@ -106,7 +106,7 @@ export default class DictionaryController {
   }
   static dictGrade (sender, params, axiosOption, httpOption) {
     return new Promise((resolve, reject) => {
-      sender.doUrl('/admin/app/grade/listDictGrade', 'get', params, axiosOption, httpOption).then(res => {
+      sender.doUrl('/admin/app/grade/listDict', 'get', params, axiosOption, httpOption).then(res => {
         let dictData = new staticDict.DictionaryBase();
         dictData.setList(res.data);
         resolve(dictData);
@@ -132,7 +132,7 @@ export default class DictionaryController {
   }
   static dictSchoolInfo (sender, params, axiosOption, httpOption) {
     return new Promise((resolve, reject) => {
-      sender.doUrl('/admin/app/schoolInfo/listDictSchoolInfo', 'get', params, axiosOption, httpOption).then(res => {
+      sender.doUrl('/admin/app/schoolInfo/listDict', 'get', params, axiosOption, httpOption).then(res => {
         let dictData = new staticDict.DictionaryBase();
         dictData.setList(res.data);
         resolve(dictData);
@@ -143,7 +143,7 @@ export default class DictionaryController {
   }
   static dictStudent (sender, params, axiosOption, httpOption) {
     return new Promise((resolve, reject) => {
-      sender.doUrl('/admin/app/student/listDictStudent', 'get', params, axiosOption, httpOption).then(res => {
+      sender.doUrl('/admin/app/student/listDict', 'get', params, axiosOption, httpOption).then(res => {
         let dictData = new staticDict.DictionaryBase();
         dictData.setList(res.data);
         resolve(dictData);

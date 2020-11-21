@@ -21,23 +21,25 @@ public interface SysPermCodeMapper extends BaseDaoMapper<SysPermCode> {
      * @param userId 用户Id。
      * @return 该用户的权限字列表。
      */
-    List<String> getPermCodeListByUserId(Long userId);
+    List<String> getPermCodeListByUserId(@Param("userId") Long userId);
 
     /**
-     * 获取该菜单的权限字和关联的权限资源列表。
+     * 查询权限字的用户列表。同时返回详细的分配路径。
      *
-     * @param menuId 菜单Id。
-     * @return 权限字和关联的权限资源列表。
+     * @param permCodeId 权限字Id。
+     * @param loginName  登录名。
+     * @return 包含从权限字到用户的完整权限分配路径信息的查询结果列表。
      */
-    List<Map<String, Object>> getPermCodeListByMenuId(Long menuId);
+    List<Map<String, Object>> getSysUserListWithDetail(
+            @Param("permCodeId") Long permCodeId, @Param("loginName") String loginName);
 
     /**
-     * 获取指定用户的权限字列表。
+     * 查询权限字的角色列表。同时返回详细的分配路径。
      *
-     * @param loginName 精确匹配用户登录名。
-     * @param permCode  模糊匹配的权限字名，LIKE %permCode%。
-     * @return 权限字列表。
+     * @param permCodeId 权限字Id。
+     * @param roleName   角色名。
+     * @return 包含从权限字到角色的权限分配路径信息的查询结果列表。
      */
-    List<SysPermCode> getUserPermCodeListByFilter(
-            @Param("loginName") String loginName, @Param("permCode") String permCode);
+    List<Map<String, Object>> getSysRoleListWithDetail(
+            @Param("permCodeId") Long permCodeId, @Param("roleName") String roleName);
 }

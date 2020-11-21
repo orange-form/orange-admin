@@ -33,44 +33,6 @@
         </where>
     </select>
 
-    <select id="getUserPermListByFilter" resultType="map">
-        SELECT
-            pm.module_id moduleId,
-            pm.module_name moduleName,
-            p.perm_id permId,
-            p.perm_name permName,
-            p.create_time createTime,
-            p.url
-        FROM
-            zz_sys_user u,
-            zz_sys_user_role ur,
-            zz_sys_role_menu rm,
-            zz_sys_menu_perm_code mpc,
-            zz_sys_perm_code_perm pcp,
-            zz_sys_perm p,
-            zz_sys_perm_module pm
-        <where>
-            AND u.login_name = #{loginName}
-            AND u.deleted_flag = ${@com.orange.demo.common.core.constant.GlobalDeletedFlag@NORMAL}
-            AND u.user_id = ur.user_id
-            AND ur.role_id = rm.role_id
-            AND rm.menu_id = mpc.menu_id
-            AND mpc.perm_code_id = pcp.perm_code_id
-            AND pcp.perm_id = p.perm_id
-            AND p.module_id = pm.module_id
-            AND p.deleted_flag = ${@com.orange.demo.common.core.constant.GlobalDeletedFlag@NORMAL}
-            AND pm.deleted_flag = ${@com.orange.demo.common.core.constant.GlobalDeletedFlag@NORMAL}
-            <if test="url != null and url != ''">
-                <bind name= "safeUrl" value= "'%' + url + '%'" />
-                AND p.url LIKE #{safeUrl}
-            </if>
-            <if test="moduleId != null">
-                AND p.module_id = #{moduleId}
-            </if>
-        </where>
-        ORDER BY pm.module_id, p.create_time
-    </select>
-
     <select id="getPermListByPermCodeId" resultMap="BaseResultMap">
         SELECT
             p.*
@@ -87,48 +49,101 @@
         </if>
     </select>
 
-    <select id="getPermUserListById" resultType="map">
+    <!-- 以下查询仅用于权限分配的问题定位，由于关联表较多，可能会给系统运行带来性能影响 -->
+    <select id="getSysUserListWithDetail" resultType="map">
         SELECT
-            u.user_id,
-            u.login_name
-            u.show_name
+            u.user_id userId,
+            u.login_name loginName,
+            u.show_name showName,
+            r.role_id roleId,
+            r.role_name roleName,
+            m.menu_id menuId,
+            m.menu_name menuName,
+            m.menu_type menuType,
+            pc.perm_code_id permCodeId,
+            pc.perm_code permCode,
+            pc.perm_code_type permCodeType
         FROM
-            zz_sys_perm p,
             zz_sys_perm_code_perm pcp,
+            zz_sys_perm_code pc,
             zz_sys_menu_perm_code mpc,
+            zz_sys_menu m,
             zz_sys_role_menu rm,
+            zz_sys_role r,
             zz_sys_user_role ur,
             zz_sys_user u
         <where>
-            AND p.perm_id = #{permId}
-            AND p.perm_id = pcp.perm_id
+            AND pcp.perm_id = #{permId}
+            AND pcp.perm_code_id = pc.perm_code_id
             AND pcp.perm_code_id = mpc.perm_code_id
+            AND mpc.menu_id = m.menu_id
             AND mpc.menu_id = rm.menu_id
+            AND rm.role_id = r.role_id
             AND rm.role_id = ur.role_id
             AND ur.user_id = u.user_id
-            AND u.deleted_flag = ${@com.orange.demo.common.core.constant.GlobalDeletedFlag@NORMAL}
-            AND p.deleted_flag = ${@com.orange.demo.common.core.constant.GlobalDeletedFlag@NORMAL}
+            <if test="loginName != null and loginName != ''">
+                AND u.login_name = #{loginName}
+            </if>
         </where>
+        ORDER BY
+            u.user_id, r.role_id, m.menu_id, pc.perm_code_id
     </select>
 
-    <select id="getPermRoleListById" resultType="map">
+    <select id="getSysRoleListWithDetail" resultType="map">
         SELECT
-            r.role_id,
-            r.role_name
+            r.role_id roleId,
+            r.role_name roleName,
+            m.menu_id menuId,
+            m.menu_name menuName,
+            m.menu_type menuType,
+            pc.perm_code_id permCodeId,
+            pc.perm_code permCode,
+            pc.perm_code_type permCodeType
         FROM
-            zz_sys_perm p,
             zz_sys_perm_code_perm pcp,
+            zz_sys_perm_code pc,
             zz_sys_menu_perm_code mpc,
+            zz_sys_menu m,
             zz_sys_role_menu rm,
             zz_sys_role r
         <where>
-            AND p.perm_id = #{permId}
-            AND p.perm_id = pcp.perm_id
-            AND p.deleted_flag = ${@com.orange.demo.common.core.constant.GlobalDeletedFlag@NORMAL}
-            AND r.deleted_flag = ${@com.orange.demo.common.core.constant.GlobalDeletedFlag@NORMAL}
+            AND pcp.perm_id = #{permId}
+            AND pcp.perm_code_id = pc.perm_code_id
             AND pcp.perm_code_id = mpc.perm_code_id
+            AND mpc.menu_id = m.menu_id
             AND mpc.menu_id = rm.menu_id
             AND rm.role_id = r.role_id
+            <if test="roleName != null and roleName != ''">
+                AND r.role_name = #{roleName}
+            </if>
         </where>
+        ORDER BY
+            r.role_id, m.menu_id, pc.perm_code_id
+    </select>
+
+    <select id="getSysMenuListWithDetail" resultType="map">
+        SELECT
+            m.menu_id menuId,
+            m.menu_name menuName,
+            m.menu_type menuType,
+            pc.perm_code_id permCodeId,
+            pc.perm_code permCode,
+            pc.perm_code_type permCodeType
+        FROM
+            zz_sys_perm_code_perm pcp,
+            zz_sys_perm_code pc,
+            zz_sys_menu_perm_code mpc,
+            zz_sys_menu m
+        <where>
+            AND pcp.perm_id = #{permId}
+            AND pcp.perm_code_id = pc.perm_code_id
+            AND pcp.perm_code_id = mpc.perm_code_id
+            AND mpc.menu_id = m.menu_id
+            <if test="menuName != null and menuName != ''">
+                AND m.menu_name = #{menuName}
+            </if>
+        </where>
+        ORDER BY
+            m.menu_id, pc.perm_code_id
     </select>
 </mapper>

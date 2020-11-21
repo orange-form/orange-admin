@@ -9,8 +9,6 @@ import com.orange.demo.common.core.util.*;
 import com.orange.demo.common.core.constant.*;
 import com.orange.demo.common.core.annotation.MyRequestBody;
 import com.orange.demo.common.core.validator.UpdateGroup;
-import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
-import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -24,7 +22,6 @@ import javax.validation.groups.Default;
  * @author Jerry
  * @date 2020-09-24
  */
-@Api(tags = "校区数据管理接口")
 @Slf4j
 @RestController
 @RequestMapping("/admin/app/schoolInfo")
@@ -39,18 +36,17 @@ public class SchoolInfoController {
      * @param schoolInfo 新增对象。
      * @return 应答结果对象，包含新增对象主键Id。
      */
-    @ApiOperationSupport(ignoreParameters = {"schoolInfo.userId"})
     @PostMapping("/add")
     public ResponseResult<Long> add(@MyRequestBody SchoolInfo schoolInfo) {
         String errorMessage = MyCommonUtil.getModelValidationError(schoolInfo);
         if (errorMessage != null) {
-            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
         // 验证关联Id的数据合法性
         CallResult callResult = schoolInfoService.verifyRelatedData(schoolInfo, null);
         if (!callResult.isSuccess()) {
             errorMessage = callResult.getErrorMessage();
-            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
         schoolInfo = schoolInfoService.saveNew(schoolInfo);
         return ResponseResult.success(schoolInfo.getSchoolId());
@@ -66,12 +62,12 @@ public class SchoolInfoController {
     public ResponseResult<Void> update(@MyRequestBody SchoolInfo schoolInfo) {
         String errorMessage = MyCommonUtil.getModelValidationError(schoolInfo, Default.class, UpdateGroup.class);
         if (errorMessage != null) {
-            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
         // 验证关联Id的数据合法性
         SchoolInfo originalSchoolInfo = schoolInfoService.getById(schoolInfo.getSchoolId());
         if (originalSchoolInfo == null) {
-            //NOTE: 修改下面方括号中的话述
+            // NOTE: 修改下面方括号中的话述
             errorMessage = "数据验证失败，当前 [数据] 并不存在，请刷新后重试！";
             return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST, errorMessage);
         }
@@ -79,7 +75,7 @@ public class SchoolInfoController {
         CallResult callResult = schoolInfoService.verifyRelatedData(schoolInfo, originalSchoolInfo);
         if (!callResult.isSuccess()) {
             errorMessage = callResult.getErrorMessage();
-            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
         if (!schoolInfoService.update(schoolInfo, originalSchoolInfo)) {
             return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST);
@@ -159,8 +155,8 @@ public class SchoolInfoController {
      * @param filter 过滤对象。
      * @return 应答结果对象，包含的数据为 List<Map<String, String>>，map中包含两条记录，key的值分别是id和name，value对应具体数据。
      */
-    @GetMapping("/listDictSchoolInfo")
-    public ResponseResult<List<Map<String, Object>>> listDictSchoolInfo(SchoolInfo filter) {
+    @GetMapping("/listDict")
+    public ResponseResult<List<Map<String, Object>>> listDict(SchoolInfo filter) {
         List<SchoolInfo> resultList = schoolInfoService.getListByFilter(filter, null);
         return ResponseResult.success(BeanQuery.select(
                 "schoolId as id", "schoolName as name").executeFrom(resultList));

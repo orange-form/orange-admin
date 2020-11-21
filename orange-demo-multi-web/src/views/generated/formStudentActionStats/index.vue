@@ -20,7 +20,7 @@
     </el-form>
     <el-row>
       <el-col :span="24">
-        <el-table ref="StudentActionStats" :data="formStudentActionStats.StudentActionStats.impl.dataList" size="mini" @sort-change="formStudentActionStats.StudentActionStats.impl.onSortChange"
+        <el-table ref="studentActionStats" :data="formStudentActionStats.StudentActionStats.impl.dataList" size="mini" @sort-change="formStudentActionStats.StudentActionStats.impl.onSortChange"
           header-cell-class-name="table-header-gray">
           <el-table-column label="序号" header-align="center" align="center" type="index" width="55px" :index="formStudentActionStats.StudentActionStats.impl.getTableIndex" />
           <el-table-column label="统计日期">

@@ -14,7 +14,6 @@
     <modules>
         <module>common-core</module>
         <module>common-redis</module>
-        <module>common-minio</module>
         <module>common-sequence</module>
         <module>common-swagger</module>
     </modules>

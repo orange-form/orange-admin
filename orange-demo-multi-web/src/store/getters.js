@@ -12,7 +12,7 @@ export default {
     return state.documentClientHeight;
   },
   getMainContextHeight: (state) => {
-    return state.documentClientHeight - (state.supportTags ? 130 : 90);
+    return state.documentClientHeight - (state.supportTags ? 140 : 100);
   },
   getUserInfo: (state) => {
     return state.userInfo;

@@ -76,6 +76,9 @@ public class MyGroupParam extends ArrayList<MyGroupParam.GroupInfo> {
 
     private static GroupBaseData parseGroupBaseData(GroupInfo groupInfo, Class<?> modelClazz) {
         GroupBaseData baseData = new GroupBaseData();
+        if (StringUtils.isBlank(groupInfo.fieldName)) {
+            throw new IllegalArgumentException("GroupInfo.fieldName can't be EMPTY");
+        }
         String[] stringArray = StringUtils.split(groupInfo.fieldName,'.');
         if (stringArray.length == 1) {
             baseData.modelName = modelClazz.getSimpleName();

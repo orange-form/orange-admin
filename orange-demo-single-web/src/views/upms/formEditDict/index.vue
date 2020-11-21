@@ -1,11 +1,18 @@
 <template>
   <el-form ref="form" :model="formData" :rules="rules" label-width="80px" size="mini" label-position="right" @submit.native.prevent>
     <el-row :gutter="20">
+      <el-form-item v-if="dictInfo.treeFlag" label="父字典">
+        <el-cascader style="width: 100%;"
+          :options="dictData" v-model="parentPath"
+          :props="{label: 'name', value: 'id'}" placeholder="请选择所属父字典"
+          :clearable="true" :change-on-select="true"
+          @change="onParentChange"
+        />
+      </el-form-item>
       <el-form-item label="名称" prop="name">
         <el-input v-model="formData.name" placeholder="字典名称" clearable />
       </el-form-item>
     </el-row>
-    <!-- 弹窗下发按钮栏，必须设置class为dialog-btn-layer -->
     <el-row type="flex" justify="end" class="dialog-btn-layer">
       <el-button size="mini" @click="onCancel(false)" >取消</el-button>
       <el-button type="primary" size="mini" @click="onSubmit">确定</el-button>
@@ -14,6 +21,8 @@
 </template>
 
 <script>
+import { findTreeNodePath } from '@/utils';
+
 export default {
   name: 'DictEdit',
   props: {
@@ -24,10 +33,17 @@ export default {
     currentData: {
       type: Object,
       default: undefined
+    },
+    dictData: {
+      type: Array,
+      default: () => {
+        return []
+      }
     }
   },
   data () {
     return {
+      parentPath: [],
       formData: {
         name: undefined,
         id: undefined
@@ -38,6 +54,13 @@ export default {
     }
   },
   methods: {
+    onParentChange (values) {
+      if (Array.isArray(values) && values.length > 0) {
+        this.formData.parentId = values[values.length - 1];
+      } else {
+        this.formData.parentId = undefined;
+      }
+    },
     onCancel (isSuccess = false) {
       if (this.observer != null) {
         this.observer.cancel(isSuccess);
@@ -49,6 +72,7 @@ export default {
           let params = {};
           params[this.dictInfo.variableName] = {};
           params[this.dictInfo.variableName][this.dictInfo.nameKey] = this.formData.name;
+          params[this.dictInfo.variableName][this.dictInfo.parentKey] = this.formData.parentId;
 
           if (this.formData.id == null) {
             this.dictInfo.addApi(this, params).then(res => {
@@ -73,6 +97,10 @@ export default {
     if (this.currentData != null) {
       this.formData.id = this.currentData.id;
       this.formData.name = this.currentData.name;
+      if (this.dictInfo.treeFlag && this.currentData.parentId != null && this.currentData.parentId !== '') {
+        this.formData.parentId = this.currentData.parentId;
+        this.parentPath = findTreeNodePath(this.dictData, this.formData.parentId, 'id');
+      }
     }
   }
 }

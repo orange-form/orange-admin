@@ -1,6 +1,6 @@
 export default class SystemController {
   static login (sender, params, axiosOption, httpOption) {
-    return sender.doUrl('admin/upms/login/doLogin', 'get', params, axiosOption, httpOption);
+    return sender.doUrl('admin/upms/login/doLogin', 'post', params, axiosOption, httpOption);
   }
 
   static logout (sender, params, axiosOption, httpOption) {
@@ -78,10 +78,6 @@ export default class SystemController {
 
   static viewMenu (sender, params, axiosOption, httpOption) {
     return sender.doUrl('admin/upms/sysMenu/view', 'get', params, axiosOption, httpOption);
-  }
-
-  static listMenuPerm (sender, params, axiosOption, httpOption) {
-    return sender.doUrl('admin/upms/sysMenu/listMenuPerm', 'get', params, axiosOption, httpOption);
   }
 
   // 权限字接口
@@ -178,24 +174,56 @@ export default class SystemController {
     return sender.doUrl('admin/upms/sysRole/listAllRolesByPermCode', 'post', params, axiosOption, httpOption);
   }
 
-  /**
-   * @param params {}
-   */
-  static queryRoleByURL (sender, params, axiosOption, httpOption) {
-    return sender.doUrl('admin/upms/sysRole/listAllRolesByPerm', 'post', params, axiosOption, httpOption);
+  // 权限查询
+  static listSysPermWithDetail (sender, params, axiosOption, httpOption) {
+    return sender.doUrl('admin/upms/sysUser/listSysPermWithDetail', 'get', params, axiosOption, httpOption);
   }
 
-  /**
-   * @param params {}
-   */
-  static queryPerm (sender, params, axiosOption, httpOption) {
-    return sender.doUrl('admin/upms/sysUser/listAllPerms', 'post', params, axiosOption, httpOption);
+  static listSysPermCodeWithDetail (sender, params, axiosOption, httpOption) {
+    return sender.doUrl('admin/upms/sysUser/listSysPermCodeWithDetail', 'get', params, axiosOption, httpOption);
   }
 
-  /**
-   * @param params {}
-   */
-  static queryPermCode (sender, params, axiosOption, httpOption) {
-    return sender.doUrl('admin/upms/sysRole/deleteUserRole', 'post', params, axiosOption, httpOption);
+  static listSysMenuWithDetail (sender, params, axiosOption, httpOption) {
+    return sender.doUrl('admin/upms/sysUser/listSysMenuWithDetail', 'get', params, axiosOption, httpOption);
+  }
+
+  static listSysPermByRoleIdWithDetail (sender, params, axiosOption, httpOption) {
+    return sender.doUrl('admin/upms/sysRole/listSysPermWithDetail', 'get', params, axiosOption, httpOption);
+  }
+
+  static listSysPermCodeByRoleIdWithDetail (sender, params, axiosOption, httpOption) {
+    return sender.doUrl('admin/upms/sysRole/listSysPermCodeWithDetail', 'get', params, axiosOption, httpOption);
+  }
+
+  static listMenuPermCode (sender, params, axiosOption, httpOption) {
+    return sender.doUrl('admin/upms/sysMenu/listMenuPerm', 'get', params, axiosOption, httpOption);
+  }
+
+  static listSysPermByMenuIdWithDetail (sender, params, axiosOption, httpOption) {
+    return sender.doUrl('admin/upms/sysMenu/listSysPermWithDetail', 'get', params, axiosOption, httpOption);
+  }
+
+  static listSysUserByMenuIdWithDetail (sender, params, axiosOption, httpOption) {
+    return sender.doUrl('admin/upms/sysMenu/listSysUserWithDetail', 'get', params, axiosOption, httpOption);
+  }
+
+  static listSysUserByPermCodeIdWithDetail (sender, params, axiosOption, httpOption) {
+    return sender.doUrl('admin/upms/sysPermCode/listSysUserWithDetail', 'get', params, axiosOption, httpOption);
+  }
+
+  static listSysRoleByPermCodeIdWithDetail (sender, params, axiosOption, httpOption) {
+    return sender.doUrl('admin/upms/sysPermCode/listSysRoleWithDetail', 'get', params, axiosOption, httpOption);
+  }
+
+  static listSysUserByPermIdWithDetail (sender, params, axiosOption, httpOption) {
+    return sender.doUrl('admin/upms/sysPerm/listSysUserWithDetail', 'get', params, axiosOption, httpOption);
+  }
+
+  static listSysRoleByPermIdWithDetail (sender, params, axiosOption, httpOption) {
+    return sender.doUrl('admin/upms/sysPerm/listSysRoleWithDetail', 'get', params, axiosOption, httpOption);
+  }
+
+  static listSysMenuByPermIdWithDetail (sender, params, axiosOption, httpOption) {
+    return sender.doUrl('admin/upms/sysPerm/listSysMenuWithDetail', 'get', params, axiosOption, httpOption);
   }
 }

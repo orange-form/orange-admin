@@ -62,16 +62,21 @@
                 <span>{{formatDateByStatsType(scope.row.createTime, 'day')}}</span>
               </template>
             </el-table-column>
-            <el-table-column label="操作" fixed="right" width="100px">
+            <el-table-column label="操作" fixed="right" width="150px">
               <template slot-scope="scope">
-              <el-button @click="onEditPermModuleClick(scope.row)" type="text" size="mini"
-                :disabled="!checkPermCodeExist('formSysPerm:fragmentSysPerm:updatePerm')">
-                编辑
-              </el-button>
-              <el-button @click="onDeleteClick(scope.row)" type="text" size="mini"
-                :disabled="!checkPermCodeExist('formSysPerm:fragmentSysPerm:deletePerm')">
-                删除
-              </el-button>
+                <el-button @click="onEditPermModuleClick(scope.row)" type="text" size="mini"
+                  :disabled="!checkPermCodeExist('formSysPerm:fragmentSysPerm:updatePerm')">
+                  编辑
+                </el-button>
+                <el-button @click="onDeleteClick(scope.row)" type="text" size="mini"
+                  :disabled="!checkPermCodeExist('formSysPerm:fragmentSysPerm:deletePerm')">
+                  删除
+                </el-button>
+                <el-button class="btn-table-primary" type="text" size="mini"
+                  v-if="checkPermCodeExist('formSysPerm:fragmentSysPerm:listSysPermPermDetail')"
+                  @click="onSysPermDetailClick(scope.row)">
+                  权限详情
+                </el-button>
               </template>
             </el-table-column>
           </el-table>
@@ -104,6 +109,7 @@ import { uploadMixin, statsDateRangeMixin, cachePageMixin, cachedPageChildMixin 
 import { SystemController, DictionaryController } from '@/api';
 import formEditSysPerm from '../formEditSysPerm';
 import formEditSysPermModule from '../formEditSysPermModule';
+import FormSysPermDetail from './formSysPermDetail.vue';
 
 export default {
   name: 'formSysPerm',
@@ -185,6 +191,14 @@ export default {
      * 所属权限模块选中值改变
      */
     onPermModuleIdValueChange (value) {
+    },
+    onSysPermDetailClick (row) {
+      this.$dialog.show('权限详情', FormSysPermDetail, {
+        area: '1200px',
+        offset: '30px'
+      }, {
+        permId: row.permId
+      }).then(res => {}).catch(e => {});
     },
     /**
      * 更新权限管理

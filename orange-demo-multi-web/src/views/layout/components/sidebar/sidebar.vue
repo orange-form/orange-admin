@@ -1,13 +1,13 @@
 <template>
   <div style="height: 100%; position: relative;" class="sidebar-bg">
     <div class="sidebar-title">
-      <img :src="logoImage" style="margin: 20px 60px 10px 60px; width: 80px; height: 80px; border-radius: 50%;" />
+      <img :src="logoImage" style="width: 40px; height: 40px; border-radius: 50%;" />
       <p class="sidebar-title-text">{{getProjectName()}}</p>
     </div>
-    <div style="height: 100%; padding-bottom: 160px;">
+    <div style="height: 100%; padding-bottom: 60px;">
       <el-scrollbar wrap-class="scrollbar_dropdown__wrap" style="height: 100%;">
         <el-menu ref="menu" mode="vertical" :default-active="getCurrentMenuId" :unique-opened="true" @select="selectMenu"
-          text-color="white" active-text-color="white" :collapse="getCollapse" >
+          :active-text-color="activeTextColor" :collapse="getCollapse" >
           <template v-for="menu in getMenuList">
             <menu-item :menu="menu" :key="menu.menuId" />
           </template>
@@ -35,6 +35,9 @@ export default {
     'menu-item': menuItem
   },
   computed: {
+    activeTextColor () {
+      return undefined;
+    },
     getCollapseStyle () {
       return [{
         left: this.collapseLeft

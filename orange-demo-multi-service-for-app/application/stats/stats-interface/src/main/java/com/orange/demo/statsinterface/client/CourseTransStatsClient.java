@@ -1,11 +1,10 @@
 package com.orange.demo.statsinterface.client;
 
+import com.orange.demo.common.core.base.client.BaseFallbackFactory;
 import com.orange.demo.common.core.config.FeignConfig;
 import com.orange.demo.common.core.base.client.BaseClient;
-import com.orange.demo.common.core.constant.ErrorCodeEnum;
 import com.orange.demo.common.core.object.*;
 import com.orange.demo.statsinterface.dto.CourseTransStatsDto;
-import feign.hystrix.FallbackFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.stereotype.Component;
@@ -72,6 +71,26 @@ public interface CourseTransStatsClient extends BaseClient<CourseTransStatsDto, 
     ResponseResult<Boolean> existId(@RequestParam("statsId") Long statsId);
 
     /**
+     * 删除主键Id关联的对象。
+     *
+     * @param statsId 主键Id。
+     * @return 应答结果对象。
+     */
+    @Override
+    @PostMapping("/courseTransStats/delete")
+    ResponseResult<Void> delete(@RequestParam("statsId") Long statsId);
+
+    /**
+     * 删除符合过滤条件的数据。
+     *
+     * @param filter 过滤对象。
+     * @return 应答结果对象，包含删除数量。
+     */
+    @Override
+    @PostMapping("/courseTransStats/deleteBy")
+    ResponseResult<Integer> deleteBy(@RequestBody CourseTransStatsDto filter);
+
+    /**
      * 获取远程主对象中符合查询条件的数据列表。
      *
      * @param queryParam 查询参数。
@@ -124,54 +143,8 @@ public interface CourseTransStatsClient extends BaseClient<CourseTransStatsDto, 
 
     @Component("StatsCourseTransStatsClientFallbackFactory")
     @Slf4j
-    class CourseTransStatsClientFallbackFactory implements FallbackFactory<CourseTransStatsClient>, CourseTransStatsClient {
-
-        @Override
-        public ResponseResult<List<CourseTransStatsDto>> listByIds(
-                Set<Long> statsIds, Boolean withDict) {
-            return ResponseResult.error(ErrorCodeEnum.RPC_DATA_ACCESS_FAILED);
-        }
-
-        @Override
-        public ResponseResult<CourseTransStatsDto> getById(
-                Long statsId, Boolean withDict) {
-            return ResponseResult.error(ErrorCodeEnum.RPC_DATA_ACCESS_FAILED);
-        }
-
-        @Override
-        public ResponseResult<Boolean> existIds(Set<Long> statsIds) {
-            return ResponseResult.error(ErrorCodeEnum.RPC_DATA_ACCESS_FAILED);
-        }
-
-        @Override
-        public ResponseResult<Boolean> existId(Long statsId) {
-            return ResponseResult.error(ErrorCodeEnum.RPC_DATA_ACCESS_FAILED);
-        }
-
-        @Override
-        public ResponseResult<List<CourseTransStatsDto>> listBy(MyQueryParam queryParam) {
-            return ResponseResult.error(ErrorCodeEnum.RPC_DATA_ACCESS_FAILED);
-        }
-
-        @Override
-        public ResponseResult<CourseTransStatsDto> getBy(MyQueryParam queryParam) {
-            return ResponseResult.error(ErrorCodeEnum.RPC_DATA_ACCESS_FAILED);
-        }
-
-        @Override
-        public ResponseResult<List<Map<String, Object>>> listMapBy(MyQueryParam queryParam) {
-            return ResponseResult.error(ErrorCodeEnum.RPC_DATA_ACCESS_FAILED);
-        }
-
-        @Override
-        public ResponseResult<Integer> countBy(MyQueryParam queryParam) {
-            return ResponseResult.error(ErrorCodeEnum.RPC_DATA_ACCESS_FAILED);
-        }
-
-        @Override
-        public ResponseResult<List<Map<String, Object>>> aggregateBy(MyAggregationParam aggregationParam) {
-            return ResponseResult.error(ErrorCodeEnum.RPC_DATA_ACCESS_FAILED);
-        }
+    class CourseTransStatsClientFallbackFactory
+            extends BaseFallbackFactory<CourseTransStatsDto, Long, CourseTransStatsClient> implements CourseTransStatsClient {
 
         @Override
         public CourseTransStatsClient create(Throwable throwable) {

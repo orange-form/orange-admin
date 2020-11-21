@@ -8,8 +8,6 @@ import com.orange.demo.common.core.util.*;
 import com.orange.demo.common.core.constant.*;
 import com.orange.demo.common.core.annotation.MyRequestBody;
 import com.orange.demo.common.core.validator.UpdateGroup;
-import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
-import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -23,7 +21,6 @@ import javax.validation.groups.Default;
  * @author Jerry
  * @date 2020-09-24
  */
-@Api(tags = "学生行为流水管理接口")
 @Slf4j
 @RestController
 @RequestMapping("/admin/app/studentActionTrans")
@@ -38,21 +35,17 @@ public class StudentActionTransController {
      * @param studentActionTrans 新增对象。
      * @return 应答结果对象，包含新增对象主键Id。
      */
-    @ApiOperationSupport(ignoreParameters = {
-            "studentActionTrans.transId",
-            "studentActionTrans.createTimeStart",
-            "studentActionTrans.createTimeEnd"})
     @PostMapping("/add")
     public ResponseResult<Long> add(@MyRequestBody StudentActionTrans studentActionTrans) {
         String errorMessage = MyCommonUtil.getModelValidationError(studentActionTrans);
         if (errorMessage != null) {
-            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
         // 验证关联Id的数据合法性
         CallResult callResult = studentActionTransService.verifyRelatedData(studentActionTrans, null);
         if (!callResult.isSuccess()) {
             errorMessage = callResult.getErrorMessage();
-            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
         studentActionTrans = studentActionTransService.saveNew(studentActionTrans);
         return ResponseResult.success(studentActionTrans.getTransId());
@@ -64,19 +57,16 @@ public class StudentActionTransController {
      * @param studentActionTrans 更新对象。
      * @return 应答结果对象。
      */
-    @ApiOperationSupport(ignoreParameters = {
-            "studentActionTrans.createTimeStart",
-            "studentActionTrans.createTimeEnd"})
     @PostMapping("/update")
     public ResponseResult<Void> update(@MyRequestBody StudentActionTrans studentActionTrans) {
         String errorMessage = MyCommonUtil.getModelValidationError(studentActionTrans, Default.class, UpdateGroup.class);
         if (errorMessage != null) {
-            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
         // 验证关联Id的数据合法性
         StudentActionTrans originalStudentActionTrans = studentActionTransService.getById(studentActionTrans.getTransId());
         if (originalStudentActionTrans == null) {
-            //NOTE: 修改下面方括号中的话述
+            // NOTE: 修改下面方括号中的话述
             errorMessage = "数据验证失败，当前 [数据] 并不存在，请刷新后重试！";
             return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST, errorMessage);
         }
@@ -84,7 +74,7 @@ public class StudentActionTransController {
         CallResult callResult = studentActionTransService.verifyRelatedData(studentActionTrans, originalStudentActionTrans);
         if (!callResult.isSuccess()) {
             errorMessage = callResult.getErrorMessage();
-            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
         if (!studentActionTransService.update(studentActionTrans, originalStudentActionTrans)) {
             return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST);

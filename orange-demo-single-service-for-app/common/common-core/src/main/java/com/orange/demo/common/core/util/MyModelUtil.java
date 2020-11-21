@@ -51,6 +51,59 @@ public class MyModelUtil {
     private static Map<String, Tuple2<String, Integer>> cachedColumnInfoMap = new ConcurrentHashMap<>();
 
     /**
+     * 拷贝源类型的集合数据到目标类型的集合中，其中源类型和目标类型中的对象字段类型完全相同。
+     * NOTE: 该函数主要应用于框架中，Dto和Model之间的copy，特别针对一对一关联的深度copy。
+     * 在Dto中，一对一对象可以使用Map来表示，而不需要使用从表对象的Dto。
+     *
+     * @param sourceCollection 源类型集合。
+     * @param targetClazz      目标类型的Class对象。
+     * @param <S>              源类型。
+     * @param <T>              目标类型。
+     * @return copy后的目标类型对象集合。
+     */
+    public static <S, T> List<T> copyCollectionTo(Collection<S> sourceCollection, Class<T> targetClazz) {
+        List<T> targetList = new LinkedList<>();
+        if (CollectionUtils.isNotEmpty(sourceCollection)) {
+            for (S source : sourceCollection) {
+                try {
+                    T target = targetClazz.newInstance();
+                    BeanUtil.copyProperties(source, target);
+                    targetList.add(target);
+                } catch (Exception e) {
+                    log.error("Failed to call MyModelUtil.copyCollectionTo", e);
+                    return Collections.emptyList();
+                }
+            }
+        }
+        return targetList;
+    }
+
+    /**
+     * 拷贝源类型的对象数据到目标类型的对象中，其中源类型和目标类型中的对象字段类型完全相同。
+     * NOTE: 该函数主要应用于框架中，Dto和Model之间的copy，特别针对一对一关联的深度copy。
+     * 在Dto中，一对一对象可以使用Map来表示，而不需要使用从表对象的Dto。
+     *
+     * @param source      源类型对象。
+     * @param targetClazz 目标类型的Class对象。
+     * @param <S>         源类型。
+     * @param <T>         目标类型。
+     * @return copy后的目标类型对象。
+     */
+    public static <S, T> T copyTo(S source, Class<T> targetClazz) {
+        if (source == null) {
+            return null;
+        }
+        try {
+            T target = targetClazz.newInstance();
+            BeanUtil.copyProperties(source, target);
+            return target;
+        } catch (Exception e) {
+            log.error("Failed to call MyModelUtil.copyTo", e);
+            return null;
+        }
+    }
+
+    /**
      * 映射Model对象的字段反射对象，获取与该字段对应的数据库列名称。
      *
      * @param field      字段反射对象。

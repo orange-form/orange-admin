@@ -40,7 +40,7 @@ public class DynamicBodyParameterBuilder implements OperationBuilderPlugin {
             List<ResolvedMethodParameter> bodyParameter = methodParameters.stream()
                     .filter(p -> p.hasParameterAnnotation(MyRequestBody.class)).collect(Collectors.toList());
             if (CollectionUtils.isNotEmpty(bodyParameter)) {
-                //构造model
+                // 构造model
                 String groupName = CaseFormat.LOWER_HYPHEN.to(CaseFormat.UPPER_CAMEL, context.getGroupName());
                 String clazzName = groupName + StringUtils.capitalize(context.getName());
                 ResolvedMethodParameter methodParameter = bodyParameter.get(0);

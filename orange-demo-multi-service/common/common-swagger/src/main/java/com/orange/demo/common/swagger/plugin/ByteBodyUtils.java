@@ -71,7 +71,7 @@ public class ByteBodyUtils {
                 fieldType = CLASS_POOL.get(String.class.getName());
             }
         } catch (NotFoundException e) {
-            //抛异常
+            // 抛异常
             ClassClassPath path = new ClassClassPath(propetyType);
             CLASS_POOL.insertClassPath(path);
             try {

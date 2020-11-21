@@ -41,11 +41,16 @@
               <span>{{formatDateByStatsType(scope.row.createTime, 'day')}}</span>
             </template>
           </el-table-column>
-          <el-table-column label="操作" fixed="right" width="150">
+          <el-table-column label="操作" fixed="right" width="220px">
             <template slot-scope="scope">
               <el-button class="btn-table-edit" type="text" size="mini" @click="onEditRow(scope.row)" :disabled="isAdmin(scope.row) || !checkPermCodeExist('formSysUser:fragmentSysUser:update')" >编辑</el-button>
               <el-button class="btn-table-delete" type="text" size="mini" @click="onDeleteRow(scope.row)" :disabled="isAdmin(scope.row) || !checkPermCodeExist('formSysUser:fragmentSysUser:delete')">删除</el-button>
               <el-button class="btn-table-delete" type="text" size="mini" :disabled="!checkPermCodeExist('formSysUser:fragmentSysUser:resetPassword')" @click="onResetPassword(scope.row)">重置密码</el-button>
+              <el-button class="btn-table-primary" type="text" size="mini"
+                v-if="checkPermCodeExist('formSysUser:fragmentSysUser:listSysUserPermDetail')"
+                @click="onSysUserPermClick(scope.row)">
+                权限详情
+              </el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -75,6 +80,7 @@ import { uploadMixin, statsDateRangeMixin, cachePageMixin, cachedPageChildMixin 
 /* eslint-disable-next-line */
 import { SystemController, DictionaryController } from '@/api';
 import editUser from '@/views/upms/formEditSysUser';
+import FormSysUserPerm from './formSysUserPerm.vue';
 
 export default {
   name: 'formSysUser',
@@ -209,6 +215,17 @@ export default {
      * 用户状态选中值改变
      */
     onSysUserStatusValueChange (value) {
+    },
+    /**
+     * 权限详情
+     */
+    onSysUserPermClick (row) {
+      this.$dialog.show('权限详情', FormSysUserPerm, {
+        area: '1200px',
+        offset: '30px'
+      }, {
+        userId: row.userId
+      }).then(res => {}).catch(e => {});
     },
     /**
      * 更新用户管理

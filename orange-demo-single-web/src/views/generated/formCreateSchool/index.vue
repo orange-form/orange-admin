@@ -168,6 +168,14 @@ export default {
     onAddClick () {
       this.$refs.formCreateSchool.validate((valid) => {
         if (!valid) return;
+        if (
+          this.formData.SchoolInfo.schoolName == null ||
+          this.formData.SchoolInfo.provinceId == null ||
+          this.formData.SchoolInfo.cityId == null
+        ) {
+          this.$message.error('请求失败，发现必填参数为空！');
+          return;
+        }
         let params = {
           schoolInfo: {
             schoolName: this.formData.SchoolInfo.schoolName,
@@ -183,6 +191,20 @@ export default {
       });
     },
     initFormData () {
+    },
+    /**
+     * 重置表单数据
+     */
+    resetFormData () {
+      this.formData = {
+        SchoolInfo: {
+          schoolId: undefined,
+          schoolName: undefined,
+          provinceId: undefined,
+          cityId: undefined,
+          isDatasourceInit: false
+        }
+      }
     },
     formInit () {
       this.refreshFormCreateSchool();

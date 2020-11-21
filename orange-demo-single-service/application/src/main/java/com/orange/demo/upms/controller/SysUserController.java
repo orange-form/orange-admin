@@ -10,8 +10,6 @@ import com.orange.demo.common.core.annotation.MyRequestBody;
 import com.orange.demo.common.core.validator.AddGroup;
 import com.orange.demo.common.core.validator.UpdateGroup;
 import com.orange.demo.config.ApplicationConfig;
-import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
-import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +24,6 @@ import javax.validation.groups.Default;
  * @author Jerry
  * @date 2020-09-24
  */
-@Api(tags = "用户管理管理接口")
 @Slf4j
 @RestController
 @RequestMapping("/admin/upms/sysUser")
@@ -47,19 +44,15 @@ public class SysUserController {
      * @return 应答结果对象，包含新增用户的主键Id。
      */
     @SuppressWarnings("unchecked")
-    @ApiOperationSupport(ignoreParameters = {
-            "sysUser.userId",
-            "sysUser.createTimeStart",
-            "sysUser.createTimeEnd"})
     @PostMapping("/add")
     public ResponseResult<Long> add(@MyRequestBody SysUser sysUser, @MyRequestBody String roleIdListString) {
         String errorMessage = MyCommonUtil.getModelValidationError(sysUser, Default.class, AddGroup.class);
         if (errorMessage != null) {
-            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
         CallResult result = sysUserService.verifyRelatedData(sysUser, null, roleIdListString);
         if (!result.isSuccess()) {
-            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, result.getErrorMessage());
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, result.getErrorMessage());
         }
         Set<Long> roleIdSet = (Set<Long>) result.getData().get("roleIdSet");
         sysUserService.saveNew(sysUser, roleIdSet);
@@ -74,14 +67,11 @@ public class SysUserController {
      * @return 应答结果对象。
      */
     @SuppressWarnings("unchecked")
-    @ApiOperationSupport(ignoreParameters = {
-            "sysUser.createTimeStart",
-            "sysUser.createTimeEnd"})
     @PostMapping("/update")
     public ResponseResult<Void> update(@MyRequestBody SysUser sysUser, @MyRequestBody String roleIdListString) {
         String errorMessage = MyCommonUtil.getModelValidationError(sysUser, Default.class, UpdateGroup.class);
         if (errorMessage != null) {
-            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
         SysUser originalUser = sysUserService.getById(sysUser.getUserId());
         if (originalUser == null) {
@@ -89,7 +79,7 @@ public class SysUserController {
         }
         CallResult result = sysUserService.verifyRelatedData(sysUser, originalUser, roleIdListString);
         if (!result.isSuccess()) {
-            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, result.getErrorMessage());
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, result.getErrorMessage());
         }
         Set<Long> roleIdSet = (Set<Long>) result.getData().get("roleIdSet");
         if (!sysUserService.update(sysUser, originalUser, roleIdSet)) {
@@ -179,5 +169,50 @@ public class SysUserController {
             return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST);
         }
         return ResponseResult.success(sysUser);
+    }
+
+    /**
+     * 查询用户的权限资源地址列表。同时返回详细的分配路径。
+     *
+     * @param userId 用户Id。
+     * @param url    url过滤条件。
+     * @return 应答对象，包含从用户到权限资源的完整权限分配路径信息的查询结果列表。
+     */
+    @GetMapping("/listSysPermWithDetail")
+    public ResponseResult<List<Map<String, Object>>> listSysPermWithDetail(Long userId, String url) {
+        if (MyCommonUtil.isBlankOrNull(userId)) {
+            return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
+        }
+        return ResponseResult.success(sysUserService.getSysPermListWithDetail(userId, url));
+    }
+
+    /**
+     * 查询用户的权限字列表。同时返回详细的分配路径。
+     *
+     * @param userId   用户Id。
+     * @param permCode 权限字名称过滤条件。
+     * @return 应答对象，包含从用户到权限字的权限分配路径信息的查询结果列表。
+     */
+    @GetMapping("/listSysPermCodeWithDetail")
+    public ResponseResult<List<Map<String, Object>>> listSysPermCodeWithDetail(Long userId, String permCode) {
+        if (MyCommonUtil.isBlankOrNull(userId)) {
+            return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
+        }
+        return ResponseResult.success(sysUserService.getSysPermCodeListWithDetail(userId, permCode));
+    }
+
+    /**
+     * 查询用户的菜单列表。同时返回详细的分配路径。
+     *
+     * @param userId   用户Id。
+     * @param menuName 菜单名称过滤条件。
+     * @return 应答对象，包含从用户到菜单的权限分配路径信息的查询结果列表。
+     */
+    @GetMapping("/listSysMenuWithDetail")
+    public ResponseResult<List<Map<String, Object>>> listSysMenuWithDetail(Long userId, String menuName) {
+        if (MyCommonUtil.isBlankOrNull(userId)) {
+            return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
+        }
+        return ResponseResult.success(sysUserService.getSysMenuListWithDetail(userId, menuName));
     }
 }

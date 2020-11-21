@@ -108,6 +108,14 @@ export default {
      * 保存
      */
     onUpdateClassCourseClick () {
+      if (
+        this.classId == null ||
+        this.courseId == null ||
+        this.formData.StudentClass.course.classCourse.courseOrder == null
+      ) {
+        this.$message.error('请求失败，发现必填参数为空！');
+        return;
+      }
       let params = {
         classCourse: {
           classId: this.classId,
@@ -127,6 +135,14 @@ export default {
     loadStudentClassData () {
       return new Promise((resolve, reject) => {
         if (!this.formData.StudentClass.isDatasourceInit) {
+          if (
+            this.classId == null ||
+            this.courseId == null
+          ) {
+            this.resetFormData();
+            reject();
+            return;
+          }
           let params = {
             classId: this.classId,
             courseId: this.courseId
@@ -143,6 +159,34 @@ export default {
       });
     },
     initFormData () {
+    },
+    /**
+     * 重置表单数据
+     */
+    resetFormData () {
+      this.formData = {
+        StudentClass: {
+          classId: undefined,
+          className: undefined,
+          schoolId: undefined,
+          leaderId: undefined,
+          finishClassHour: undefined,
+          classLevel: undefined,
+          createUserId: undefined,
+          createTime: undefined,
+          status: undefined,
+          course: {
+            classCourse: {
+              classId: undefined,
+              courseId: undefined,
+              courseOrder: undefined
+            }
+          },
+          student: {
+          },
+          isDatasourceInit: false
+        }
+      }
     },
     formInit () {
       this.refreshFormEditClassCourseOrder();

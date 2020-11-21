@@ -1,7 +1,5 @@
 package com.orange.demo.upms.controller;
 
-import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
-import io.swagger.annotations.Api;
 import com.github.pagehelper.page.PageMethod;
 import lombok.extern.slf4j.Slf4j;
 import com.orange.demo.upms.model.SysPerm;
@@ -26,7 +24,6 @@ import java.util.Map;
  * @author Jerry
  * @date 2020-09-24
  */
-@Api(tags = "权限资源管理接口")
 @Slf4j
 @RestController
 @RequestMapping("/admin/upms/sysPerm")
@@ -41,16 +38,15 @@ public class SysPermController {
      * @param sysPerm 新增权限资源对象。
      * @return 应答结果对象，包含新增权限资源的主键Id。
      */
-    @ApiOperationSupport(ignoreParameters = {"sysPerm.permId"})
     @PostMapping("/add")
     public ResponseResult<Long> add(@MyRequestBody SysPerm sysPerm) {
         String errorMessage = MyCommonUtil.getModelValidationError(sysPerm);
         if (errorMessage != null) {
-            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
         CallResult result = sysPermService.verifyRelatedData(sysPerm, null);
         if (!result.isSuccess()) {
-            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, result.getErrorMessage());
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, result.getErrorMessage());
         }
         sysPerm = sysPermService.saveNew(sysPerm);
         return ResponseResult.success(sysPerm.getPermId());
@@ -66,7 +62,7 @@ public class SysPermController {
     public ResponseResult<Void> update(@MyRequestBody SysPerm sysPerm) {
         String errorMessage = MyCommonUtil.getModelValidationError(sysPerm, Default.class, UpdateGroup.class);
         if (errorMessage != null) {
-            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
         SysPerm originalPerm = sysPermService.getById(sysPerm.getPermId());
         if (originalPerm == null) {
@@ -75,7 +71,7 @@ public class SysPermController {
         }
         CallResult result = sysPermService.verifyRelatedData(sysPerm, originalPerm);
         if (!result.isSuccess()) {
-            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, result.getErrorMessage());
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, result.getErrorMessage());
         }
         if (result.getData() != null) {
             SysPermModule permModule = (SysPermModule) result.getData().get("permModule");
@@ -129,7 +125,8 @@ public class SysPermController {
      * @return 应答结果对象，包含权限资源列表。
      */
     @PostMapping("/list")
-    public ResponseResult<MyPageData<SysPerm>> list(@MyRequestBody SysPerm sysPermFilter, @MyRequestBody MyPageParam pageParam) {
+    public ResponseResult<MyPageData<SysPerm>> list(
+            @MyRequestBody SysPerm sysPermFilter, @MyRequestBody MyPageParam pageParam) {
         if (pageParam != null) {
             PageMethod.startPage(pageParam.getPageNum(), pageParam.getPageSize());
         }
@@ -138,58 +135,47 @@ public class SysPermController {
     }
 
     /**
-     * 查看用户关联的权限资源列表。
+     * 查询权限资源地址的用户列表。同时返回详细的分配路径。
      *
-     * @param loginName 精确匹配用户登录名。
-     * @param moduleId  精确匹配权限模块Id。
-     * @param url       模糊匹配的url过滤条件。
-     * @param pageParam 分页对象。
-     * @return 应答结果对象，包含该用户的全部权限资源列表。
+     * @param permId    权限资源Id。
+     * @param loginName 登录名。
+     * @return 应答对象。包含从权限资源到用户的完整权限分配路径信息的查询结果列表。
      */
-    @PostMapping("/listAllPermsByUserFilter")
-    public ResponseResult<MyPageData<Map<String, Object>>> listAllPermsByUserFilter(
-            @MyRequestBody String loginName,
-            @MyRequestBody Long moduleId,
-            @MyRequestBody String url,
-            @MyRequestBody MyPageParam pageParam) {
-        if (MyCommonUtil.existBlankArgument(loginName)) {
+    @GetMapping("/listSysUserWithDetail")
+    public ResponseResult<List<Map<String, Object>>> listSysUserWithDetail(Long permId, String loginName) {
+        if (MyCommonUtil.isBlankOrNull(permId)) {
             return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
         }
-        if (pageParam != null) {
-            PageMethod.startPage(pageParam.getPageNum(), pageParam.getPageSize());
-        }
-        List<Map<String, Object>> userPermMapList =
-                sysPermService.getUserPermListByFilter(loginName, moduleId, url);
-        return ResponseResult.success(MyPageUtil.makeResponseData(userPermMapList));
+        return ResponseResult.success(sysPermService.getSysUserListWithDetail(permId, loginName));
     }
 
     /**
-     * 查看拥有指定权限资源的所有用户数据列表。
+     * 查询权限资源地址的角色列表。同时返回详细的分配路径。
      *
-     * @param permId 指定权限资源主键Id。
-     * @return 应答结果对象，包含用户数据列表。
+     * @param permId   权限资源Id。
+     * @param roleName 角色名。
+     * @return 应答对象。包含从权限资源到角色的权限分配路径信息的查询结果列表。
      */
-    @PostMapping("/listAllUsers")
-    public ResponseResult<List<Map<String, Object>>> listAllUsers(@MyRequestBody Long permId) {
-        if (MyCommonUtil.existBlankArgument(permId)) {
+    @GetMapping("/listSysRoleWithDetail")
+    public ResponseResult<List<Map<String, Object>>> listSysRoleWithDetail(Long permId, String roleName) {
+        if (MyCommonUtil.isBlankOrNull(permId)) {
             return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
         }
-        List<Map<String, Object>> permUserMapList = sysPermService.getPermUserListById(permId);
-        return ResponseResult.success(permUserMapList);
+        return ResponseResult.success(sysPermService.getSysRoleListWithDetail(permId, roleName));
     }
 
     /**
-     * 查看拥有指定权限资源的所有角色数据列表。
+     * 查询权限资源地址的菜单列表。同时返回详细的分配路径。
      *
-     * @param permId 指定权限资源主键Id。
-     * @return 应答结果对象，包含角色数据列表。
+     * @param permId   权限资源Id。
+     * @param menuName 菜单名。
+     * @return 应答对象。包含从权限资源到菜单的权限分配路径信息的查询结果列表。
      */
-    @PostMapping("/listAllRoles")
-    public ResponseResult<List<Map<String, Object>>> listAllRoles(@MyRequestBody Long permId) {
-        if (MyCommonUtil.existBlankArgument(permId)) {
+    @GetMapping("/listSysMenuWithDetail")
+    public ResponseResult<List<Map<String, Object>>> listSysMenuWithDetail(Long permId, String menuName) {
+        if (MyCommonUtil.isBlankOrNull(permId)) {
             return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
         }
-        List<Map<String, Object>> permRoleMapList = sysPermService.getPermRoleListById(permId);
-        return ResponseResult.success(permRoleMapList);
+        return ResponseResult.success(sysPermService.getSysMenuListWithDetail(permId, menuName));
     }
 }

@@ -34,7 +34,7 @@
             <el-scrollbar class="custom-scroll" style="height: calc(620px - 50px);">
               <el-row :gutter="20">
                 <el-col class="table-box" :span="24">
-                  <el-table ref="StudentClass" :data="formClass.StudentClass.impl.dataList" size="mini" @sort-change="formClass.StudentClass.impl.onSortChange"
+                  <el-table ref="studentClass" :data="formClass.StudentClass.impl.dataList" size="mini" @sort-change="formClass.StudentClass.impl.onSortChange"
                     header-cell-class-name="table-header-gray"
                     highlight-current-row @current-change="formClass.StudentClass.impl.currentRowChange">
                     <el-table-column label="序号" header-align="center" align="center" type="index" width="55px" :index="formClass.StudentClass.impl.getTableIndex" />
@@ -92,7 +92,7 @@
                 <el-scrollbar class="custom-scroll" style="height: calc(300px - 50px);">
                   <el-row :gutter="20">
                     <el-col class="table-box" :span="24">
-                      <el-table ref="Course" :data="formClass.Course.impl.dataList" size="mini" @sort-change="formClass.Course.impl.onSortChange"
+                      <el-table ref="course" :data="formClass.Course.impl.dataList" size="mini" @sort-change="formClass.Course.impl.onSortChange"
                         header-cell-class-name="table-header-gray">
                         <el-table-column label="序号" header-align="center" align="center" type="index" width="55px" :index="formClass.Course.impl.getTableIndex" />
                         <el-table-column label="课程名称" prop="courseName">
@@ -140,7 +140,7 @@
                 <el-scrollbar class="custom-scroll" style="height: calc(300px - 50px);">
                   <el-row :gutter="20">
                     <el-col class="table-box" :span="24">
-                      <el-table ref="Student" :data="formClass.Student.impl.dataList" size="mini" @sort-change="formClass.Student.impl.onSortChange"
+                      <el-table ref="student" :data="formClass.Student.impl.dataList" size="mini" @sort-change="formClass.Student.impl.onSortChange"
                         header-cell-class-name="table-header-gray">
                         <el-table-column label="序号" header-align="center" align="center" type="index" width="55px" :index="formClass.Student.impl.getTableIndex" />
                         <el-table-column label="学生姓名" prop="studentName">
@@ -234,20 +234,20 @@ export default {
           schoolId: undefined,
           className: undefined
         },
+        classCourseCard: {
+          isInit: false
+        },
         schoolId: {
           impl: new DropdownWidget(this.loadSchoolIdDropdownList)
         },
-        classCourseCard: {
-          isInit: false
+        Student: {
+          impl: new TableWidget(this.loadStudentData, this.loadStudentVerify, true, false)
         },
         StudentClass: {
           impl: new TableWidget(this.loadStudentClassData, this.loadStudentClassVerify, true, true, 'createTime', 1)
         },
         Course: {
           impl: new TableWidget(this.loadCourseData, this.loadCourseVerify, true, false, 'createTime', 1)
-        },
-        Student: {
-          impl: new TableWidget(this.loadStudentData, this.loadStudentVerify, true, false)
         },
         classStudentCard: {
           isInit: false
@@ -263,6 +263,38 @@ export default {
     }
   },
   methods: {
+    /**
+     * 班级学生数据获取函数，返回Promise
+     */
+    loadStudentData (params) {
+      if (
+        (this.formClass.StudentClass.impl.currentRow || {}).classId == null
+      ) {
+        this.formClass.Student.impl.clearTable();
+        return Promise.reject();
+      }
+      if (params == null) params = {};
+      params = {
+        ...params,
+        classId: (this.formClass.StudentClass.impl.currentRow || {}).classId
+      }
+      return new Promise((resolve, reject) => {
+        StudentClassController.listClassStudent(this, params).then(res => {
+          resolve({
+            dataList: res.data.dataList,
+            totalCount: res.data.totalCount
+          });
+        }).catch(e => {
+          reject(e);
+        });
+      });
+    },
+    /**
+     * 班级学生数据获取检测函数，返回true正常获取数据，返回false停止获取数据
+     */
+    loadStudentVerify () {
+      return true;
+    },
     /**
      * 班级数据数据获取函数，返回Promise
      */
@@ -305,8 +337,10 @@ export default {
      * 班级课程数据获取函数，返回Promise
      */
     loadCourseData (params) {
-      if (this.formClass.StudentClass.impl.currentRow == null) {
-        this.formAdvanceClass.Course.impl.clearTable();
+      if (
+        (this.formClass.StudentClass.impl.currentRow || {}).classId == null
+      ) {
+        this.formClass.Course.impl.clearTable();
         return Promise.reject();
       }
       if (params == null) params = {};
@@ -329,36 +363,6 @@ export default {
      * 班级课程数据获取检测函数，返回true正常获取数据，返回false停止获取数据
      */
     loadCourseVerify () {
-      return true;
-    },
-    /**
-     * 班级学生数据获取函数，返回Promise
-     */
-    loadStudentData (params) {
-      if (this.formClass.StudentClass.impl.currentRow == null) {
-        this.formAdvanceClass.Student.impl.clearTable();
-        return Promise.reject();
-      }
-      if (params == null) params = {};
-      params = {
-        ...params,
-        classId: (this.formClass.StudentClass.impl.currentRow || {}).classId
-      }
-      return new Promise((resolve, reject) => {
-        StudentClassController.listClassStudent(this, params).then(res => {
-          resolve({
-            dataList: res.data.dataList,
-            totalCount: res.data.totalCount
-          });
-        }).catch(e => {
-          reject(e);
-        });
-      });
-    },
-    /**
-     * 班级学生数据获取检测函数，返回true正常获取数据，返回false停止获取数据
-     */
-    loadStudentVerify () {
       return true;
     },
     /**
@@ -420,6 +424,11 @@ export default {
      */
     refreshFormClass (reloadData = false) {
       if (reloadData) {
+        this.formClass.Student.impl.refreshTable(true, 1);
+      } else {
+        this.formClass.Student.impl.refreshTable();
+      }
+      if (reloadData) {
         this.formClass.StudentClass.impl.refreshTable(true, 1);
       } else {
         this.formClass.StudentClass.impl.refreshTable();
@@ -428,11 +437,6 @@ export default {
         this.formClass.Course.impl.refreshTable(true, 1);
       } else {
         this.formClass.Course.impl.refreshTable();
-      }
-      if (reloadData) {
-        this.formClass.Student.impl.refreshTable(true, 1);
-      } else {
-        this.formClass.Student.impl.refreshTable();
       }
       if (!this.formClass.isInit) {
         // 初始化下拉数据
@@ -457,6 +461,12 @@ export default {
      * 删除
      */
     onDeleteClick (row) {
+      if (
+        row.classId == null
+      ) {
+        this.$message.error('请求失败，发现必填参数为空！');
+        return;
+      }
       let params = {
         classId: row.classId
       };
@@ -472,6 +482,13 @@ export default {
      * 移除
      */
     onDeleteClassCourseClick (row) {
+      if (
+        (this.formClass.StudentClass.impl.currentRow || {}).classId == null ||
+        row.courseId == null
+      ) {
+        this.$message.error('请求失败，发现必填参数为空！');
+        return;
+      }
       let params = {
         classId: (this.formClass.StudentClass.impl.currentRow || {}).classId,
         courseId: row.courseId
@@ -488,6 +505,13 @@ export default {
      * 移除
      */
     onDeleteClassStudentClick (row) {
+      if (
+        (this.formClass.StudentClass.impl.currentRow || {}).classId == null ||
+        row.studentId == null
+      ) {
+        this.$message.error('请求失败，发现必填参数为空！');
+        return;
+      }
       let params = {
         classId: (this.formClass.StudentClass.impl.currentRow || {}).classId,
         studentId: row.studentId
@@ -539,6 +563,34 @@ export default {
     },
     initFormData () {
     },
+    /**
+     * 重置表单数据
+     */
+    resetFormData () {
+      this.formData = {
+        StudentClass: {
+          classId: undefined,
+          className: undefined,
+          schoolId: undefined,
+          leaderId: undefined,
+          finishClassHour: undefined,
+          classLevel: undefined,
+          createUserId: undefined,
+          createTime: undefined,
+          status: undefined,
+          course: {
+            classCourse: {
+              classId: undefined,
+              courseId: undefined,
+              courseOrder: undefined
+            }
+          },
+          student: {
+          },
+          isDatasourceInit: false
+        }
+      }
+    },
     formInit () {
       this.refreshFormClass();
     }
@@ -564,8 +616,8 @@ export default {
     // 班级数据选择行数据变化
     'formClass.StudentClass.impl.currentRow': {
       handler (newValue) {
-        this.formClass.Course.impl.refreshTable(true, 1);
         this.formClass.Student.impl.refreshTable(true, 1);
+        this.formClass.Course.impl.refreshTable(true, 1);
       },
       immediate: true
     }

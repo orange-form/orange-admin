@@ -15,13 +15,6 @@ application:
   # 通常在调试和测试阶段设置为false，以便及时发现问题。
   ignoreRpcError: false
 
-minio:
-  enabled: true
-  endpoint: http://localhost:19000
-  accessKey: admin
-  secretKey: admin123456
-  bucketName: course-class
-
 sequence:
   # 是否使用基于美团Leaf的分布式Id生成器。
   advanceIdGenerator: true

@@ -204,6 +204,28 @@ public class SysMenuService extends BaseService<SysMenu, Long> {
         return CallResult.ok(jsonObject);
     }
 
+    /**
+     * 查询菜单的权限资源地址列表。同时返回详细的分配路径。
+     *
+     * @param menuId 菜单Id。
+     * @param url    权限资源地址过滤条件。
+     * @return 包含从菜单到权限资源的权限分配路径信息的查询结果列表。
+     */
+    public List<Map<String, Object>> getSysPermListWithDetail(Long menuId, String url) {
+        return sysMenuMapper.getSysPermListWithDetail(menuId, url);
+    }
+
+    /**
+     * 查询菜单的用户列表。同时返回详细的分配路径。
+     *
+     * @param menuId    菜单Id。
+     * @param loginName 登录名。
+     * @return 包含从菜单到用户的完整权限分配路径信息的查询结果列表。
+     */
+    public List<Map<String, Object>> getSysUserListWithDetail(Long menuId, String loginName) {
+        return sysMenuMapper.getSysUserListWithDetail(menuId, loginName);
+    }
+
     private String checkErrorOfNonDirectoryMenu(SysMenu sysMenu) {
         // 判断父节点是否存在
         SysMenu parentSysMenu = getById(sysMenu.getParentId());

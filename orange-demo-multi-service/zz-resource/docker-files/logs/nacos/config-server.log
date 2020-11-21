@@ -1,0 +1,40 @@
+2020-11-20 19:28:08,083 INFO notifyConnectTimeout:200
+
+2020-11-20 19:28:08,104 INFO notifySocketTimeout:8000
+
+2020-11-20 19:28:08,119 INFO isHealthCheck:true
+
+2020-11-20 19:28:08,120 INFO maxHealthCheckFailCount:12
+
+2020-11-20 19:28:08,125 INFO maxContent:10485760
+
+2020-11-20 19:28:08,139 INFO spring.datasource.platform:""
+
+2020-11-20 19:28:20,787 INFO use local db service for init
+
+2020-11-20 19:28:22,680 WARN Lexical error at line 4, column 66.  Encountered: <EOF> after : "".
+
+2020-11-20 19:28:22,698 WARN Syntax error: Encountered "*" at line 1, column 1.
+
+2020-11-20 19:28:23,546 INFO use StandaloneDatabaseOperateImpl
+
+2020-11-20 19:28:25,431 WARN DumpService start
+
+2020-11-20 19:28:25,437 INFO start clear all config-info.
+
+2020-11-20 19:28:25,450 WARN clear all config-info failed.
+
+2020-11-20 19:28:25,451 WARN clear all config-info-tenant failed.
+
+2020-11-20 19:28:25,607 INFO start clear all config-info-beta.
+
+2020-11-20 19:28:25,613 WARN clear all config-info-beta failed.
+
+2020-11-20 19:28:25,618 WARN clear all config-info-beta-tenant failed.
+
+2020-11-20 19:28:26,062 INFO start clear all config-info-tag.
+
+2020-11-20 19:28:26,063 WARN clear all config-info-tag failed.
+
+2020-11-20 19:28:26,064 WARN clear all config-info-tag-tenant failed.
+

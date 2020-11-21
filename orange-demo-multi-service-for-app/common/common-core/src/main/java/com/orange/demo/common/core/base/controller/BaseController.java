@@ -148,6 +148,18 @@ public abstract class BaseController<M, D, K> {
     }
 
     /**
+     * 删除符合过滤条件的数据。
+     *
+     * @param filter      过滤对象。
+     * @param modelMapper 对象映射函数对象。如果为空，则使用MyModelUtil中的缺省转换函数。
+     * @return 删除数量。
+     */
+    public ResponseResult<Integer> baseDeleteBy(
+            D filter, BaseModelMapper<D, M> modelMapper) throws Exception {
+        return ResponseResult.success(service().removeBy(convertToModel(filter, modelMapper)));
+    }
+
+    /**
      * 自定义过滤条件、显示字段和排序字段的单表查询。主要用于微服务间远程过程调用。
      * NOTE: 和baseListMapBy方法的差别只是返回的数据形式不同，该接口以对象列表的形式返回数据。
      *
@@ -246,7 +258,7 @@ public abstract class BaseController<M, D, K> {
         // 完成一些共同性规则的验证。
         VerifyAggregationInfo verifyInfo = this.verifyAndParseAggregationParam(param);
         if (!verifyInfo.isSuccess) {
-            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, verifyInfo.errorMsg);
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, verifyInfo.errorMsg);
         }
         // 构建SelectList
         StringBuilder selectList = new StringBuilder(64);
@@ -351,6 +363,24 @@ public abstract class BaseController<M, D, K> {
             resultDto = MyModelUtil.copyTo(model, domainDtoClass);
         }
         return resultDto;
+    }
+
+    /**
+     * 将Dto对象转换为Model实体对象。
+     * 如果Model存在该实体的ModelMapper，就用该ModelMapper转换，否则使用缺省的基于字段反射的copy。
+     *
+     * @param dto         Dto对象。
+     * @param modelMapper 从实体对象到Dto对象的映射对象。
+     * @return 转换后的Dto域对象。
+     */
+    private M convertToModel(D dto, BaseModelMapper<D, M> modelMapper) {
+        M result;
+        if (modelMapper != null) {
+            result = modelMapper.toModel(dto);
+        } else {
+            result = MyModelUtil.copyTo(dto, modelClass);
+        }
+        return result;
     }
 
     private VerifyAggregationInfo verifyAndParseAggregationParam(MyAggregationParam param) {

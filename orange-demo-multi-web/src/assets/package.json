@@ -1,0 +1,9 @@
+{
+  "scripts": {
+    "theme-orange": "et -c element-variables-orange.scss",
+  },
+  "devDependencies": {
+    "element-theme": "^2.0.1",
+    "element-theme-chalk": "^2.14.1"
+  }
+}

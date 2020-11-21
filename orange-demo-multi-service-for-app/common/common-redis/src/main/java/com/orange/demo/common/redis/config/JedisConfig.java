@@ -40,7 +40,7 @@ public class JedisConfig {
 
     @Bean
     public JedisPool getJedisPool() {
-        //Jedis配置信息
+        // Jedis配置信息
         JedisPoolConfig jedisPoolConfig = new JedisPoolConfig();
         jedisPoolConfig.setMaxTotal(maxTotal);
         jedisPoolConfig.setMaxIdle(maxIdle);

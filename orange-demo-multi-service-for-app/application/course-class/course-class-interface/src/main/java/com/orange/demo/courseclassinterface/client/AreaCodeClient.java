@@ -1,11 +1,11 @@
 package com.orange.demo.courseclassinterface.client;
 
+import com.orange.demo.common.core.base.client.BaseFallbackFactory;
 import com.orange.demo.common.core.base.client.BaseClient;
 import com.orange.demo.common.core.constant.ErrorCodeEnum;
 import com.orange.demo.common.core.object.MyQueryParam;
 import com.orange.demo.common.core.object.ResponseResult;
 import com.orange.demo.courseclassinterface.dto.AreaCodeDto;
-import feign.hystrix.FallbackFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.stereotype.Component;
@@ -93,8 +93,8 @@ public interface AreaCodeClient extends BaseClient<AreaCodeDto, Long> {
      *
      * @return 字典数据列表，返回形式为 List<Map<String, Object>>，map中包含两条记录，分别是id和name。
      */
-    @PostMapping("/areaCode/listDictAreaCode")
-    ResponseResult<List<Map<String, Object>>> listDictAreaCode();
+    @PostMapping("/areaCode/listDict")
+    ResponseResult<List<Map<String, Object>>> listDict();
 
     /**
      * 以id、name的形式返回所有字典数据的列表。
@@ -102,50 +102,21 @@ public interface AreaCodeClient extends BaseClient<AreaCodeDto, Long> {
      * @param parentId 主键的ParentId，用于对主键数据进行过滤。
      * @return 字典数据列表，返回形式为 List<Map<String, Object>>，map中包含两条记录，分别是id和name。
      */
-    @PostMapping("/areaCode/listDictAreaCodeByParentId")
-    ResponseResult<List<Map<String, Object>>> listDictAreaCodeByParentId(@RequestParam("parentId") Long parentId);
+    @GetMapping("/areaCode/listDictByParentId")
+    ResponseResult<List<Map<String, Object>>> listDictByParentId(@RequestParam("parentId") Long parentId);
 
     @Component
     @Slf4j
-    class AreaCodeClientFallbackFactory implements FallbackFactory<AreaCodeClient>, AreaCodeClient {
+    class AreaCodeClientFallbackFactory
+            extends BaseFallbackFactory<AreaCodeDto, Long, AreaCodeClient> implements AreaCodeClient {
 
         @Override
-        public ResponseResult<List<AreaCodeDto>> listByIds(Set<Long> areaCodeIds, Boolean withDict) {
+        public ResponseResult<List<Map<String, Object>>> listDict() {
             return ResponseResult.error(ErrorCodeEnum.RPC_DATA_ACCESS_FAILED);
         }
 
         @Override
-        public ResponseResult<AreaCodeDto> getById(Long areaId, Boolean withDict) {
-            return ResponseResult.error(ErrorCodeEnum.RPC_DATA_ACCESS_FAILED);
-        }
-
-        @Override
-        public ResponseResult<Boolean> existIds(Set<Long> areaIds) {
-            return ResponseResult.error(ErrorCodeEnum.RPC_DATA_ACCESS_FAILED);
-        }
-
-        @Override
-        public ResponseResult<Boolean> existId(Long areaId) {
-            return ResponseResult.error(ErrorCodeEnum.RPC_DATA_ACCESS_FAILED);
-        }
-
-        @Override
-        public ResponseResult<List<AreaCodeDto>> listBy(MyQueryParam queryParam) {
-            return ResponseResult.error(ErrorCodeEnum.RPC_DATA_ACCESS_FAILED);
-        }
-
-        @Override
-        public ResponseResult<AreaCodeDto> getBy(MyQueryParam queryParam) {
-            return ResponseResult.error(ErrorCodeEnum.RPC_DATA_ACCESS_FAILED);
-        }
-
-        @Override
-        public ResponseResult<List<Map<String, Object>>> listDictAreaCode() {
-            return ResponseResult.error(ErrorCodeEnum.RPC_DATA_ACCESS_FAILED);
-        }
-
-        @Override
-        public ResponseResult<List<Map<String, Object>>> listDictAreaCodeByParentId(Long parentId) {
+        public ResponseResult<List<Map<String, Object>>> listDictByParentId(Long parentId) {
             return ResponseResult.error(ErrorCodeEnum.RPC_DATA_ACCESS_FAILED);
         }
 

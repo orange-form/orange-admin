@@ -147,6 +147,12 @@ export default {
      * 班级课程数据获取函数，返回Promise
      */
     loadCourseData (params) {
+      if (
+        this.classId == null
+      ) {
+        this.formSetClassCourse.Course.impl.clearTable();
+        return Promise.reject();
+      }
       if (params == null) params = {};
       params = {
         ...params,
@@ -251,6 +257,12 @@ export default {
      * 添加
      */
     onAddClassCourseClick () {
+      if (
+        this.classId == null
+      ) {
+        this.$message.error('请求失败，发现必填参数为空！');
+        return;
+      }
       let params = {
         classId: this.classId,
         classCourseList: this.tableSelectRowList.map((item) => {

@@ -1,8 +1,5 @@
 package com.orange.demo.upms.controller;
 
-import com.alibaba.fastjson.JSONObject;
-import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
-import io.swagger.annotations.Api;
 import com.github.pagehelper.page.PageMethod;
 import lombok.extern.slf4j.Slf4j;
 import com.orange.demo.upms.model.SysRole;
@@ -29,7 +26,6 @@ import java.util.stream.Collectors;
  * @author Jerry
  * @date 2020-09-24
  */
-@Api(tags = "角色管理接口")
 @Slf4j
 @RestController
 @RequestMapping("/admin/upms/sysRole")
@@ -48,16 +44,15 @@ public class SysRoleController {
      * @return 应答结果对象，包含新增角色的主键Id。
      */
     @SuppressWarnings("unchecked")
-    @ApiOperationSupport(ignoreParameters = {"sysRole.roleId", "sysRole.createTimeStart", "sysRole.createTimeEnd"})
     @PostMapping("/add")
     public ResponseResult<Long> add(@MyRequestBody SysRole sysRole, @MyRequestBody String menuIdListString) {
         String errorMessage = MyCommonUtil.getModelValidationError(sysRole);
         if (errorMessage != null) {
-            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
         CallResult result = sysRoleService.verifyRelatedData(sysRole, null, menuIdListString);
         if (!result.isSuccess()) {
-            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, result.getErrorMessage());
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, result.getErrorMessage());
         }
         Set<Long> menuIdSet = null;
         if (result.getData() != null) {
@@ -75,12 +70,11 @@ public class SysRoleController {
      * @return 应答结果对象。
      */
     @SuppressWarnings("unchecked")
-    @ApiOperationSupport(ignoreParameters = {"sysRole.createTimeStart", "sysRole.createTimeEnd"})
     @PostMapping("/update")
     public ResponseResult<Void> update(@MyRequestBody SysRole sysRole, @MyRequestBody String menuIdListString) {
         String errorMessage = MyCommonUtil.getModelValidationError(sysRole, Default.class, UpdateGroup.class);
         if (errorMessage != null) {
-            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
         SysRole originalSysRole = sysRoleService.getById(sysRole.getRoleId());
         if (originalSysRole == null) {
@@ -89,7 +83,7 @@ public class SysRoleController {
         }
         CallResult result = sysRoleService.verifyRelatedData(sysRole, originalSysRole, menuIdListString);
         if (!result.isSuccess()) {
-            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, result.getErrorMessage());
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, result.getErrorMessage());
         }
         Set<Long> menuIdSet = null;
         if (result.getData() != null) {
@@ -275,44 +269,32 @@ public class SysRoleController {
     }
 
     /**
-     * 通过权限字Id获取拥有改权限的所有角色。
-     * 开发人员调试用接口。
+     * 查询角色的权限资源地址列表。同时返回详细的分配路径。
      *
-     * @param permCodeId 查询的权限字Id。
-     * @param pageParam  分页对象。
-     * @return 符合条件的角色列表。
+     * @param roleId 角色Id。
+     * @param url    url过滤条件。
+     * @return 应答对象，包含从角色到权限资源的完整权限分配路径信息的查询结果列表。
      */
-    @PostMapping("/listAllRolesByPermCode")
-    public ResponseResult<MyPageData<SysRole>> listAllRolesByPermCode(
-            @MyRequestBody Long permCodeId, @MyRequestBody MyPageParam pageParam) {
-        if (MyCommonUtil.existBlankArgument(permCodeId)) {
+    @GetMapping("/listSysPermWithDetail")
+    public ResponseResult<List<Map<String, Object>>> listSysPermByWithDetail(Long roleId, String url) {
+        if (MyCommonUtil.isBlankOrNull(roleId)) {
             return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
         }
-        if (pageParam != null) {
-            PageMethod.startPage(pageParam.getPageNum(), pageParam.getPageSize());
-        }
-        List<SysRole> roleList = sysRoleService.getSysRoleListByPermCodeId(permCodeId);
-        return ResponseResult.success(MyPageUtil.makeResponseData(roleList));
+        return ResponseResult.success(sysRoleService.getSysPermListWithDetail(roleId, url));
     }
 
     /**
-     * 通过权限资源url，模糊搜索拥有改权限的所有角色。
-     * 开发人员调试用接口。
+     * 查询角色的权限字列表。同时返回详细的分配路径。
      *
-     * @param url       用于模糊搜索的url。
-     * @param pageParam 分页对象。
-     * @return 符合条件的角色列表。
+     * @param roleId   角色Id。
+     * @param permCode 权限字名称过滤条件。
+     * @return 应答对象，包含从角色到权限字的权限分配路径信息的查询结果列表。
      */
-    @PostMapping("/listAllRolesByPerm")
-    public ResponseResult<MyPageData<SysRole>> listAllRolesByPerm(
-            @MyRequestBody String url, @MyRequestBody MyPageParam pageParam) {
-        if (MyCommonUtil.existBlankArgument(url)) {
+    @GetMapping("/listSysPermCodeWithDetail")
+    public ResponseResult<List<Map<String, Object>>> listSysPermCodeWithDetail(Long roleId, String permCode) {
+        if (MyCommonUtil.isBlankOrNull(roleId)) {
             return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
         }
-        if (pageParam != null) {
-            PageMethod.startPage(pageParam.getPageNum(), pageParam.getPageSize());
-        }
-        List<SysRole> roleList = sysRoleService.getSysRoleListByPerm(url);
-        return ResponseResult.success(MyPageUtil.makeResponseData(roleList));
-    }    
+        return ResponseResult.success(sysRoleService.getSysPermCodeListWithDetail(roleId, permCode));
+    }
 }

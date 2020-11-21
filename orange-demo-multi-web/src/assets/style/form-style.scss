@@ -49,8 +49,8 @@
   .dict-title {
     height: 50px;
     line-height: 50px;
-    color: $main-text-color;
-    border-bottom: 1px solid $border-color1;
+    color: $--color-text-primary;
+    border-bottom: 1px solid $--border-color-base;
     font-size: 14px;
 
     span {

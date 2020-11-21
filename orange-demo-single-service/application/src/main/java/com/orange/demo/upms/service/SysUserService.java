@@ -228,6 +228,39 @@ public class SysUserService extends BaseService<SysUser, Long> {
     }
 
     /**
+     * 查询用户的权限资源地址列表。同时返回详细的分配路径。
+     *
+     * @param userId 用户Id。
+     * @param url    url过滤条件。
+     * @return 包含从用户到权限资源的完整权限分配路径信息的查询结果列表。
+     */
+    public List<Map<String, Object>> getSysPermListWithDetail(Long userId, String url) {
+        return sysUserMapper.getSysPermListWithDetail(userId, url);
+    }
+
+    /**
+     * 查询用户的权限字列表。同时返回详细的分配路径。
+     *
+     * @param userId   用户Id。
+     * @param permCode 权限字名称过滤条件。
+     * @return 包含从用户到权限字的权限分配路径信息的查询结果列表。
+     */
+    public List<Map<String, Object>> getSysPermCodeListWithDetail(Long userId, String permCode) {
+        return sysUserMapper.getSysPermCodeListWithDetail(userId, permCode);
+    }
+
+    /**
+     * 查询用户的菜单列表。同时返回详细的分配路径。
+     *
+     * @param userId   用户Id。
+     * @param menuName 菜单名称过滤条件。
+     * @return 包含从用户到菜单的权限分配路径信息的查询结果列表。
+     */
+    public List<Map<String, Object>> getSysMenuListWithDetail(Long userId, String menuName) {
+        return sysUserMapper.getSysMenuListWithDetail(userId, menuName);
+    }
+
+    /**
      * 验证用户对象关联的数据是否都合法。
      *
      * @param sysUser          当前操作的对象。

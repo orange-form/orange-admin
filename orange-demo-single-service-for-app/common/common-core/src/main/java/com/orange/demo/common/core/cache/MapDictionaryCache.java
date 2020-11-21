@@ -1,6 +1,13 @@
 package com.orange.demo.common.core.cache;
 
+import com.orange.demo.common.core.exception.MapCacheAccessException;
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.*;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Function;
 
 /**
@@ -11,6 +18,7 @@ import java.util.function.Function;
  * @author Jerry
  * @date 2020-09-24
  */
+@Slf4j
 public class MapDictionaryCache<K, V> implements DictionaryCache<K, V> {
 
     /**
@@ -21,6 +29,14 @@ public class MapDictionaryCache<K, V> implements DictionaryCache<K, V> {
      * 获取字典主键数据的函数对象。
      */
     protected Function<V, K> idGetter;
+    /**
+     * 由于大部分场景是读取操作，所以使用读写锁提高并发的伸缩性。
+     */
+    protected ReadWriteLock lock = new ReentrantReadWriteLock();
+    /**
+     * 超时时长。单位毫秒。
+     */
+    protected static final long TIMEOUT = 2000L;
 
     /**
      * 当前对象的构造器函数。
@@ -52,10 +68,27 @@ public class MapDictionaryCache<K, V> implements DictionaryCache<K, V> {
      * @return 全部字段数据列表。
      */
     @Override
-    public synchronized List<V> getAll() {
+    public List<V> getAll() {
         List<V> resultList = new LinkedList<>();
-        for (Map.Entry<K, V> entry : dataMap.entrySet()) {
-            resultList.add(entry.getValue());
+        String exceptionMessage;
+        try {
+            if (lock.readLock().tryLock(TIMEOUT, TimeUnit.MILLISECONDS)) {
+                try {
+                    for (Map.Entry<K, V> entry : dataMap.entrySet()) {
+                        resultList.add(entry.getValue());
+                    }
+                } finally {
+                    lock.readLock().unlock();
+                }
+            } else {
+                throw new TimeoutException();
+            }
+        } catch (Exception e) {
+            exceptionMessage = String.format(
+                    "LOCK Operation of [MapDictionaryCache::getInList] encountered EXCEPTION [%s] for DICT.",
+                    e.getClass().getSimpleName());
+            log.warn(exceptionMessage);
+            throw new MapCacheAccessException(exceptionMessage, e);
         }
         return resultList;
     }
@@ -67,14 +100,31 @@ public class MapDictionaryCache<K, V> implements DictionaryCache<K, V> {
      * @return 对象列表。
      */
     @Override
-    public synchronized List<V> getInList(Set<K> keys) {
+    public List<V> getInList(Set<K> keys) {
         List<V> resultList = new LinkedList<>();
-        keys.forEach(key -> {
-            V object = dataMap.get(key);
-            if (object != null) {
-                resultList.add(object);
+        String exceptionMessage;
+        try {
+            if (lock.readLock().tryLock(TIMEOUT, TimeUnit.MILLISECONDS)) {
+                try {
+                    keys.forEach(key -> {
+                        V object = dataMap.get(key);
+                        if (object != null) {
+                            resultList.add(object);
+                        }
+                    });
+                } finally {
+                    lock.readLock().unlock();
+                }
+            } else {
+                throw new TimeoutException();
             }
-        });
+        } catch (Exception e) {
+            exceptionMessage = String.format(
+                    "LOCK Operation of [MapDictionaryCache::getInList] encountered EXCEPTION [%s] for DICT.",
+                    e.getClass().getSimpleName());
+            log.warn(exceptionMessage);
+            throw new MapCacheAccessException(exceptionMessage, e);
+        }
         return resultList;
     }
 
@@ -84,14 +134,31 @@ public class MapDictionaryCache<K, V> implements DictionaryCache<K, V> {
      * @param dataList 待缓存的数据列表。
      */
     @Override
-    public synchronized void putAll(List<V> dataList) {
+    public void putAll(List<V> dataList) {
         if (dataList == null) {
             return;
         }
-        dataList.forEach(dataObj -> {
-            K id = idGetter.apply(dataObj);
-            dataMap.put(id, dataObj);
-        });
+        String exceptionMessage;
+        try {
+            if (lock.readLock().tryLock(TIMEOUT, TimeUnit.MILLISECONDS)) {
+                try {
+                    dataList.forEach(dataObj -> {
+                        K id = idGetter.apply(dataObj);
+                        dataMap.put(id, dataObj);
+                    });
+                } finally {
+                    lock.readLock().unlock();
+                }
+            } else {
+                throw new TimeoutException();
+            }
+        } catch (Exception e) {
+            exceptionMessage = String.format(
+                    "LOCK Operation of [MapDictionaryCache::getInList] encountered EXCEPTION [%s] for DICT.",
+                    e.getClass().getSimpleName());
+            log.warn(exceptionMessage);
+            throw new MapCacheAccessException(exceptionMessage, e);
+        }
     }
 
     /**
@@ -101,12 +168,32 @@ public class MapDictionaryCache<K, V> implements DictionaryCache<K, V> {
      * @param force    true则强制刷新，如果false，当缓存中存在数据时不刷新。
      */
     @Override
-    public synchronized void reload(List<V> dataList, boolean force) {
+    public void reload(List<V> dataList, boolean force) {
         if (!force && this.getCount() > 0) {
             return;
         }
-        this.invalidateAll();
-        this.putAll(dataList);
+        String exceptionMessage;
+        try {
+            if (lock.readLock().tryLock(TIMEOUT, TimeUnit.MILLISECONDS)) {
+                try {
+                    dataMap.clear();
+                    dataList.forEach(dataObj -> {
+                        K id = idGetter.apply(dataObj);
+                        dataMap.put(id, dataObj);
+                    });
+                } finally {
+                    lock.readLock().unlock();
+                }
+            } else {
+                throw new TimeoutException();
+            }
+        } catch (Exception e) {
+            exceptionMessage = String.format(
+                    "LOCK Operation of [MapDictionaryCache::getInList] encountered EXCEPTION [%s] for DICT.",
+                    e.getClass().getSimpleName());
+            log.warn(exceptionMessage);
+            throw new MapCacheAccessException(exceptionMessage, e);
+        }
     }
 
     /**
@@ -116,8 +203,30 @@ public class MapDictionaryCache<K, V> implements DictionaryCache<K, V> {
      * @return 获取到的数据，如果没有返回null。
      */
     @Override
-    public synchronized V get(K id) {
-        return id == null ? null : dataMap.get(id);
+    public V get(K id) {
+        if (id == null) {
+            return null;
+        }
+        V data;
+        String exceptionMessage;
+        try {
+            if (lock.readLock().tryLock(TIMEOUT, TimeUnit.MILLISECONDS)) {
+                try {
+                    data = dataMap.get(id);
+                } finally {
+                    lock.readLock().unlock();
+                }
+            } else {
+                throw new TimeoutException();
+            }
+        } catch (Exception e) {
+            exceptionMessage = String.format(
+                    "LOCK Operation of [MapDictionaryCache::getInList] encountered EXCEPTION [%s] for DICT.",
+                    e.getClass().getSimpleName());
+            log.warn(exceptionMessage);
+            throw new MapCacheAccessException(exceptionMessage, e);
+        }
+        return data;
     }
 
     /**
@@ -127,8 +236,25 @@ public class MapDictionaryCache<K, V> implements DictionaryCache<K, V> {
      * @param object 字典数据对象。
      */
     @Override
-    public synchronized void put(K id, V object) {
-        dataMap.put(id, object);
+    public void put(K id, V object) {
+        String exceptionMessage;
+        try {
+            if (lock.readLock().tryLock(TIMEOUT, TimeUnit.MILLISECONDS)) {
+                try {
+                    dataMap.put(id, object);
+                } finally {
+                    lock.readLock().unlock();
+                }
+            } else {
+                throw new TimeoutException();
+            }
+        } catch (Exception e) {
+            exceptionMessage = String.format(
+                    "LOCK Operation of [MapDictionaryCache::getInList] encountered EXCEPTION [%s] for DICT.",
+                    e.getClass().getSimpleName());
+            log.warn(exceptionMessage);
+            throw new MapCacheAccessException(exceptionMessage, e);
+        }
     }
 
     /**
@@ -137,7 +263,7 @@ public class MapDictionaryCache<K, V> implements DictionaryCache<K, V> {
      * @return 返回缓存的数据数量。
      */
     @Override
-    public synchronized int getCount() {
+    public int getCount() {
         return dataMap.size();
     }
 
@@ -148,8 +274,30 @@ public class MapDictionaryCache<K, V> implements DictionaryCache<K, V> {
      * @return 返回被删除的对象，如果主键不存在，返回null。
      */
     @Override
-    public synchronized V invalidate(K id) {
-        return id == null ? null : dataMap.remove(id);
+    public V invalidate(K id) {
+        if (id == null) {
+            return null;
+        }
+        String exceptionMessage;
+        V data;
+        try {
+            if (lock.readLock().tryLock(TIMEOUT, TimeUnit.MILLISECONDS)) {
+                try {
+                    data = dataMap.remove(id);
+                } finally {
+                    lock.readLock().unlock();
+                }
+            } else {
+                throw new TimeoutException();
+            }
+        } catch (Exception e) {
+            exceptionMessage = String.format(
+                    "LOCK Operation of [MapDictionaryCache::getInList] encountered EXCEPTION [%s] for DICT.",
+                    e.getClass().getSimpleName());
+            log.warn(exceptionMessage);
+            throw new MapCacheAccessException(exceptionMessage, e);
+        }
+        return data;
     }
 
     /**
@@ -158,19 +306,53 @@ public class MapDictionaryCache<K, V> implements DictionaryCache<K, V> {
      * @param keys 待删除数据的主键集合。
      */
     @Override
-    public synchronized void invalidateSet(Set<K> keys) {
-        keys.forEach(id -> {
-            if (id != null) {
-                dataMap.remove(id);
+    public void invalidateSet(Set<K> keys) {
+        String exceptionMessage;
+        try {
+            if (lock.readLock().tryLock(TIMEOUT, TimeUnit.MILLISECONDS)) {
+                try {
+                    keys.forEach(id -> {
+                        if (id != null) {
+                            dataMap.remove(id);
+                        }
+                    });
+                } finally {
+                    lock.readLock().unlock();
+                }
+            } else {
+                throw new TimeoutException();
             }
-        });
+        } catch (Exception e) {
+            exceptionMessage = String.format(
+                    "LOCK Operation of [MapDictionaryCache::getInList] encountered EXCEPTION [%s] for DICT.",
+                    e.getClass().getSimpleName());
+            log.warn(exceptionMessage);
+            throw new MapCacheAccessException(exceptionMessage, e);
+        }
     }
 
     /**
      * 清空缓存。
      */
     @Override
-    public synchronized void invalidateAll() {
-        dataMap.clear();
+    public void invalidateAll() {
+        String exceptionMessage;
+        try {
+            if (lock.readLock().tryLock(TIMEOUT, TimeUnit.MILLISECONDS)) {
+                try {
+                    dataMap.clear();
+                } finally {
+                    lock.readLock().unlock();
+                }
+            } else {
+                throw new TimeoutException();
+            }
+        } catch (Exception e) {
+            exceptionMessage = String.format(
+                    "LOCK Operation of [MapDictionaryCache::getInList] encountered EXCEPTION [%s] for DICT.",
+                    e.getClass().getSimpleName());
+            log.warn(exceptionMessage);
+            throw new MapCacheAccessException(exceptionMessage, e);
+        }
     }
 }

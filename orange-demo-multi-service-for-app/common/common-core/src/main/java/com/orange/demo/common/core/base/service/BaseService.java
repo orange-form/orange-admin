@@ -192,6 +192,29 @@ public abstract class BaseService<M, D, K> {
     }
 
     /**
+     * 根据过滤条件删除数据。
+     *
+     * @param filter 过滤对象。
+     * @return 删除数量。
+     */
+    public Integer removeBy(M filter) throws Exception {
+        if (deletedFlagField == null) {
+            return mapper().delete(filter);
+        }
+        Example e = new Example(modelClass);
+        Example.Criteria c = e.createCriteria();
+        Field[] fields = ReflectUtil.getFields(modelClass);
+        for (Field field : fields) {
+            if (field.getAnnotation(Transient.class) == null) {
+                this.assembleCriteriaByFilter(filter, field, c);
+            }
+        }
+        M deletedObject = modelClass.newInstance();
+        this.setDeletedFlagMethod.invoke(deletedObject, GlobalDeletedFlag.DELETED);
+        return mapper().updateByExampleSelective(deletedObject, e);
+    }
+
+    /**
      * 判断主键Id关联的数据是否存在。
      *
      * @param id 主键Id

@@ -91,12 +91,12 @@ public class SnowflakeIdGenerator implements MyIdGenerator {
         if (lastTimestamp == timestamp) {
             sequence = (sequence + 1) & SEQUENCE_MASK;
             if (sequence == 0) {
-                //seq 为0的时候表示是下一毫秒时间开始对seq做随机
+                // seq 为0的时候表示是下一毫秒时间开始对seq做随机
                 sequence = RANDOM.nextInt(100);
                 timestamp = tilNextMillis(lastTimestamp);
             }
         } else {
-            //如果是新的ms开始
+            // 如果是新的ms开始
             sequence = RANDOM.nextInt(100);
         }
         lastTimestamp = timestamp;

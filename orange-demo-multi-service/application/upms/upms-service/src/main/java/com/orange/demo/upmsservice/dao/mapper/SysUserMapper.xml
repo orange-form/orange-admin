@@ -95,4 +95,99 @@
             ORDER BY ${orderBy}
         </if>
     </select>
+    
+    <!-- 以下查询仅用于权限分配的问题定位，由于关联表较多，可能会给系统运行带来性能影响 -->
+    <select id="getSysPermListWithDetail" resultType="map">
+        SELECT
+            r.role_id roleId,
+            r.role_name roleName,
+            m.menu_id menuId,
+            m.menu_name menuName,
+            m.menu_type menuType,
+            pc.perm_code_id permCodeId,
+            pc.perm_code permCode,
+            pc.perm_code_type permCodeType,
+            p.url
+        FROM
+            zz_sys_user_role ur,
+            zz_sys_role r,
+            zz_sys_role_menu rm,
+            zz_sys_menu m,
+            zz_sys_menu_perm_code mpc,
+            zz_sys_perm_code pc,
+            zz_sys_perm_code_perm pcp,
+            zz_sys_perm p
+        <where>
+            AND ur.user_id = #{userId}
+            AND ur.role_id = r.role_id
+            AND ur.role_id = rm.role_id
+            AND rm.menu_id = m.menu_id
+            AND rm.menu_id = mpc.menu_id
+            AND mpc.perm_code_id = pc.perm_code_id
+            AND mpc.perm_code_id = pcp.perm_code_id
+            AND pcp.perm_id = p.perm_id
+            <if test="url != null and url != ''">
+                AND p.url = #{url}
+            </if>
+        </where>
+        ORDER BY
+            r.role_id, m.menu_id, pc.perm_code_id, p.url
+    </select>
+
+    <select id="getSysPermCodeListWithDetail" resultType="map">
+        SELECT
+            r.role_id roleId,
+            r.role_name roleName,
+            m.menu_id menuId,
+            m.menu_name menuName,
+            m.menu_type menuType,
+            pc.perm_code_id permCodeId,
+            pc.perm_code permCode,
+            pc.perm_code_type permCodeType
+        FROM
+            zz_sys_user_role ur,
+            zz_sys_role r,
+            zz_sys_role_menu rm,
+            zz_sys_menu m,
+            zz_sys_menu_perm_code mpc,
+            zz_sys_perm_code pc
+        <where>
+            AND ur.user_id = #{userId}
+            AND ur.role_id = r.role_id
+            AND ur.role_id = rm.role_id
+            AND rm.menu_id = m.menu_id
+            AND rm.menu_id = mpc.menu_id
+            AND mpc.perm_code_id = pc.perm_code_id
+            <if test="permCode != null and permCode != ''">
+                AND pc.perm_code = #{permCode}
+            </if>
+        </where>
+        ORDER BY
+            r.role_id, m.menu_id, pc.perm_code_id
+    </select>
+
+    <select id="getSysMenuListWithDetail" resultType="map">
+        SELECT
+            r.role_id roleId,
+            r.role_name roleName,
+            m.menu_id menuId,
+            m.menu_name menuName,
+            m.menu_type menuType
+        FROM
+            zz_sys_user_role ur,
+            zz_sys_role r,
+            zz_sys_role_menu rm,
+            zz_sys_menu m
+        <where>
+            AND ur.user_id = #{userId}
+            AND ur.role_id = r.role_id
+            AND ur.role_id = rm.role_id
+            AND rm.menu_id = m.menu_id
+            <if test="menuName != null and menuName != ''">
+                AND m.menu_name = #{menuName}
+            </if>
+        </where>
+        ORDER BY
+            r.role_id, m.menu_id
+    </select>
 </mapper>

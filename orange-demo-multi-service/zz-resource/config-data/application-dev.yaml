@@ -86,8 +86,8 @@ swagger:
   enabled: true
   # 工程的基础包名。
   basePackage: com.orange.demo
-  title: 橙单微服务开源版
-  description: 橙单微服务开源版详情
+  title: 橙单单体服务工程
+  description: 橙单单体服务工程详情
   version: 1.0
 
 # 暴露监控端点

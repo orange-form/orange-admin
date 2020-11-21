@@ -37,7 +37,7 @@ public enum ErrorCodeEnum {
     INVALID_USER_STATUS("用户状态错误，请刷新后重试！"),
 
     HAS_CHILDREN_DATA("数据验证失败，子数据存在，请刷新后重试！"),
-    DATA_VALIDATAED_FAILED("数据验证失败，请核对！"),
+    DATA_VALIDATED_FAILED("数据验证失败，请核对！"),
     UPLOAD_FILE_FAILED("文件上传失败，请联系管理员！"),
     DATA_SAVE_FAILED("数据保存失败，请联系管理员！"),
     DATA_ACCESS_FAILED("数据访问失败，请联系管理员！"),

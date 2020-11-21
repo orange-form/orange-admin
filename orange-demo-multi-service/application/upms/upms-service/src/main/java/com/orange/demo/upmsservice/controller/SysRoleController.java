@@ -58,12 +58,12 @@ public class SysRoleController {
             @MyRequestBody("sysRole") SysRoleDto sysRoleDto, @MyRequestBody String menuIdListString) {
         String errorMessage = MyCommonUtil.getModelValidationError(sysRoleDto);
         if (errorMessage != null) {
-            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
         SysRole sysRole = MyModelUtil.copyTo(sysRoleDto, SysRole.class);
         CallResult result = sysRoleService.verifyRelatedData(sysRole, null, menuIdListString);
         if (!result.isSuccess()) {
-            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, result.getErrorMessage());
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, result.getErrorMessage());
         }
         Set<Long> menuIdSet = null;
         if (result.getData() != null) {
@@ -87,7 +87,7 @@ public class SysRoleController {
             @MyRequestBody("sysRole") SysRoleDto sysRoleDto, @MyRequestBody String menuIdListString) {
         String errorMessage = MyCommonUtil.getModelValidationError(sysRoleDto, Default.class, UpdateGroup.class);
         if (errorMessage != null) {
-            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
         SysRole originalSysRole = sysRoleService.getById(sysRoleDto.getRoleId());
         if (originalSysRole == null) {
@@ -97,7 +97,7 @@ public class SysRoleController {
         SysRole sysRole = MyModelUtil.copyTo(sysRoleDto, SysRole.class);
         CallResult result = sysRoleService.verifyRelatedData(sysRole, originalSysRole, menuIdListString);
         if (!result.isSuccess()) {
-            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, result.getErrorMessage());
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, result.getErrorMessage());
         }
         Set<Long> menuIdSet = null;
         if (result.getData() != null) {
@@ -291,56 +291,34 @@ public class SysRoleController {
         }
         return ResponseResult.success();
     }
-  
+    
     /**
-     * 通过权限字Id获取拥有改权限的所有角色。
-     * 开发人员调试用接口。
+     * 查询角色的权限资源地址列表。同时返回详细的分配路径。
      *
-     * @param permCodeId 查询的权限字Id。
-     * @param pageParam  分页对象。
-     * @return 符合条件的角色列表。
+     * @param roleId 角色Id。
+     * @param url    url过滤条件。
+     * @return 应答对象，包含从角色到权限资源的完整权限分配路径信息的查询结果列表。
      */
-    @PostMapping("/listAllRolesByPermCode")
-    public ResponseResult<MyPageData<SysRoleDto>> listAllRolesByPermCode(
-            @MyRequestBody Long permCodeId, @MyRequestBody MyPageParam pageParam) {
-        if (MyCommonUtil.existBlankArgument(permCodeId)) {
+    @GetMapping("/listSysPermWithDetail")
+    public ResponseResult<List<Map<String, Object>>> listSysPermWithDetail(Long roleId, String url) {
+        if (MyCommonUtil.isBlankOrNull(roleId)) {
             return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
         }
-        if (pageParam != null) {
-            PageMethod.startPage(pageParam.getPageNum(), pageParam.getPageSize());
-        }
-        List<SysRole> roleList = sysRoleService.getSysRoleListByPermCodeId(permCodeId);
-        List<SysRoleDto> roleDtoList = MyModelUtil.copyCollectionTo(roleList, SysRoleDto.class);
-        long totalCount = 0L;
-        if (roleList instanceof Page) {
-            totalCount = ((Page<SysRole>) roleList).getTotal();
-        }
-        return ResponseResult.success(MyPageUtil.makeResponseData(roleDtoList, totalCount));
+        return ResponseResult.success(sysRoleService.getSysPermListWithDetail(roleId, url));
     }
 
     /**
-     * 通过权限资源url，模糊搜索拥有改权限的所有角色。
-     * 开发人员调试用接口。
+     * 查询角色的权限字列表。同时返回详细的分配路径。
      *
-     * @param url       用于模糊搜索的url。
-     * @param pageParam 分页对象。
-     * @return 符合条件的角色列表。
+     * @param roleId   角色Id。
+     * @param permCode 权限字名称过滤条件。
+     * @return 应答对象，包含从角色到权限字的权限分配路径信息的查询结果列表。
      */
-    @PostMapping("/listAllRolesByPerm")
-    public ResponseResult<MyPageData<SysRoleDto>> listAllRolesByPerm(
-            @MyRequestBody String url, @MyRequestBody MyPageParam pageParam) {
-        if (MyCommonUtil.existBlankArgument(url)) {
+    @GetMapping("/listSysPermCodeWithDetail")
+    public ResponseResult<List<Map<String, Object>>> listSysPermCodeWithDetail(Long roleId, String permCode) {
+        if (MyCommonUtil.isBlankOrNull(roleId)) {
             return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
         }
-        if (pageParam != null) {
-            PageMethod.startPage(pageParam.getPageNum(), pageParam.getPageSize());
-        }
-        List<SysRole> roleList = sysRoleService.getSysRoleListByPerm(url);
-        List<SysRoleDto> roleDtoList = MyModelUtil.copyCollectionTo(roleList, SysRoleDto.class);
-        long totalCount = 0L;
-        if (roleList instanceof Page) {
-            totalCount = ((Page<SysRole>) roleList).getTotal();
-        }
-        return ResponseResult.success(MyPageUtil.makeResponseData(roleDtoList, totalCount));
+        return ResponseResult.success(sysRoleService.getSysPermCodeListWithDetail(roleId, permCode));
     }
 }

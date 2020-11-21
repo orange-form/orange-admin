@@ -1,6 +1,6 @@
 <template>
   <div class="form-single-fragment" style="position: relative;">
-    <el-form ref="formCreateClass" :model="formData" class="full-width-input" :rules="rules" style="width: 100%;"
+    <el-form ref="formCreateSchool" :model="formData" class="full-width-input" :rules="rules" style="width: 100%;"
       label-width="100px" size="mini" label-position="right" @submit.native.prevent>
       <el-row :gutter="20">
         <el-col :span="24">
@@ -12,20 +12,20 @@
         <el-col :span="24">
           <el-form-item label="所在省份" prop="SchoolInfo.provinceId">
             <el-select class="input-item" v-model="formData.SchoolInfo.provinceId" :clearable="true" filterable
-              placeholder="所在省份" :loading="formCreateClass.provinceId.impl.loading"
-              @visible-change="formCreateClass.provinceId.impl.onVisibleChange"
+              placeholder="所在省份" :loading="formCreateSchool.provinceId.impl.loading"
+              @visible-change="formCreateSchool.provinceId.impl.onVisibleChange"
               @change="onProvinceIdValueChange">
-              <el-option v-for="item in formCreateClass.provinceId.impl.dropdownList" :key="item.id" :value="item.id" :label="item.name" />
+              <el-option v-for="item in formCreateSchool.provinceId.impl.dropdownList" :key="item.id" :value="item.id" :label="item.name" />
             </el-select>
           </el-form-item>
         </el-col>
         <el-col :span="24">
           <el-form-item label="所在城市" prop="SchoolInfo.cityId">
             <el-select class="input-item" v-model="formData.SchoolInfo.cityId" :clearable="true" filterable
-              placeholder="所在城市" :loading="formCreateClass.cityId.impl.loading"
-              @visible-change="formCreateClass.cityId.impl.onVisibleChange"
+              placeholder="所在城市" :loading="formCreateSchool.cityId.impl.loading"
+              @visible-change="formCreateSchool.cityId.impl.onVisibleChange"
               @change="onCityIdValueChange">
-              <el-option v-for="item in formCreateClass.cityId.impl.dropdownList" :key="item.id" :value="item.id" :label="item.name" />
+              <el-option v-for="item in formCreateSchool.cityId.impl.dropdownList" :key="item.id" :value="item.id" :label="item.name" />
             </el-select>
           </el-form-item>
         </el-col>
@@ -35,7 +35,7 @@
               @click="onCancel(false)">
               取消
             </el-button>
-            <el-button type="primary" size="mini" :disabled="!checkPermCodeExist('formCreateSchool:formCreateClass:add')"
+            <el-button type="primary" size="mini" :disabled="!checkPermCodeExist('formCreateSchool:formCreateSchool:add')"
               @click="onAddClick()">
               保存
             </el-button>
@@ -83,7 +83,7 @@ export default {
           {required: true, message: '请输入所在城市', trigger: 'blur'}
         ]
       },
-      formCreateClass: {
+      formCreateSchool: {
         formFilter: {
         },
         formFilterCopy: {
@@ -126,7 +126,7 @@ export default {
     onProvinceIdValueChange (value) {
       // 清除被过滤组件选中值，并且将被过滤组件的状态设置为dirty
       this.formData.SchoolInfo.cityId = undefined;
-      this.formCreateClass.cityId.impl.dirty = true;
+      this.formCreateSchool.cityId.impl.dirty = true;
       this.onCityIdValueChange(this.formData.SchoolInfo.cityId);
     },
     /**
@@ -156,18 +156,26 @@ export default {
     /**
      * 更新新建校区
      */
-    refreshFormCreateClass (reloadData = false) {
-      if (!this.formCreateClass.isInit) {
+    refreshFormCreateSchool (reloadData = false) {
+      if (!this.formCreateSchool.isInit) {
         // 初始化下拉数据
       }
-      this.formCreateClass.isInit = true;
+      this.formCreateSchool.isInit = true;
     },
     /**
      * 保存
      */
     onAddClick () {
-      this.$refs.formCreateClass.validate((valid) => {
+      this.$refs.formCreateSchool.validate((valid) => {
         if (!valid) return;
+        if (
+          this.formData.SchoolInfo.schoolName == null ||
+          this.formData.SchoolInfo.provinceId == null ||
+          this.formData.SchoolInfo.cityId == null
+        ) {
+          this.$message.error('请求失败，发现必填参数为空！');
+          return;
+        }
         let params = {
           schoolInfo: {
             schoolName: this.formData.SchoolInfo.schoolName,
@@ -184,8 +192,22 @@ export default {
     },
     initFormData () {
     },
+    /**
+     * 重置表单数据
+     */
+    resetFormData () {
+      this.formData = {
+        SchoolInfo: {
+          schoolId: undefined,
+          schoolName: undefined,
+          provinceId: undefined,
+          cityId: undefined,
+          isDatasourceInit: false
+        }
+      }
+    },
     formInit () {
-      this.refreshFormCreateClass();
+      this.refreshFormCreateSchool();
     }
   },
   computed: {

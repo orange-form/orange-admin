@@ -8,8 +8,6 @@ import com.orange.demo.common.core.util.*;
 import com.orange.demo.common.core.constant.*;
 import com.orange.demo.common.core.annotation.MyRequestBody;
 import com.orange.demo.common.core.validator.UpdateGroup;
-import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
-import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -24,7 +22,6 @@ import java.util.stream.Collectors;
  * @author Jerry
  * @date 2020-09-24
  */
-@Api(tags = "班级数据管理接口")
 @Slf4j
 @RestController
 @RequestMapping("/admin/app/studentClass")
@@ -43,18 +40,17 @@ public class StudentClassController {
      * @param studentClass 新增对象。
      * @return 应答结果对象，包含新增对象主键Id。
      */
-    @ApiOperationSupport(ignoreParameters = {"studentClass.userId"})
     @PostMapping("/add")
     public ResponseResult<Long> add(@MyRequestBody StudentClass studentClass) {
         String errorMessage = MyCommonUtil.getModelValidationError(studentClass);
         if (errorMessage != null) {
-            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
         // 验证关联Id的数据合法性
         CallResult callResult = studentClassService.verifyRelatedData(studentClass, null);
         if (!callResult.isSuccess()) {
             errorMessage = callResult.getErrorMessage();
-            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
         studentClass = studentClassService.saveNew(studentClass);
         return ResponseResult.success(studentClass.getClassId());
@@ -70,12 +66,12 @@ public class StudentClassController {
     public ResponseResult<Void> update(@MyRequestBody StudentClass studentClass) {
         String errorMessage = MyCommonUtil.getModelValidationError(studentClass, Default.class, UpdateGroup.class);
         if (errorMessage != null) {
-            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
         // 验证关联Id的数据合法性
         StudentClass originalStudentClass = studentClassService.getById(studentClass.getClassId());
         if (originalStudentClass == null) {
-            //NOTE: 修改下面方括号中的话述
+            // NOTE: 修改下面方括号中的话述
             errorMessage = "数据验证失败，当前 [数据] 并不存在，请刷新后重试！";
             return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST, errorMessage);
         }
@@ -83,7 +79,7 @@ public class StudentClassController {
         CallResult callResult = studentClassService.verifyRelatedData(studentClass, originalStudentClass);
         if (!callResult.isSuccess()) {
             errorMessage = callResult.getErrorMessage();
-            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
         if (!studentClassService.update(studentClass, originalStudentClass)) {
             return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST);
@@ -239,7 +235,7 @@ public class StudentClassController {
         for (ClassCourse classCourse : classCourseList) {
             String errorMessage = MyCommonUtil.getModelValidationError(classCourse);
             if (errorMessage != null) {
-                return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+                return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
             }
         }
         Set<Long> courseIdSet =
@@ -262,7 +258,7 @@ public class StudentClassController {
     public ResponseResult<Void> updateClassCourse(@MyRequestBody ClassCourse classCourse) {
         String errorMessage = MyCommonUtil.getModelValidationError(classCourse);
         if (errorMessage != null) {
-            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
         if (!studentClassService.updateClassCourse(classCourse)) {
             return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST);
@@ -392,7 +388,7 @@ public class StudentClassController {
         for (ClassStudent classStudent : classStudentList) {
             String errorMessage = MyCommonUtil.getModelValidationError(classStudent);
             if (errorMessage != null) {
-                return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+                return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
             }
         }
         Set<Long> studentIdSet =

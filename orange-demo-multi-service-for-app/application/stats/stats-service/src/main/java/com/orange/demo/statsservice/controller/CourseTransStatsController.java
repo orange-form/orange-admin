@@ -81,7 +81,7 @@ public class CourseTransStatsController extends BaseController<CourseTransStats,
     @PostMapping("/listWithGroup")
     public ResponseResult<MyPageData<CourseTransStatsDto>> listWithGroup(
             @MyRequestBody("courseTransStatsFilter") CourseTransStatsDto courseTransStatsDtoFilter,
-            @MyRequestBody MyGroupParam groupParam,
+            @MyRequestBody(required = true) MyGroupParam groupParam,
             @MyRequestBody MyOrderParam orderParam,
             @MyRequestBody MyPageParam pageParam) {
         String orderBy = MyOrderParam.buildOrderBy(orderParam, CourseTransStats.class);
@@ -171,6 +171,18 @@ public class CourseTransStatsController extends BaseController<CourseTransStats,
     @PostMapping("/existId")
     public ResponseResult<Boolean> existId(@RequestParam Long statsId) {
         return super.baseExistId(statsId);
+    }
+
+    /**
+     * 删除符合过滤条件的数据。
+     *
+     * @param filter 过滤对象。
+     * @return 删除数量。
+     */
+    @ApiOperation(hidden = true, value = "deleteBy")
+    @PostMapping("/deleteBy")
+    public ResponseResult<Integer> deleteBy(@RequestBody CourseTransStatsDto filter) throws Exception {
+        return super.baseDeleteBy(filter, CourseTransStats.INSTANCE);
     }
 
     /**

@@ -1,11 +1,10 @@
 package com.orange.demo.courseclassinterface.client;
 
+import com.orange.demo.common.core.base.client.BaseFallbackFactory;
 import com.orange.demo.common.core.config.FeignConfig;
 import com.orange.demo.common.core.base.client.BaseClient;
-import com.orange.demo.common.core.constant.ErrorCodeEnum;
 import com.orange.demo.common.core.object.*;
 import com.orange.demo.courseclassinterface.dto.StudentClassDto;
-import feign.hystrix.FallbackFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.stereotype.Component;
@@ -72,6 +71,26 @@ public interface StudentClassClient extends BaseClient<StudentClassDto, Long> {
     ResponseResult<Boolean> existId(@RequestParam("classId") Long classId);
 
     /**
+     * 删除主键Id关联的对象。
+     *
+     * @param classId 主键Id。
+     * @return 应答结果对象。
+     */
+    @Override
+    @PostMapping("/studentClass/delete")
+    ResponseResult<Void> delete(@RequestParam("classId") Long classId);
+
+    /**
+     * 删除符合过滤条件的数据。
+     *
+     * @param filter 过滤对象。
+     * @return 应答结果对象，包含删除数量。
+     */
+    @Override
+    @PostMapping("/studentClass/deleteBy")
+    ResponseResult<Integer> deleteBy(@RequestBody StudentClassDto filter);
+
+    /**
      * 获取远程主对象中符合查询条件的数据列表。
      *
      * @param queryParam 查询参数。
@@ -124,54 +143,8 @@ public interface StudentClassClient extends BaseClient<StudentClassDto, Long> {
 
     @Component("CourseClassStudentClassClientFallbackFactory")
     @Slf4j
-    class StudentClassClientFallbackFactory implements FallbackFactory<StudentClassClient>, StudentClassClient {
-
-        @Override
-        public ResponseResult<List<StudentClassDto>> listByIds(
-                Set<Long> classIds, Boolean withDict) {
-            return ResponseResult.error(ErrorCodeEnum.RPC_DATA_ACCESS_FAILED);
-        }
-
-        @Override
-        public ResponseResult<StudentClassDto> getById(
-                Long classId, Boolean withDict) {
-            return ResponseResult.error(ErrorCodeEnum.RPC_DATA_ACCESS_FAILED);
-        }
-
-        @Override
-        public ResponseResult<Boolean> existIds(Set<Long> classIds) {
-            return ResponseResult.error(ErrorCodeEnum.RPC_DATA_ACCESS_FAILED);
-        }
-
-        @Override
-        public ResponseResult<Boolean> existId(Long classId) {
-            return ResponseResult.error(ErrorCodeEnum.RPC_DATA_ACCESS_FAILED);
-        }
-
-        @Override
-        public ResponseResult<List<StudentClassDto>> listBy(MyQueryParam queryParam) {
-            return ResponseResult.error(ErrorCodeEnum.RPC_DATA_ACCESS_FAILED);
-        }
-
-        @Override
-        public ResponseResult<StudentClassDto> getBy(MyQueryParam queryParam) {
-            return ResponseResult.error(ErrorCodeEnum.RPC_DATA_ACCESS_FAILED);
-        }
-
-        @Override
-        public ResponseResult<List<Map<String, Object>>> listMapBy(MyQueryParam queryParam) {
-            return ResponseResult.error(ErrorCodeEnum.RPC_DATA_ACCESS_FAILED);
-        }
-
-        @Override
-        public ResponseResult<Integer> countBy(MyQueryParam queryParam) {
-            return ResponseResult.error(ErrorCodeEnum.RPC_DATA_ACCESS_FAILED);
-        }
-
-        @Override
-        public ResponseResult<List<Map<String, Object>>> aggregateBy(MyAggregationParam aggregationParam) {
-            return ResponseResult.error(ErrorCodeEnum.RPC_DATA_ACCESS_FAILED);
-        }
+    class StudentClassClientFallbackFactory
+            extends BaseFallbackFactory<StudentClassDto, Long, StudentClassClient> implements StudentClassClient {
 
         @Override
         public StudentClassClient create(Throwable throwable) {

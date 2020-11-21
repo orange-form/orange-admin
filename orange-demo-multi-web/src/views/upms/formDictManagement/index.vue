@@ -7,7 +7,7 @@
         </div>
         <el-scrollbar :style="{height: (getClientHeight - 184) + 'px'}" class="custom-scroll">
           <el-tree :data="dictList" :props="{label: 'name'}" node-key="variableName" :highlight-current="true"
-            :current-node-key="dictList[0].variableName" @node-click="onDictChange">
+            :current-node-key="(dictList[0] || {}).variableName" @node-click="onDictChange">
             <div class="module-node-item" slot-scope="{ data }">
               <span style="padding-left: 24px;">{{data.name}}</span>
             </div>
@@ -33,7 +33,7 @@
       <el-row>
         <el-col :span="24">
           <el-table :data="getCurrentDictData" size="mini" header-cell-class-name="table-header-gray"
-            :height="(getClientHeight - 178) + 'px'">
+            :height="(getClientHeight - 178) + 'px'" row-key="id">
             <el-table-column label="ID" prop="id" />
             <el-table-column label="字典名称" prop="name" />
             <el-table-column label="操作" width="150px">
@@ -51,7 +51,7 @@
 
 <script>
 import { mapGetters } from 'vuex';
-import { findItemFromList } from '@/utils';
+import { treeDataTranslate, findItemFromList } from '@/utils';
 /* eslint-disable-next-line */
 import { DictionaryController } from '@/api';
 import editDict from '@/views/upms/formEditDict';
@@ -67,6 +67,8 @@ export default {
           nameKey: 'gradeName',
           idKey: 'gradeId',
           deletedKey: 'gradeIds',
+          parentKey: '',
+          treeFlag: false,
           listApi: DictionaryController.dictGrade,
           addApi: DictionaryController.dictAddGrade,
           deleteApi: DictionaryController.dictDeleteGrade,
@@ -83,7 +85,11 @@ export default {
     updateDictData () {
       this.currentDictDataList = [];
       this.currentDict.listApi(this).then(res => {
-        this.currentDictDataList = res.getList();
+        if (this.currentDict.treeFlag) {
+          this.currentDictDataList = treeDataTranslate(res.getList(), 'id', 'parentId');
+        } else {
+          this.currentDictDataList = res.getList();
+        }
       }).catch(e => {});
     },
     onDictChange (data) {
@@ -107,7 +113,8 @@ export default {
       this.$dialog.show(`新建字典数据 - [${this.currentDict.name}]`, editDict, {
         area: '500px'
       }, {
-        dictInfo: this.currentDict
+        dictInfo: this.currentDict,
+        dictData: this.currentDict.treeFlag ? this.currentDictDataList : []
       }).then(res => {
         this.updateDictData();
       }).catch(e => {});
@@ -117,7 +124,8 @@ export default {
         area: '500px'
       }, {
         dictInfo: this.currentDict,
-        currentData: row
+        currentData: row,
+        dictData: this.currentDict.treeFlag ? this.currentDictDataList : []
       }).then(res => {
         this.updateDictData();
       }).catch(e => {});

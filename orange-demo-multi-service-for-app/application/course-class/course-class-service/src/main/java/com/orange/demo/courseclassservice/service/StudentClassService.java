@@ -102,7 +102,7 @@ public class StudentClassService extends BaseService<StudentClass, StudentClassD
         if (studentClassMapper.updateByExampleSelective(deletedObject, studentClassExample) == 0) {
             return false;
         }
-        // 开始删除多对多子表的关联
+        // 开始删除多对多中间表的关联
         ClassCourse classCourse = new ClassCourse();
         classCourse.setClassId(classId);
         classCourseMapper.delete(classCourse);

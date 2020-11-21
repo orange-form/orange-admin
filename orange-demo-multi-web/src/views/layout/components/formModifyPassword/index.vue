@@ -6,18 +6,21 @@
         <el-col :span="24">
           <el-form-item label="旧密码" prop="oldPassword">
             <el-input class="input-item" v-model.trim="formData.oldPassword"
+              type="password" show-password
               :clearable="true" placeholder="旧密码" />
           </el-form-item>
         </el-col>
         <el-col :span="24">
           <el-form-item label="新密码" prop="password">
             <el-input class="input-item" v-model.trim="formData.password"
+              type="password" show-password
               :clearable="true" placeholder="新密码" />
           </el-form-item>
         </el-col>
         <el-col :span="24">
           <el-form-item label="新密码确认" prop="repeatPassword">
             <el-input class="input-item" v-model.trim="formData.repeatPassword"
+              type="password" show-password
               :clearable="true" placeholder="新密码确认" />
           </el-form-item>
         </el-col>

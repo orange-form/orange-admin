@@ -46,9 +46,9 @@ public class RsaUtil {
         // 得到私钥字符串
         String privateKeyString = Base64.getEncoder().encodeToString(privateKey.getEncoded());
         // 将公钥和私钥保存到Map
-        //0表示公钥
+        // 0表示公钥
         keyMap.put(0, publicKeyString);
-        //1表示私钥
+        // 1表示私钥
         keyMap.put(1, privateKeyString);
     }
 
@@ -61,11 +61,11 @@ public class RsaUtil {
      * @throws Exception 加密过程中的异常信息
      */
     public static String encrypt(String str, String publicKey) throws Exception {
-        //base64编码的公钥
+        // base64编码的公钥
         byte[] decoded = Base64.getDecoder().decode(publicKey);
         RSAPublicKey pubKey = (RSAPublicKey) KeyFactory.getInstance("RSA").generatePublic(new X509EncodedKeySpec(decoded));
-        //RSA加密。后面这个更安全，但是SonarQube始终report安全漏洞。"RSA/ECB/PKCS1Padding"
-        //而浏览器自带的Javascript加密功能，目前safari不支持，而且用的人也不太多。所以暂时都不考虑了。
+        // RSA加密。后面这个更安全，但是SonarQube始终report安全漏洞。"RSA/ECB/PKCS1Padding"
+        // 而浏览器自带的Javascript加密功能，目前safari不支持，而且用的人也不太多。所以暂时都不考虑了。
         Cipher cipher = Cipher.getInstance("RSA");
         cipher.init(Cipher.ENCRYPT_MODE, pubKey);
         return Base64.getEncoder().encodeToString(cipher.doFinal(str.getBytes(StandardCharsets.UTF_8)));
@@ -80,12 +80,12 @@ public class RsaUtil {
      * @throws Exception 解密过程中的异常信息
      */
     public static String decrypt(String str, String privateKey) throws Exception {
-        //64位解码加密后的字符串
+        // 64位解码加密后的字符串
         byte[] inputByte = Base64.getDecoder().decode(str);
-        //base64编码的私钥
+        // base64编码的私钥
         byte[] decoded = Base64.getDecoder().decode(privateKey);
         RSAPrivateKey priKey = (RSAPrivateKey) KeyFactory.getInstance("RSA").generatePrivate(new PKCS8EncodedKeySpec(decoded));
-        //RSA解密
+        // RSA解密
         Cipher cipher = Cipher.getInstance("RSA");
         cipher.init(Cipher.DECRYPT_MODE, priKey);
         return new String(cipher.doFinal(inputByte));
@@ -93,9 +93,9 @@ public class RsaUtil {
 
     public static void main(String[] args) throws Exception {
         long temp = System.currentTimeMillis();
-        //生成公钥和私钥
+        // 生成公钥和私钥
         genKeyPair();
-        //加密字符串
+        // 加密字符串
         System.out.println("公钥:" + keyMap.get(0));
         System.out.println("私钥:" + keyMap.get(1));
         System.out.println("生成密钥消耗时间:" + (System.currentTimeMillis() - temp) / 1000.0 + "秒");

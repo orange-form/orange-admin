@@ -55,7 +55,7 @@ public class DynamicBodyModelPlugin implements OperationModelsProviderPlugin {
 
     @Override
     public boolean supports(DocumentationType delimiter) {
-        //支持2.0版本
+        // 支持2.0版本
         return delimiter == DocumentationType.SWAGGER_2;
     }
 }

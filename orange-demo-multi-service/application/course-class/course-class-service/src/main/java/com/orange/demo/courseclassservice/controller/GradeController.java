@@ -1,7 +1,6 @@
 package com.orange.demo.courseclassservice.controller;
 
 import cn.jimmyshi.beanquery.BeanQuery;
-import com.alibaba.fastjson.JSONObject;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -55,7 +54,7 @@ public class GradeController extends BaseController<Grade, GradeDto, Integer> {
     public ResponseResult<Integer> add(@MyRequestBody("grade") GradeDto gradeDto) {
         String errorMessage = MyCommonUtil.getModelValidationError(gradeDto);
         if (errorMessage != null) {
-            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
         Grade grade = MyModelUtil.copyTo(gradeDto, Grade.class);
         grade = gradeService.saveNew(grade);
@@ -72,7 +71,7 @@ public class GradeController extends BaseController<Grade, GradeDto, Integer> {
     public ResponseResult<Void> update(@MyRequestBody("grade") GradeDto gradeDto) {
         String errorMessage = MyCommonUtil.getModelValidationError(gradeDto, Default.class, UpdateGroup.class);
         if (errorMessage != null) {
-            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
         Grade grade = MyModelUtil.copyTo(gradeDto, Grade.class);
         Grade originalGrade = gradeService.getById(grade.getGradeId());
@@ -127,8 +126,8 @@ public class GradeController extends BaseController<Grade, GradeDto, Integer> {
      *
      * @return 应答结果对象，包含字典形式的数据集合。
      */
-    @GetMapping("/listDictGrade")
-    public ResponseResult<List<Map<String, Object>>> listDictGrade() {
+    @GetMapping("/listDict")
+    public ResponseResult<List<Map<String, Object>>> listDict() {
         List<Grade> resultList = gradeService.getAllList();
         return ResponseResult.success(BeanQuery.select(
                 "gradeId as id", "gradeName as name").executeFrom(resultList));
@@ -184,6 +183,18 @@ public class GradeController extends BaseController<Grade, GradeDto, Integer> {
     @PostMapping("/existId")
     public ResponseResult<Boolean> existId(@RequestParam Integer gradeId) {
         return super.baseExistId(gradeId);
+    }
+
+    /**
+     * 删除符合过滤条件的数据。
+     *
+     * @param filter 过滤对象。
+     * @return 删除数量。
+     */
+    @ApiOperation(hidden = true, value = "deleteBy")
+    @PostMapping("/deleteBy")
+    public ResponseResult<Integer> deleteBy(@RequestBody GradeDto filter) throws Exception {
+        return super.baseDeleteBy(filter, null);
     }
 
     /**

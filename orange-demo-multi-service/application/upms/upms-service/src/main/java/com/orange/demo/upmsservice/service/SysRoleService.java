@@ -152,28 +152,6 @@ public class SysRoleService extends BaseService<SysRole, SysRoleDto, Long> {
     }
 
     /**
-     * 通过权限字Id获取拥有改权限的所有角色。
-     * 开发人员调试用接口。
-     *
-     * @param permCodeId 查询的权限字Id。
-     * @return 符合条件的角色列表。
-     */
-    public List<SysRole> getSysRoleListByPermCodeId(Long permCodeId) {
-        return sysRoleMapper.getSysRoleListByPermCodeId(permCodeId);
-    }
-
-    /**
-     * 通过权限资源url，模糊搜索拥有改权限的所有角色。
-     * 开发人员调试用接口。
-     *
-     * @param url 用于模糊搜索的url。
-     * @return 符合条件的角色列表。
-     */
-    public List<SysRole> getSysRoleListByPerm(String url) {
-        return sysRoleMapper.getSysRoleListByPerm(url);
-    }
-
-    /**
      * 批量新增用户角色关联。
      *
      * @param userRoleList 用户角色关系数据列表。
@@ -218,5 +196,27 @@ public class SysRoleService extends BaseService<SysRole, SysRoleDto, Long> {
             jsonObject.put("menuIdSet", menuIdSet);
         }
         return CallResult.ok(jsonObject);
+    }
+
+    /**
+     * 查询角色的权限资源地址列表。同时返回详细的分配路径。
+     *
+     * @param roleId 角色Id。
+     * @param url    url过滤条件。
+     * @return 包含从角色到权限资源的完整权限分配路径信息的查询结果列表。
+     */
+    public List<Map<String, Object>> getSysPermListWithDetail(Long roleId, String url) {
+        return sysRoleMapper.getSysPermListWithDetail(roleId, url);
+    }
+
+    /**
+     * 查询角色的权限字列表。同时返回详细的分配路径。
+     *
+     * @param roleId   角色Id。
+     * @param permCode 权限字名称过滤条件。
+     * @return 包含从角色到权限字的权限分配路径信息的查询结果列表。
+     */
+    public List<Map<String, Object>> getSysPermCodeListWithDetail(Long roleId, String permCode) {
+        return sysRoleMapper.getSysPermCodeListWithDetail(roleId, permCode);
     }
 }

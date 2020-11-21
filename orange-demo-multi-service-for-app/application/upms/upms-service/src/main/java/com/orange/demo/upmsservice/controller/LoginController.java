@@ -6,6 +6,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import lombok.extern.slf4j.Slf4j;
+import com.orange.demo.common.core.annotation.MyRequestBody;
 import com.orange.demo.common.core.constant.ErrorCodeEnum;
 import com.orange.demo.common.core.constant.ApplicationConstant;
 import com.orange.demo.common.core.object.ResponseResult;
@@ -60,16 +61,16 @@ public class LoginController {
             @ApiImplicitParam(name = "loginName", defaultValue = "admin"),
             @ApiImplicitParam(name = "password", defaultValue = "IP3ccke3GhH45iGHB5qP9p7iZw6xUyj28Ju10rnBiPKOI35sc%2BjI7%2FdsjOkHWMfUwGYGfz8ik31HC2Ruk%2Fhkd9f6RPULTHj7VpFdNdde2P9M4mQQnFBAiPM7VT9iW3RyCtPlJexQ3nAiA09OqG%2F0sIf1kcyveSrulxembARDbDo%3D")
     })
-    @GetMapping("/doLogin")
+    @PostMapping("/doLogin")
     public ResponseResult<JSONObject> doLogin(
-            @RequestParam String loginName, @RequestParam String password) throws Exception {
+            @MyRequestBody String loginName, @MyRequestBody String password) throws Exception {
         if (MyCommonUtil.existBlankArgument(loginName, password)) {
             return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
         }
         SysUser user = sysUserService.getSysUserByLoginName(loginName);
         password = URLDecoder.decode(password, StandardCharsets.UTF_8.name());
-        //NOTE: 第一次使用时，请务必阅读ApplicationConstant.PRIVATE_KEY的代码注释。
-        //执行RsaUtil工具类中的main函数，可以生成新的公钥和私钥。
+        // NOTE: 第一次使用时，请务必阅读ApplicationConstant.PRIVATE_KEY的代码注释。
+        // 执行RsaUtil工具类中的main函数，可以生成新的公钥和私钥。
         password = RsaUtil.decrypt(password, ApplicationConstant.PRIVATE_KEY);
         if (user == null || !passwordEncoder.matches(password, user.getPassword())) {
             return ResponseResult.error(ErrorCodeEnum.INVALID_USERNAME_PASSWORD);
@@ -103,15 +104,15 @@ public class LoginController {
      */
     @PostMapping("/changePassword")
     public ResponseResult<Void> changePassword(
-            @RequestParam String oldPass, @RequestParam String newPass) throws Exception {
+            @MyRequestBody String oldPass, @MyRequestBody String newPass) throws Exception {
         if (MyCommonUtil.existBlankArgument(oldPass, oldPass)) {
             return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
         }
         TokenData tokenData = TokenData.takeFromRequest();
         SysUser user = sysUserService.getById(tokenData.getUserId());
         oldPass = URLDecoder.decode(oldPass, StandardCharsets.UTF_8.name());
-        //NOTE: 第一次使用时，请务必阅读ApplicationConstant.PRIVATE_KEY的代码注释。
-        //执行RsaUtil工具类中的main函数，可以生成新的公钥和私钥。
+        // NOTE: 第一次使用时，请务必阅读ApplicationConstant.PRIVATE_KEY的代码注释。
+        // 执行RsaUtil工具类中的main函数，可以生成新的公钥和私钥。
         oldPass = RsaUtil.decrypt(oldPass, ApplicationConstant.PRIVATE_KEY);
         if (user == null || !passwordEncoder.matches(oldPass, user.getPassword())) {
             return ResponseResult.error(ErrorCodeEnum.INVALID_USERNAME_PASSWORD);

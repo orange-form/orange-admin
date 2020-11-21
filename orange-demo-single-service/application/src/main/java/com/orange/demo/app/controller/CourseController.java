@@ -16,8 +16,6 @@ import com.orange.demo.common.core.annotation.MyRequestBody;
 import com.orange.demo.common.core.validator.UpdateGroup;
 import com.orange.demo.common.core.cache.SessionCacheHelper;
 import com.orange.demo.config.ApplicationConfig;
-import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
-import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -33,7 +31,6 @@ import javax.validation.groups.Default;
  * @author Jerry
  * @date 2020-09-24
  */
-@Api(tags = "课程数据管理接口")
 @Slf4j
 @RestController
 @RequestMapping("/admin/app/course")
@@ -54,25 +51,17 @@ public class CourseController {
      * @param course 新增对象。
      * @return 应答结果对象，包含新增对象主键Id。
      */
-    @ApiOperationSupport(ignoreParameters = {
-            "course.courseId",
-            "course.priceStart",
-            "course.priceEnd",
-            "course.classHourStart",
-            "course.classHourEnd",
-            "course.createTimeStart",
-            "course.createTimeEnd"})
     @PostMapping("/add")
     public ResponseResult<Long> add(@MyRequestBody Course course) {
         String errorMessage = MyCommonUtil.getModelValidationError(course);
         if (errorMessage != null) {
-            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
         // 验证关联Id的数据合法性
         CallResult callResult = courseService.verifyRelatedData(course, null);
         if (!callResult.isSuccess()) {
             errorMessage = callResult.getErrorMessage();
-            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
         course = courseService.saveNew(course);
         return ResponseResult.success(course.getCourseId());
@@ -84,23 +73,16 @@ public class CourseController {
      * @param course 更新对象。
      * @return 应答结果对象。
      */
-    @ApiOperationSupport(ignoreParameters = {
-            "course.priceStart",
-            "course.priceEnd",
-            "course.classHourStart",
-            "course.classHourEnd",
-            "course.createTimeStart",
-            "course.createTimeEnd"})
     @PostMapping("/update")
     public ResponseResult<Void> update(@MyRequestBody Course course) {
         String errorMessage = MyCommonUtil.getModelValidationError(course, Default.class, UpdateGroup.class);
         if (errorMessage != null) {
-            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
         // 验证关联Id的数据合法性
         Course originalCourse = courseService.getById(course.getCourseId());
         if (originalCourse == null) {
-            //NOTE: 修改下面方括号中的话述
+            // NOTE: 修改下面方括号中的话述
             errorMessage = "数据验证失败，当前 [数据] 并不存在，请刷新后重试！";
             return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST, errorMessage);
         }
@@ -108,7 +90,7 @@ public class CourseController {
         CallResult callResult = courseService.verifyRelatedData(course, originalCourse);
         if (!callResult.isSuccess()) {
             errorMessage = callResult.getErrorMessage();
-            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
         if (!courseService.update(course, originalCourse)) {
             return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST);
@@ -180,7 +162,7 @@ public class CourseController {
         }
         return ResponseResult.success(course);
     }
-    
+
     /**
      * 附件文件下载。
      * 这里将图片和其他类型的附件文件放到不同的父目录下，主要为了便于今后图片文件的迁移。
@@ -281,8 +263,8 @@ public class CourseController {
      * @param filter 过滤对象。
      * @return 应答结果对象，包含的数据为 List<Map<String, String>>，map中包含两条记录，key的值分别是id和name，value对应具体数据。
      */
-    @GetMapping("/listDictCourse")
-    public ResponseResult<List<Map<String, Object>>> listDictCourse(Course filter) {
+    @GetMapping("/listDict")
+    public ResponseResult<List<Map<String, Object>>> listDict(Course filter) {
         List<Course> resultList = courseService.getListByFilter(filter, null);
         return ResponseResult.success(BeanQuery.select(
                 "courseId as id", "courseName as name").executeFrom(resultList));

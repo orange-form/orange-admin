@@ -68,19 +68,19 @@ public class SnowflakeZookeeperHolder {
             curator.start();
             Stat stat = curator.checkExists().forPath(pathForever);
             if (stat == null) {
-                //不存在根节点,机器第一次启动,创建/snowflake/ip:port-000000000,并上传数据
+                // 不存在根节点,机器第一次启动,创建/snowflake/ip:port-000000000,并上传数据
                 zkAddressNode = createNode(curator);
-                //worker id 默认是0
+                // worker id 默认是0
                 updateLocalWorkerId(workerId);
-                //定时上报本机时间给forever节点
+                // 定时上报本机时间给forever节点
                 scheduledUploadData(curator, zkAddressNode);
                 return true;
             } else {
-                //ip:port->00001
+                // ip:port->00001
                 Map<String, Integer> nodeMap = Maps.newHashMap();
-                //ip:port->(ipport-000001)
+                // ip:port->(ipport-000001)
                 Map<String, String> realNode = Maps.newHashMap();
-                //存在根节点,先检查是否有属于自己的根节点
+                // 存在根节点,先检查是否有属于自己的根节点
                 List<String> keys = curator.getChildren().forPath(pathForever);
                 for (String key : keys) {
                     String[] nodeKey = key.split("-");
@@ -89,16 +89,16 @@ public class SnowflakeZookeeperHolder {
                 }
                 Integer workerid = nodeMap.get(listenAddress);
                 if (workerid != null) {
-                    //有自己的节点,zk_AddressNode=ip:port
+                    // 有自己的节点,zk_AddressNode=ip:port
                     zkAddressNode = pathForever + "/" + realNode.get(listenAddress);
-                    //启动worder时使用会使用
+                    // 启动worder时使用会使用
                     workerId = workerid;
                     if (!checkInitTimeStamp(curator, zkAddressNode)) {
                         throw new CheckLastTimeException(
                                 "Init timestamp check error,forever node timestamp greater than this node time");
                     }
                 } else {
-                    //表示新启动的节点,创建持久节点 ,不用check时间
+                    // 表示新启动的节点,创建持久节点 ,不用check时间
                     String newNode = createNode(curator);
                     zkAddressNode = newNode;
                     String[] nodeKey = newNode.split("-");
@@ -137,7 +137,7 @@ public class SnowflakeZookeeperHolder {
         byte[] bytes = curator.getData().forPath(zkAddressNode);
         ObjectMapper mapper = new ObjectMapper();
         Endpoint endPoint = mapper.readValue(new String(bytes), Endpoint.class);
-        //该节点的时间不能小于最后一次上报的时间
+        // 该节点的时间不能小于最后一次上报的时间
         return endPoint.getTimestamp() <= System.currentTimeMillis();
     }
 
@@ -184,7 +184,7 @@ public class SnowflakeZookeeperHolder {
                 log.error("update file cache error ", e);
             }
         } else {
-            //不存在文件,父目录页肯定不存在
+            // 不存在文件,父目录页肯定不存在
             try {
                 boolean mkdirs = leafConfFile.getParentFile().mkdirs();
                 log.info("init local file cache create parent dis status is {}, worker id is {}", mkdirs, workId);

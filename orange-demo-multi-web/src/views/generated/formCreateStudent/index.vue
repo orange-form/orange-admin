@@ -390,6 +390,21 @@ export default {
     onAddClick () {
       this.$refs.formCreateStudent.validate((valid) => {
         if (!valid) return;
+        if (
+          this.formData.Student.loginMobile == null ||
+          this.formData.Student.studentName == null ||
+          this.formData.Student.provinceId == null ||
+          this.formData.Student.cityId == null ||
+          this.formData.Student.districtId == null ||
+          this.formData.Student.gender == null ||
+          this.formData.Student.birthday == null ||
+          this.formData.Student.experienceLevel == null ||
+          this.formData.Student.gradeId == null ||
+          this.formData.Student.schoolId == null
+        ) {
+          this.$message.error('请求失败，发现必填参数为空！');
+          return;
+        }
         let params = {
           student: {
             loginMobile: this.formData.Student.loginMobile,
@@ -415,6 +430,31 @@ export default {
       });
     },
     initFormData () {
+    },
+    /**
+     * 重置表单数据
+     */
+    resetFormData () {
+      this.formData = {
+        Student: {
+          studentId: undefined,
+          loginMobile: undefined,
+          studentName: undefined,
+          provinceId: undefined,
+          cityId: undefined,
+          districtId: undefined,
+          gender: undefined,
+          birthday: undefined,
+          experienceLevel: undefined,
+          totalCoin: undefined,
+          leftCoin: undefined,
+          gradeId: undefined,
+          schoolId: undefined,
+          registerTime: undefined,
+          status: undefined,
+          isDatasourceInit: false
+        }
+      }
     },
     formInit () {
       this.refreshFormCreateStudent();

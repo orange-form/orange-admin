@@ -301,6 +301,26 @@ export default {
     },
     initFormData () {
     },
+    /**
+     * 重置表单数据
+     */
+    resetFormData () {
+      this.formData = {
+        CourseTransStats: {
+          statsId: undefined,
+          statsDate: undefined,
+          subjectId: undefined,
+          gradeId: undefined,
+          gradeName: undefined,
+          courseId: undefined,
+          courseName: undefined,
+          studentAttendCount: undefined,
+          studentFlowerAmount: undefined,
+          studentFlowerCount: undefined,
+          isDatasourceInit: false
+        }
+      }
+    },
     formInit () {
       this.refreshFormCourseStats();
     }

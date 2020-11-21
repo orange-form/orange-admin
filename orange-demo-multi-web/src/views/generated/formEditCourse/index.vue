@@ -254,6 +254,19 @@ export default {
     onUpdateClick () {
       this.$refs.formEditCourse.validate((valid) => {
         if (!valid) return;
+        if (
+          this.courseId == null ||
+          this.formData.Course.courseName == null ||
+          this.formData.Course.price == null ||
+          this.formData.Course.difficulty == null ||
+          this.formData.Course.gradeId == null ||
+          this.formData.Course.subjectId == null ||
+          this.formData.Course.classHour == null ||
+          this.formData.Course.pictureUrl == null
+        ) {
+          this.$message.error('请求失败，发现必填参数为空！');
+          return;
+        }
         let params = {
           course: {
             courseId: this.courseId,
@@ -280,14 +293,27 @@ export default {
     loadCourseData () {
       return new Promise((resolve, reject) => {
         if (!this.formData.Course.isDatasourceInit) {
+          if (
+            this.courseId == null
+          ) {
+            this.resetFormData();
+            reject();
+            return;
+          }
           let params = {
             courseId: this.courseId
           };
           CourseController.view(this, params).then(res => {
             this.formData.Course = {...res.data, isDatasourceInit: true};
-            if (this.formData.Course.difficultyDictMap) this.formEditCourse.difficulty.impl.dropdownList = [this.formData.Course.difficultyDictMap];
-            if (this.formData.Course.gradeIdDictMap) this.formEditCourse.gradeId.impl.dropdownList = [this.formData.Course.gradeIdDictMap];
-            if (this.formData.Course.subjectIdDictMap) this.formEditCourse.subjectId.impl.dropdownList = [this.formData.Course.subjectIdDictMap];
+            if (this.formData.Course.difficultyDictMap && this.formEditCourse.difficulty.impl.dirty) {
+              this.formEditCourse.difficulty.impl.dropdownList = [this.formData.Course.difficultyDictMap];
+            }
+            if (this.formData.Course.gradeIdDictMap && this.formEditCourse.gradeId.impl.dirty) {
+              this.formEditCourse.gradeId.impl.dropdownList = [this.formData.Course.gradeIdDictMap];
+            }
+            if (this.formData.Course.subjectIdDictMap && this.formEditCourse.subjectId.impl.dirty) {
+              this.formEditCourse.subjectId.impl.dropdownList = [this.formData.Course.subjectIdDictMap];
+            }
             let pictureUrlDownloadParams = {
               courseId: this.formData.Course.courseId,
               fieldName: 'pictureUrl',
@@ -331,6 +357,28 @@ export default {
     },
     onUploadLimit (files, fileList) {
       this.$message.error('已经超出最大上传个数限制');
+    },
+    /**
+     * 重置表单数据
+     */
+    resetFormData () {
+      this.formData = {
+        Course: {
+          courseId: undefined,
+          courseName: undefined,
+          price: undefined,
+          description: undefined,
+          difficulty: undefined,
+          gradeId: undefined,
+          subjectId: undefined,
+          classHour: undefined,
+          pictureUrl: undefined,
+          createUserId: undefined,
+          createTime: undefined,
+          updateTime: undefined,
+          isDatasourceInit: false
+        }
+      }
     },
     formInit () {
       this.refreshFormEditCourse();

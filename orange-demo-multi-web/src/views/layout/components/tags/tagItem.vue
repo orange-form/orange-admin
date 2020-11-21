@@ -1,9 +1,8 @@
 <template>
   <div class="tags-item">
-    <div style="height: 3px;" class="top" />
-    <span class="title" :style="{'padding-right': supportClose ? '5px' : '10px'}">{{title}}</span>
-    <i :class="{'el-icon-close close': !enterClose, 'el-icon-error': enterClose}" v-show="supportClose"
-      :style="{color: enterClose ? '#F56C6C' : '#333'}" @click.stop="onClose"
+    <span class="title">{{title}}</span>
+    <i :class="{'el-icon-close close': !enterClose, 'el-icon-error close hover-close': enterClose}"
+      v-if="supportClose" @click.stop="onClose"
       @mouseenter="() => enterClose = true" @mouseleave="() => enterClose = false" />
   </div>
 </template>
@@ -24,7 +23,6 @@ export default {
   },
   methods: {
     onClose () {
-      console.log('close-tag-item');
       this.$emit('close');
     }
   }
@@ -32,39 +30,50 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-  @import '@/assets/style/element-color.scss';
+  @import '@/assets/style/element-variables.scss';
   .tags-item {
-    height: 40px;
-    line-height: 37px;
+    height: 30px;
+    line-height: 30px;
+    border: 1px solid $--border-color-extra-light;
+    border-radius: 3px;
     box-sizing: border-box;
     display: inline-block;
-    border-right: 1px solid #DCDFE6;
     cursor: pointer;
+    background: white;
+    padding: 0px 20px;
+    color: $--color-text-primary;
   }
 
   .tags-item .title {
     font-size: 13px;
-    color: #666
   }
 
   .close {
     height: 28px;
     line-height: 28px;
+    display: none;
   }
+
+  .tags-item.active .close {
+    margin-left: 10px;
+    display: inline-block;
+  }
+
+  .close.hover-close {
+    color: $--color-text-secondary;
+  }
+
   .tags-item:hover {
     color: $--color-primary;
   }
   .tags-item.active {
     color: $--color-primary;
+    border-color: $--color-primary-light-5;
+    background-color: $--color-primary-light-9;
   }
-  .tags-item span {
-    margin-left: 10px;
-  }
-  .tags-item i {
-    margin-right: 10px;
-  }
-  .tags-item.active .top {
-    background: $--color-primary;
+
+  .tags-item + .tags-item {
+    margin-left: 5px;
   }
 
 </style>

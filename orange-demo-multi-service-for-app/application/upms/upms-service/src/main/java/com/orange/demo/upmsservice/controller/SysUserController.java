@@ -60,12 +60,12 @@ public class SysUserController extends BaseController<SysUser, SysUserDto, Long>
     public ResponseResult<Long> add(@MyRequestBody("sysUser") SysUserDto sysUserDto) {
         String errorMessage = MyCommonUtil.getModelValidationError(sysUserDto, Default.class, AddGroup.class);
         if (errorMessage != null) {
-            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
         SysUser sysUser = SysUser.INSTANCE.toModel(sysUserDto);
         CallResult result = sysUserService.verifyRelatedData(sysUser, null);
         if (!result.isSuccess()) {
-            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, result.getErrorMessage());
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, result.getErrorMessage());
         }
         sysUserService.saveNew(sysUser);
         return ResponseResult.success(sysUser.getUserId());
@@ -84,7 +84,7 @@ public class SysUserController extends BaseController<SysUser, SysUserDto, Long>
     public ResponseResult<Void> update(@MyRequestBody("sysUser") SysUserDto sysUserDto) {
         String errorMessage = MyCommonUtil.getModelValidationError(sysUserDto, Default.class, UpdateGroup.class);
         if (errorMessage != null) {
-            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
         SysUser originalUser = sysUserService.getById(sysUserDto.getUserId());
         if (originalUser == null) {
@@ -93,7 +93,7 @@ public class SysUserController extends BaseController<SysUser, SysUserDto, Long>
         SysUser sysUser = SysUser.INSTANCE.toModel(sysUserDto);
         CallResult result = sysUserService.verifyRelatedData(sysUser, originalUser);
         if (!result.isSuccess()) {
-            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, result.getErrorMessage());
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, result.getErrorMessage());
         }
         if (!sysUserService.update(sysUser, originalUser)) {
             return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST);
@@ -133,7 +133,7 @@ public class SysUserController extends BaseController<SysUser, SysUserDto, Long>
         // 验证关联Id的数据合法性
         SysUser originalSysUser = sysUserService.getById(userId);
         if (originalSysUser == null) {
-            //NOTE: 修改下面方括号中的话述
+            // NOTE: 修改下面方括号中的话述
             errorMessage = "数据验证失败，当前 [对象] 并不存在，请刷新后重试！";
             return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST, errorMessage);
         }
@@ -245,6 +245,18 @@ public class SysUserController extends BaseController<SysUser, SysUserDto, Long>
     @PostMapping("/existId")
     public ResponseResult<Boolean> existId(@RequestParam Long userId) {
         return super.baseExistId(userId);
+    }
+
+    /**
+     * 删除符合过滤条件的数据。
+     *
+     * @param filter 过滤对象。
+     * @return 删除数量。
+     */
+    @ApiOperation(hidden = true, value = "deleteBy")
+    @PostMapping("/deleteBy")
+    public ResponseResult<Integer> deleteBy(@RequestBody SysUserDto filter) throws Exception {
+        return super.baseDeleteBy(filter, SysUser.INSTANCE);
     }
 
     /**

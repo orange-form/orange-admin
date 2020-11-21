@@ -10,8 +10,6 @@ import com.orange.demo.common.core.annotation.MyRequestBody;
 import com.orange.demo.common.core.validator.AddGroup;
 import com.orange.demo.common.core.validator.UpdateGroup;
 import com.orange.demo.config.ApplicationConfig;
-import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
-import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +24,6 @@ import javax.validation.groups.Default;
  * @author Jerry
  * @date 2020-09-24
  */
-@Api(tags = "用户管理管理接口")
 @Slf4j
 @RestController
 @RequestMapping("/admin/upms/sysUser")
@@ -45,19 +42,15 @@ public class SysUserController {
      * @param sysUser 新增用户对象。
      * @return 应答结果对象，包含新增用户的主键Id。
      */
-    @ApiOperationSupport(ignoreParameters = {
-            "sysUser.userId",
-            "sysUser.createTimeStart",
-            "sysUser.createTimeEnd"})
     @PostMapping("/add")
     public ResponseResult<Long> add(@MyRequestBody SysUser sysUser) {
         String errorMessage = MyCommonUtil.getModelValidationError(sysUser, Default.class, AddGroup.class);
         if (errorMessage != null) {
-            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
         CallResult result = sysUserService.verifyRelatedData(sysUser, null);
         if (!result.isSuccess()) {
-            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, result.getErrorMessage());
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, result.getErrorMessage());
         }
         sysUserService.saveNew(sysUser);
         return ResponseResult.success(sysUser.getUserId());
@@ -69,14 +62,11 @@ public class SysUserController {
      * @param sysUser 更新用户对象。
      * @return 应答结果对象。
      */
-    @ApiOperationSupport(ignoreParameters = {
-            "sysUser.createTimeStart",
-            "sysUser.createTimeEnd"})
     @PostMapping("/update")
     public ResponseResult<Void> update(@MyRequestBody SysUser sysUser) {
         String errorMessage = MyCommonUtil.getModelValidationError(sysUser, Default.class, UpdateGroup.class);
         if (errorMessage != null) {
-            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
         SysUser originalUser = sysUserService.getById(sysUser.getUserId());
         if (originalUser == null) {
@@ -84,7 +74,7 @@ public class SysUserController {
         }
         CallResult result = sysUserService.verifyRelatedData(sysUser, originalUser);
         if (!result.isSuccess()) {
-            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, result.getErrorMessage());
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, result.getErrorMessage());
         }
         if (!sysUserService.update(sysUser, originalUser)) {
             return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST);

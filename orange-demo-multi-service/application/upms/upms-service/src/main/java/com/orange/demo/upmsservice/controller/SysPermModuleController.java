@@ -49,7 +49,7 @@ public class SysPermModuleController {
     public ResponseResult<Long> add(@MyRequestBody("sysPermModule") SysPermModuleDto sysPermModuleDto) {
         String errorMessage = MyCommonUtil.getModelValidationError(sysPermModuleDto);
         if (errorMessage != null) {
-            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
         SysPermModule sysPermModule = MyModelUtil.copyTo(sysPermModuleDto, SysPermModule.class);
         if (sysPermModule.getParentId() != null
@@ -71,7 +71,7 @@ public class SysPermModuleController {
     public ResponseResult<Void> update(@MyRequestBody("sysPermModule") SysPermModuleDto sysPermModuleDto) {
         String errorMessage = MyCommonUtil.getModelValidationError(sysPermModuleDto, Default.class, UpdateGroup.class);
         if (errorMessage != null) {
-            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
         SysPermModule sysPermModule = MyModelUtil.copyTo(sysPermModuleDto, SysPermModule.class);
         SysPermModule originalPermModule = sysPermModuleService.getById(sysPermModule.getModuleId());

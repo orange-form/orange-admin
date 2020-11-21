@@ -1,11 +1,10 @@
 package com.orange.demo.upmsinterface.client;
 
+import com.orange.demo.common.core.base.client.BaseFallbackFactory;
 import com.orange.demo.common.core.config.FeignConfig;
 import com.orange.demo.common.core.base.client.BaseClient;
-import com.orange.demo.common.core.constant.ErrorCodeEnum;
 import com.orange.demo.common.core.object.*;
 import com.orange.demo.upmsinterface.dto.SysUserDto;
-import feign.hystrix.FallbackFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.stereotype.Component;
@@ -72,6 +71,26 @@ public interface SysUserClient extends BaseClient<SysUserDto, Long> {
     ResponseResult<Boolean> existId(@RequestParam("userId") Long userId);
 
     /**
+     * 删除主键Id关联的对象。
+     *
+     * @param userId 主键Id。
+     * @return 应答结果对象。
+     */
+    @Override
+    @PostMapping("/sysUser/delete")
+    ResponseResult<Void> delete(@RequestParam("userId") Long userId);
+
+    /**
+     * 删除符合过滤条件的数据。
+     *
+     * @param filter 过滤对象。
+     * @return 应答结果对象，包含删除数量。
+     */
+    @Override
+    @PostMapping("/sysUser/deleteBy")
+    ResponseResult<Integer> deleteBy(@RequestBody SysUserDto filter);
+
+    /**
      * 获取远程主对象中符合查询条件的数据列表。
      *
      * @param queryParam 查询参数。
@@ -124,54 +143,8 @@ public interface SysUserClient extends BaseClient<SysUserDto, Long> {
 
     @Component("UpmsSysUserClientFallbackFactory")
     @Slf4j
-    class SysUserClientFallbackFactory implements FallbackFactory<SysUserClient>, SysUserClient {
-
-        @Override
-        public ResponseResult<List<SysUserDto>> listByIds(
-                Set<Long> userIds, Boolean withDict) {
-            return ResponseResult.error(ErrorCodeEnum.RPC_DATA_ACCESS_FAILED);
-        }
-
-        @Override
-        public ResponseResult<SysUserDto> getById(
-                Long userId, Boolean withDict) {
-            return ResponseResult.error(ErrorCodeEnum.RPC_DATA_ACCESS_FAILED);
-        }
-
-        @Override
-        public ResponseResult<Boolean> existIds(Set<Long> userIds) {
-            return ResponseResult.error(ErrorCodeEnum.RPC_DATA_ACCESS_FAILED);
-        }
-
-        @Override
-        public ResponseResult<Boolean> existId(Long userId) {
-            return ResponseResult.error(ErrorCodeEnum.RPC_DATA_ACCESS_FAILED);
-        }
-
-        @Override
-        public ResponseResult<List<SysUserDto>> listBy(MyQueryParam queryParam) {
-            return ResponseResult.error(ErrorCodeEnum.RPC_DATA_ACCESS_FAILED);
-        }
-
-        @Override
-        public ResponseResult<SysUserDto> getBy(MyQueryParam queryParam) {
-            return ResponseResult.error(ErrorCodeEnum.RPC_DATA_ACCESS_FAILED);
-        }
-
-        @Override
-        public ResponseResult<List<Map<String, Object>>> listMapBy(MyQueryParam queryParam) {
-            return ResponseResult.error(ErrorCodeEnum.RPC_DATA_ACCESS_FAILED);
-        }
-
-        @Override
-        public ResponseResult<Integer> countBy(MyQueryParam queryParam) {
-            return ResponseResult.error(ErrorCodeEnum.RPC_DATA_ACCESS_FAILED);
-        }
-
-        @Override
-        public ResponseResult<List<Map<String, Object>>> aggregateBy(MyAggregationParam aggregationParam) {
-            return ResponseResult.error(ErrorCodeEnum.RPC_DATA_ACCESS_FAILED);
-        }
+    class SysUserClientFallbackFactory
+            extends BaseFallbackFactory<SysUserDto, Long, SysUserClient> implements SysUserClient {
 
         @Override
         public SysUserClient create(Throwable throwable) {

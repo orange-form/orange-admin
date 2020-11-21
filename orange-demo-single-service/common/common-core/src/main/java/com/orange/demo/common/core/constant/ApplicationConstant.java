@@ -9,6 +9,10 @@ package com.orange.demo.common.core.constant;
 public final class ApplicationConstant {
 
     /**
+     * 为字典表数据缓存时，缓存名称的固定后缀。
+     */
+    public static final String DICT_CACHE_NAME_SUFFIX = "-DICT";
+    /**
      * 图片文件上传的父目录。
      */
     public static final String UPLOAD_IMAGE_PARENT_PATH = "image";

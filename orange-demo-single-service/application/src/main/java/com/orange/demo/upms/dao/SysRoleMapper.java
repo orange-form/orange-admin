@@ -4,7 +4,7 @@ import com.orange.demo.common.core.base.dao.BaseDaoMapper;
 import com.orange.demo.upms.model.SysRole;
 import org.apache.ibatis.annotations.Param;
 
-import java.util.List;
+import java.util.*;
 
 /**
  * 角色数据访问操作接口。
@@ -24,18 +24,22 @@ public interface SysRoleMapper extends BaseDaoMapper<SysRole> {
     List<SysRole> getSysRoleList(@Param("sysRoleFilter") SysRole sysRoleFilter, @Param("orderBy") String orderBy);
 
     /**
-     * 根据权限字Id获取关联的角色列表。
+     * 查询角色的权限资源地址列表。同时返回详细的分配路径。
      *
-     * @param permCodeId 权限字Id。
-     * @return 关联的角色列表。
+     * @param roleId 角色Id。
+     * @param url    url过滤条件。
+     * @return 包含从角色到权限资源的完整权限分配路径信息的查询结果列表。
      */
-    List<SysRole> getSysRoleListByPermCodeId(@Param("permCodeId") Long permCodeId);
+    List<Map<String, Object>> getSysPermListWithDetail(
+            @Param("roleId") Long roleId, @Param("url") String url);
 
     /**
-     * 根据url模糊查询关联的角色列表。
+     * 查询角色的权限字列表。同时返回详细的分配路径。
      *
-     * @param url url片段。
-     * @return 关联的角色列表。
+     * @param roleId   角色Id。
+     * @param permCode 权限字名称过滤条件。
+     * @return 包含从角色到权限字的权限分配路径信息的查询结果列表。
      */
-    List<SysRole> getSysRoleListByPerm(@Param("url") String url);
+    List<Map<String, Object>> getSysPermCodeListWithDetail(
+            @Param("roleId") Long roleId, @Param("permCode") String permCode);
 }

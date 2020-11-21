@@ -53,7 +53,7 @@ public class MyCommonUtil {
      * @param objs 一组参数。
      * @return 返回是否存在null或空字符串的参数。
      */
-    public static boolean existBlankArgument(Object... objs) {
+    public static boolean existBlankArgument(Object...objs) {
         for (Object obj : objs) {
             if (MyCommonUtil.isBlankOrNull(obj)) {
                 return true;
@@ -68,7 +68,7 @@ public class MyCommonUtil {
      * @param objs 一组参数。
      * @return 返回是否存在null或空字符串的参数。
      */
-    public static boolean existNotBlankArgument(Object... objs) {
+    public static boolean existNotBlankArgument(Object...objs) {
         for (Object obj : objs) {
             if (!MyCommonUtil.isBlankOrNull(obj)) {
                 return true;
@@ -107,7 +107,7 @@ public class MyCommonUtil {
      * @param groups Validate绑定的校验组。
      * @return 没有错误返回null，否则返回具体的错误信息。
      */
-    public static <T> String getModelValidationError(T model, Class<?>... groups) {
+    public static <T> String getModelValidationError(T model, Class<?>...groups) {
         Set<ConstraintViolation<T>> constraintViolations = validator.validate(model, groups);
         if (!constraintViolations.isEmpty()) {
             Iterator<ConstraintViolation<T>> it = constraintViolations.iterator();
@@ -146,8 +146,8 @@ public class MyCommonUtil {
      */
     public static <T> String[] getNotNullFieldNames(T object, Class<T> clazz) {
         Field[] fields = ReflectUtil.getFields(clazz);
-        List<String> fieldNameList = Arrays.stream(fields).
-                filter(f -> ReflectUtil.getFieldValue(object, f) != null)
+        List<String> fieldNameList = Arrays.stream(fields)
+                .filter(f -> ReflectUtil.getFieldValue(object, f) != null)
                 .map(Field::getName).collect(Collectors.toList());
         if (CollectionUtils.isNotEmpty(fieldNameList)) {
             return fieldNameList.toArray(new String[]{});

@@ -121,7 +121,8 @@ export default {
           let tempList = [];
           this.formData.menuIdList.forEach((item) => {
             let tempMenu = findItemFromList(res.data, item, 'menuId');
-            if (tempMenu != null && tempMenu.menuType === this.SysMenuType.BUTTON) {
+            // 判断是否为叶子节点
+            if (tempMenu != null && (!Array.isArray(tempMenu.children) || tempMenu.children.length <= 0)) {
               tempList.push(item);
             }
           });

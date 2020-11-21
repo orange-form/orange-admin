@@ -2,16 +2,18 @@ package com.orange.demo.common.redis.cache;
 
 import com.alibaba.fastjson.JSON;
 import com.orange.demo.common.core.cache.DictionaryCache;
+import com.orange.demo.common.core.constant.ApplicationConstant;
 import com.orange.demo.common.core.exception.RedisCacheAccessException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.redisson.api.RMap;
-import org.redisson.api.RReadWriteLock;
 import org.redisson.api.RedissonClient;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -41,7 +43,7 @@ public class RedisDictionaryCache<K, V> implements DictionaryCache<K, V> {
     /**
      * 由于大部分场景是读取操作，所以使用读写锁提高并发的伸缩性。
      */
-    protected RReadWriteLock lock;
+    protected ReadWriteLock lock;
     /**
      * 超时时长。单位毫秒。
      */
@@ -87,8 +89,8 @@ public class RedisDictionaryCache<K, V> implements DictionaryCache<K, V> {
             Class<V> valueClazz,
             Function<V, K> idGetter) {
         this.redissonClient = redissonClient;
-        this.dataMap = redissonClient.getMap(dictionaryName + "-DICT");
-        this.lock = redissonClient.getReadWriteLock(dictionaryName + "-DICT-LOCK");
+        this.dataMap = redissonClient.getMap(dictionaryName + ApplicationConstant.DICT_CACHE_NAME_SUFFIX);
+        this.lock = new ReentrantReadWriteLock();
         this.valueClazz = valueClazz;
         this.idGetter = idGetter;
     }

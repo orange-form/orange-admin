@@ -3,15 +3,15 @@
     <el-aside width='200px' class="sidebar">
       <side-bar style="overflow: hidden"></side-bar>
     </el-aside>
-    <el-container style="background-color: rgb(235,235,235)">
+    <el-container style="background-color: #F5F8F9">
       <el-header class="header">
-        <breadcrumb class="breadcrumb-container" style="flex-grow: 1;" />
-        <div class="menu-column" v-if="getMultiColumn">
+        <breadcrumb class="breadcrumb-container" />
+        <div class="menu-column" v-if="getMultiColumn" style="margin-left: 20px;">
           <el-menu mode="horizontal" :default-active="getCurrentColumnId" @select="onColumnChange">
             <el-menu-item v-for="column in getColumnList" :key="column.columnId" :index="column.columnId">{{column.columnName}}</el-menu-item>
           </el-menu>
         </div>
-        <div class="header-menu">
+        <div class="header-menu" style="flex-grow: 1;">
           <el-dropdown class="user-dropdown" trigger="click" @command="handleCommand">
             <span class="el-dropdown-link">{{getUserInfo.showName}}<i class="el-icon-arrow-down el-icon--right"></i>
             </span>

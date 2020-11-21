@@ -153,7 +153,7 @@ export default {
   },
   mounted () {
     if (this.rowData != null) {
-      this.formData = {...this.rowData};
+      this.formData = {...this.rowData, dataPermIdList: [], roleIdList: []};
       if (Array.isArray(this.formData.sysUserRoleList)) {
         this.formData.roleIdList = this.formData.sysUserRoleList.map(item => item.roleId);
       }

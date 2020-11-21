@@ -1,7 +1,7 @@
 <template>
   <div class="tags-panel">
-    <i class="el-icon-d-arrow-left arrow left" @click="beginPos > 0 && beginPos--" />
-    <i class="el-icon-d-arrow-right arrow right" @click="getEndTagPos >= panelWidth && beginPos++" />
+    <i class="el-icon-arrow-left arrow left" @click="beginPos > 0 && beginPos--" />
+    <i class="el-icon-arrow-right arrow right" @click="getEndTagPos >= panelWidth && beginPos++" />
     <div class="main-panel">
       <div class="scroll-box">
         <TagItem class="item" title="主页" :class="{active: getCurrentMenuId == null}" v-show="0 >= beginPos" :supportClose="false"
@@ -123,7 +123,10 @@ export default {
       let width = 0;
       let childList = this.$children;
       for (let i = this.beginPos; i < childList.length; i++) {
+        console.log(childList[i], childList[i].$el.offsetWidth);
         width += childList[i].$el.offsetWidth;
+        // 间隔距离
+        width += 5;
         if (width > this.panelWidth) {
           break;
         }
@@ -152,12 +155,12 @@ export default {
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
+  @import '@/assets/style/element-variables.scss';
   .tags-panel {
-    height: 42px;
-    border-top: 1px solid #DCDFE6;
-    border-bottom: 1px solid #DCDFE6;
     background: white;
+    box-shadow: 0px 1px 4px rgba(0,21,41,.08);
+    border-top: 1px solid $--border-color-extra-light;
   }
   .main-panel {
     margin: 0px 30px;
@@ -165,11 +168,15 @@ export default {
   .scroll-box {
     overflow: hidden;
     white-space: nowrap;
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
     width: 100%;
+    height: 50px;
   }
   .arrow {
-    height: 40px;
-    line-height: 40px;
+    height: 50px;
+    line-height: 50px;
     width: 30px;
     text-align: center;
     font-size: 14px;
@@ -177,8 +184,6 @@ export default {
     z-index: 100;
     background: white;
     box-sizing: border-box;
-    border-left: 1px solid #DCDFE6;
-    border-right: 1px solid #DCDFE6;
   }
   .arrow.left {
     float: left;
@@ -210,4 +215,5 @@ export default {
   .contextmenu li:hover {
     background: #eee;
   }
+
 </style>

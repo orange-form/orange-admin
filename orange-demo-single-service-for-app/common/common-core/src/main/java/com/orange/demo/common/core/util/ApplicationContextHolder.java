@@ -6,6 +6,9 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 
+import java.util.Collection;
+import java.util.Map;
+
 /**
  * Spring 系统启动应用感知对象，主要用于获取Spring Bean的上下文对象，后续的代码中可以直接查找系统中加载的Bean对象。
  *
@@ -60,6 +63,19 @@ public class ApplicationContextHolder implements ApplicationContextAware {
     public static <T> T getBean(Class<T> beanType) {
         assertApplicationContext();
         return applicationContext.getBean(beanType);
+    }
+
+    /**
+     * 根据Bean的ClassType，获取Bean对象列表。
+     *
+     * @param beanType Bean的Class类型。。
+     * @param <T>      返回的Bean类型。
+     * @return Bean对象列表。
+     */
+    public static <T> Collection<T> getBeanListOfType(Class<T> beanType) {
+        assertApplicationContext();
+        Map<String, T> beanMap = applicationContext.getBeansOfType(beanType);
+        return beanMap == null ? null : beanMap.values();
     }
 
     private static void assertApplicationContext() {

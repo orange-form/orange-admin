@@ -92,7 +92,7 @@ public class CourseService extends BaseService<Course, CourseDto, Long> {
             return false;
         }
         // 这里可继续删除关联数据。
-        // 开始删除多对多父表的关联
+        // 开始删除与本地多对多父表的关联
         ClassCourse classCourse = new ClassCourse();
         classCourse.setCourseId(courseId);
         classCourseMapper.delete(classCourse);

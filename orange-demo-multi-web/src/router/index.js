@@ -10,6 +10,16 @@ const router = new Router({
   routes: routers
 });
 
+const originalPush = Router.prototype.push;
+Router.prototype.push = function push (location) {
+  return originalPush.call(this, location).catch(e => {});
+}
+
+const originalReplace = Router.prototype.replace;
+Router.prototype.replace = function push (location, onComplete, onAbort) {
+  return originalReplace.call(this, location, onComplete, onAbort).catch(e => {});
+}
+
 /**
  * 路由跳转的时候判断token是否存在
  */

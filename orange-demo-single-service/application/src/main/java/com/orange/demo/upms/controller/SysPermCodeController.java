@@ -1,15 +1,11 @@
 package com.orange.demo.upms.controller;
 
-import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
-import io.swagger.annotations.Api;
-import com.github.pagehelper.page.PageMethod;
 import lombok.extern.slf4j.Slf4j;
 import com.orange.demo.upms.model.SysPermCode;
 import com.orange.demo.upms.service.SysPermCodeService;
 import com.orange.demo.common.core.constant.ErrorCodeEnum;
 import com.orange.demo.common.core.object.*;
 import com.orange.demo.common.core.util.MyCommonUtil;
-import com.orange.demo.common.core.util.MyPageUtil;
 import com.orange.demo.common.core.validator.UpdateGroup;
 import com.orange.demo.common.core.annotation.MyRequestBody;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +21,6 @@ import java.util.*;
  * @author Jerry
  * @date 2020-09-24
  */
-@Api(tags = "权限字管理接口")
 @Slf4j
 @RestController
 @RequestMapping("/admin/upms/sysPermCode")
@@ -42,16 +37,15 @@ public class SysPermCodeController {
      * @return 应答结果对象，包含新增权限字的主键Id。
      */
     @SuppressWarnings("unchecked")
-    @ApiOperationSupport(ignoreParameters = {"sysPermCode.permCodeId"})
     @PostMapping("/add")
     public ResponseResult<Long> add(@MyRequestBody SysPermCode sysPermCode, @MyRequestBody String permIdListString) {
         String errorMessage = MyCommonUtil.getModelValidationError(sysPermCode);
         if (errorMessage != null) {
-            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED);
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED);
         }
         CallResult result = sysPermCodeService.verifyRelatedData(sysPermCode, null, permIdListString);
         if (!result.isSuccess()) {
-            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, result.getErrorMessage());
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, result.getErrorMessage());
         }
         Set<Long> permIdSet = null;
         if (result.getData() != null) {
@@ -73,7 +67,7 @@ public class SysPermCodeController {
     public ResponseResult<Void> update(@MyRequestBody SysPermCode sysPermCode, @MyRequestBody String permIdListString) {
         String errorMessage = MyCommonUtil.getModelValidationError(sysPermCode, Default.class, UpdateGroup.class);
         if (errorMessage != null) {
-            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
         SysPermCode originalSysPermCode = sysPermCodeService.getById(sysPermCode.getPermCodeId());
         if (originalSysPermCode == null) {
@@ -82,7 +76,7 @@ public class SysPermCodeController {
         }
         CallResult result = sysPermCodeService.verifyRelatedData(sysPermCode, originalSysPermCode, permIdListString);
         if (!result.isSuccess()) {
-            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, result.getErrorMessage());
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, result.getErrorMessage());
         }
         Set<Long> permIdSet = null;
         if (result.getData() != null) {
@@ -152,25 +146,32 @@ public class SysPermCodeController {
     }
 
     /**
-     * 查看用户关联的权限字列表。
+     * 查询权限字的用户列表。同时返回详细的分配路径。
      *
-     * @param loginName 精确匹配用户登录名。
-     * @param permCode  模糊匹配的权限字名，LIKE %permCode%。
-     * @param pageParam 分页对象。
-     * @return 应答结果对象，包含该用户的全部权限资源列表。
+     * @param permCodeId 权限字Id。
+     * @param loginName  登录名。
+     * @return 应答对象。包含从权限字到用户的完整权限分配路径信息的查询结果列表。
      */
-    @PostMapping("/listAllPermCodesByUserFilter")
-    public ResponseResult<MyPageData<SysPermCode>> listAllPermCodesByUserFilter(
-            @MyRequestBody String loginName,
-            @MyRequestBody String permCode,
-            @MyRequestBody MyPageParam pageParam) {
-        if (MyCommonUtil.existBlankArgument(loginName)) {
+    @GetMapping("/listSysUserWithDetail")
+    public ResponseResult<List<Map<String, Object>>> listSysUserWithDetail(Long permCodeId, String loginName) {
+        if (MyCommonUtil.isBlankOrNull(permCodeId)) {
             return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
         }
-        if (pageParam != null) {
-            PageMethod.startPage(pageParam.getPageNum(), pageParam.getPageSize());
-        }
-        List<SysPermCode> permCodeList = sysPermCodeService.getUserPermCodeListByFilter(loginName, permCode);
-        return ResponseResult.success(MyPageUtil.makeResponseData(permCodeList));
+        return ResponseResult.success(sysPermCodeService.getSysUserListWithDetail(permCodeId, loginName));
     }
+
+    /**
+     * 查询权限字的角色列表。同时返回详细的分配路径。
+     *
+     * @param permCodeId 权限字Id。
+     * @param roleName   角色名。
+     * @return 应答对象。包含从权限字到角色的权限分配路径信息的查询结果列表。
+     */
+    @GetMapping("/listSysRoleWithDetail")
+    public ResponseResult<List<Map<String, Object>>> listSysRoleWithDetail(Long permCodeId, String roleName) {
+        if (MyCommonUtil.isBlankOrNull(permCodeId)) {
+            return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
+        }
+        return ResponseResult.success(sysPermCodeService.getSysRoleListWithDetail(permCodeId, roleName));
+    }    
 }

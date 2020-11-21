@@ -94,9 +94,9 @@ public class SysPermService extends BaseService<SysPerm, SysPermDto, Long> {
         if (sysPermMapper.updateByPrimaryKeySelective(perm) != 1) {
             return false;
         }
-        Example e = new Example(SysPermCodePerm.class);
-        e.createCriteria().andEqualTo("permId", permId);
-        sysPermCodePermMapper.deleteByExample(e);
+        SysPermCodePerm permCodePerm = new SysPermCodePerm();
+        permCodePerm.setPermId(permId);
+        sysPermCodePermMapper.delete(permCodePerm);
         return true;
     }
 
@@ -145,38 +145,6 @@ public class SysPermService extends BaseService<SysPerm, SysPermDto, Long> {
     }
 
     /**
-     * 获取指定用户的用户权限关联列表。
-     *
-     * @param loginName 精确匹配用户登录名。
-     * @param moduleId  精确匹配权限模块Id。
-     * @param url       模糊匹配的url过滤条件。
-     * @return 用户权限关联列表。
-     */
-    public List<Map<String, Object>> getUserPermListByFilter(String loginName, Long moduleId, String url) {
-        return sysPermMapper.getUserPermListByFilter(loginName, moduleId, url);
-    }
-
-    /**
-     * 获取指定权限资源的权限用户关联数据列表。
-     *
-     * @param permId 权限资源主键Id。
-     * @return 用户和权限资源关联列表。
-     */
-    public List<Map<String, Object>> getPermUserListById(Long permId) {
-        return sysPermMapper.getPermUserListById(permId);
-    }
-
-    /**
-     * 获取指定权限资源的权限角色关联数据列表。
-     *
-     * @param permId 权限资源主键Id。
-     * @return 角色和权限资源关联列表。
-     */
-    public List<Map<String, Object>> getPermRoleListById(Long permId) {
-        return sysPermMapper.getPermRoleListById(permId);
-    }
-
-    /**
      * 验证权限资源对象关联的数据是否都合法。
      *
      * @param sysPerm         当前操作的对象。
@@ -194,5 +162,38 @@ public class SysPermService extends BaseService<SysPerm, SysPermDto, Long> {
             jsonObject.put("permModule", permModule);
         }
         return CallResult.ok(jsonObject);
+    }
+    
+    /**
+     * 查询权限资源地址的用户列表。同时返回详细的分配路径。
+     *
+     * @param permId    权限资源Id。
+     * @param loginName 登录名。
+     * @return 包含从权限资源到用户的完整权限分配路径信息的查询结果列表。
+     */
+    public List<Map<String, Object>> getSysUserListWithDetail(Long permId, String loginName) {
+        return sysPermMapper.getSysUserListWithDetail(permId, loginName);
+    }
+
+    /**
+     * 查询权限资源地址的角色列表。同时返回详细的分配路径。
+     *
+     * @param permId   权限资源Id。
+     * @param roleName 角色名。
+     * @return 包含从权限资源到角色的权限分配路径信息的查询结果列表。
+     */
+    public List<Map<String, Object>> getSysRoleListWithDetail(Long permId, String roleName) {
+        return sysPermMapper.getSysRoleListWithDetail(permId, roleName);
+    }
+
+    /**
+     * 查询权限资源地址的菜单列表。同时返回详细的分配路径。
+     *
+     * @param permId   权限资源Id。
+     * @param menuName 菜单名。
+     * @return 包含从权限资源到菜单的权限分配路径信息的查询结果列表。
+     */
+    public List<Map<String, Object>> getSysMenuListWithDetail(Long permId, String menuName) {
+        return sysPermMapper.getSysMenuListWithDetail(permId, menuName);
     }
 }

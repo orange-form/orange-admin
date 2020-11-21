@@ -54,14 +54,14 @@ public class SchoolInfoController extends BaseController<SchoolInfo, SchoolInfoD
     public ResponseResult<Long> add(@MyRequestBody("schoolInfo") SchoolInfoDto schoolInfoDto) {
         String errorMessage = MyCommonUtil.getModelValidationError(schoolInfoDto);
         if (errorMessage != null) {
-            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
         SchoolInfo schoolInfo = SchoolInfo.INSTANCE.toModel(schoolInfoDto);
         // 验证关联Id的数据合法性
         CallResult callResult = schoolInfoService.verifyRelatedData(schoolInfo, null);
         if (!callResult.isSuccess()) {
             errorMessage = callResult.getErrorMessage();
-            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
         schoolInfo = schoolInfoService.saveNew(schoolInfo);
         return ResponseResult.success(schoolInfo.getSchoolId());
@@ -77,7 +77,7 @@ public class SchoolInfoController extends BaseController<SchoolInfo, SchoolInfoD
     public ResponseResult<Void> update(@MyRequestBody("schoolInfo") SchoolInfoDto schoolInfoDto) {
         String errorMessage = MyCommonUtil.getModelValidationError(schoolInfoDto, Default.class, UpdateGroup.class);
         if (errorMessage != null) {
-            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
         SchoolInfo schoolInfo = SchoolInfo.INSTANCE.toModel(schoolInfoDto);
         SchoolInfo originalSchoolInfo = schoolInfoService.getById(schoolInfo.getSchoolId());
@@ -90,7 +90,7 @@ public class SchoolInfoController extends BaseController<SchoolInfo, SchoolInfoD
         CallResult callResult = schoolInfoService.verifyRelatedData(schoolInfo, originalSchoolInfo);
         if (!callResult.isSuccess()) {
             errorMessage = callResult.getErrorMessage();
-            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
         if (!schoolInfoService.update(schoolInfo, originalSchoolInfo)) {
             return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST);
@@ -113,7 +113,7 @@ public class SchoolInfoController extends BaseController<SchoolInfo, SchoolInfoD
         // 验证关联Id的数据合法性
         SchoolInfo originalSchoolInfo = schoolInfoService.getById(schoolId);
         if (originalSchoolInfo == null) {
-            //NOTE: 修改下面方括号中的话述
+            // NOTE: 修改下面方括号中的话述
             errorMessage = "数据验证失败，当前 [对象] 并不存在，请刷新后重试！";
             return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST, errorMessage);
         }
@@ -181,8 +181,8 @@ public class SchoolInfoController extends BaseController<SchoolInfo, SchoolInfoD
      * @param filter 过滤对象。
      * @return 应答结果对象，包含字典形式的数据集合。
      */
-    @GetMapping("/listDictSchoolInfo")
-    public ResponseResult<List<Map<String, Object>>> listDictSchoolInfo(SchoolInfo filter) {
+    @GetMapping("/listDict")
+    public ResponseResult<List<Map<String, Object>>> listDict(SchoolInfo filter) {
         List<SchoolInfo> resultList = schoolInfoService.getListByFilter(filter, null);
         return ResponseResult.success(
                 BeanQuery.select("schoolId as id", "schoolName as name").executeFrom(resultList));
@@ -238,6 +238,18 @@ public class SchoolInfoController extends BaseController<SchoolInfo, SchoolInfoD
     @PostMapping("/existId")
     public ResponseResult<Boolean> existId(@RequestParam Long schoolId) {
         return super.baseExistId(schoolId);
+    }
+
+    /**
+     * 删除符合过滤条件的数据。
+     *
+     * @param filter 过滤对象。
+     * @return 删除数量。
+     */
+    @ApiOperation(hidden = true, value = "deleteBy")
+    @PostMapping("/deleteBy")
+    public ResponseResult<Integer> deleteBy(@RequestBody SchoolInfoDto filter) throws Exception {
+        return super.baseDeleteBy(filter, SchoolInfo.INSTANCE);
     }
 
     /**

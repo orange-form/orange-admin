@@ -58,14 +58,14 @@ public class StudentClassController extends BaseController<StudentClass, Student
     public ResponseResult<Long> add(@MyRequestBody("studentClass") StudentClassDto studentClassDto) {
         String errorMessage = MyCommonUtil.getModelValidationError(studentClassDto);
         if (errorMessage != null) {
-            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
         StudentClass studentClass = StudentClass.INSTANCE.toModel(studentClassDto);
         // 验证关联Id的数据合法性
         CallResult callResult = studentClassService.verifyRelatedData(studentClass, null);
         if (!callResult.isSuccess()) {
             errorMessage = callResult.getErrorMessage();
-            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
         studentClass = studentClassService.saveNew(studentClass);
         return ResponseResult.success(studentClass.getClassId());
@@ -81,7 +81,7 @@ public class StudentClassController extends BaseController<StudentClass, Student
     public ResponseResult<Void> update(@MyRequestBody("studentClass") StudentClassDto studentClassDto) {
         String errorMessage = MyCommonUtil.getModelValidationError(studentClassDto, Default.class, UpdateGroup.class);
         if (errorMessage != null) {
-            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
         StudentClass studentClass = StudentClass.INSTANCE.toModel(studentClassDto);
         StudentClass originalStudentClass = studentClassService.getById(studentClass.getClassId());
@@ -94,7 +94,7 @@ public class StudentClassController extends BaseController<StudentClass, Student
         CallResult callResult = studentClassService.verifyRelatedData(studentClass, originalStudentClass);
         if (!callResult.isSuccess()) {
             errorMessage = callResult.getErrorMessage();
-            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
         if (!studentClassService.update(studentClass, originalStudentClass)) {
             return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST);
@@ -117,7 +117,7 @@ public class StudentClassController extends BaseController<StudentClass, Student
         // 验证关联Id的数据合法性
         StudentClass originalStudentClass = studentClassService.getById(classId);
         if (originalStudentClass == null) {
-            //NOTE: 修改下面方括号中的话述
+            // NOTE: 修改下面方括号中的话述
             errorMessage = "数据验证失败，当前 [对象] 并不存在，请刷新后重试！";
             return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST, errorMessage);
         }
@@ -258,7 +258,7 @@ public class StudentClassController extends BaseController<StudentClass, Student
         for (ClassCourseDto classCourse : classCourseDtoList) {
             String errorMessage = MyCommonUtil.getModelValidationError(classCourse);
             if (errorMessage != null) {
-                return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+                return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
             }
         }
         Set<Long> courseIdSet =
@@ -284,7 +284,7 @@ public class StudentClassController extends BaseController<StudentClass, Student
             @MyRequestBody("classCourse") ClassCourseDto classCourseDto) {
         String errorMessage = MyCommonUtil.getModelValidationError(classCourseDto);
         if (errorMessage != null) {
-            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
         ClassCourse classCourse = MyModelUtil.copyTo(classCourseDto, ClassCourse.class);
         if (!studentClassService.updateClassCourse(classCourse)) {
@@ -413,7 +413,7 @@ public class StudentClassController extends BaseController<StudentClass, Student
         for (ClassStudentDto classStudent : classStudentDtoList) {
             String errorMessage = MyCommonUtil.getModelValidationError(classStudent);
             if (errorMessage != null) {
-                return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+                return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
             }
         }
         Set<Long> studentIdSet =
@@ -497,6 +497,18 @@ public class StudentClassController extends BaseController<StudentClass, Student
     @PostMapping("/existId")
     public ResponseResult<Boolean> existId(@RequestParam Long classId) {
         return super.baseExistId(classId);
+    }
+
+    /**
+     * 删除符合过滤条件的数据。
+     *
+     * @param filter 过滤对象。
+     * @return 删除数量。
+     */
+    @ApiOperation(hidden = true, value = "deleteBy")
+    @PostMapping("/deleteBy")
+    public ResponseResult<Integer> deleteBy(@RequestBody StudentClassDto filter) throws Exception {
+        return super.baseDeleteBy(filter, StudentClass.INSTANCE);
     }
 
     /**

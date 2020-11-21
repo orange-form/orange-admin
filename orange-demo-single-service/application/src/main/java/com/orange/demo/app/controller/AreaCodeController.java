@@ -1,6 +1,5 @@
 package com.orange.demo.app.controller;
 
-import io.swagger.annotations.Api;
 import cn.jimmyshi.beanquery.BeanQuery;
 import com.orange.demo.app.model.AreaCode;
 import com.orange.demo.app.service.AreaCodeService;
@@ -20,7 +19,6 @@ import java.util.*;
  * @author Jerry
  * @date 2020-09-24
  */
-@Api(tags = "行政区划数据访问接口")
 @RestController
 @RequestMapping("/admin/app/areaCode")
 public class AreaCodeController {
@@ -33,8 +31,8 @@ public class AreaCodeController {
      *
      * @return 字典形式的行政区划列表。
      */
-    @GetMapping("/listDictAreaCode")
-    public ResponseResult<List<Map<String, Object>>> listDictAreaCode() {
+    @GetMapping("/listDict")
+    public ResponseResult<List<Map<String, Object>>> listDict() {
         List<AreaCode> resultList = areaCodeService.getAllList();
         return ResponseResult.success(BeanQuery.select(
                 "parentId as parentId", "areaId as id", "areaName as name").executeFrom(resultList));
@@ -46,8 +44,8 @@ public class AreaCodeController {
      * @param parentId 上级行政区划Id。
      * @return 按照字典的形式返回下级行政区划列表。
      */
-    @GetMapping("/listDictAreaCodeByParentId")
-    public ResponseResult<List<Map<String, Object>>> listDictAreaCodeByParentId(@RequestParam(required = false) Long parentId) {
+    @GetMapping("/listDictByParentId")
+    public ResponseResult<List<Map<String, Object>>> listDictByParentId(@RequestParam(required = false) Long parentId) {
         Collection<AreaCode> resultList = areaCodeService.getListByParentId(parentId);
         if (CollectionUtils.isEmpty(resultList)) {
             return ResponseResult.success(new LinkedList<>());

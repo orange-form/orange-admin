@@ -15,7 +15,7 @@
               "name": "AreaCodeController",
               "item": [
               	{
-              		"name": "listDictAreaCode",
+              		"name": "listDict",
               		"request": {
               			"method": "GET",
               			"header": [
@@ -26,7 +26,7 @@
               				}
               			],
               			"url": {
-              				"raw": "http://{{host}}:8082//admin/app/areaCode/listDictAreaCode",
+              				"raw": "http://{{host}}:8082//admin/app/areaCode/listDict",
               				"protocol": "http",
               				"host": [
               					"{{host}}"
@@ -36,14 +36,14 @@
               					"admin",
               					"app",
               					"areaCode",
-              					"listDictAreaCode"
+              					"listDict"
               				]
               			}
               		},
               		"response": []
               	},
               	{
-              		"name": "listDictAreaCodeByParentId",
+              		"name": "listDictByParentId",
               		"request": {
               			"method": "GET",
               			"header": [
@@ -54,7 +54,7 @@
               				}
               			],
               			"url": {
-              				"raw": "http://{{host}}:8082//admin/app/areaCode/listDictAreaCodeByParentId",
+              				"raw": "http://{{host}}:8082//admin/app/areaCode/listDictByParentId",
               				"protocol": "http",
               				"host": [
               					"{{host}}"
@@ -64,7 +64,7 @@
               					"admin",
               					"app",
               					"areaCode",
-              					"listDictAreaCodeByParentId"
+              					"listDictByParentId"
               				],
               				"query": [
               					{
@@ -110,7 +110,7 @@
               			},
               			"body": {
               				"mode": "raw",
-              				"raw": "{\n\t\"course\" : {\n\t\t\"courseName\" : \"\",\n\t\t\"price\" : \"\",\n\t\t\"description\" : \"\",\n\t\t\"difficulty\" : \"\",\n\t\t\"gradeId\" : \"\",\n\t\t\"subjectId\" : \"\",\n\t\t\"classHour\" : \"\",\n\t\t\"pictureUrl\" : \"\",\n\t\t\"createUserId\" : \"\",\n\t\t\"createTime\" : \"\",\n\t\t\"updateTime\" : \"\"\n\t}\n}\n",
+              				"raw": "{\n\t\"course\" : {\n\t\t\"courseName\" : \"\",\n\t\t\"price\" : \"\",\n\t\t\"description\" : \"\",\n\t\t\"difficulty\" : \"0\",\n\t\t\"gradeId\" : \"0\",\n\t\t\"subjectId\" : \"0\",\n\t\t\"classHour\" : \"0\",\n\t\t\"pictureUrl\" : \"\",\n\t\t\"createUserId\" : \"0\",\n\t\t\"createTime\" : \"\",\n\t\t\"updateTime\" : \"\"\n\t}\n}\n",
               				"options": {
               					"raw": {
               						"language": "json"
@@ -147,7 +147,7 @@
               			},
               			"body": {
               				"mode": "raw",
-              				"raw": "{\n\t\"course\" : {\n\t\t\"courseId\" : \"\",\n\t\t\"courseName\" : \"\",\n\t\t\"price\" : \"\",\n\t\t\"description\" : \"\",\n\t\t\"difficulty\" : \"\",\n\t\t\"gradeId\" : \"\",\n\t\t\"subjectId\" : \"\",\n\t\t\"classHour\" : \"\",\n\t\t\"pictureUrl\" : \"\",\n\t\t\"createUserId\" : \"\",\n\t\t\"createTime\" : \"\",\n\t\t\"updateTime\" : \"\"\n\t}\n}\n",
+              				"raw": "{\n\t\"course\" : {\n\t\t\"courseId\" : \"0\",\n\t\t\"courseName\" : \"\",\n\t\t\"price\" : \"\",\n\t\t\"description\" : \"\",\n\t\t\"difficulty\" : \"0\",\n\t\t\"gradeId\" : \"0\",\n\t\t\"subjectId\" : \"0\",\n\t\t\"classHour\" : \"0\",\n\t\t\"pictureUrl\" : \"\",\n\t\t\"createUserId\" : \"0\",\n\t\t\"createTime\" : \"\",\n\t\t\"updateTime\" : \"\"\n\t}\n}\n",
               				"options": {
               					"raw": {
               						"language": "json"
@@ -360,7 +360,7 @@
               		"response": []
               	},
               	{
-              		"name": "listDictCourse",
+              		"name": "listDict",
               		"request": {
               			"method": "GET",
               			"header": [
@@ -371,7 +371,7 @@
               				}
               			],
               			"url": {
-              				"raw": "http://{{host}}:8082//admin/app/course/listDictCourse",
+              				"raw": "http://{{host}}:8082//admin/app/course/listDict",
               				"protocol": "http",
               				"host": [
               					"{{host}}"
@@ -381,7 +381,7 @@
               					"admin",
               					"app",
               					"course",
-              					"listDictCourse"
+              					"listDict"
               				],
               				"query": [
               					{
@@ -623,7 +623,7 @@
               			},
               			"body": {
               				"mode": "raw",
-              				"raw": "{\n\t\"grade\" : {\n\t\t\"gradeId\" : \"\",\n\t\t\"gradeName\" : \"\"\n\t}\n}\n",
+              				"raw": "{\n\t\"grade\" : {\n\t\t\"gradeId\" : \"0\",\n\t\t\"gradeName\" : \"\"\n\t}\n}\n",
               				"options": {
               					"raw": {
               						"language": "json"
@@ -671,7 +671,7 @@
               		"response": []
               	},
               	{
-              		"name": "listDictGrade",
+              		"name": "listDict",
               		"request": {
               			"method": "GET",
               			"header": [
@@ -682,7 +682,7 @@
               				}
               			],
               			"url": {
-              				"raw": "http://{{host}}:8082//admin/app/grade/listDictGrade",
+              				"raw": "http://{{host}}:8082//admin/app/grade/listDict",
               				"protocol": "http",
               				"host": [
               					"{{host}}"
@@ -692,7 +692,7 @@
               					"admin",
               					"app",
               					"grade",
-              					"listDictGrade"
+              					"listDict"
               				]
               			}
               		},
@@ -760,7 +760,7 @@
               			},
               			"body": {
               				"mode": "raw",
-              				"raw": "{\n\t\"schoolInfo\" : {\n\t\t\"schoolName\" : \"\",\n\t\t\"provinceId\" : \"\",\n\t\t\"cityId\" : \"\"\n\t}\n}\n",
+              				"raw": "{\n\t\"schoolInfo\" : {\n\t\t\"schoolName\" : \"\",\n\t\t\"provinceId\" : \"0\",\n\t\t\"cityId\" : \"0\"\n\t}\n}\n",
               				"options": {
               					"raw": {
               						"language": "json"
@@ -797,7 +797,7 @@
               			},
               			"body": {
               				"mode": "raw",
-              				"raw": "{\n\t\"schoolInfo\" : {\n\t\t\"schoolId\" : \"\",\n\t\t\"schoolName\" : \"\",\n\t\t\"provinceId\" : \"\",\n\t\t\"cityId\" : \"\"\n\t}\n}\n",
+              				"raw": "{\n\t\"schoolInfo\" : {\n\t\t\"schoolId\" : \"0\",\n\t\t\"schoolName\" : \"\",\n\t\t\"provinceId\" : \"0\",\n\t\t\"cityId\" : \"0\"\n\t}\n}\n",
               				"options": {
               					"raw": {
               						"language": "json"
@@ -916,7 +916,7 @@
               		"response": []
               	},
               	{
-              		"name": "listDictSchoolInfo",
+              		"name": "listDict",
               		"request": {
               			"method": "GET",
               			"header": [
@@ -927,7 +927,7 @@
               				}
               			],
               			"url": {
-              				"raw": "http://{{host}}:8082//admin/app/schoolInfo/listDictSchoolInfo",
+              				"raw": "http://{{host}}:8082//admin/app/schoolInfo/listDict",
               				"protocol": "http",
               				"host": [
               					"{{host}}"
@@ -937,7 +937,7 @@
               					"admin",
               					"app",
               					"schoolInfo",
-              					"listDictSchoolInfo"
+              					"listDict"
               				],
               				"query": [
               					{
@@ -1110,7 +1110,7 @@
               			},
               			"body": {
               				"mode": "raw",
-              				"raw": "{\n\t\"studentActionTrans\" : {\n\t\t\"studentId\" : \"\",\n\t\t\"studentName\" : \"\",\n\t\t\"schoolId\" : \"\",\n\t\t\"gradeId\" : \"\",\n\t\t\"actionType\" : \"\",\n\t\t\"deviceType\" : \"\",\n\t\t\"watchVideoSeconds\" : \"\",\n\t\t\"flowerCount\" : \"\",\n\t\t\"paperCount\" : \"\",\n\t\t\"videoCount\" : \"\",\n\t\t\"courseCount\" : \"\",\n\t\t\"coinCount\" : \"\",\n\t\t\"exerciseCorrectFlag\" : \"\",\n\t\t\"createTime\" : \"\"\n\t}\n}\n",
+              				"raw": "{\n\t\"studentActionTrans\" : {\n\t\t\"studentId\" : \"0\",\n\t\t\"studentName\" : \"\",\n\t\t\"schoolId\" : \"0\",\n\t\t\"gradeId\" : \"0\",\n\t\t\"actionType\" : \"0\",\n\t\t\"deviceType\" : \"0\",\n\t\t\"watchVideoSeconds\" : \"0\",\n\t\t\"flowerCount\" : \"0\",\n\t\t\"paperCount\" : \"0\",\n\t\t\"videoCount\" : \"0\",\n\t\t\"courseCount\" : \"0\",\n\t\t\"coinCount\" : \"0\",\n\t\t\"exerciseCorrectFlag\" : \"0\",\n\t\t\"createTime\" : \"\"\n\t}\n}\n",
               				"options": {
               					"raw": {
               						"language": "json"
@@ -1147,7 +1147,7 @@
               			},
               			"body": {
               				"mode": "raw",
-              				"raw": "{\n\t\"studentActionTrans\" : {\n\t\t\"transId\" : \"\",\n\t\t\"studentId\" : \"\",\n\t\t\"studentName\" : \"\",\n\t\t\"schoolId\" : \"\",\n\t\t\"gradeId\" : \"\",\n\t\t\"actionType\" : \"\",\n\t\t\"deviceType\" : \"\",\n\t\t\"watchVideoSeconds\" : \"\",\n\t\t\"flowerCount\" : \"\",\n\t\t\"paperCount\" : \"\",\n\t\t\"videoCount\" : \"\",\n\t\t\"courseCount\" : \"\",\n\t\t\"coinCount\" : \"\",\n\t\t\"exerciseCorrectFlag\" : \"\",\n\t\t\"createTime\" : \"\"\n\t}\n}\n",
+              				"raw": "{\n\t\"studentActionTrans\" : {\n\t\t\"transId\" : \"0\",\n\t\t\"studentId\" : \"0\",\n\t\t\"studentName\" : \"\",\n\t\t\"schoolId\" : \"0\",\n\t\t\"gradeId\" : \"0\",\n\t\t\"actionType\" : \"0\",\n\t\t\"deviceType\" : \"0\",\n\t\t\"watchVideoSeconds\" : \"0\",\n\t\t\"flowerCount\" : \"0\",\n\t\t\"paperCount\" : \"0\",\n\t\t\"videoCount\" : \"0\",\n\t\t\"courseCount\" : \"0\",\n\t\t\"coinCount\" : \"0\",\n\t\t\"exerciseCorrectFlag\" : \"0\",\n\t\t\"createTime\" : \"\"\n\t}\n}\n",
               				"options": {
               					"raw": {
               						"language": "json"
@@ -1299,7 +1299,7 @@
               			},
               			"body": {
               				"mode": "raw",
-              				"raw": "{\n\t\"studentClass\" : {\n\t\t\"className\" : \"\",\n\t\t\"schoolId\" : \"\",\n\t\t\"leaderId\" : \"\",\n\t\t\"finishClassHour\" : \"\",\n\t\t\"classLevel\" : \"\",\n\t\t\"createUserId\" : \"\",\n\t\t\"createTime\" : \"\"\n\t}\n}\n",
+              				"raw": "{\n\t\"studentClass\" : {\n\t\t\"className\" : \"\",\n\t\t\"schoolId\" : \"0\",\n\t\t\"leaderId\" : \"0\",\n\t\t\"finishClassHour\" : \"0\",\n\t\t\"classLevel\" : \"0\",\n\t\t\"createUserId\" : \"0\",\n\t\t\"createTime\" : \"\"\n\t}\n}\n",
               				"options": {
               					"raw": {
               						"language": "json"
@@ -1336,7 +1336,7 @@
               			},
               			"body": {
               				"mode": "raw",
-              				"raw": "{\n\t\"studentClass\" : {\n\t\t\"classId\" : \"\",\n\t\t\"className\" : \"\",\n\t\t\"schoolId\" : \"\",\n\t\t\"leaderId\" : \"\",\n\t\t\"finishClassHour\" : \"\",\n\t\t\"classLevel\" : \"\",\n\t\t\"createUserId\" : \"\",\n\t\t\"createTime\" : \"\"\n\t}\n}\n",
+              				"raw": "{\n\t\"studentClass\" : {\n\t\t\"classId\" : \"0\",\n\t\t\"className\" : \"\",\n\t\t\"schoolId\" : \"0\",\n\t\t\"leaderId\" : \"0\",\n\t\t\"finishClassHour\" : \"0\",\n\t\t\"classLevel\" : \"0\",\n\t\t\"createUserId\" : \"0\",\n\t\t\"createTime\" : \"\"\n\t}\n}\n",
               				"options": {
               					"raw": {
               						"language": "json"
@@ -1555,7 +1555,7 @@
               			},
               			"body": {
               				"mode": "raw",
-              				"raw": "{\n\t\"classId\" : \"\",\n\t\"classCourseList\" : [\n\t\t{\n\t\t\t\"classId\" : \"\",\n\t\t\t\"courseId\" : \"\",\n\t\t\t\"courseOrder\" : \"\"\n\t\t}\n\t]\n}\n",
+              				"raw": "{\n\t\"classId\" : \"\",\n\t\"classCourseList\" : [\n\t\t{\n\t\t\t\"classId\" : \"0\",\n\t\t\t\"courseId\" : \"0\",\n\t\t\t\"courseOrder\" : \"0\"\n\t\t}\n\t]\n}\n",
               				"options": {
               					"raw": {
               						"language": "json"
@@ -1592,7 +1592,7 @@
               			},
               			"body": {
               				"mode": "raw",
-              				"raw": "{\n\t\"classCourse\" : {\n\t\t\"classId\" : \"\",\n\t\t\"courseId\" : \"\",\n\t\t\"courseOrder\" : \"\"\n\t}\n}\n",
+              				"raw": "{\n\t\"classCourse\" : {\n\t\t\"classId\" : \"0\",\n\t\t\"courseId\" : \"0\",\n\t\t\"courseOrder\" : \"0\"\n\t}\n}\n",
               				"options": {
               					"raw": {
               						"language": "json"
@@ -1778,7 +1778,7 @@
               			},
               			"body": {
               				"mode": "raw",
-              				"raw": "{\n\t\"classId\" : \"\",\n\t\"classStudentList\" : [\n\t\t{\n\t\t\t\"classId\" : \"\",\n\t\t\t\"studentId\" : \"\"\n\t\t}\n\t]\n}\n",
+              				"raw": "{\n\t\"classId\" : \"\",\n\t\"classStudentList\" : [\n\t\t{\n\t\t\t\"classId\" : \"0\",\n\t\t\t\"studentId\" : \"0\"\n\t\t}\n\t]\n}\n",
               				"options": {
               					"raw": {
               						"language": "json"
@@ -1859,7 +1859,7 @@
               			},
               			"body": {
               				"mode": "raw",
-              				"raw": "{\n\t\"student\" : {\n\t\t\"loginMobile\" : \"\",\n\t\t\"studentName\" : \"\",\n\t\t\"provinceId\" : \"\",\n\t\t\"cityId\" : \"\",\n\t\t\"districtId\" : \"\",\n\t\t\"gender\" : \"\",\n\t\t\"birthday\" : \"\",\n\t\t\"experienceLevel\" : \"\",\n\t\t\"totalCoin\" : \"\",\n\t\t\"leftCoin\" : \"\",\n\t\t\"gradeId\" : \"\",\n\t\t\"schoolId\" : \"\",\n\t\t\"registerTime\" : \"\",\n\t\t\"status\" : \"\"\n\t}\n}\n",
+              				"raw": "{\n\t\"student\" : {\n\t\t\"loginMobile\" : \"\",\n\t\t\"studentName\" : \"\",\n\t\t\"provinceId\" : \"0\",\n\t\t\"cityId\" : \"0\",\n\t\t\"districtId\" : \"0\",\n\t\t\"gender\" : \"0\",\n\t\t\"birthday\" : \"\",\n\t\t\"experienceLevel\" : \"0\",\n\t\t\"totalCoin\" : \"0\",\n\t\t\"leftCoin\" : \"0\",\n\t\t\"gradeId\" : \"0\",\n\t\t\"schoolId\" : \"0\",\n\t\t\"registerTime\" : \"\",\n\t\t\"status\" : \"0\"\n\t}\n}\n",
               				"options": {
               					"raw": {
               						"language": "json"
@@ -1896,7 +1896,7 @@
               			},
               			"body": {
               				"mode": "raw",
-              				"raw": "{\n\t\"student\" : {\n\t\t\"studentId\" : \"\",\n\t\t\"loginMobile\" : \"\",\n\t\t\"studentName\" : \"\",\n\t\t\"provinceId\" : \"\",\n\t\t\"cityId\" : \"\",\n\t\t\"districtId\" : \"\",\n\t\t\"gender\" : \"\",\n\t\t\"birthday\" : \"\",\n\t\t\"experienceLevel\" : \"\",\n\t\t\"totalCoin\" : \"\",\n\t\t\"leftCoin\" : \"\",\n\t\t\"gradeId\" : \"\",\n\t\t\"schoolId\" : \"\",\n\t\t\"registerTime\" : \"\",\n\t\t\"status\" : \"\"\n\t}\n}\n",
+              				"raw": "{\n\t\"student\" : {\n\t\t\"studentId\" : \"0\",\n\t\t\"loginMobile\" : \"\",\n\t\t\"studentName\" : \"\",\n\t\t\"provinceId\" : \"0\",\n\t\t\"cityId\" : \"0\",\n\t\t\"districtId\" : \"0\",\n\t\t\"gender\" : \"0\",\n\t\t\"birthday\" : \"\",\n\t\t\"experienceLevel\" : \"0\",\n\t\t\"totalCoin\" : \"0\",\n\t\t\"leftCoin\" : \"0\",\n\t\t\"gradeId\" : \"0\",\n\t\t\"schoolId\" : \"0\",\n\t\t\"registerTime\" : \"\",\n\t\t\"status\" : \"0\"\n\t}\n}\n",
               				"options": {
               					"raw": {
               						"language": "json"
@@ -2015,7 +2015,7 @@
               		"response": []
               	},
               	{
-              		"name": "listDictStudent",
+              		"name": "listDict",
               		"request": {
               			"method": "GET",
               			"header": [
@@ -2026,7 +2026,7 @@
               				}
               			],
               			"url": {
-              				"raw": "http://{{host}}:8082//admin/app/student/listDictStudent",
+              				"raw": "http://{{host}}:8082//admin/app/student/listDict",
               				"protocol": "http",
               				"host": [
               					"{{host}}"
@@ -2036,7 +2036,7 @@
               					"admin",
               					"app",
               					"student",
-              					"listDictStudent"
+              					"listDict"
               				],
               				"query": [
               					{
@@ -2145,7 +2145,7 @@
               			},
               			"body": {
               				"mode": "raw",
-              				"raw": "{\n\t\"sysUser\" : {\n\t\t\"loginName\" : \"\",\n\t\t\"password\" : \"\",\n\t\t\"showName\" : \"\",\n\t\t\"userType\" : \"\",\n\t\t\"headImageUrl\" : \"\",\n\t\t\"userStatus\" : \"\",\n\t\t\"createUserId\" : \"\",\n\t\t\"createUsername\" : \"\",\n\t\t\"createTime\" : \"\",\n\t\t\"updateTime\" : \"\"\n\t}\n}\n",
+              				"raw": "{\n\t\"sysUser\" : {\n\t\t\"loginName\" : \"\",\n\t\t\"password\" : \"\",\n\t\t\"showName\" : \"\",\n\t\t\"userType\" : \"0\",\n\t\t\"headImageUrl\" : \"\",\n\t\t\"userStatus\" : \"0\",\n\t\t\"createUserId\" : \"0\",\n\t\t\"createUsername\" : \"\",\n\t\t\"createTime\" : \"\",\n\t\t\"updateTime\" : \"\"\n\t}\n}\n",
               				"options": {
               					"raw": {
               						"language": "json"
@@ -2182,7 +2182,7 @@
               			},
               			"body": {
               				"mode": "raw",
-              				"raw": "{\n\t\"sysUser\" : {\n\t\t\"userId\" : \"\",\n\t\t\"loginName\" : \"\",\n\t\t\"password\" : \"\",\n\t\t\"showName\" : \"\",\n\t\t\"userType\" : \"\",\n\t\t\"headImageUrl\" : \"\",\n\t\t\"userStatus\" : \"\",\n\t\t\"createUserId\" : \"\",\n\t\t\"createUsername\" : \"\",\n\t\t\"createTime\" : \"\",\n\t\t\"updateTime\" : \"\"\n\t}\n}\n",
+              				"raw": "{\n\t\"sysUser\" : {\n\t\t\"userId\" : \"0\",\n\t\t\"loginName\" : \"\",\n\t\t\"password\" : \"\",\n\t\t\"showName\" : \"\",\n\t\t\"userType\" : \"0\",\n\t\t\"headImageUrl\" : \"\",\n\t\t\"userStatus\" : \"0\",\n\t\t\"createUserId\" : \"0\",\n\t\t\"createUsername\" : \"\",\n\t\t\"createTime\" : \"\",\n\t\t\"updateTime\" : \"\"\n\t}\n}\n",
               				"options": {
               					"raw": {
               						"language": "json"
@@ -2355,7 +2355,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "c63506c1-46b6-4add-ab33-3b0080afd35f",
+						"id": "390e8f3a-76f0-477a-8ebd-5fd958d286d8",
 						"type": "text/javascript",
 						"exec": [
 							"pm.test(\"登录操作\", function () {",
@@ -2371,7 +2371,7 @@
 				{
 					"listen": "prerequest",
 					"script": {
-						"id": "8cd658df-8043-4d1d-889e-4aa5fd3ec4ae",
+						"id": "efe7a1c1-5f2b-433b-b235-0bf97a581840",
 						"type": "text/javascript",
 						"exec": [
 							""
@@ -2383,22 +2383,16 @@
 				"disableBodyPruning": true
 			},
 			"request": {
-				"method": "GET",
+				"method": "POST",
 				"header": [],
 				"body": {
-					"mode": "formdata",
-					"formdata": [
-						{
-							"key": "loginName",
-							"value": "admin",
-							"type": "text"
-						},
-						{
-							"key": "password",
-							"value": "IP3ccke3GhH45iGHB5qP9p7iZw6xUyj28Ju10rnBiPKOI35sc%2BjI7%2FdsjOkHWMfUwGYGfz8ik31HC2Ruk%2Fhkd9f6RPULTHj7VpFdNdde2P9M4mQQnFBAiPM7VT9iW3RyCtPlJexQ3nAiA09OqG%2F0sIf1kcyveSrulxembARDbDo%3D",
-							"type": "text"
+					"mode": "raw",
+					"raw": "{\n    \"loginName\":\"admin\",\n    \"password\":\"IP3ccke3GhH45iGHB5qP9p7iZw6xUyj28Ju10rnBiPKOI35sc%2BjI7%2FdsjOkHWMfUwGYGfz8ik31HC2Ruk%2Fhkd9f6RPULTHj7VpFdNdde2P9M4mQQnFBAiPM7VT9iW3RyCtPlJexQ3nAiA09OqG%2F0sIf1kcyveSrulxembARDbDo%3D\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
 						}
-					]
+					}
 				},
 				"url": {
 					"raw": "http://{{host}}:8082/admin/upms/login/doLogin",
@@ -2457,19 +2451,13 @@
 					}
 				],
 				"body": {
-					"mode": "formdata",
-					"formdata": [
-						{
-							"key": "oldPass",
-							"value": "IP3ccke3GhH45iGHB5qP9p7iZw6xUyj28Ju10rnBiPKOI35sc%2BjI7%2FdsjOkHWMfUwGYGfz8ik31HC2Ruk%2Fhkd9f6RPULTHj7VpFdNdde2P9M4mQQnFBAiPM7VT9iW3RyCtPlJexQ3nAiA09OqG%2F0sIf1kcyveSrulxembARDbDo%3D",
-							"type": "text"
-						},
-						{
-							"key": "newPass",
-							"value": "IP3ccke3GhH45iGHB5qP9p7iZw6xUyj28Ju10rnBiPKOI35sc%2BjI7%2FdsjOkHWMfUwGYGfz8ik31HC2Ruk%2Fhkd9f6RPULTHj7VpFdNdde2P9M4mQQnFBAiPM7VT9iW3RyCtPlJexQ3nAiA09OqG%2F0sIf1kcyveSrulxembARDbDo%3D",
-							"type": "text"
+					"mode": "raw",
+					"raw": "{\n    \"oldPass\": \"IP3ccke3GhH45iGHB5qP9p7iZw6xUyj28Ju10rnBiPKOI35sc%2BjI7%2FdsjOkHWMfUwGYGfz8ik31HC2Ruk%2Fhkd9f6RPULTHj7VpFdNdde2P9M4mQQnFBAiPM7VT9iW3RyCtPlJexQ3nAiA09OqG%2F0sIf1kcyveSrulxembARDbDo%3D\",\n    \"newPass\": \"IP3ccke3GhH45iGHB5qP9p7iZw6xUyj28Ju10rnBiPKOI35sc%2BjI7%2FdsjOkHWMfUwGYGfz8ik31HC2Ruk%2Fhkd9f6RPULTHj7VpFdNdde2P9M4mQQnFBAiPM7VT9iW3RyCtPlJexQ3nAiA09OqG%2F0sIf1kcyveSrulxembARDbDo%3D\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
 						}
-					]
+					}
 				},
 				"url": {
 					"raw": "http://{{host}}:8082/admin/upms/login/changePassword",

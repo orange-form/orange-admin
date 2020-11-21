@@ -53,9 +53,6 @@
         <root level="${OUTPUT_LOG_LEVEL}">
             <AppenderRef ref="console"/>
         </root>
-        <Logger name="springfox.documentation" additivity="false" level="error">
-            <AppenderRef ref="console"/>
-        </Logger>
         <Logger name="com.orange.demo" additivity="false" level="info">
             <AppenderRef ref="console"/>
             <AppenderRef ref="file_log"/>

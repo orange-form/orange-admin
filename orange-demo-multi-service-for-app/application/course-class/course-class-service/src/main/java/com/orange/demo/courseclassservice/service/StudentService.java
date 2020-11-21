@@ -99,7 +99,7 @@ public class StudentService extends BaseService<Student, StudentDto, Long> {
             return false;
         }
         // 这里可继续删除关联数据。
-        // 开始删除多对多父表的关联
+        // 开始删除与本地多对多父表的关联
         ClassStudent classStudent = new ClassStudent();
         classStudent.setStudentId(studentId);
         classStudentMapper.delete(classStudent);

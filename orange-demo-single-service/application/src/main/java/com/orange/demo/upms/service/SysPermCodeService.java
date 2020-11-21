@@ -142,27 +142,6 @@ public class SysPermCodeService extends BaseService<SysPermCode, Long> {
     }
 
     /**
-     * 获取指定用户的权限字列表。
-     *
-     * @param loginName 精确匹配用户登录名。
-     * @param permCode  模糊匹配的权限字名，LIKE %permCode%。
-     * @return 权限字列表。
-     */
-    public List<SysPermCode> getUserPermCodeListByFilter(String loginName, String permCode) {
-        return sysPermCodeMapper.getUserPermCodeListByFilter(loginName, permCode);
-    }
-
-    /**
-     * 获取该菜单的权限字，及其权限字关联的权限资源列表。
-     *
-     * @param menuId 菜单Id。
-     * @return 关联了权限资源的权限字列表。
-     */
-    public List<Map<String, Object>> getPermCodeListByMenuId(Long menuId) {
-        return sysPermCodeMapper.getPermCodeListByMenuId(menuId);
-    }
-
-    /**
      * 判断当前权限字是否存在下级权限字对象。
      *
      * @param permCodeId 权限字主键Id。
@@ -200,5 +179,27 @@ public class SysPermCodeService extends BaseService<SysPermCode, Long> {
             jsonObject.put("permIdSet", permIdSet);
         }
         return CallResult.ok(jsonObject);
+    }
+
+    /**
+     * 查询权限字的用户列表。同时返回详细的分配路径。
+     *
+     * @param permCodeId 权限字Id。
+     * @param loginName  登录名。
+     * @return 包含从权限字到用户的完整权限分配路径信息的查询结果列表。
+     */
+    public List<Map<String, Object>> getSysUserListWithDetail(Long permCodeId, String loginName) {
+        return sysPermCodeMapper.getSysUserListWithDetail(permCodeId, loginName);
+    }
+
+    /**
+     * 查询权限字的角色列表。同时返回详细的分配路径。
+     *
+     * @param permCodeId 权限字Id。
+     * @param roleName   角色名。
+     * @return 包含从权限字到角色的权限分配路径信息的查询结果列表。
+     */
+    public List<Map<String, Object>> getSysRoleListWithDetail(Long permCodeId, String roleName) {
+        return sysPermCodeMapper.getSysRoleListWithDetail(permCodeId, roleName);
     }
 }

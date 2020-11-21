@@ -10,8 +10,6 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>application</artifactId>
-    <version>1.0.0</version>
-    <name>application</name>
     <packaging>pom</packaging>
 
     <modules>

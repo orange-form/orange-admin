@@ -1,9 +1,13 @@
 package com.orange.demo.common.core.cache;
 
+import com.orange.demo.common.core.exception.MapCacheAccessException;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
 
 /**
@@ -14,6 +18,7 @@ import java.util.function.Function;
  * @author Jerry
  * @date 2020-09-24
  */
+@Slf4j
 public class MapTreeDictionaryCache<K, V> extends MapDictionaryCache<K, V> {
 
     /**
@@ -61,8 +66,27 @@ public class MapTreeDictionaryCache<K, V> extends MapDictionaryCache<K, V> {
      * @param parentId 父主键Id。
      * @return 子数据列表。
      */
-    public synchronized List<V> getListByParentId(K parentId) {
-        return new LinkedList<>(allTreeMap.get(parentId));
+    public List<V> getListByParentId(K parentId) {
+        List<V> resultList = new LinkedList<>();
+        String exceptionMessage;
+        try {
+            if (lock.readLock().tryLock(TIMEOUT, TimeUnit.MILLISECONDS)) {
+                try {
+                    resultList.addAll(allTreeMap.get(parentId));
+                } finally {
+                    lock.readLock().unlock();
+                }
+            } else {
+                throw new TimeoutException();
+            }
+        } catch (Exception e) {
+            exceptionMessage = String.format(
+                    "LOCK Operation of [MapDictionaryCache::getInList] encountered EXCEPTION [%s] for DICT.",
+                    e.getClass().getSimpleName());
+            log.warn(exceptionMessage);
+            throw new MapCacheAccessException(exceptionMessage, e);
+        }
+        return resultList;
     }
 
     /**
@@ -71,16 +95,33 @@ public class MapTreeDictionaryCache<K, V> extends MapDictionaryCache<K, V> {
      * @param dataList 待缓存的数据列表。
      */
     @Override
-    public synchronized void putAll(List<V> dataList) {
+    public void putAll(List<V> dataList) {
         if (dataList == null) {
             return;
         }
-        super.putAll(dataList);
-        dataList.forEach(data -> {
-            K parentId = parentIdGetter.apply(data);
-            allTreeMap.remove(parentId, data);
-            allTreeMap.put(parentId, data);
-        });
+        String exceptionMessage;
+        try {
+            if (lock.readLock().tryLock(TIMEOUT, TimeUnit.MILLISECONDS)) {
+                try {
+                    super.putAll(dataList);
+                    dataList.forEach(data -> {
+                        K parentId = parentIdGetter.apply(data);
+                        allTreeMap.remove(parentId, data);
+                        allTreeMap.put(parentId, data);
+                    });
+                } finally {
+                    lock.readLock().unlock();
+                }
+            } else {
+                throw new TimeoutException();
+            }
+        } catch (Exception e) {
+            exceptionMessage = String.format(
+                    "LOCK Operation of [MapDictionaryCache::getInList] encountered EXCEPTION [%s] for DICT.",
+                    e.getClass().getSimpleName());
+            log.warn(exceptionMessage);
+            throw new MapCacheAccessException(exceptionMessage, e);
+        }
     }
 
     /**
@@ -90,11 +131,28 @@ public class MapTreeDictionaryCache<K, V> extends MapDictionaryCache<K, V> {
      * @param data 字典数据对象。
      */
     @Override
-    public synchronized void put(K id, V data) {
-        super.put(id, data);
-        K parentId = parentIdGetter.apply(data);
-        allTreeMap.remove(parentId, data);
-        allTreeMap.put(parentId, data);
+    public void put(K id, V data) {
+        String exceptionMessage;
+        try {
+            if (lock.readLock().tryLock(TIMEOUT, TimeUnit.MILLISECONDS)) {
+                try {
+                    super.put(id, data);
+                    K parentId = parentIdGetter.apply(data);
+                    allTreeMap.remove(parentId, data);
+                    allTreeMap.put(parentId, data);
+                } finally {
+                    lock.readLock().unlock();
+                }
+            } else {
+                throw new TimeoutException();
+            }
+        } catch (Exception e) {
+            exceptionMessage = String.format(
+                    "LOCK Operation of [MapDictionaryCache::getInList] encountered EXCEPTION [%s] for DICT.",
+                    e.getClass().getSimpleName());
+            log.warn(exceptionMessage);
+            throw new MapCacheAccessException(exceptionMessage, e);
+        }
     }
 
     /**
@@ -104,11 +162,29 @@ public class MapTreeDictionaryCache<K, V> extends MapDictionaryCache<K, V> {
      * @return 返回被删除的对象，如果主键不存在，返回null。
      */
     @Override
-    public synchronized V invalidate(K id) {
-        V v = super.invalidate(id);
-        if (v != null) {
-            K parentId = parentIdGetter.apply(v);
-            allTreeMap.remove(parentId, v);
+    public V invalidate(K id) {
+        V v;
+        String exceptionMessage;
+        try {
+            if (lock.readLock().tryLock(TIMEOUT, TimeUnit.MILLISECONDS)) {
+                try {
+                    v = super.invalidate(id);
+                    if (v != null) {
+                        K parentId = parentIdGetter.apply(v);
+                        allTreeMap.remove(parentId, v);
+                    }
+                } finally {
+                    lock.readLock().unlock();
+                }
+            } else {
+                throw new TimeoutException();
+            }
+        } catch (Exception e) {
+            exceptionMessage = String.format(
+                    "LOCK Operation of [MapDictionaryCache::getInList] encountered EXCEPTION [%s] for DICT.",
+                    e.getClass().getSimpleName());
+            log.warn(exceptionMessage);
+            throw new MapCacheAccessException(exceptionMessage, e);
         }
         return v;
     }
@@ -119,24 +195,58 @@ public class MapTreeDictionaryCache<K, V> extends MapDictionaryCache<K, V> {
      * @param keys 待删除数据的主键集合。
      */
     @Override
-    public synchronized void invalidateSet(Set<K> keys) {
-        keys.forEach(id -> {
-            if (id != null) {
-                V data = dataMap.remove(id);
-                if (data != null) {
-                    K parentId = parentIdGetter.apply(data);
-                    allTreeMap.remove(parentId, data);
+    public void invalidateSet(Set<K> keys) {
+        String exceptionMessage;
+        try {
+            if (lock.readLock().tryLock(TIMEOUT, TimeUnit.MILLISECONDS)) {
+                try {
+                    keys.forEach(id -> {
+                        if (id != null) {
+                            V data = dataMap.remove(id);
+                            if (data != null) {
+                                K parentId = parentIdGetter.apply(data);
+                                allTreeMap.remove(parentId, data);
+                            }
+                        }
+                    });
+                } finally {
+                    lock.readLock().unlock();
                 }
+            } else {
+                throw new TimeoutException();
             }
-        });
+        } catch (Exception e) {
+            exceptionMessage = String.format(
+                    "LOCK Operation of [MapDictionaryCache::getInList] encountered EXCEPTION [%s] for DICT.",
+                    e.getClass().getSimpleName());
+            log.warn(exceptionMessage);
+            throw new MapCacheAccessException(exceptionMessage, e);
+        }
     }
 
     /**
      * 清空缓存。
      */
     @Override
-    public synchronized void invalidateAll() {
-        super.invalidateAll();
-        allTreeMap.clear();
+    public void invalidateAll() {
+        String exceptionMessage;
+        try {
+            if (lock.readLock().tryLock(TIMEOUT, TimeUnit.MILLISECONDS)) {
+                try {
+                    super.invalidateAll();
+                    allTreeMap.clear();
+                } finally {
+                    lock.readLock().unlock();
+                }
+            } else {
+                throw new TimeoutException();
+            }
+        } catch (Exception e) {
+            exceptionMessage = String.format(
+                    "LOCK Operation of [MapDictionaryCache::getInList] encountered EXCEPTION [%s] for DICT.",
+                    e.getClass().getSimpleName());
+            log.warn(exceptionMessage);
+            throw new MapCacheAccessException(exceptionMessage, e);
+        }
     }
 }

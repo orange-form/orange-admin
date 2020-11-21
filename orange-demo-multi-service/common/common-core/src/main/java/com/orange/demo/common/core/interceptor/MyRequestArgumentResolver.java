@@ -20,6 +20,7 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.lang.reflect.ParameterizedType;
+import java.math.BigDecimal;
 import java.util.*;
 
 /**
@@ -45,6 +46,7 @@ public class MyRequestArgumentResolver implements HandlerMethodArgumentResolver 
         classSet.add(Double.class);
         classSet.add(Boolean.class);
         classSet.add(Byte.class);
+        classSet.add(BigDecimal.class);
         classSet.add(Character.class);
     }
 
@@ -100,7 +102,7 @@ public class MyRequestArgumentResolver implements HandlerMethodArgumentResolver 
         }
         // 获取参数类型。
         Class<?> parameterType = parameter.getParameterType();
-        //基本类型
+        // 基本类型
         if (parameterType.isPrimitive()) {
             return parsePrimitive(parameterType.getName(), value);
         }
@@ -196,6 +198,12 @@ public class MyRequestArgumentResolver implements HandlerMethodArgumentResolver 
                 return number.doubleValue();
             } else if (parameterType == Byte.class) {
                 return number.byteValue();
+            } else if (parameterType == BigDecimal.class) {
+                if (value instanceof Double || value instanceof Float) {
+                    return BigDecimal.valueOf(number.doubleValue());
+                } else {
+                    return BigDecimal.valueOf(number.longValue());
+                }
             }
         } else if (parameterType == Boolean.class) {
             return value.toString();

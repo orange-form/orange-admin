@@ -163,16 +163,16 @@ userId|Long|true|指定对象主键Id。
 
 ## 业务应用模块
 ### AreaCodeController
-#### listDictAreaCode
-- **URI:** /admin/app/areaCode/listDictAreaCode
+#### listDict
+- **URI:** /admin/app/areaCode/listDict
 - **Type:** GET
 - **Content-Type:** multipart/form-data
 - **Request-Headers:**
 Name|Type|Description
 --|--|--
 Authorization|String|身份验证的Token
-#### listDictAreaCodeByParentId
-- **URI:** /admin/app/areaCode/listDictAreaCodeByParentId
+#### listDictByParentId
+- **URI:** /admin/app/areaCode/listDictByParentId
 - **Type:** GET
 - **Content-Type:** multipart/form-data
 - **Request-Headers:**
@@ -327,8 +327,8 @@ Parameter|Type|Required|Description
 fieldName|String|true|上传文件名。
 asImage|Boolean|true|是否作为图片上传。如果是图片，今后下载的时候无需权限验证。否则就是附件上传，下载时需要权限验证。
 uploadFile|File|true|上传文件对象。
-#### listDictCourse
-- **URI:** /admin/app/course/listDictCourse
+#### listDict
+- **URI:** /admin/app/course/listDict
 - **Type:** GET
 - **Content-Type:** multipart/form-data
 - **Request-Headers:**
@@ -476,8 +476,8 @@ Authorization|String|身份验证的Token
     "gradeId" : "Integer | true | 删除对象主键Id。"
 }
 ```
-#### listDictGrade
-- **URI:** /admin/app/grade/listDictGrade
+#### listDict
+- **URI:** /admin/app/grade/listDict
 - **Type:** GET
 - **Content-Type:** multipart/form-data
 - **Request-Headers:**
@@ -584,8 +584,8 @@ Authorization|String|身份验证的Token
 Parameter|Type|Required|Description
 --|--|--|--
 schoolId|Long|true|指定对象主键Id。
-#### listDictSchoolInfo
-- **URI:** /admin/app/schoolInfo/listDictSchoolInfo
+#### listDict
+- **URI:** /admin/app/schoolInfo/listDict
 - **Type:** GET
 - **Content-Type:** multipart/form-data
 - **Request-Headers:**
@@ -1267,8 +1267,8 @@ Authorization|String|身份验证的Token
 Parameter|Type|Required|Description
 --|--|--|--
 studentId|Long|true|指定对象主键Id。
-#### listDictStudent
-- **URI:** /admin/app/student/listDictStudent
+#### listDict
+- **URI:** /admin/app/student/listDict
 - **Type:** GET
 - **Content-Type:** multipart/form-data
 - **Request-Headers:**

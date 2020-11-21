@@ -7,7 +7,6 @@ import com.orange.demo.common.core.object.*;
 import com.orange.demo.common.core.util.*;
 import com.orange.demo.common.core.constant.*;
 import com.orange.demo.common.core.annotation.MyRequestBody;
-import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -20,7 +19,6 @@ import java.util.*;
  * @author Jerry
  * @date 2020-09-24
  */
-@Api(tags = "学生行为统计管理接口")
 @Slf4j
 @RestController
 @RequestMapping("/admin/app/studentActionStats")
@@ -62,7 +60,7 @@ public class StudentActionStatsController {
     @PostMapping("/listWithGroup")
     public ResponseResult<MyPageData<StudentActionStats>> listWithGroup(
             @MyRequestBody StudentActionStats studentActionStatsFilter,
-            @MyRequestBody MyGroupParam groupParam,
+            @MyRequestBody(required = true) MyGroupParam groupParam,
             @MyRequestBody MyOrderParam orderParam,
             @MyRequestBody MyPageParam pageParam) {
         String orderBy = MyOrderParam.buildOrderBy(orderParam, StudentActionStats.class);

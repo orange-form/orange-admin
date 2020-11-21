@@ -9,8 +9,6 @@ import com.orange.demo.common.core.util.*;
 import com.orange.demo.common.core.constant.*;
 import com.orange.demo.common.core.annotation.MyRequestBody;
 import com.orange.demo.common.core.validator.UpdateGroup;
-import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
-import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -24,7 +22,6 @@ import javax.validation.groups.Default;
  * @author Jerry
  * @date 2020-09-24
  */
-@Api(tags = "学生数据管理接口")
 @Slf4j
 @RestController
 @RequestMapping("/admin/app/student")
@@ -39,24 +36,17 @@ public class StudentController {
      * @param student 新增对象。
      * @return 应答结果对象，包含新增对象主键Id。
      */
-    @ApiOperationSupport(ignoreParameters = {
-            "student.studentId",
-            "student.searchString",
-            "student.birthdayStart",
-            "student.birthdayEnd",
-            "student.registerTimeStart",
-            "student.registerTimeEnd"})
     @PostMapping("/add")
     public ResponseResult<Long> add(@MyRequestBody Student student) {
         String errorMessage = MyCommonUtil.getModelValidationError(student);
         if (errorMessage != null) {
-            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
         // 验证关联Id的数据合法性
         CallResult callResult = studentService.verifyRelatedData(student, null);
         if (!callResult.isSuccess()) {
             errorMessage = callResult.getErrorMessage();
-            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
         student = studentService.saveNew(student);
         return ResponseResult.success(student.getStudentId());
@@ -68,22 +58,16 @@ public class StudentController {
      * @param student 更新对象。
      * @return 应答结果对象。
      */
-    @ApiOperationSupport(ignoreParameters = {
-            "student.searchString",
-            "student.birthdayStart",
-            "student.birthdayEnd",
-            "student.registerTimeStart",
-            "student.registerTimeEnd"})
     @PostMapping("/update")
     public ResponseResult<Void> update(@MyRequestBody Student student) {
         String errorMessage = MyCommonUtil.getModelValidationError(student, Default.class, UpdateGroup.class);
         if (errorMessage != null) {
-            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
         // 验证关联Id的数据合法性
         Student originalStudent = studentService.getById(student.getStudentId());
         if (originalStudent == null) {
-            //NOTE: 修改下面方括号中的话述
+            // NOTE: 修改下面方括号中的话述
             errorMessage = "数据验证失败，当前 [数据] 并不存在，请刷新后重试！";
             return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST, errorMessage);
         }
@@ -91,7 +75,7 @@ public class StudentController {
         CallResult callResult = studentService.verifyRelatedData(student, originalStudent);
         if (!callResult.isSuccess()) {
             errorMessage = callResult.getErrorMessage();
-            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
         if (!studentService.update(student, originalStudent)) {
             return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST);
@@ -171,8 +155,8 @@ public class StudentController {
      * @param filter 过滤对象。
      * @return 应答结果对象，包含的数据为 List<Map<String, String>>，map中包含两条记录，key的值分别是id和name，value对应具体数据。
      */
-    @GetMapping("/listDictStudent")
-    public ResponseResult<List<Map<String, Object>>> listDictStudent(Student filter) {
+    @GetMapping("/listDict")
+    public ResponseResult<List<Map<String, Object>>> listDict(Student filter) {
         List<Student> resultList = studentService.getListByFilter(filter, null);
         return ResponseResult.success(BeanQuery.select(
                 "studentId as id", "studentName as name").executeFrom(resultList));

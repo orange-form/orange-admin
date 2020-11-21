@@ -287,14 +287,4 @@ export default {
     height: 34px;
     line-height: 34px;
   }
-  /*
-  .tree-select-popover .el-tree .el-tree-node.is-current .el-tree-node__content {
-    color: #fdb95c;
-    font-weight: 700;
-  }
-  */
-  .current-node {
-    color: #EF5E1C;
-    font-weight: 700;
-  }
 </style>

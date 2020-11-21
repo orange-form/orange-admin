@@ -1,11 +1,10 @@
 package com.orange.demo.statsinterface.client;
 
+import com.orange.demo.common.core.base.client.BaseFallbackFactory;
 import com.orange.demo.common.core.config.FeignConfig;
 import com.orange.demo.common.core.base.client.BaseClient;
-import com.orange.demo.common.core.constant.ErrorCodeEnum;
 import com.orange.demo.common.core.object.*;
 import com.orange.demo.statsinterface.dto.StudentActionTransDto;
-import feign.hystrix.FallbackFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.stereotype.Component;
@@ -72,6 +71,26 @@ public interface StudentActionTransClient extends BaseClient<StudentActionTransD
     ResponseResult<Boolean> existId(@RequestParam("transId") Long transId);
 
     /**
+     * 删除主键Id关联的对象。
+     *
+     * @param transId 主键Id。
+     * @return 应答结果对象。
+     */
+    @Override
+    @PostMapping("/studentActionTrans/delete")
+    ResponseResult<Void> delete(@RequestParam("transId") Long transId);
+
+    /**
+     * 删除符合过滤条件的数据。
+     *
+     * @param filter 过滤对象。
+     * @return 应答结果对象，包含删除数量。
+     */
+    @Override
+    @PostMapping("/studentActionTrans/deleteBy")
+    ResponseResult<Integer> deleteBy(@RequestBody StudentActionTransDto filter);
+
+    /**
      * 获取远程主对象中符合查询条件的数据列表。
      *
      * @param queryParam 查询参数。
@@ -124,54 +143,8 @@ public interface StudentActionTransClient extends BaseClient<StudentActionTransD
 
     @Component("StatsStudentActionTransClientFallbackFactory")
     @Slf4j
-    class StudentActionTransClientFallbackFactory implements FallbackFactory<StudentActionTransClient>, StudentActionTransClient {
-
-        @Override
-        public ResponseResult<List<StudentActionTransDto>> listByIds(
-                Set<Long> transIds, Boolean withDict) {
-            return ResponseResult.error(ErrorCodeEnum.RPC_DATA_ACCESS_FAILED);
-        }
-
-        @Override
-        public ResponseResult<StudentActionTransDto> getById(
-                Long transId, Boolean withDict) {
-            return ResponseResult.error(ErrorCodeEnum.RPC_DATA_ACCESS_FAILED);
-        }
-
-        @Override
-        public ResponseResult<Boolean> existIds(Set<Long> transIds) {
-            return ResponseResult.error(ErrorCodeEnum.RPC_DATA_ACCESS_FAILED);
-        }
-
-        @Override
-        public ResponseResult<Boolean> existId(Long transId) {
-            return ResponseResult.error(ErrorCodeEnum.RPC_DATA_ACCESS_FAILED);
-        }
-
-        @Override
-        public ResponseResult<List<StudentActionTransDto>> listBy(MyQueryParam queryParam) {
-            return ResponseResult.error(ErrorCodeEnum.RPC_DATA_ACCESS_FAILED);
-        }
-
-        @Override
-        public ResponseResult<StudentActionTransDto> getBy(MyQueryParam queryParam) {
-            return ResponseResult.error(ErrorCodeEnum.RPC_DATA_ACCESS_FAILED);
-        }
-
-        @Override
-        public ResponseResult<List<Map<String, Object>>> listMapBy(MyQueryParam queryParam) {
-            return ResponseResult.error(ErrorCodeEnum.RPC_DATA_ACCESS_FAILED);
-        }
-
-        @Override
-        public ResponseResult<Integer> countBy(MyQueryParam queryParam) {
-            return ResponseResult.error(ErrorCodeEnum.RPC_DATA_ACCESS_FAILED);
-        }
-
-        @Override
-        public ResponseResult<List<Map<String, Object>>> aggregateBy(MyAggregationParam aggregationParam) {
-            return ResponseResult.error(ErrorCodeEnum.RPC_DATA_ACCESS_FAILED);
-        }
+    class StudentActionTransClientFallbackFactory
+            extends BaseFallbackFactory<StudentActionTransDto, Long, StudentActionTransClient> implements StudentActionTransClient {
 
         @Override
         public StudentActionTransClient create(Throwable throwable) {

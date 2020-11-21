@@ -30,20 +30,25 @@
           </el-table-column>
           <el-table-column label="权限字标识" prop="permCode" min-width="200px">
           </el-table-column>
-          <el-table-column label="操作" fixed="right" width="150px">
+          <el-table-column label="操作" fixed="right" width="200px">
             <template slot-scope="scope">
-            <el-button @click="onEditPermCodeClick(scope.row)" type="text" size="mini"
-              :disabled="!checkPermCodeExist('formSysPermCode:fragmentSysPermCode:update')">
-              编辑
-            </el-button>
-            <el-button @click="onAddChildPermCodeClick(scope.row)" type="text" size="mini"
-              :disabled="scope.row.permCodeType === 2 || !checkPermCodeExist('formSysPermCode:fragmentSysPermCode:add')">
-              添加
-            </el-button>
-            <el-button @click="onDeleteClick(scope.row)" type="text" size="mini"
-              :disabled="!checkPermCodeExist('formSysPermCode:fragmentSysPermCode:delete')">
-              删除
-            </el-button>
+              <el-button @click="onEditPermCodeClick(scope.row)" type="text" size="mini"
+                :disabled="!checkPermCodeExist('formSysPermCode:fragmentSysPermCode:update')">
+                编辑
+              </el-button>
+              <el-button @click="onAddChildPermCodeClick(scope.row)" type="text" size="mini"
+                :disabled="scope.row.permCodeType === 2 || !checkPermCodeExist('formSysPermCode:fragmentSysPermCode:add')">
+                添加
+              </el-button>
+              <el-button @click="onDeleteClick(scope.row)" type="text" size="mini"
+                :disabled="!checkPermCodeExist('formSysPermCode:fragmentSysPermCode:delete')">
+                删除
+              </el-button>
+              <el-button class="btn-table-primary" type="text" size="mini"
+                v-if="checkPermCodeExist('formSysPermCode:fragmentSysPermCode:listSysPermCodePermDetail')"
+                @click="onSysPermCodeDetailClick(scope.row)">
+                权限详情
+              </el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -61,6 +66,7 @@ import { uploadMixin, statsDateRangeMixin, cachePageMixin, cachedPageChildMixin 
 /* eslint-disable-next-line */
 import { SystemController, DictionaryController } from '@/api';
 import formEditSysPermCode from '@/views/upms/formEditSysPermCode';
+import FormSysPermCodeDetail from '@/views/upms/formSysPermCode/formSysPermCodeDetail.vue';
 
 export default {
   name: 'formSysPermCode',
@@ -138,6 +144,14 @@ export default {
       this.formPermCode.SysPermCode.sortInfo.orderField = prop;
       this.formPermCode.SysPermCode.sortInfo.asc = (order === 'ascending');
       this.formPermCode.SysPermCode.impl.refreshTable();
+    },
+    onSysPermCodeDetailClick (row) {
+      this.$dialog.show('权限详情', FormSysPermCodeDetail, {
+        area: '1200px',
+        offset: '30px'
+      }, {
+        permCodeId: row.permCodeId
+      }).then(res => {}).catch(e => {});
     },
     /**
      * 更新权限资源管理

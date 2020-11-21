@@ -56,15 +56,6 @@ pagehelper:
   supportMethodsArguments: false
   params: count=countSql
 
-swagger:
-  # 当enabled为false的时候，则可禁用swagger。
-  enabled: true
-  # 工程的基础包名。
-  basePackage: com.orange.demo
-  title: 橙单单体开源版
-  description: 橙单单体开源版详情
-  version: 1.0
-
 # 暴露监控端点
 management:
   endpoints:

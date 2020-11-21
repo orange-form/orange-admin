@@ -8,7 +8,7 @@
                 @click="initFormData()">
                 刷新
               </el-button>
-              <el-button type="primary" size="mini" :disabled="!checkPermCodeExist('sysMenuManagement:add')"
+              <el-button type="primary" size="mini" :disabled="!checkPermCodeExist('formSysMenu:fragmentSysMenu:add')"
                 @click="onCreateSysColumnClick()">
                 新建
               </el-button>
@@ -24,11 +24,11 @@
                 <el-table-column label="操作" width="200px">
                   <template slot-scope="scope">
                     <el-button @click="onEditSysColumnClick(scope.row)" type="text" size="mini"
-                      :disabled="!checkPermCodeExist('sysMenuManagement:update')">
+                      :disabled="!checkPermCodeExist('formSysMenu:fragmentSysMenu:update')">
                       编辑
                     </el-button>
                     <el-button @click="onDeleteClick(scope.row)" type="text" size="mini"
-                      :disabled="!checkPermCodeExist('sysMenuManagement:delete')">
+                      :disabled="!checkPermCodeExist('formSysMenu:fragmentSysMenu:delete')">
                       删除
                     </el-button>
                   </template>
@@ -54,7 +54,7 @@
                   @click="initFormData(true)">
                   刷新
                 </el-button>
-                <el-button type="primary" size="mini" :disabled="!checkPermCodeExist('sysMenuManagement:add')"
+                <el-button type="primary" size="mini" :disabled="!checkPermCodeExist('formSysMenu:fragmentSysMenu:add')"
                   @click="onCreateSysMenuClick()">
                   新建
                 </el-button>
@@ -85,20 +85,21 @@
               <el-table-column label="操作" width="200px">
                 <template slot-scope="scope">
                   <el-button @click="onEditSysMenuClick(scope.row)" type="text" size="mini"
-                    :disabled="!checkPermCodeExist('sysMenuManagement:update')">
+                    :disabled="!checkPermCodeExist('formSysMenu:fragmentSysMenu:update')">
                     编辑
                   </el-button>
                   <el-button @click="onAddChildSysMenuClick(scope.row)" type="text" size="mini"
-                    :disabled="!checkPermCodeExist('sysMenuManagement:add') || scope.row.menuType === SysMenuType.BUTTON">
+                    :disabled="!checkPermCodeExist('formSysMenu:fragmentSysMenu:add') || scope.row.menuType === SysMenuType.BUTTON">
                     添加
                   </el-button>
                   <el-button @click="onDeleteClick(scope.row)" type="text" size="mini"
-                    :disabled="!checkPermCodeExist('sysMenuManagement:delete')">
+                    :disabled="!checkPermCodeExist('formSysMenu:fragmentSysMenu:delete')">
                     删除
                   </el-button>
                   <el-button @click="onShowPermList(scope.row)" type="text" size="mini"
-                    :disabled="!checkPermCodeExist('sysMenuManagement:listMenuPerm') || scope.row.menuType === SysMenuType.DIRECTORY">
-                    权限资源
+                    v-if="checkPermCodeExist('formSysMenu:fragmentSysMenu:listSysMenuPermDetail')"
+                    :disabled="scope.row.menuType === SysMenuType.DIRECTORY">
+                    权限详情
                   </el-button>
                 </template>
               </el-table-column>
@@ -120,11 +121,11 @@ import { uploadMixin, statsDateRangeMixin, cachePageMixin, cachedPageChildMixin 
 /* eslint-disable-next-line */
 import { DictionaryController, SystemController } from '@/api';
 import formEditSysMenu from '@/views/upms/formEditSysMenu';
-import formMenuPerm from '@/views/upms/formMenuPerm';
+import formMenuPerm from './formSysMenuPerm';
 import formEditColumn from '@/views/upms/formEditSysMenu/editColumn.vue';
 
 export default {
-  name: 'sysMenuManagement',
+  name: 'formSysMenu',
   props: {
   },
   mixins: [uploadMixin, statsDateRangeMixin, cachePageMixin],
@@ -240,15 +241,16 @@ export default {
       }).catch(e => {});
     },
     /**
-     * 权限资源
+     * 权限详情
      */
     onShowPermList (row) {
       let params = {
         menuId: row.menuId
       };
 
-      this.$dialog.show('权限资源 - ' + row.menuName, formMenuPerm, {
-        area: ['1200px', '600px']
+      this.$dialog.show('权限详情 - ' + row.menuName, formMenuPerm, {
+        area: '1200px',
+        offset: '30px'
       }, params).catch(e => {
       });
     },

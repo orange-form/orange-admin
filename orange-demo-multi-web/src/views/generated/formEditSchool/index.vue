@@ -173,6 +173,15 @@ export default {
     onUpdateClick () {
       this.$refs.formEditSchool.validate((valid) => {
         if (!valid) return;
+        if (
+          this.schoolId == null ||
+          this.formData.SchoolInfo.schoolName == null ||
+          this.formData.SchoolInfo.provinceId == null ||
+          this.formData.SchoolInfo.cityId == null
+        ) {
+          this.$message.error('请求失败，发现必填参数为空！');
+          return;
+        }
         let params = {
           schoolInfo: {
             schoolId: this.schoolId,
@@ -194,13 +203,24 @@ export default {
     loadSchoolInfoData () {
       return new Promise((resolve, reject) => {
         if (!this.formData.SchoolInfo.isDatasourceInit) {
+          if (
+            this.schoolId == null
+          ) {
+            this.resetFormData();
+            reject();
+            return;
+          }
           let params = {
             schoolId: this.schoolId
           };
           SchoolInfoController.view(this, params).then(res => {
             this.formData.SchoolInfo = {...res.data, isDatasourceInit: true};
-            if (this.formData.SchoolInfo.provinceIdDictMap) this.formEditSchool.provinceId.impl.dropdownList = [this.formData.SchoolInfo.provinceIdDictMap];
-            if (this.formData.SchoolInfo.cityIdDictMap) this.formEditSchool.cityId.impl.dropdownList = [this.formData.SchoolInfo.cityIdDictMap];
+            if (this.formData.SchoolInfo.provinceIdDictMap && this.formEditSchool.provinceId.impl.dirty) {
+              this.formEditSchool.provinceId.impl.dropdownList = [this.formData.SchoolInfo.provinceIdDictMap];
+            }
+            if (this.formData.SchoolInfo.cityIdDictMap && this.formEditSchool.cityId.impl.dirty) {
+              this.formEditSchool.cityId.impl.dropdownList = [this.formData.SchoolInfo.cityIdDictMap];
+            }
             resolve();
           }).catch(e => {
             reject();
@@ -211,6 +231,20 @@ export default {
       });
     },
     initFormData () {
+    },
+    /**
+     * 重置表单数据
+     */
+    resetFormData () {
+      this.formData = {
+        SchoolInfo: {
+          schoolId: undefined,
+          schoolName: undefined,
+          provinceId: undefined,
+          cityId: undefined,
+          isDatasourceInit: false
+        }
+      }
     },
     formInit () {
       this.refreshFormEditSchool();

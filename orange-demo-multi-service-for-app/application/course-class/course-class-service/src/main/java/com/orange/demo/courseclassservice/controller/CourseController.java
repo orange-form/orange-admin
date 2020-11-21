@@ -76,14 +76,14 @@ public class CourseController extends BaseController<Course, CourseDto, Long> {
     public ResponseResult<Long> add(@MyRequestBody("course") CourseDto courseDto) {
         String errorMessage = MyCommonUtil.getModelValidationError(courseDto);
         if (errorMessage != null) {
-            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
         Course course = Course.INSTANCE.toModel(courseDto);
         // 验证关联Id的数据合法性
         CallResult callResult = courseService.verifyRelatedData(course, null);
         if (!callResult.isSuccess()) {
             errorMessage = callResult.getErrorMessage();
-            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
         course = courseService.saveNew(course);
         return ResponseResult.success(course.getCourseId());
@@ -106,7 +106,7 @@ public class CourseController extends BaseController<Course, CourseDto, Long> {
     public ResponseResult<Void> update(@MyRequestBody("course") CourseDto courseDto) {
         String errorMessage = MyCommonUtil.getModelValidationError(courseDto, Default.class, UpdateGroup.class);
         if (errorMessage != null) {
-            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
         Course course = Course.INSTANCE.toModel(courseDto);
         Course originalCourse = courseService.getById(course.getCourseId());
@@ -119,7 +119,7 @@ public class CourseController extends BaseController<Course, CourseDto, Long> {
         CallResult callResult = courseService.verifyRelatedData(course, originalCourse);
         if (!callResult.isSuccess()) {
             errorMessage = callResult.getErrorMessage();
-            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
         if (!courseService.update(course, originalCourse)) {
             return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST);
@@ -142,7 +142,7 @@ public class CourseController extends BaseController<Course, CourseDto, Long> {
         // 验证关联Id的数据合法性
         Course originalCourse = courseService.getById(courseId);
         if (originalCourse == null) {
-            //NOTE: 修改下面方括号中的话述
+            // NOTE: 修改下面方括号中的话述
             errorMessage = "数据验证失败，当前 [对象] 并不存在，请刷新后重试！";
             return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST, errorMessage);
         }
@@ -303,8 +303,8 @@ public class CourseController extends BaseController<Course, CourseDto, Long> {
      * @param filter 过滤对象。
      * @return 应答结果对象，包含字典形式的数据集合。
      */
-    @GetMapping("/listDictCourse")
-    public ResponseResult<List<Map<String, Object>>> listDictCourse(Course filter) {
+    @GetMapping("/listDict")
+    public ResponseResult<List<Map<String, Object>>> listDict(Course filter) {
         List<Course> resultList = courseService.getListByFilter(filter, null);
         return ResponseResult.success(
                 BeanQuery.select("courseId as id", "courseName as name").executeFrom(resultList));
@@ -360,6 +360,18 @@ public class CourseController extends BaseController<Course, CourseDto, Long> {
     @PostMapping("/existId")
     public ResponseResult<Boolean> existId(@RequestParam Long courseId) {
         return super.baseExistId(courseId);
+    }
+
+    /**
+     * 删除符合过滤条件的数据。
+     *
+     * @param filter 过滤对象。
+     * @return 删除数量。
+     */
+    @ApiOperation(hidden = true, value = "deleteBy")
+    @PostMapping("/deleteBy")
+    public ResponseResult<Integer> deleteBy(@RequestBody CourseDto filter) throws Exception {
+        return super.baseDeleteBy(filter, Course.INSTANCE);
     }
 
     /**

@@ -31,7 +31,7 @@
     </el-form>
     <el-row>
       <el-col :span="24">
-        <el-table ref="SchoolInfo" :data="formSchool.SchoolInfo.impl.dataList" size="mini" @sort-change="formSchool.SchoolInfo.impl.onSortChange"
+        <el-table ref="schoolInfo" :data="formSchool.SchoolInfo.impl.dataList" size="mini" @sort-change="formSchool.SchoolInfo.impl.onSortChange"
           header-cell-class-name="table-header-gray">
           <el-table-column label="序号" header-align="center" align="center" type="index" width="55px" :index="formSchool.SchoolInfo.impl.getTableIndex" />
           <el-table-column label="学校名称" prop="schoolName">
@@ -236,6 +236,12 @@ export default {
      * 删除
      */
     onDeleteClick (row) {
+      if (
+        row.schoolId == null
+      ) {
+        this.$message.error('请求失败，发现必填参数为空！');
+        return;
+      }
       let params = {
         schoolId: row.schoolId
       };

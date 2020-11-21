@@ -1,11 +1,10 @@
 package com.orange.demo.courseclassinterface.client;
 
+import com.orange.demo.common.core.base.client.BaseFallbackFactory;
 import com.orange.demo.common.core.config.FeignConfig;
 import com.orange.demo.common.core.base.client.BaseClient;
-import com.orange.demo.common.core.constant.ErrorCodeEnum;
 import com.orange.demo.common.core.object.*;
 import com.orange.demo.courseclassinterface.dto.GradeDto;
-import feign.hystrix.FallbackFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.stereotype.Component;
@@ -72,6 +71,26 @@ public interface GradeClient extends BaseClient<GradeDto, Integer> {
     ResponseResult<Boolean> existId(@RequestParam("gradeId") Integer gradeId);
 
     /**
+     * 删除主键Id关联的对象。
+     *
+     * @param gradeId 主键Id。
+     * @return 应答结果对象。
+     */
+    @Override
+    @PostMapping("/grade/delete")
+    ResponseResult<Void> delete(@RequestParam("gradeId") Integer gradeId);
+
+    /**
+     * 删除符合过滤条件的数据。
+     *
+     * @param filter 过滤对象。
+     * @return 应答结果对象，包含删除数量。
+     */
+    @Override
+    @PostMapping("/grade/deleteBy")
+    ResponseResult<Integer> deleteBy(@RequestBody GradeDto filter);
+
+    /**
      * 获取远程主对象中符合查询条件的数据列表。
      *
      * @param queryParam 查询参数。
@@ -93,39 +112,8 @@ public interface GradeClient extends BaseClient<GradeDto, Integer> {
 
     @Component("CourseClassGradeClientFallbackFactory")
     @Slf4j
-    class GradeClientFallbackFactory implements FallbackFactory<GradeClient>, GradeClient {
-
-        @Override
-        public ResponseResult<List<GradeDto>> listByIds(
-                Set<Integer> gradeIds, Boolean withDict) {
-            return ResponseResult.error(ErrorCodeEnum.RPC_DATA_ACCESS_FAILED);
-        }
-
-        @Override
-        public ResponseResult<GradeDto> getById(
-                Integer gradeId, Boolean withDict) {
-            return ResponseResult.error(ErrorCodeEnum.RPC_DATA_ACCESS_FAILED);
-        }
-
-        @Override
-        public ResponseResult<Boolean> existIds(Set<Integer> gradeIds) {
-            return ResponseResult.error(ErrorCodeEnum.RPC_DATA_ACCESS_FAILED);
-        }
-
-        @Override
-        public ResponseResult<Boolean> existId(Integer gradeId) {
-            return ResponseResult.error(ErrorCodeEnum.RPC_DATA_ACCESS_FAILED);
-        }
-
-        @Override
-        public ResponseResult<List<GradeDto>> listBy(MyQueryParam queryParam) {
-            return ResponseResult.error(ErrorCodeEnum.RPC_DATA_ACCESS_FAILED);
-        }
-
-        @Override
-        public ResponseResult<GradeDto> getBy(MyQueryParam queryParam) {
-            return ResponseResult.error(ErrorCodeEnum.RPC_DATA_ACCESS_FAILED);
-        }
+    class GradeClientFallbackFactory
+            extends BaseFallbackFactory<GradeDto, Integer, GradeClient> implements GradeClient {
 
         @Override
         public GradeClient create(Throwable throwable) {

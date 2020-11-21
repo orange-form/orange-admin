@@ -451,6 +451,25 @@ export default {
     onUpdateClick () {
       this.$refs.formEditStudent.validate((valid) => {
         if (!valid) return;
+        if (
+          this.studentId == null ||
+          this.formData.Student.loginMobile == null ||
+          this.formData.Student.studentName == null ||
+          this.formData.Student.provinceId == null ||
+          this.formData.Student.cityId == null ||
+          this.formData.Student.districtId == null ||
+          this.formData.Student.gender == null ||
+          this.formData.Student.birthday == null ||
+          this.formData.Student.experienceLevel == null ||
+          this.formData.Student.totalCoin == null ||
+          this.formData.Student.leftCoin == null ||
+          this.formData.Student.gradeId == null ||
+          this.formData.Student.schoolId == null ||
+          this.formData.Student.status == null
+        ) {
+          this.$message.error('请求失败，发现必填参数为空！');
+          return;
+        }
         let params = {
           student: {
             studentId: this.studentId,
@@ -482,19 +501,42 @@ export default {
     loadStudentData () {
       return new Promise((resolve, reject) => {
         if (!this.formData.Student.isDatasourceInit) {
+          if (
+            this.studentId == null
+          ) {
+            this.resetFormData();
+            reject();
+            return;
+          }
           let params = {
             studentId: this.studentId
           };
           StudentController.view(this, params).then(res => {
             this.formData.Student = {...res.data, isDatasourceInit: true};
-            if (this.formData.Student.genderDictMap) this.formEditStudent.gender.impl.dropdownList = [this.formData.Student.genderDictMap];
-            if (this.formData.Student.gradeIdDictMap) this.formEditStudent.gradeId.impl.dropdownList = [this.formData.Student.gradeIdDictMap];
-            if (this.formData.Student.experienceLevelDictMap) this.formEditStudent.experienceLevel.impl.dropdownList = [this.formData.Student.experienceLevelDictMap];
-            if (this.formData.Student.provinceIdDictMap) this.formEditStudent.provinceId.impl.dropdownList = [this.formData.Student.provinceIdDictMap];
-            if (this.formData.Student.cityIdDictMap) this.formEditStudent.cityId.impl.dropdownList = [this.formData.Student.cityIdDictMap];
-            if (this.formData.Student.districtIdDictMap) this.formEditStudent.districtId.impl.dropdownList = [this.formData.Student.districtIdDictMap];
-            if (this.formData.Student.schoolIdDictMap) this.formEditStudent.schoolId.impl.dropdownList = [this.formData.Student.schoolIdDictMap];
-            if (this.formData.Student.statusDictMap) this.formEditStudent.status.impl.dropdownList = [this.formData.Student.statusDictMap];
+            if (this.formData.Student.genderDictMap && this.formEditStudent.gender.impl.dirty) {
+              this.formEditStudent.gender.impl.dropdownList = [this.formData.Student.genderDictMap];
+            }
+            if (this.formData.Student.gradeIdDictMap && this.formEditStudent.gradeId.impl.dirty) {
+              this.formEditStudent.gradeId.impl.dropdownList = [this.formData.Student.gradeIdDictMap];
+            }
+            if (this.formData.Student.experienceLevelDictMap && this.formEditStudent.experienceLevel.impl.dirty) {
+              this.formEditStudent.experienceLevel.impl.dropdownList = [this.formData.Student.experienceLevelDictMap];
+            }
+            if (this.formData.Student.provinceIdDictMap && this.formEditStudent.provinceId.impl.dirty) {
+              this.formEditStudent.provinceId.impl.dropdownList = [this.formData.Student.provinceIdDictMap];
+            }
+            if (this.formData.Student.cityIdDictMap && this.formEditStudent.cityId.impl.dirty) {
+              this.formEditStudent.cityId.impl.dropdownList = [this.formData.Student.cityIdDictMap];
+            }
+            if (this.formData.Student.districtIdDictMap && this.formEditStudent.districtId.impl.dirty) {
+              this.formEditStudent.districtId.impl.dropdownList = [this.formData.Student.districtIdDictMap];
+            }
+            if (this.formData.Student.schoolIdDictMap && this.formEditStudent.schoolId.impl.dirty) {
+              this.formEditStudent.schoolId.impl.dropdownList = [this.formData.Student.schoolIdDictMap];
+            }
+            if (this.formData.Student.statusDictMap && this.formEditStudent.status.impl.dirty) {
+              this.formEditStudent.status.impl.dropdownList = [this.formData.Student.statusDictMap];
+            }
             resolve();
           }).catch(e => {
             reject();
@@ -505,6 +547,31 @@ export default {
       });
     },
     initFormData () {
+    },
+    /**
+     * 重置表单数据
+     */
+    resetFormData () {
+      this.formData = {
+        Student: {
+          studentId: undefined,
+          loginMobile: undefined,
+          studentName: undefined,
+          provinceId: undefined,
+          cityId: undefined,
+          districtId: undefined,
+          gender: undefined,
+          birthday: undefined,
+          experienceLevel: undefined,
+          totalCoin: undefined,
+          leftCoin: undefined,
+          gradeId: undefined,
+          schoolId: undefined,
+          registerTime: undefined,
+          status: undefined,
+          isDatasourceInit: false
+        }
+      }
     },
     formInit () {
       this.refreshFormEditStudent();

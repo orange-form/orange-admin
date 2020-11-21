@@ -110,11 +110,11 @@ public class LocalUpDownloader extends BaseUpDownloader {
         try {
             byte[] bytes = uploadFile.getBytes();
             Path path = Paths.get(uploadPath + responseInfo.getFilename());
-            //如果没有files文件夹，则创建
+            // 如果没有files文件夹，则创建
             if (!Files.isWritable(path)) {
                 Files.createDirectories(Paths.get(uploadPath));
             }
-            //文件写入指定路径
+            // 文件写入指定路径
             Files.write(path, bytes);
         } catch (IOException e) {
             log.error("Failed to write uploaded file [" + uploadFile.getOriginalFilename() + " ].", e);

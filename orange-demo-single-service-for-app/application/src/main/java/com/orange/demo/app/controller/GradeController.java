@@ -8,8 +8,6 @@ import com.orange.demo.common.core.object.ResponseResult;
 import com.orange.demo.common.core.annotation.MyRequestBody;
 import com.orange.demo.common.core.validator.UpdateGroup;
 
-import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
-import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -24,7 +22,6 @@ import java.util.*;
  * @author Jerry
  * @date 2020-09-24
  */
-@Api(tags = "年级管理接口")
 @Slf4j
 @RestController
 @RequestMapping("/admin/app/grade")
@@ -39,12 +36,11 @@ public class GradeController {
      * @param grade 新增对象。
      * @return 应答结果对象，包含新增对象主键Id。
      */
-    @ApiOperationSupport(ignoreParameters = {"grade.gradeId"})
     @PostMapping("/add")
     public ResponseResult<Integer> add(@MyRequestBody Grade grade) {
         String errorMessage = MyCommonUtil.getModelValidationError(grade);
         if (errorMessage != null) {
-            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
         grade = gradeService.saveNew(grade);
         return ResponseResult.success(grade.getGradeId());
@@ -60,7 +56,7 @@ public class GradeController {
     public ResponseResult<Void> update(@MyRequestBody Grade grade) {
         String errorMessage = MyCommonUtil.getModelValidationError(grade, Default.class, UpdateGroup.class);
         if (errorMessage != null) {
-            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
         Grade originalGrade = gradeService.getById(grade.getGradeId());
         if (originalGrade == null) {
@@ -95,8 +91,8 @@ public class GradeController {
      *
      * @return 应答结果对象，包含字典形式的数据集合。
      */
-    @GetMapping("/listDictGrade")
-    public ResponseResult<List<Map<String, Object>>> listDictGrade() {
+    @GetMapping("/listDict")
+    public ResponseResult<List<Map<String, Object>>> listDict() {
         List<Grade> resultList = gradeService.getAllList();
         return ResponseResult.success(BeanQuery.select(
                 "gradeId as id", "gradeName as name").executeFrom(resultList));

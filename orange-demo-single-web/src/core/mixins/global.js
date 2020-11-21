@@ -67,17 +67,14 @@ const globalMixin = {
      * @param {*} fileName 下载文件名
      */
     downloadFile (url, fileName) {
-      console.log(fileName);
       Request({
         url: url,
         method: 'get',
         responseType: 'blob',
         transformResponse: function (data) {
-          console.log(data);
           return data;
         }
       }).then(res => {
-        console.log(res);
         let data = res.data;
         if (res.status === 200 && data instanceof Blob) {
           let url = window.URL.createObjectURL(data);

@@ -29,12 +29,12 @@ export default {
   },
   methods: {
     getBreadcrumb () {
-      this.menuPathList = this.getCurrentMenuPath;
+      this.menuPathList = this.getMultiColumn ? null : this.getCurrentMenuPath;
     },
     ...mapMutations(['setCurrentMenuId'])
   },
   computed: {
-    ...mapGetters(['getCurrentMenuPath'])
+    ...mapGetters(['getCurrentMenuPath', 'getMultiColumn'])
   }
 };
 </script>

@@ -87,7 +87,7 @@ public class Course {
     /**
      * 多张课程图片地址。
      */
-    @UploadFlagColumn(storeType = UploadStoreTypeEnum.MINIO_SYSTEM)
+    @UploadFlagColumn(storeType = UploadStoreTypeEnum.LOCAL_SYSTEM)
     @NotBlank(message = "数据验证失败，课程图片不能为空！")
     @Column(name = "picture_url")
     private String pictureUrl;

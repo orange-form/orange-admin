@@ -4,8 +4,7 @@ import com.orange.demo.common.core.base.dao.BaseDaoMapper;
 import com.orange.demo.upms.model.SysPerm;
 import org.apache.ibatis.annotations.Param;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 权限资源数据访问操作接口。
@@ -24,17 +23,6 @@ public interface SysPermMapper extends BaseDaoMapper<SysPerm> {
     List<SysPerm> getPermListByUserId(@Param("userId") Long userId);
 
     /**
-     * 获取指定用户Id的权限列表。
-     *
-     * @param loginName 精确匹配用户登录名。
-     * @param moduleId  精确匹配权限模块Id。
-     * @param url       权限的url过滤条件，LIKE %url%。
-     * @return 权限列表。
-     */
-    List<Map<String, Object>> getUserPermListByFilter(
-            @Param("loginName") String loginName, @Param("moduleId") Long moduleId, @Param("url") String url);
-
-    /**
      * 根据关联权限字主键Id，获取权限资源数据列表。
      *
      * @param permCodeId 关联权限字主键Id。
@@ -44,18 +32,32 @@ public interface SysPermMapper extends BaseDaoMapper<SysPerm> {
     List<SysPerm> getPermListByPermCodeId(@Param("permCodeId") Long permCodeId, @Param("orderBy") String orderBy);
 
     /**
-     * 获取指定权限的用户列表。
+     * 查询权限资源地址的用户列表。同时返回详细的分配路径。
      *
-     * @param permId 指定权限。
-     * @return 用户列表。
+     * @param permId    权限资源Id。
+     * @param loginName 登录名。
+     * @return 包含从权限资源到用户的完整权限分配路径信息的查询结果列表。
      */
-    List<Map<String, Object>> getPermUserListById(@Param("permId") Long permId);
+    List<Map<String, Object>> getSysUserListWithDetail(
+            @Param("permId") Long permId, @Param("loginName") String loginName);
 
     /**
-     * 获取指定权限的角色列表。
+     * 查询权限资源地址的角色列表。同时返回详细的分配路径。
      *
-     * @param permId 指定权限。
-     * @return 角色列表。
+     * @param permId   权限资源Id。
+     * @param roleName 角色名。
+     * @return 包含从权限资源到角色的权限分配路径信息的查询结果列表。
      */
-    List<Map<String, Object>> getPermRoleListById(@Param("permId") Long permId);
+    List<Map<String, Object>> getSysRoleListWithDetail(
+            @Param("permId") Long permId, @Param("roleName") String roleName);
+
+    /**
+     * 查询权限资源地址的菜单列表。同时返回详细的分配路径。
+     *
+     * @param permId   权限资源Id。
+     * @param menuName 菜单名。
+     * @return 包含从权限资源到菜单的权限分配路径信息的查询结果列表。
+     */
+    List<Map<String, Object>> getSysMenuListWithDetail(
+            @Param("permId") Long permId, @Param("menuName") String menuName);
 }

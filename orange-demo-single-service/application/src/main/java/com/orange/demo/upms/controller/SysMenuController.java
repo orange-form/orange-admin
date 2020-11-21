@@ -1,7 +1,5 @@
 package com.orange.demo.upms.controller;
 
-import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
-import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
 import com.orange.demo.upms.model.SysMenu;
 import com.orange.demo.upms.service.SysMenuService;
@@ -23,7 +21,6 @@ import java.util.*;
  * @author Jerry
  * @date 2020-09-24
  */
-@Api(tags = "菜单管理接口")
 @Slf4j
 @RestController
 @RequestMapping("/admin/upms/sysMenu")
@@ -42,16 +39,15 @@ public class SysMenuController {
      * @return 应答结果对象，包含新增菜单的主键Id。
      */
     @SuppressWarnings("unchecked")
-    @ApiOperationSupport(ignoreParameters = {"sysMenu.menuId"})
     @PostMapping("/add")
     public ResponseResult<Long> add(@MyRequestBody SysMenu sysMenu, @MyRequestBody String permCodeIdListString) {
         String errorMessage = MyCommonUtil.getModelValidationError(sysMenu);
         if (errorMessage != null) {
-            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
         CallResult result = sysMenuService.verifyRelatedData(sysMenu, null, permCodeIdListString);
         if (!result.isSuccess()) {
-            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, result.getErrorMessage());
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, result.getErrorMessage());
         }
         Set<Long> permCodeIdSet = null;
         if (result.getData() != null) {
@@ -73,7 +69,7 @@ public class SysMenuController {
     public ResponseResult<Void> update(@MyRequestBody SysMenu sysMenu, @MyRequestBody String permCodeIdListString) {
         String errorMessage = MyCommonUtil.getModelValidationError(sysMenu, Default.class, UpdateGroup.class);
         if (errorMessage != null) {
-            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
         SysMenu originalSysMenu = sysMenuService.getById(sysMenu.getMenuId());
         if (originalSysMenu == null) {
@@ -82,7 +78,7 @@ public class SysMenuController {
         }
         CallResult result = sysMenuService.verifyRelatedData(sysMenu, originalSysMenu, permCodeIdListString);
         if (!result.isSuccess()) {
-            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, result.getErrorMessage());
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, result.getErrorMessage());
         }
         Set<Long> permCodeIdSet = null;
         if (result.getData() != null) {
@@ -147,13 +143,32 @@ public class SysMenuController {
     }
 
     /**
-     * 列出与指定菜单关联的权限字和权限资源，便于管理员排查配置中的错误。
+     * 查询菜单的权限资源地址列表。同时返回详细的分配路径。
      *
      * @param menuId 菜单Id。
-     * @return 与菜单关联的权限字和权限资源列表。
+     * @param url    权限资源地址过滤条件。
+     * @return 应答对象，包含从菜单到权限资源的权限分配路径信息的查询结果列表。
      */
-    @GetMapping("/listMenuPerm")
-    public ResponseResult<List<Map<String, Object>>> listMenuPerm(@RequestParam Long menuId) {
-        return ResponseResult.success(sysPermCodeService.getPermCodeListByMenuId(menuId));
+    @GetMapping("/listSysPermWithDetail")
+    public ResponseResult<List<Map<String, Object>>> listSysPermWithDetail(Long menuId, String url) {
+        if (MyCommonUtil.isBlankOrNull(menuId)) {
+            return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
+        }
+        return ResponseResult.success(sysMenuService.getSysPermListWithDetail(menuId, url));
+    }
+
+    /**
+     * 查询菜单的用户列表。同时返回详细的分配路径。
+     *
+     * @param menuId    菜单Id。
+     * @param loginName 登录名。
+     * @return 应答对象，包含从菜单到用户的完整权限分配路径信息的查询结果列表。
+     */
+    @GetMapping("/listSysUserWithDetail")
+    public ResponseResult<List<Map<String, Object>>> listSysUserWithDetail(Long menuId, String loginName) {
+        if (MyCommonUtil.isBlankOrNull(menuId)) {
+            return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
+        }
+        return ResponseResult.success(sysMenuService.getSysUserListWithDetail(menuId, loginName));
     }
 }

@@ -1,5 +1,6 @@
 package com.orange.demo.common.core.util;
 
+import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.crypto.digest.DigestUtil;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -7,10 +8,9 @@ import org.apache.commons.lang3.StringUtils;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Set;
-import java.util.UUID;
+import java.lang.reflect.Field;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 脚手架中常用的基本工具方法集合，一般而言工程内部使用的方法。
@@ -134,6 +134,25 @@ public class MyCommonUtil {
             }
         }
         return sb.toString();
+    }
+
+    /**
+     * 获取对象中，非空字段的名字列表。
+     *
+     * @param object 数据对象。
+     * @param clazz  数据对象的class类型。
+     * @param <T>    数据对象类型。
+     * @return 数据对象中，值不为NULL的字段数组。
+     */
+    public static <T> String[] getNotNullFieldNames(T object, Class<T> clazz) {
+        Field[] fields = ReflectUtil.getFields(clazz);
+        List<String> fieldNameList = Arrays.stream(fields)
+                .filter(f -> ReflectUtil.getFieldValue(object, f) != null)
+                .map(Field::getName).collect(Collectors.toList());
+        if (CollectionUtils.isNotEmpty(fieldNameList)) {
+            return fieldNameList.toArray(new String[]{});
+        }
+        return new String[]{};
     }
 
     /**

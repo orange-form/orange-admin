@@ -34,14 +34,19 @@
               </el-table-column>
               <el-table-column label="操作" fixed="right" width="150px">
                 <template slot-scope="scope">
-                <el-button @click="onEditSysRoleClick(scope.row)" type="text" size="mini"
-                  :disabled="!checkPermCodeExist('formSysRole:fragmentSysRole:update')">
-                  编辑
-                </el-button>
-                <el-button @click="onDeleteClick(scope.row)" type="text" size="mini"
-                  :disabled="!checkPermCodeExist('formSysRole:fragmentSysRole:delete')">
-                  删除
-                </el-button>
+                  <el-button @click="onEditSysRoleClick(scope.row)" type="text" size="mini"
+                    :disabled="!checkPermCodeExist('formSysRole:fragmentSysRole:update')">
+                    编辑
+                  </el-button>
+                  <el-button @click="onDeleteClick(scope.row)" type="text" size="mini"
+                    :disabled="!checkPermCodeExist('formSysRole:fragmentSysRole:delete')">
+                    删除
+                  </el-button>
+                  <el-button class="btn-table-primary" type="text" size="mini"
+                    v-if="checkPermCodeExist('formSysRole:fragmentSysRole:listSysRolePermDetail')"
+                    @click="onSysRolePermClick(scope.row)">
+                    权限详情
+                  </el-button>
                 </template>
               </el-table-column>
             </el-table>
@@ -116,7 +121,9 @@
                 <template slot-scope="scope">
                   <el-button class="btn-table-delete" type="text" size="mini"
                     :disabled="!checkPermCodeExist('formSysRole:fragmentSysRoleUser:deleteUserRole')"
-                    @click="onDeleteRow(scope.row)">移除</el-button>
+                    @click="onDeleteRow(scope.row)">
+                    移除
+                  </el-button>
                 </template>
               </el-table-column>
             </el-table>
@@ -150,6 +157,7 @@ import { uploadMixin, statsDateRangeMixin, cachePageMixin, cachedPageChildMixin 
 import { SystemController, DictionaryController } from '@/api';
 import formEditSysRole from '../formEditSysRole';
 import formSetRoleUsers from '@/views/upms/formSetRoleUsers';
+import FormSysRolePerm from './formSysRolePerm.vue';
 
 export default {
   name: 'formSysRole',
@@ -413,6 +421,17 @@ export default {
     },
     onRuleChange (value) {
       this.refreshFragmentSysRoleUser(true);
+    },
+    /**
+     * 权限详情
+     */
+    onSysRolePermClick (row) {
+      this.$dialog.show('权限详情', FormSysRolePerm, {
+        area: '1200px',
+        offset: '30px'
+      }, {
+        roleId: row.roleId
+      }).then(res => {}).catch(e => {});
     },
     /**
      * 更新用户管理

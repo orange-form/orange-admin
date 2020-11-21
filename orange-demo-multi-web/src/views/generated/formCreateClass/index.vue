@@ -223,6 +223,16 @@ export default {
     onAddClick () {
       this.$refs.formCreateClass.validate((valid) => {
         if (!valid) return;
+        if (
+          this.formData.StudentClass.className == null ||
+          this.formData.StudentClass.schoolId == null ||
+          this.formData.StudentClass.leaderId == null ||
+          this.formData.StudentClass.finishClassHour == null ||
+          this.formData.StudentClass.classLevel == null
+        ) {
+          this.$message.error('请求失败，发现必填参数为空！');
+          return;
+        }
         let params = {
           studentClass: {
             className: this.formData.StudentClass.className,
@@ -240,6 +250,34 @@ export default {
       });
     },
     initFormData () {
+    },
+    /**
+     * 重置表单数据
+     */
+    resetFormData () {
+      this.formData = {
+        StudentClass: {
+          classId: undefined,
+          className: undefined,
+          schoolId: undefined,
+          leaderId: undefined,
+          finishClassHour: undefined,
+          classLevel: undefined,
+          createUserId: undefined,
+          createTime: undefined,
+          status: undefined,
+          course: {
+            classCourse: {
+              classId: undefined,
+              courseId: undefined,
+              courseOrder: undefined
+            }
+          },
+          student: {
+          },
+          isDatasourceInit: false
+        }
+      }
     },
     formInit () {
       this.refreshFormCreateClass();

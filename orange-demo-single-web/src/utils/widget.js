@@ -5,7 +5,7 @@ const DEFAULT_PAGE_SIZE = 10;
 
 export class DropdownWidget {
   /**
-   * 下拉组件（Select、Cascade、TreeSelect等）
+   * 下拉组件（Select、Cascade、TreeSelect、Tree等）
    * @param {function () : Promise} loadDropdownData 下拉数据获取函数
    * @param {Boolean} isTree 是否是树数据
    * @param {String} idKey 键字段字段名
@@ -89,6 +89,7 @@ export class TableWidget {
    */
   constructor (loadTableData, verifyTableParameter, paged, rowSelection, orderFieldName, ascending, dateAggregateBy) {
     this.currentRow = null;
+    this.loading = false;
     this.oldPage = 0;
     this.currentPage = 1;
     this.oldPageSize = DEFAULT_PAGE_SIZE;
@@ -126,10 +127,13 @@ export class TableWidget {
    * @param {Integer} newPageSize 变化后的每页显示数量
    */
   onPageSizeChange (newPageSize) {
+    this.pageSize = newPageSize;
+    this.currentPage = 1
     this.loadTableDataImpl(1, newPageSize).then(() => {
-      this.oldPage = this.currentPage = 1;
-      this.oldPageSize = this.pageSize = newPageSize;
+      this.oldPage = this.currentPage;
+      this.oldPageSize = this.pageSize;
     }).catch(e => {
+      console.log(e);
       this.currentPage = this.oldPage;
       this.pageSize = this.oldPageSize;
     });
@@ -190,11 +194,14 @@ export class TableWidget {
               pageSize
             }
           }
+          this.loading = true;
           this.loadTableData(params).then(tableData => {
             this.dataList = tableData.dataList;
             this.totalCount = tableData.totalCount;
+            this.loading = false;
             resolve();
           }).catch(e => {
+            this.loading = false;
             reject(e);
           });
         }

@@ -74,7 +74,7 @@ public class CacheConfig {
     @Bean
     public CacheManager cacheManager() {
         SimpleCacheManager manager = new SimpleCacheManager();
-        //把各个cache注册到cacheManager中，CaffeineCache实现了org.springframework.cache.Cache接口
+        // 把各个cache注册到cacheManager中，CaffeineCache实现了org.springframework.cache.Cache接口
         ArrayList<CaffeineCache> caches = new ArrayList<>();
         for (CacheEnum c : CacheEnum.values()) {
             caches.add(new CaffeineCache(c.name(),

@@ -163,16 +163,16 @@ userId|Long|true|指定对象主键Id。
 
 ## 班级服务
 ### AreaCodeController
-#### listDictAreaCode
-- **URI:** /admin/CourseClass/areaCode/listDictAreaCode
+#### listDict
+- **URI:** /admin/CourseClass/areaCode/listDict
 - **Type:** GET
 - **Content-Type:** multipart/form-data
 - **Request-Headers:**
 Name|Type|Description
 --|--|--
 Authorization|String|身份验证的Token
-#### listDictAreaCodeByParentId
-- **URI:** /admin/CourseClass/areaCode/listDictAreaCodeByParentId
+#### listDictByParentId
+- **URI:** /admin/CourseClass/areaCode/listDictByParentId
 - **Type:** GET
 - **Content-Type:** multipart/form-data
 - **Request-Headers:**
@@ -339,8 +339,8 @@ Parameter|Type|Required|Description
 fieldName|String|true|上传文件名。
 asImage|Boolean|true|是否作为图片上传。如果是图片，今后下载的时候无需权限验证。否则就是附件上传，下载时需要权限验证。
 uploadFile|File|true|上传文件对象。
-#### listDictCourse
-- **URI:** /admin/CourseClass/course/listDictCourse
+#### listDict
+- **URI:** /admin/CourseClass/course/listDict
 - **Type:** GET
 - **Content-Type:** multipart/form-data
 - **Request-Headers:**
@@ -422,8 +422,8 @@ Authorization|String|身份验证的Token
 Parameter|Type|Required|Description
 --|--|--|--
 gradeId|Integer|true|指定对象主键Id。
-#### listDictGrade
-- **URI:** /admin/CourseClass/grade/listDictGrade
+#### listDict
+- **URI:** /admin/CourseClass/grade/listDict
 - **Type:** GET
 - **Content-Type:** multipart/form-data
 - **Request-Headers:**
@@ -530,8 +530,8 @@ Authorization|String|身份验证的Token
 Parameter|Type|Required|Description
 --|--|--|--
 schoolId|Long|true|指定对象主键Id。
-#### listDictSchoolInfo
-- **URI:** /admin/CourseClass/schoolInfo/listDictSchoolInfo
+#### listDict
+- **URI:** /admin/CourseClass/schoolInfo/listDict
 - **Type:** GET
 - **Content-Type:** multipart/form-data
 - **Request-Headers:**
@@ -1015,8 +1015,8 @@ Authorization|String|身份验证的Token
 Parameter|Type|Required|Description
 --|--|--|--
 studentId|Long|true|指定对象主键Id。
-#### listDictStudent
-- **URI:** /admin/CourseClass/student/listDictStudent
+#### listDict
+- **URI:** /admin/CourseClass/student/listDict
 - **Type:** GET
 - **Content-Type:** multipart/form-data
 - **Request-Headers:**

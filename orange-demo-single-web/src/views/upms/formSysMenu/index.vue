@@ -47,8 +47,9 @@
                 删除
               </el-button>
               <el-button @click="onShowPermList(scope.row)" type="text" size="mini"
-                :disabled="!checkPermCodeExist('formSysMenu:fragmentSysMenu:listMenuPerm') || scope.row.menuType === SysMenuType.DIRECTORY">
-                权限资源
+                v-if="checkPermCodeExist('formSysMenu:fragmentSysMenu:listSysMenuPermDetail')"
+                :disabled="scope.row.menuType === SysMenuType.DIRECTORY">
+                权限详情
               </el-button>
             </template>
           </el-table-column>
@@ -67,7 +68,7 @@ import { uploadMixin, statsDateRangeMixin, cachePageMixin, cachedPageChildMixin 
 /* eslint-disable-next-line */
 import { DictionaryController, SystemController } from '@/api';
 import formEditSysMenu from '@/views/upms/formEditSysMenu';
-import formMenuPerm from '@/views/upms/formMenuPerm';
+import formMenuPerm from './formSysMenuPerm';
 
 export default {
   name: 'formSysMenu',
@@ -210,15 +211,16 @@ export default {
       }).catch(e => {});
     },
     /**
-     * 权限资源
+     * 权限详情
      */
     onShowPermList (row) {
       let params = {
         menuId: row.menuId
       };
 
-      this.$dialog.show('权限资源 - ' + row.menuName, formMenuPerm, {
-        area: ['1200px', '600px']
+      this.$dialog.show('权限详情 - ' + row.menuName, formMenuPerm, {
+        area: '1200px',
+        offset: '30px'
       }, params).catch(e => {
       });
     },

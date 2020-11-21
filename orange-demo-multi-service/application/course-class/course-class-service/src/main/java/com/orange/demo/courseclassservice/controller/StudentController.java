@@ -60,14 +60,14 @@ public class StudentController extends BaseController<Student, StudentDto, Long>
     public ResponseResult<Long> add(@MyRequestBody("student") StudentDto studentDto) {
         String errorMessage = MyCommonUtil.getModelValidationError(studentDto);
         if (errorMessage != null) {
-            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
         Student student = Student.INSTANCE.toModel(studentDto);
         // 验证关联Id的数据合法性
         CallResult callResult = studentService.verifyRelatedData(student, null);
         if (!callResult.isSuccess()) {
             errorMessage = callResult.getErrorMessage();
-            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
         student = studentService.saveNew(student);
         return ResponseResult.success(student.getStudentId());
@@ -89,7 +89,7 @@ public class StudentController extends BaseController<Student, StudentDto, Long>
     public ResponseResult<Void> update(@MyRequestBody("student") StudentDto studentDto) {
         String errorMessage = MyCommonUtil.getModelValidationError(studentDto, Default.class, UpdateGroup.class);
         if (errorMessage != null) {
-            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
         Student student = Student.INSTANCE.toModel(studentDto);
         Student originalStudent = studentService.getById(student.getStudentId());
@@ -102,7 +102,7 @@ public class StudentController extends BaseController<Student, StudentDto, Long>
         CallResult callResult = studentService.verifyRelatedData(student, originalStudent);
         if (!callResult.isSuccess()) {
             errorMessage = callResult.getErrorMessage();
-            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
         if (!studentService.update(student, originalStudent)) {
             return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST);
@@ -125,7 +125,7 @@ public class StudentController extends BaseController<Student, StudentDto, Long>
         // 验证关联Id的数据合法性
         Student originalStudent = studentService.getById(studentId);
         if (originalStudent == null) {
-            //NOTE: 修改下面方括号中的话述
+            // NOTE: 修改下面方括号中的话述
             errorMessage = "数据验证失败，当前 [对象] 并不存在，请刷新后重试！";
             return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST, errorMessage);
         }
@@ -193,8 +193,8 @@ public class StudentController extends BaseController<Student, StudentDto, Long>
      * @param filter 过滤对象。
      * @return 应答结果对象，包含字典形式的数据集合。
      */
-    @GetMapping("/listDictStudent")
-    public ResponseResult<List<Map<String, Object>>> listDictStudent(Student filter) {
+    @GetMapping("/listDict")
+    public ResponseResult<List<Map<String, Object>>> listDict(Student filter) {
         List<Student> resultList = studentService.getListByFilter(filter, null);
         return ResponseResult.success(
                 BeanQuery.select("studentId as id", "studentName as name").executeFrom(resultList));
@@ -250,6 +250,18 @@ public class StudentController extends BaseController<Student, StudentDto, Long>
     @PostMapping("/existId")
     public ResponseResult<Boolean> existId(@RequestParam Long studentId) {
         return super.baseExistId(studentId);
+    }
+
+    /**
+     * 删除符合过滤条件的数据。
+     *
+     * @param filter 过滤对象。
+     * @return 删除数量。
+     */
+    @ApiOperation(hidden = true, value = "deleteBy")
+    @PostMapping("/deleteBy")
+    public ResponseResult<Integer> deleteBy(@RequestBody StudentDto filter) throws Exception {
+        return super.baseDeleteBy(filter, Student.INSTANCE);
     }
 
     /**

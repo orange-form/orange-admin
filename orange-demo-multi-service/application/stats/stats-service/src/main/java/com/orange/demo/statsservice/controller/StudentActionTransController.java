@@ -56,14 +56,14 @@ public class StudentActionTransController extends BaseController<StudentActionTr
     public ResponseResult<Long> add(@MyRequestBody("studentActionTrans") StudentActionTransDto studentActionTransDto) {
         String errorMessage = MyCommonUtil.getModelValidationError(studentActionTransDto);
         if (errorMessage != null) {
-            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
         StudentActionTrans studentActionTrans = StudentActionTrans.INSTANCE.toModel(studentActionTransDto);
         // 验证远程服务关联Id的数据合法性
         CallResult remoteCallResult = studentActionTransService.verifyRemoteRelatedData(studentActionTrans, null);
         if (!remoteCallResult.isSuccess()) {
             errorMessage = remoteCallResult.getErrorMessage();
-            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
         studentActionTrans = studentActionTransService.saveNew(studentActionTrans);
         return ResponseResult.success(studentActionTrans.getTransId());
@@ -82,7 +82,7 @@ public class StudentActionTransController extends BaseController<StudentActionTr
     public ResponseResult<Void> update(@MyRequestBody("studentActionTrans") StudentActionTransDto studentActionTransDto) {
         String errorMessage = MyCommonUtil.getModelValidationError(studentActionTransDto, Default.class, UpdateGroup.class);
         if (errorMessage != null) {
-            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
         StudentActionTrans studentActionTrans = StudentActionTrans.INSTANCE.toModel(studentActionTransDto);
         StudentActionTrans originalStudentActionTrans = studentActionTransService.getById(studentActionTrans.getTransId());
@@ -95,7 +95,7 @@ public class StudentActionTransController extends BaseController<StudentActionTr
         CallResult remoteCallResult = studentActionTransService.verifyRemoteRelatedData(studentActionTrans, originalStudentActionTrans);
         if (!remoteCallResult.isSuccess()) {
             errorMessage = remoteCallResult.getErrorMessage();
-            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATAED_FAILED, errorMessage);
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
         if (!studentActionTransService.update(studentActionTrans, originalStudentActionTrans)) {
             return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST);
@@ -118,7 +118,7 @@ public class StudentActionTransController extends BaseController<StudentActionTr
         // 验证关联Id的数据合法性
         StudentActionTrans originalStudentActionTrans = studentActionTransService.getById(transId);
         if (originalStudentActionTrans == null) {
-            //NOTE: 修改下面方括号中的话述
+            // NOTE: 修改下面方括号中的话述
             errorMessage = "数据验证失败，当前 [对象] 并不存在，请刷新后重试！";
             return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST, errorMessage);
         }
@@ -229,6 +229,18 @@ public class StudentActionTransController extends BaseController<StudentActionTr
     @PostMapping("/existId")
     public ResponseResult<Boolean> existId(@RequestParam Long transId) {
         return super.baseExistId(transId);
+    }
+
+    /**
+     * 删除符合过滤条件的数据。
+     *
+     * @param filter 过滤对象。
+     * @return 删除数量。
+     */
+    @ApiOperation(hidden = true, value = "deleteBy")
+    @PostMapping("/deleteBy")
+    public ResponseResult<Integer> deleteBy(@RequestBody StudentActionTransDto filter) throws Exception {
+        return super.baseDeleteBy(filter, StudentActionTrans.INSTANCE);
     }
 
     /**

@@ -120,7 +120,7 @@ export default {
 </style>
 
 <style lang="scss" scoped>
-  @import '../../assets/style/element-color.scss';
+  @import '@/assets/style/element-variables.scss';
   .title {
     border: 1px solid #EDEDED;
     border-left-width: 5px;
