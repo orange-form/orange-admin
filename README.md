@@ -6,7 +6,7 @@
 > 如果图片不能正常显示，可以考虑科学上网，或者移步到[码云这里](https://gitee.com/orangeform/orange-admin)
 <table>
 <tr>
-  <td><img src="https://images.gitee.com/uploads/images/2020/1029/184116_4a0ebe1e_7431510.png"/></td>
+  <td><img src="https://images.gitee.com/uploads/images/2020/1124/152615_5125dfbb_7431510.png"/></td>
 </tr>
 </table>
 
