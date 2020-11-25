@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "theme-orange": "et -c element-variables-orange.scss",
+    "theme-orange": "et -c element-variables-orange.scss"
   },
   "devDependencies": {
     "element-theme": "^2.0.1",
