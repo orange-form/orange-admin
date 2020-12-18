@@ -35,6 +35,9 @@ public enum ErrorCodeEnum {
     INVALID_USERNAME_PASSWORD("用户名或密码错误，请重试！"),
     INVALID_ACCESS_TOKEN("无效的用户访问令牌！"),
     INVALID_USER_STATUS("用户状态错误，请刷新后重试！"),
+    INVALID_TENANT_CODE("指定的租户编码并不存在，请刷新后重试！"),
+    INVALID_TENANT_STATUS("当前租户为不可用状态，请刷新后重试！"),
+    INVALID_USER_TENANT("当前用户并不属于当前租户，请刷新后重试！"),
 
     HAS_CHILDREN_DATA("数据验证失败，子数据存在，请刷新后重试！"),
     DATA_VALIDATED_FAILED("数据验证失败，请核对！"),

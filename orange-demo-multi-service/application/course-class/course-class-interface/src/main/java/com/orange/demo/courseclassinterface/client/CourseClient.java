@@ -5,6 +5,7 @@ import com.orange.demo.common.core.config.FeignConfig;
 import com.orange.demo.common.core.base.client.BaseClient;
 import com.orange.demo.common.core.object.*;
 import com.orange.demo.courseclassinterface.dto.CourseDto;
+import com.orange.demo.courseclassinterface.vo.CourseVo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.stereotype.Component;
@@ -22,7 +23,7 @@ import java.util.*;
         name = "course-class",
         configuration = FeignConfig.class,
         fallbackFactory = CourseClient.CourseClientFallbackFactory.class)
-public interface CourseClient extends BaseClient<CourseDto, Long> {
+public interface CourseClient extends BaseClient<CourseDto, CourseVo, Long> {
 
     /**
      * 基于主键的(In-list)条件获取远程数据接口。
@@ -33,7 +34,7 @@ public interface CourseClient extends BaseClient<CourseDto, Long> {
      */
     @Override
     @PostMapping("/course/listByIds")
-    ResponseResult<List<CourseDto>> listByIds(
+    ResponseResult<List<CourseVo>> listByIds(
             @RequestParam("courseIds") Set<Long> courseIds,
             @RequestParam("withDict") Boolean withDict);
 
@@ -46,7 +47,7 @@ public interface CourseClient extends BaseClient<CourseDto, Long> {
      */
     @Override
     @PostMapping("/course/getById")
-    ResponseResult<CourseDto> getById(
+    ResponseResult<CourseVo> getById(
             @RequestParam("courseId") Long courseId,
             @RequestParam("withDict") Boolean withDict);
 
@@ -98,7 +99,7 @@ public interface CourseClient extends BaseClient<CourseDto, Long> {
      */
     @Override
     @PostMapping("/course/listBy")
-    ResponseResult<List<CourseDto>> listBy(@RequestBody MyQueryParam queryParam);
+    ResponseResult<MyPageData<CourseVo>> listBy(@RequestBody MyQueryParam queryParam);
 
     /**
      * 获取远程主对象中符合查询条件的单条数据对象。
@@ -108,7 +109,7 @@ public interface CourseClient extends BaseClient<CourseDto, Long> {
      */
     @Override
     @PostMapping("/course/getBy")
-    ResponseResult<CourseDto> getBy(@RequestBody MyQueryParam queryParam);
+    ResponseResult<CourseVo> getBy(@RequestBody MyQueryParam queryParam);
 
     /**
      * 获取远程主对象中符合查询条件的数据列表。
@@ -119,7 +120,7 @@ public interface CourseClient extends BaseClient<CourseDto, Long> {
      */
     @Override
     @PostMapping("/course/listMapBy")
-    ResponseResult<List<Map<String, Object>>> listMapBy(@RequestBody MyQueryParam queryParam);
+    ResponseResult<MyPageData<Map<String, Object>>> listMapBy(@RequestBody MyQueryParam queryParam);
 
     /**
      * 获取远程主对象中符合查询条件的数据数量。
@@ -144,7 +145,7 @@ public interface CourseClient extends BaseClient<CourseDto, Long> {
     @Component("CourseClassCourseClientFallbackFactory")
     @Slf4j
     class CourseClientFallbackFactory
-            extends BaseFallbackFactory<CourseDto, Long, CourseClient> implements CourseClient {
+            extends BaseFallbackFactory<CourseDto, CourseVo, Long, CourseClient> implements CourseClient {
 
         @Override
         public CourseClient create(Throwable throwable) {

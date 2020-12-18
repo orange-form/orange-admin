@@ -63,10 +63,12 @@ public class SessionCacheHelper {
 
     /**
      * 清除当前session的所有缓存数据。
+     *
+     * @param sessionId 当前会话的SessionId。
      */
-    public void removeAllSessionCache() {
+    public void removeAllSessionCache(String sessionId) {
         for (RedissonCacheConfig.CacheEnum c : RedissonCacheConfig.CacheEnum.values()) {
-            cacheManager.getCache(c.name()).clear();
+            cacheManager.getCache(c.name()).evict(sessionId);
         }
     }
 }

@@ -10,7 +10,6 @@ import lombok.Data;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
-import java.util.List;
 
 /**
  * 权限资源模块Dto。
@@ -62,10 +61,4 @@ public class SysPermModuleDto {
      */
     @ApiModelProperty(value = "创建时间")
     private Date createTime;
-
-    /**
-     * 权限资源对象列表。
-     */
-    @ApiModelProperty(hidden = true)
-    private List<SysPermDto> sysPermList;
 }

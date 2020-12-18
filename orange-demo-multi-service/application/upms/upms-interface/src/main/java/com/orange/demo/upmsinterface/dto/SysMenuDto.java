@@ -10,8 +10,6 @@ import lombok.Data;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
-import java.util.List;
-import java.util.Map;
 
 /**
  * 菜单Dto。
@@ -75,10 +73,4 @@ public class SysMenuDto {
      */
     @ApiModelProperty(value = "创建时间")
     private Date createTime;
-
-    /**
-     * 菜单与权限字关联对象列表。
-     */
-    @ApiModelProperty(hidden = true)
-    private List<Map<String, Object>> sysMenuPermCodeList;
 }

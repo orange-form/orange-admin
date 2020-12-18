@@ -91,7 +91,7 @@ public class MyQueryParam {
         if (filterMap == null) {
             return null;
         }
-        return BeanUtil.mapToBean(this.filterMap, filterClazz, true);
+        return BeanUtil.toBeanIgnoreError(this.filterMap, filterClazz);
     }
 
     /**

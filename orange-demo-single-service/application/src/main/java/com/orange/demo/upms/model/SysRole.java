@@ -3,8 +3,13 @@ package com.orange.demo.upms.model;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.orange.demo.common.core.annotation.DeletedFlagColumn;
 import com.orange.demo.common.core.annotation.RelationManyToMany;
+import com.orange.demo.common.core.base.mapper.BaseModelMapper;
 import com.orange.demo.common.core.validator.UpdateGroup;
+import com.orange.demo.upms.vo.SysRoleVo;
 import lombok.Data;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.factory.Mappers;
 
 import javax.persistence.*;
 import javax.validation.constraints.*;
@@ -75,9 +80,26 @@ public class SysRole {
     @Transient
     private List<SysRoleMenu> sysRoleMenuList;
 
-    @Transient
-    private String createTimeStart;
-
-    @Transient
-    private String createTimeEnd;
+    @Mapper
+    public interface SysRoleModelMapper extends BaseModelMapper<SysRoleVo, SysRole> {
+        /**
+         * 转换VO对象到实体对象。
+         *
+         * @param sysRoleVo 域对象。
+         * @return 实体对象。
+         */
+        @Mapping(target = "sysRoleMenuList", expression = "java(mapToBean(sysRoleVo.getSysRoleMenuList(), com.orange.demo.upms.model.SysRoleMenu.class))")
+        @Override
+        SysRole toModel(SysRoleVo sysRoleVo);
+        /**
+         * 转换实体对象到VO对象。
+         *
+         * @param sysRole 实体对象。
+         * @return 域对象。
+         */
+        @Mapping(target = "sysRoleMenuList", expression = "java(beanToMap(sysRole.getSysRoleMenuList(), false))")
+        @Override
+        SysRoleVo fromModel(SysRole sysRole);
+    }
+    public static final SysRoleModelMapper INSTANCE = Mappers.getMapper(SysRole.SysRoleModelMapper.class);
 }

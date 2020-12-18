@@ -12,8 +12,6 @@
 最后，我们真诚的希望能够得到您的反馈，并持续改进我们的产品、文档、服务和操作流程。
 ### 服务接口文档
 ---
-- Knife4j
-  - 服务启动后，Knife4j的文档入口地址 [http://localhost:8082/doc.html#/plus](http://localhost:8082/doc.html#/plus)
 - Postman
   - 无需启动服务，即可将当前工程的接口导出成Postman格式。在工程的common/common-tools/模块下，找到ExportApiApp文件，并执行main函数。
 

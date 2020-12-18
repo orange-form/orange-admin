@@ -3,7 +3,6 @@ package com.orange.demo.courseclassservice.service;
 import com.orange.demo.application.common.constant.StudentStatus;
 import com.orange.demo.courseclassservice.dao.*;
 import com.orange.demo.courseclassservice.model.*;
-import com.orange.demo.courseclassinterface.dto.*;
 import com.orange.demo.common.core.util.*;
 import com.orange.demo.common.core.object.MyRelationParam;
 import com.orange.demo.common.core.object.CallResult;
@@ -24,7 +23,7 @@ import java.util.*;
  * @date 2020-08-08
  */
 @Service
-public class StudentService extends BaseService<Student, StudentDto, Long> {
+public class StudentService extends BaseService<Student, Long> {
 
     @Autowired
     private StudentMapper studentMapper;

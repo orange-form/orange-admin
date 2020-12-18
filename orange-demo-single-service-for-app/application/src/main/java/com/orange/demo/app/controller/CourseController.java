@@ -7,6 +7,7 @@ import com.orange.demo.common.core.upload.UpDownloaderFactory;
 import com.orange.demo.common.core.upload.UploadResponseInfo;
 import com.orange.demo.common.core.upload.UploadStoreInfo;
 import com.github.pagehelper.page.PageMethod;
+import com.orange.demo.app.vo.*;
 import com.orange.demo.app.model.*;
 import com.orange.demo.app.service.*;
 import com.orange.demo.common.core.object.*;
@@ -133,7 +134,7 @@ public class CourseController {
      * @return 应答结果对象，包含查询结果集。
      */
     @PostMapping("/list")
-    public ResponseResult<MyPageData<Course>> list(
+    public ResponseResult<MyPageData<CourseVo>> list(
             @MyRequestBody Course courseFilter,
             @MyRequestBody MyOrderParam orderParam,
             @MyRequestBody MyPageParam pageParam) {
@@ -141,8 +142,8 @@ public class CourseController {
             PageMethod.startPage(pageParam.getPageNum(), pageParam.getPageSize());
         }
         String orderBy = MyOrderParam.buildOrderBy(orderParam, Course.class);
-        List<Course> resultList = courseService.getCourseListWithRelation(courseFilter, orderBy);
-        return ResponseResult.success(MyPageUtil.makeResponseData(resultList));
+        List<Course> courseList = courseService.getCourseListWithRelation(courseFilter, orderBy);
+        return ResponseResult.success(MyPageUtil.makeResponseData(courseList, Course.INSTANCE));
     }
 
     /**
@@ -152,7 +153,7 @@ public class CourseController {
      * @return 应答结果对象，包含对象详情。
      */
     @GetMapping("/view")
-    public ResponseResult<Course> view(@RequestParam Long courseId) {
+    public ResponseResult<CourseVo> view(@RequestParam Long courseId) {
         if (MyCommonUtil.existBlankArgument(courseId)) {
             return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
         }
@@ -160,7 +161,8 @@ public class CourseController {
         if (course == null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST);
         }
-        return ResponseResult.success(course);
+        CourseVo courseVo = Course.INSTANCE.fromModel(course);
+        return ResponseResult.success(courseVo);
     }
 
     /**

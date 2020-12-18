@@ -2,6 +2,7 @@ package com.orange.demo.app.controller;
 
 import cn.jimmyshi.beanquery.BeanQuery;
 import com.github.pagehelper.page.PageMethod;
+import com.orange.demo.app.vo.*;
 import com.orange.demo.app.model.*;
 import com.orange.demo.app.service.*;
 import com.orange.demo.common.core.object.*;
@@ -118,7 +119,7 @@ public class SchoolInfoController {
      * @return 应答结果对象，包含查询结果集。
      */
     @PostMapping("/list")
-    public ResponseResult<MyPageData<SchoolInfo>> list(
+    public ResponseResult<MyPageData<SchoolInfoVo>> list(
             @MyRequestBody SchoolInfo schoolInfoFilter,
             @MyRequestBody MyOrderParam orderParam,
             @MyRequestBody MyPageParam pageParam) {
@@ -126,8 +127,8 @@ public class SchoolInfoController {
             PageMethod.startPage(pageParam.getPageNum(), pageParam.getPageSize());
         }
         String orderBy = MyOrderParam.buildOrderBy(orderParam, SchoolInfo.class);
-        List<SchoolInfo> resultList = schoolInfoService.getSchoolInfoListWithRelation(schoolInfoFilter, orderBy);
-        return ResponseResult.success(MyPageUtil.makeResponseData(resultList));
+        List<SchoolInfo> schoolInfoList = schoolInfoService.getSchoolInfoListWithRelation(schoolInfoFilter, orderBy);
+        return ResponseResult.success(MyPageUtil.makeResponseData(schoolInfoList, SchoolInfo.INSTANCE));
     }
 
     /**
@@ -137,7 +138,7 @@ public class SchoolInfoController {
      * @return 应答结果对象，包含对象详情。
      */
     @GetMapping("/view")
-    public ResponseResult<SchoolInfo> view(@RequestParam Long schoolId) {
+    public ResponseResult<SchoolInfoVo> view(@RequestParam Long schoolId) {
         if (MyCommonUtil.existBlankArgument(schoolId)) {
             return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
         }
@@ -145,7 +146,8 @@ public class SchoolInfoController {
         if (schoolInfo == null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST);
         }
-        return ResponseResult.success(schoolInfo);
+        SchoolInfoVo schoolInfoVo = SchoolInfo.INSTANCE.fromModel(schoolInfo);
+        return ResponseResult.success(schoolInfoVo);
     }
 
     /**

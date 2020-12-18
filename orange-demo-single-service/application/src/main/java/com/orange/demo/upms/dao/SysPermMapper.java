@@ -23,15 +23,6 @@ public interface SysPermMapper extends BaseDaoMapper<SysPerm> {
     List<SysPerm> getPermListByUserId(@Param("userId") Long userId);
 
     /**
-     * 根据关联权限字主键Id，获取权限资源数据列表。
-     *
-     * @param permCodeId 关联权限字主键Id。
-     * @param orderBy    排序字符串，ORDER BY从句的参数。
-     * @return 从表数据列表。
-     */
-    List<SysPerm> getPermListByPermCodeId(@Param("permCodeId") Long permCodeId, @Param("orderBy") String orderBy);
-
-    /**
      * 查询权限资源地址的用户列表。同时返回详细的分配路径。
      *
      * @param permId    权限资源Id。

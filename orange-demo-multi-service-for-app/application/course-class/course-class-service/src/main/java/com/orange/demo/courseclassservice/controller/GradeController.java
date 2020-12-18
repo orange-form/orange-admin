@@ -1,20 +1,17 @@
 package com.orange.demo.courseclassservice.controller;
 
 import cn.jimmyshi.beanquery.BeanQuery;
-import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import com.orange.demo.common.core.base.controller.BaseController;
 import com.orange.demo.common.core.base.service.BaseDictService;
 import com.orange.demo.common.core.constant.ErrorCodeEnum;
-import com.orange.demo.common.core.object.MyQueryParam;
-import com.orange.demo.common.core.object.ResponseResult;
+import com.orange.demo.common.core.object.*;
 import com.orange.demo.common.core.util.MyModelUtil;
 import com.orange.demo.common.core.util.MyCommonUtil;
 import com.orange.demo.common.core.validator.UpdateGroup;
 import com.orange.demo.common.core.annotation.MyRequestBody;
 import com.orange.demo.courseclassinterface.dto.GradeDto;
+import com.orange.demo.courseclassinterface.vo.GradeVo;
 import com.orange.demo.courseclassservice.model.Grade;
 import com.orange.demo.courseclassservice.service.GradeService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,17 +26,16 @@ import java.util.*;
  * @author Jerry
  * @date 2020-08-08
  */
-@Api(tags = "年级管理接口")
 @Slf4j
 @RestController
 @RequestMapping("/grade")
-public class GradeController extends BaseController<Grade, GradeDto, Integer> {
+public class GradeController extends BaseController<Grade, GradeVo, Integer> {
 
     @Autowired
     private GradeService gradeService;
 
     @Override
-    protected BaseDictService<Grade, GradeDto, Integer> service() {
+    protected BaseDictService<Grade, Integer> service() {
         return gradeService;
     }
 
@@ -49,7 +45,6 @@ public class GradeController extends BaseController<Grade, GradeDto, Integer> {
      * @param gradeDto 新增对象。
      * @return 应答结果对象，包含新增对象主键Id。
      */
-    @ApiOperationSupport(ignoreParameters = {"grade.gradeId"})
     @PostMapping("/add")
     public ResponseResult<Integer> add(@MyRequestBody("grade") GradeDto gradeDto) {
         String errorMessage = MyCommonUtil.getModelValidationError(gradeDto);
@@ -108,7 +103,7 @@ public class GradeController extends BaseController<Grade, GradeDto, Integer> {
      * @return 应答结果对象，包含对象详情。
      */
     @GetMapping("/view")
-    public ResponseResult<GradeDto> view(@RequestParam Integer gradeId) {
+    public ResponseResult<GradeVo> view(@RequestParam Integer gradeId) {
         if (MyCommonUtil.existBlankArgument(gradeId)) {
             return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
         }
@@ -116,8 +111,8 @@ public class GradeController extends BaseController<Grade, GradeDto, Integer> {
         if (grade == null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST);
         }
-        GradeDto gradeDto = MyModelUtil.copyTo(grade, GradeDto.class);
-        return ResponseResult.success(gradeDto);
+        GradeVo gradeVo = MyModelUtil.copyTo(grade, GradeVo.class);
+        return ResponseResult.success(gradeVo);
     }
 
     /**
@@ -140,9 +135,8 @@ public class GradeController extends BaseController<Grade, GradeDto, Integer> {
      * @param withDict 是否包含字典关联。
      * @return 应答结果对象，包含主对象集合。
      */
-    @ApiOperation(hidden = true, value = "listByIds")
     @PostMapping("/listByIds")
-    public ResponseResult<List<GradeDto>> listByIds(
+    public ResponseResult<List<GradeVo>> listByIds(
             @RequestParam Set<Integer> gradeIds, @RequestParam Boolean withDict) {
         return super.baseListByIds(gradeIds, withDict, null);
     }
@@ -154,9 +148,8 @@ public class GradeController extends BaseController<Grade, GradeDto, Integer> {
      * @param withDict 是否包含字典关联。
      * @return 应答结果对象，包含主对象数据。
      */
-    @ApiOperation(hidden = true, value = "getById")
     @PostMapping("/getById")
-    public ResponseResult<GradeDto> getById(
+    public ResponseResult<GradeVo> getById(
             @RequestParam Integer gradeId, @RequestParam Boolean withDict) {
         return super.baseGetById(gradeId, withDict, null);
     }
@@ -167,7 +160,6 @@ public class GradeController extends BaseController<Grade, GradeDto, Integer> {
      * @param gradeIds 主键Id集合。
      * @return 应答结果对象，包含true全部存在，否则false。
      */
-    @ApiOperation(hidden = true, value = "existIds")
     @PostMapping("/existIds")
     public ResponseResult<Boolean> existIds(@RequestParam Set<Integer> gradeIds) {
         return super.baseExistIds(gradeIds);
@@ -179,7 +171,6 @@ public class GradeController extends BaseController<Grade, GradeDto, Integer> {
      * @param gradeId 主键Id。
      * @return 应答结果对象，包含true全部存在，否则false。
      */
-    @ApiOperation(hidden = true, value = "existId")
     @PostMapping("/existId")
     public ResponseResult<Boolean> existId(@RequestParam Integer gradeId) {
         return super.baseExistId(gradeId);
@@ -191,10 +182,9 @@ public class GradeController extends BaseController<Grade, GradeDto, Integer> {
      * @param filter 过滤对象。
      * @return 删除数量。
      */
-    @ApiOperation(hidden = true, value = "deleteBy")
     @PostMapping("/deleteBy")
     public ResponseResult<Integer> deleteBy(@RequestBody GradeDto filter) throws Exception {
-        return super.baseDeleteBy(filter, null);
+        return super.baseDeleteBy(MyModelUtil.copyTo(filter, Grade.class));
     }
 
     /**
@@ -203,9 +193,8 @@ public class GradeController extends BaseController<Grade, GradeDto, Integer> {
      * @param queryParam 查询参数。
      * @return 应答结果对象，包含符合查询过滤条件的对象结果集。
      */
-    @ApiOperation(hidden = true, value = "listBy")
     @PostMapping("/listBy")
-    public ResponseResult<List<GradeDto>> listBy(@RequestBody MyQueryParam queryParam) {
+    public ResponseResult<MyPageData<GradeVo>> listBy(@RequestBody MyQueryParam queryParam) {
         return super.baseListBy(queryParam, null);
     }
 
@@ -215,9 +204,8 @@ public class GradeController extends BaseController<Grade, GradeDto, Integer> {
      * @param queryParam 查询参数。
      * @return 应答结果对象，包含符合查询过滤条件的对象结果集。
      */
-    @ApiOperation(hidden = true, value = "getBy")
     @PostMapping("/getBy")
-    public ResponseResult<GradeDto> getBy(@RequestBody MyQueryParam queryParam) {
+    public ResponseResult<GradeVo> getBy(@RequestBody MyQueryParam queryParam) {
         return super.baseGetBy(queryParam, null);
     }
 

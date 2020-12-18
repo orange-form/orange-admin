@@ -1,12 +1,13 @@
 package com.orange.demo.upms.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import com.orange.demo.upms.vo.SysPermModuleVo;
 import com.orange.demo.upms.model.SysPerm;
 import com.orange.demo.upms.model.SysPermModule;
 import com.orange.demo.upms.service.SysPermModuleService;
 import com.orange.demo.common.core.constant.ErrorCodeEnum;
 import com.orange.demo.common.core.object.*;
-import com.orange.demo.common.core.util.MyCommonUtil;
+import com.orange.demo.common.core.util.*;
 import com.orange.demo.common.core.validator.UpdateGroup;
 import com.orange.demo.common.core.annotation.MyRequestBody;
 import org.apache.commons.collections4.CollectionUtils;
@@ -114,8 +115,9 @@ public class SysPermModuleController {
      * @return 应答结果对象，包含权限资源模块列表。
      */
     @GetMapping("/list")
-    public ResponseResult<List<SysPermModule>> list() {
-        return ResponseResult.success(sysPermModuleService.getAllListByOrder("showOrder"));
+    public ResponseResult<List<SysPermModuleVo>> list() {
+        List<SysPermModule> permModuleList = sysPermModuleService.getAllListByOrder("showOrder");
+        return ResponseResult.success(MyModelUtil.copyCollectionTo(permModuleList, SysPermModuleVo.class));
     }
 
     /**

@@ -4,11 +4,15 @@ import com.alibaba.fastjson.annotation.JSONField;
 import com.orange.demo.upms.model.constant.SysUserType;
 import com.orange.demo.upms.model.constant.SysUserStatus;
 import com.orange.demo.common.core.annotation.RelationConstDict;
+import com.orange.demo.common.core.base.mapper.BaseModelMapper;
 import com.orange.demo.common.core.annotation.DeletedFlagColumn;
 import com.orange.demo.common.core.validator.AddGroup;
 import com.orange.demo.common.core.validator.UpdateGroup;
 import com.orange.demo.common.core.validator.ConstDictRef;
+import com.orange.demo.upms.vo.SysUserVo;
 import lombok.Data;
+import org.mapstruct.*;
+import org.mapstruct.factory.Mappers;
 import javax.persistence.*;
 import javax.validation.constraints.*;
 
@@ -130,4 +134,25 @@ public class SysUser {
             constantDictClass = SysUserStatus.class)
     @Transient
     private Map<String, Object> userStatusDictMap;
+
+    @Mapper
+    public interface SysUserModelMapper extends BaseModelMapper<SysUserVo, SysUser> {
+        /**
+         * 转换Vo对象到实体对象。
+         *
+         * @param sysUserVo 域对象。
+         * @return 实体对象。
+         */
+        @Override
+        SysUser toModel(SysUserVo sysUserVo);
+        /**
+         * 转换实体对象到VO对象。
+         *
+         * @param sysUser 实体对象。
+         * @return 域对象。
+         */
+        @Override
+        SysUserVo fromModel(SysUser sysUser);
+    }
+    public static final SysUserModelMapper INSTANCE = Mappers.getMapper(SysUserModelMapper.class);
 }

@@ -3,7 +3,6 @@ package com.orange.demo.upmsservice.service;
 import com.alibaba.fastjson.JSONObject;
 import com.orange.demo.upmsservice.dao.*;
 import com.orange.demo.upmsservice.model.*;
-import com.orange.demo.upmsinterface.dto.*;
 import com.orange.demo.common.core.util.*;
 import com.orange.demo.common.core.object.*;
 import com.orange.demo.common.core.constant.GlobalDeletedFlag;
@@ -29,7 +28,7 @@ import java.util.stream.Collectors;
  * @date 2020-08-08
  */
 @Service
-public class SysUserService extends BaseService<SysUser, SysUserDto, Long> {
+public class SysUserService extends BaseService<SysUser, Long> {
 
     @Autowired
     private SysUserMapper sysUserMapper;
@@ -146,8 +145,9 @@ public class SysUserService extends BaseService<SysUser, SysUserDto, Long> {
     @Transactional(rollbackFor = Exception.class)
     public boolean changePassword(Long userId, String newPass) {
         Example e = new Example(SysUser.class);
-        e.createCriteria().andEqualTo(super.idFieldName, userId);
-        e.createCriteria().andEqualTo(super.deletedFlagFieldName, GlobalDeletedFlag.NORMAL);
+        e.createCriteria()
+                .andEqualTo(super.idFieldName, userId)
+                .andEqualTo(super.deletedFlagFieldName, GlobalDeletedFlag.NORMAL);
         SysUser updatedUser = new SysUser();
         updatedUser.setPassword(passwordEncoder.encode(newPass));
         return sysUserMapper.updateByExampleSelective(updatedUser, e) == 1;

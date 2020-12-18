@@ -81,15 +81,6 @@ ribbon:
   MaxAutoRetries: 1
   MaxAutoRetriesNextServer: 1
 
-swagger:
-  # 当enabled为false的时候，则可禁用swagger。
-  enabled: true
-  # 工程的基础包名。
-  basePackage: com.orange.demo
-  title: 橙单单体服务工程
-  description: 橙单单体服务工程详情
-  version: 1.0
-
 # 暴露监控端点
 management:
   metrics:

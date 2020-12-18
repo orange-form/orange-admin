@@ -3,9 +3,13 @@ package com.orange.demo.app.model;
 import com.orange.demo.application.common.constant.Subject;
 import com.orange.demo.common.core.annotation.RelationDict;
 import com.orange.demo.common.core.annotation.RelationConstDict;
+import com.orange.demo.common.core.base.mapper.BaseModelMapper;
 import com.orange.demo.common.core.validator.UpdateGroup;
 import com.orange.demo.common.core.validator.ConstDictRef;
+import com.orange.demo.app.vo.CourseTransStatsVo;
 import lombok.Data;
+import org.mapstruct.*;
+import org.mapstruct.factory.Mappers;
 import javax.persistence.*;
 import javax.validation.constraints.*;
 
@@ -119,4 +123,25 @@ public class CourseTransStats {
             constantDictClass = Subject.class)
     @Transient
     private Map<String, Object> subjectIdDictMap;
+
+    @Mapper
+    public interface CourseTransStatsModelMapper extends BaseModelMapper<CourseTransStatsVo, CourseTransStats> {
+        /**
+         * 转换Vo对象到实体对象。
+         *
+         * @param courseTransStatsVo 域对象。
+         * @return 实体对象。
+         */
+        @Override
+        CourseTransStats toModel(CourseTransStatsVo courseTransStatsVo);
+        /**
+         * 转换实体对象到VO对象。
+         *
+         * @param courseTransStats 实体对象。
+         * @return 域对象。
+         */
+        @Override
+        CourseTransStatsVo fromModel(CourseTransStats courseTransStats);
+    }
+    public static final CourseTransStatsModelMapper INSTANCE = Mappers.getMapper(CourseTransStatsModelMapper.class);
 }

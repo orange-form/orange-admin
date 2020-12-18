@@ -44,9 +44,6 @@
         <jedis.version>3.2.0</jedis.version>
         <redisson.version>3.12.3</redisson.version>
         <qdox.version>2.0.0</qdox.version>
-        <knife4j.version>2.0.5</knife4j.version>
-        <springfox.version>2.9.2</springfox.version>
-        <swagger.version>1.5.21</swagger.version>
     </properties>
 
     <modules>

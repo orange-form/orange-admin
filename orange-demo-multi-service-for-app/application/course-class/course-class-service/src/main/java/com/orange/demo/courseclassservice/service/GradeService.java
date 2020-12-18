@@ -6,7 +6,6 @@ import com.orange.demo.common.core.base.dao.BaseDaoMapper;
 import com.orange.demo.common.core.constant.GlobalDeletedFlag;
 import com.orange.demo.courseclassservice.dao.GradeMapper;
 import com.orange.demo.courseclassservice.model.Grade;
-import com.orange.demo.courseclassinterface.dto.GradeDto;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,7 +20,7 @@ import javax.annotation.PostConstruct;
  * @date 2020-08-08
  */
 @Service
-public class GradeService extends BaseDictService<Grade, GradeDto, Integer> {
+public class GradeService extends BaseDictService<Grade, Integer> {
 
     @Autowired
     private GradeMapper gradeMapper;

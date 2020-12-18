@@ -8,7 +8,7 @@ import com.orange.demo.common.core.annotation.RelationDict;
 import com.orange.demo.common.core.annotation.RelationConstDict;
 import com.orange.demo.common.core.base.mapper.BaseModelMapper;
 import com.orange.demo.common.core.validator.ConstDictRef;
-import com.orange.demo.courseclassinterface.dto.CourseDto;
+import com.orange.demo.courseclassinterface.vo.CourseVo;
 import lombok.Data;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
@@ -174,25 +174,25 @@ public class Course {
     private Map<String, Object> subjectIdDictMap;
 
     @Mapper
-    public interface CourseModelMapper extends BaseModelMapper<CourseDto, Course> {
+    public interface CourseModelMapper extends BaseModelMapper<CourseVo, Course> {
         /**
-         * 转换Dto对象到实体对象。
+         * 转换Vo对象到实体对象。
          *
-         * @param courseDto 域对象。
+         * @param courseVo 域对象。
          * @return 实体对象。
          */
-        @Mapping(target = "classCourse", expression = "java(mapToBean(courseDto.getClassCourse(), com.orange.demo.courseclassservice.model.ClassCourse.class))")
+        @Mapping(target = "classCourse", expression = "java(mapToBean(courseVo.getClassCourse(), com.orange.demo.courseclassservice.model.ClassCourse.class))")
         @Override
-        Course toModel(CourseDto courseDto);
+        Course toModel(CourseVo courseVo);
         /**
-         * 转换实体对象到Dto对象。
+         * 转换实体对象到VO对象。
          *
          * @param course 实体对象。
          * @return 域对象。
          */
         @Mapping(target = "classCourse", expression = "java(beanToMap(course.getClassCourse(), false))")
         @Override
-        CourseDto fromModel(Course course);
+        CourseVo fromModel(Course course);
     }
     public static final CourseModelMapper INSTANCE = Mappers.getMapper(CourseModelMapper.class);
 }

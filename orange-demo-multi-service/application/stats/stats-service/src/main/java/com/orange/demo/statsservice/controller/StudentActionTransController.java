@@ -1,10 +1,10 @@
 package com.orange.demo.statsservice.controller;
 
-import com.github.pagehelper.Page;
 import com.github.pagehelper.page.PageMethod;
 import com.orange.demo.statsservice.model.*;
 import com.orange.demo.statsservice.service.*;
 import com.orange.demo.statsinterface.dto.*;
+import com.orange.demo.statsinterface.vo.*;
 import com.orange.demo.common.core.object.*;
 import com.orange.demo.common.core.util.*;
 import com.orange.demo.common.core.constant.*;
@@ -32,13 +32,13 @@ import java.util.*;
 @Slf4j
 @RestController
 @RequestMapping("/studentActionTrans")
-public class StudentActionTransController extends BaseController<StudentActionTrans, StudentActionTransDto, Long> {
+public class StudentActionTransController extends BaseController<StudentActionTrans, StudentActionTransVo, Long> {
 
     @Autowired
     private StudentActionTransService studentActionTransService;
 
     @Override
-    protected BaseService<StudentActionTrans, StudentActionTransDto, Long> service() {
+    protected BaseService<StudentActionTrans, Long> service() {
         return studentActionTransService;
     }
 
@@ -58,7 +58,7 @@ public class StudentActionTransController extends BaseController<StudentActionTr
         if (errorMessage != null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
-        StudentActionTrans studentActionTrans = StudentActionTrans.INSTANCE.toModel(studentActionTransDto);
+        StudentActionTrans studentActionTrans = MyModelUtil.copyTo(studentActionTransDto, StudentActionTrans.class);
         // 验证远程服务关联Id的数据合法性
         CallResult remoteCallResult = studentActionTransService.verifyRemoteRelatedData(studentActionTrans, null);
         if (!remoteCallResult.isSuccess()) {
@@ -84,7 +84,7 @@ public class StudentActionTransController extends BaseController<StudentActionTr
         if (errorMessage != null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
-        StudentActionTrans studentActionTrans = StudentActionTrans.INSTANCE.toModel(studentActionTransDto);
+        StudentActionTrans studentActionTrans = MyModelUtil.copyTo(studentActionTransDto, StudentActionTrans.class);
         StudentActionTrans originalStudentActionTrans = studentActionTransService.getById(studentActionTrans.getTransId());
         if (originalStudentActionTrans == null) {
             // NOTE: 修改下面方括号中的话述
@@ -138,25 +138,18 @@ public class StudentActionTransController extends BaseController<StudentActionTr
      * @return 应答结果对象，包含查询结果集。
      */
     @PostMapping("/list")
-    public ResponseResult<MyPageData<StudentActionTransDto>> list(
+    public ResponseResult<MyPageData<StudentActionTransVo>> list(
             @MyRequestBody("studentActionTransFilter") StudentActionTransDto studentActionTransDtoFilter,
             @MyRequestBody MyOrderParam orderParam,
             @MyRequestBody MyPageParam pageParam) {
         if (pageParam != null) {
             PageMethod.startPage(pageParam.getPageNum(), pageParam.getPageSize());
         }
-        StudentActionTrans studentActionTransFilter = StudentActionTrans.INSTANCE.toModel(studentActionTransDtoFilter);
+        StudentActionTrans studentActionTransFilter = MyModelUtil.copyTo(studentActionTransDtoFilter, StudentActionTrans.class);
         String orderBy = MyOrderParam.buildOrderBy(orderParam, StudentActionTrans.class);
         List<StudentActionTrans> studentActionTransList =
                 studentActionTransService.getStudentActionTransListWithRelation(studentActionTransFilter, orderBy);
-        long totalCount = 0L;
-        if (studentActionTransList instanceof Page) {
-            totalCount = ((Page<StudentActionTrans>) studentActionTransList).getTotal();
-        }
-        // 分页连同对象数据转换copy工作，下面的方法一并完成。
-        Tuple2<List<StudentActionTransDto>, Long> responseData =
-                new Tuple2<>(StudentActionTrans.INSTANCE.fromModelList(studentActionTransList), totalCount);
-        return ResponseResult.success(MyPageUtil.makeResponseData(responseData));
+        return ResponseResult.success(MyPageUtil.makeResponseData(studentActionTransList, StudentActionTrans.INSTANCE));
     }
 
     /**
@@ -166,7 +159,7 @@ public class StudentActionTransController extends BaseController<StudentActionTr
      * @return 应答结果对象，包含对象详情。
      */
     @GetMapping("/view")
-    public ResponseResult<StudentActionTransDto> view(@RequestParam Long transId) {
+    public ResponseResult<StudentActionTransVo> view(@RequestParam Long transId) {
         if (MyCommonUtil.existBlankArgument(transId)) {
             return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
         }
@@ -175,8 +168,8 @@ public class StudentActionTransController extends BaseController<StudentActionTr
         if (studentActionTrans == null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST);
         }
-        StudentActionTransDto studentActionTransDto = StudentActionTrans.INSTANCE.fromModel(studentActionTrans);
-        return ResponseResult.success(studentActionTransDto);
+        StudentActionTransVo studentActionTransVo = StudentActionTrans.INSTANCE.fromModel(studentActionTrans);
+        return ResponseResult.success(studentActionTransVo);
     }
 
     /**
@@ -188,7 +181,7 @@ public class StudentActionTransController extends BaseController<StudentActionTr
      */
     @ApiOperation(hidden = true, value = "listByIds")
     @PostMapping("/listByIds")
-    public ResponseResult<List<StudentActionTransDto>> listByIds(
+    public ResponseResult<List<StudentActionTransVo>> listByIds(
             @RequestParam Set<Long> transIds, @RequestParam Boolean withDict) {
         return super.baseListByIds(transIds, withDict, StudentActionTrans.INSTANCE);
     }
@@ -202,7 +195,7 @@ public class StudentActionTransController extends BaseController<StudentActionTr
      */
     @ApiOperation(hidden = true, value = "getById")
     @PostMapping("/getById")
-    public ResponseResult<StudentActionTransDto> getById(
+    public ResponseResult<StudentActionTransVo> getById(
             @RequestParam Long transId, @RequestParam Boolean withDict) {
         return super.baseGetById(transId, withDict, StudentActionTrans.INSTANCE);
     }
@@ -240,30 +233,30 @@ public class StudentActionTransController extends BaseController<StudentActionTr
     @ApiOperation(hidden = true, value = "deleteBy")
     @PostMapping("/deleteBy")
     public ResponseResult<Integer> deleteBy(@RequestBody StudentActionTransDto filter) throws Exception {
-        return super.baseDeleteBy(filter, StudentActionTrans.INSTANCE);
+        return super.baseDeleteBy(MyModelUtil.copyTo(filter, StudentActionTrans.class));
     }
 
     /**
-     * 复杂的查询调用，包括(in list)过滤，对象条件过滤，分组和排序等。主要用于微服务间远程过程调用。
+     * 复杂的查询调用，包括(in list)过滤，对象条件过滤，分页和排序等。主要用于微服务间远程过程调用。
      *
      * @param queryParam 查询参数。
-     * @return 应答结果对象，包含符合查询过滤条件的对象结果集。
+     * @return 分页数据集合对象。如MyQueryParam参数的分页属性为空，则不会执行分页操作，只是基于MyPageData对象返回数据结果。
      */
     @ApiOperation(hidden = true, value = "listBy")
     @PostMapping("/listBy")
-    public ResponseResult<List<StudentActionTransDto>> listBy(@RequestBody MyQueryParam queryParam) {
+    public ResponseResult<MyPageData<StudentActionTransVo>> listBy(@RequestBody MyQueryParam queryParam) {
         return super.baseListBy(queryParam, StudentActionTrans.INSTANCE);
     }
 
     /**
-     * 复杂的查询调用，包括(in list)过滤，对象条件过滤，分组和排序等。主要用于微服务间远程过程调用。
+     * 复杂的查询调用，包括(in list)过滤，对象条件过滤，分页和排序等。主要用于微服务间远程过程调用。
      *
      * @param queryParam 查询参数。
-     * @return 应答结果对象，包含符合查询过滤条件的对象结果集。
+     * @return 分页数据集合对象。如MyQueryParam参数的分页属性为空，则不会执行分页操作，只是基于MyPageData对象返回数据结果。
      */
     @ApiOperation(hidden = true, value = "listMapBy")
     @PostMapping("/listMapBy")
-    public ResponseResult<List<Map<String, Object>>> listMapBy(@RequestBody MyQueryParam queryParam) {
+    public ResponseResult<MyPageData<Map<String, Object>>> listMapBy(@RequestBody MyQueryParam queryParam) {
         return super.baseListMapBy(queryParam, StudentActionTrans.INSTANCE);
     }
 
@@ -275,7 +268,7 @@ public class StudentActionTransController extends BaseController<StudentActionTr
      */
     @ApiOperation(hidden = true, value = "getBy")
     @PostMapping("/getBy")
-    public ResponseResult<StudentActionTransDto> getBy(@RequestBody MyQueryParam queryParam) {
+    public ResponseResult<StudentActionTransVo> getBy(@RequestBody MyQueryParam queryParam) {
         return super.baseGetBy(queryParam, StudentActionTrans.INSTANCE);
     }
 

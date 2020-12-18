@@ -2,7 +2,7 @@ package com.orange.demo.courseclassservice.model;
 
 import com.orange.demo.common.core.annotation.RelationDict;
 import com.orange.demo.common.core.base.mapper.BaseModelMapper;
-import com.orange.demo.courseclassinterface.dto.SchoolInfoDto;
+import com.orange.demo.courseclassinterface.vo.SchoolInfoVo;
 import lombok.Data;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
@@ -69,23 +69,23 @@ public class SchoolInfo {
     private Map<String, Object> cityIdDictMap;
 
     @Mapper
-    public interface SchoolInfoModelMapper extends BaseModelMapper<SchoolInfoDto, SchoolInfo> {
+    public interface SchoolInfoModelMapper extends BaseModelMapper<SchoolInfoVo, SchoolInfo> {
         /**
-         * 转换Dto对象到实体对象。
+         * 转换Vo对象到实体对象。
          *
-         * @param schoolInfoDto 域对象。
+         * @param schoolInfoVo 域对象。
          * @return 实体对象。
          */
         @Override
-        SchoolInfo toModel(SchoolInfoDto schoolInfoDto);
+        SchoolInfo toModel(SchoolInfoVo schoolInfoVo);
         /**
-         * 转换实体对象到Dto对象。
+         * 转换实体对象到VO对象。
          *
          * @param schoolInfo 实体对象。
          * @return 域对象。
          */
         @Override
-        SchoolInfoDto fromModel(SchoolInfo schoolInfo);
+        SchoolInfoVo fromModel(SchoolInfo schoolInfo);
     }
     public static final SchoolInfoModelMapper INSTANCE = Mappers.getMapper(SchoolInfoModelMapper.class);
 }

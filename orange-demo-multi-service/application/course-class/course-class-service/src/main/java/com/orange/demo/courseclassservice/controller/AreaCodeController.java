@@ -5,9 +5,8 @@ import cn.jimmyshi.beanquery.BeanQuery;
 import com.orange.demo.common.core.base.controller.BaseController;
 import com.orange.demo.common.core.base.service.BaseService;
 import com.orange.demo.common.core.util.MyModelUtil;
-import com.orange.demo.common.core.object.MyQueryParam;
-import com.orange.demo.common.core.object.ResponseResult;
-import com.orange.demo.courseclassinterface.dto.AreaCodeDto;
+import com.orange.demo.common.core.object.*;
+import com.orange.demo.courseclassinterface.vo.AreaCodeVo;
 import com.orange.demo.courseclassservice.model.AreaCode;
 import com.orange.demo.courseclassservice.service.AreaCodeService;
 import org.apache.commons.collections4.CollectionUtils;
@@ -25,13 +24,13 @@ import java.util.*;
 @Api(tags = "行政区划数据访问接口")
 @RestController
 @RequestMapping("/areaCode")
-public class AreaCodeController extends BaseController<AreaCode, AreaCodeDto, Long> {
+public class AreaCodeController extends BaseController<AreaCode, AreaCodeVo, Long> {
 
     @Autowired
     private AreaCodeService areaCodeService;
 
     @Override
-    protected BaseService<AreaCode, AreaCodeDto, Long> service() {
+    protected BaseService<AreaCode, Long> service() {
         return areaCodeService;
     }
 
@@ -70,9 +69,9 @@ public class AreaCodeController extends BaseController<AreaCode, AreaCodeDto, Lo
      * @return 应答结果的Data对象中，将包含行政区划对象。
      */
     @GetMapping("/view")
-    public ResponseResult<AreaCodeDto> view(@RequestParam Long areaId) {
+    public ResponseResult<AreaCodeVo> view(@RequestParam Long areaId) {
         AreaCode areaCode = areaCodeService.getById(areaId);
-        return ResponseResult.success(MyModelUtil.copyTo(areaCode, AreaCodeDto.class));
+        return ResponseResult.success(MyModelUtil.copyTo(areaCode, AreaCodeVo.class));
     }
 
     /**
@@ -83,7 +82,7 @@ public class AreaCodeController extends BaseController<AreaCode, AreaCodeDto, Lo
      * @return 符合主键(in list)的数据集合。
      */
     @PostMapping("/listByIds")
-    public ResponseResult<List<AreaCodeDto>> listByIds(
+    public ResponseResult<List<AreaCodeVo>> listByIds(
             @RequestParam Set<Long> areaCodeIds, @RequestParam Boolean withDict) {
         return super.baseListByIds(areaCodeIds, withDict, null);
     }
@@ -96,7 +95,7 @@ public class AreaCodeController extends BaseController<AreaCode, AreaCodeDto, Lo
      * @return 应答结果对象，包含主对象数据。
      */
     @GetMapping("/getById")
-    public ResponseResult<AreaCodeDto> getById(@RequestParam Long areaId, @RequestParam Boolean withDict) {
+    public ResponseResult<AreaCodeVo> getById(@RequestParam Long areaId, @RequestParam Boolean withDict) {
         return super.baseGetById(areaId, withDict, null);
     }
 
@@ -129,7 +128,7 @@ public class AreaCodeController extends BaseController<AreaCode, AreaCodeDto, Lo
      * @return 应答结果对象，包含符合查询过滤条件的对象结果集。
      */
     @PostMapping("/listBy")
-    public ResponseResult<List<AreaCodeDto>> listBy(@RequestBody MyQueryParam queryParam) {
+    public ResponseResult<MyPageData<AreaCodeVo>> listBy(@RequestBody MyQueryParam queryParam) {
         return super.baseListBy(queryParam, null);
     }
 
@@ -140,7 +139,7 @@ public class AreaCodeController extends BaseController<AreaCode, AreaCodeDto, Lo
      * @return 应答结果对象，包含符合查询过滤条件的对象结果集。
      */
     @PostMapping("/getBy")
-    public ResponseResult<AreaCodeDto> getBy(@RequestBody MyQueryParam queryParam) {
+    public ResponseResult<AreaCodeVo> getBy(@RequestBody MyQueryParam queryParam) {
         return super.baseGetBy(queryParam, null);
     }
 }

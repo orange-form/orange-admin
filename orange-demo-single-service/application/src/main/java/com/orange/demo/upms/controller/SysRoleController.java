@@ -1,17 +1,19 @@
 package com.orange.demo.upms.controller;
 
+import com.github.pagehelper.Page;
 import com.github.pagehelper.page.PageMethod;
 import lombok.extern.slf4j.Slf4j;
+import com.orange.demo.upms.vo.SysRoleVo;
+import com.orange.demo.upms.vo.SysUserVo;
 import com.orange.demo.upms.model.SysRole;
 import com.orange.demo.upms.model.SysUser;
 import com.orange.demo.upms.model.SysUserRole;
 import com.orange.demo.upms.service.SysRoleService;
 import com.orange.demo.upms.service.SysUserService;
 import com.orange.demo.common.core.validator.UpdateGroup;
-import com.orange.demo.common.core.util.MyCommonUtil;
 import com.orange.demo.common.core.constant.ErrorCodeEnum;
 import com.orange.demo.common.core.object.*;
-import com.orange.demo.common.core.util.MyPageUtil;
+import com.orange.demo.common.core.util.*;
 import com.orange.demo.common.core.annotation.MyRequestBody;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -123,7 +125,7 @@ public class SysRoleController {
      * @return 应答结果对象，包含角色列表。
      */
     @PostMapping("/list")
-    public ResponseResult<MyPageData<SysRole>> list(
+    public ResponseResult<MyPageData<SysRoleVo>> list(
             @MyRequestBody SysRole sysRoleFilter,
             @MyRequestBody MyOrderParam orderParam,
             @MyRequestBody MyPageParam pageParam) {
@@ -132,7 +134,12 @@ public class SysRoleController {
         }
         List<SysRole> roleList = sysRoleService.getSysRoleList(
                 sysRoleFilter, MyOrderParam.buildOrderBy(orderParam, SysRole.class));
-        return ResponseResult.success(MyPageUtil.makeResponseData(roleList));
+        List<SysRoleVo> roleVoList = MyModelUtil.copyCollectionTo(roleList, SysRoleVo.class);
+        long totalCount = 0L;
+        if (roleList instanceof Page) {
+            totalCount = ((Page<SysRole>) roleList).getTotal();
+        }
+        return ResponseResult.success(MyPageUtil.makeResponseData(roleVoList, totalCount));
     }
 
     /**
@@ -142,7 +149,7 @@ public class SysRoleController {
      * @return 应答结果对象，包含角色详情对象。
      */
     @GetMapping("/view")
-    public ResponseResult<SysRole> view(@RequestParam Long roleId) {
+    public ResponseResult<SysRoleVo> view(@RequestParam Long roleId) {
         if (MyCommonUtil.existBlankArgument(roleId)) {
             return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
         }
@@ -150,7 +157,8 @@ public class SysRoleController {
         if (sysRole == null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST);
         }
-        return ResponseResult.success(sysRole);
+        SysRoleVo sysRoleVo = MyModelUtil.copyTo(sysRole, SysRoleVo.class);
+        return ResponseResult.success(sysRoleVo);
     }
 
     /**
@@ -164,7 +172,7 @@ public class SysRoleController {
      * @return 应答结果对象，包含用户列表数据。
      */
     @PostMapping("/listNotInUserRole")
-    public ResponseResult<MyPageData<SysUser>> listNotInUserRole(
+    public ResponseResult<MyPageData<SysUserVo>> listNotInUserRole(
             @MyRequestBody Long roleId,
             @MyRequestBody SysUser sysUserFilter,
             @MyRequestBody MyOrderParam orderParam,
@@ -177,9 +185,10 @@ public class SysRoleController {
             PageMethod.startPage(pageParam.getPageNum(), pageParam.getPageSize());
         }
         String orderBy = MyOrderParam.buildOrderBy(orderParam, SysUser.class);
-        List<SysUser> resultList =
+        List<SysUser> userList =
                 sysUserService.getNotInSysUserListByRoleId(roleId, sysUserFilter, orderBy);
-        return ResponseResult.success(MyPageUtil.makeResponseData(resultList));
+        List<SysUserVo> userVoList = MyModelUtil.copyCollectionTo(userList, SysUserVo.class);
+        return ResponseResult.success(MyPageUtil.makeResponseData(userVoList));
     }
 
     /**
@@ -192,7 +201,7 @@ public class SysRoleController {
      * @return 应答结果对象，包含用户列表数据。
      */
     @PostMapping("/listUserRole")
-    public ResponseResult<MyPageData<SysUser>> listUserRole(
+    public ResponseResult<MyPageData<SysUserVo>> listUserRole(
             @MyRequestBody Long roleId,
             @MyRequestBody SysUser sysUserFilter,
             @MyRequestBody MyOrderParam orderParam,
@@ -205,8 +214,9 @@ public class SysRoleController {
             PageMethod.startPage(pageParam.getPageNum(), pageParam.getPageSize());
         }
         String orderBy = MyOrderParam.buildOrderBy(orderParam, SysUser.class);
-        List<SysUser> resultList = sysUserService.getSysUserListByRoleId(roleId, sysUserFilter, orderBy);
-        return ResponseResult.success(MyPageUtil.makeResponseData(resultList));
+        List<SysUser> userList = sysUserService.getSysUserListByRoleId(roleId, sysUserFilter, orderBy);
+        List<SysUserVo> userVoList = MyModelUtil.copyCollectionTo(userList, SysUserVo.class);
+        return ResponseResult.success(MyPageUtil.makeResponseData(userVoList));
     }
 
     private ResponseResult<Void> doRoleUserVerify(Long roleId) {

@@ -7,7 +7,7 @@ import com.orange.demo.common.core.annotation.RelationDict;
 import com.orange.demo.common.core.annotation.RelationConstDict;
 import com.orange.demo.common.core.base.mapper.BaseModelMapper;
 import com.orange.demo.common.core.validator.ConstDictRef;
-import com.orange.demo.courseclassinterface.dto.StudentDto;
+import com.orange.demo.courseclassinterface.vo.StudentVo;
 import lombok.Data;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
@@ -226,23 +226,23 @@ public class Student {
     private Map<String, Object> statusDictMap;
 
     @Mapper
-    public interface StudentModelMapper extends BaseModelMapper<StudentDto, Student> {
+    public interface StudentModelMapper extends BaseModelMapper<StudentVo, Student> {
         /**
-         * 转换Dto对象到实体对象。
+         * 转换Vo对象到实体对象。
          *
-         * @param studentDto 域对象。
+         * @param studentVo 域对象。
          * @return 实体对象。
          */
         @Override
-        Student toModel(StudentDto studentDto);
+        Student toModel(StudentVo studentVo);
         /**
-         * 转换实体对象到Dto对象。
+         * 转换实体对象到VO对象。
          *
          * @param student 实体对象。
          * @return 域对象。
          */
         @Override
-        StudentDto fromModel(Student student);
+        StudentVo fromModel(Student student);
     }
     public static final StudentModelMapper INSTANCE = Mappers.getMapper(StudentModelMapper.class);
 }

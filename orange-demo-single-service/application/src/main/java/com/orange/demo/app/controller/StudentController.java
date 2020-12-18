@@ -2,6 +2,7 @@ package com.orange.demo.app.controller;
 
 import cn.jimmyshi.beanquery.BeanQuery;
 import com.github.pagehelper.page.PageMethod;
+import com.orange.demo.app.vo.*;
 import com.orange.demo.app.model.*;
 import com.orange.demo.app.service.*;
 import com.orange.demo.common.core.object.*;
@@ -118,7 +119,7 @@ public class StudentController {
      * @return 应答结果对象，包含查询结果集。
      */
     @PostMapping("/list")
-    public ResponseResult<MyPageData<Student>> list(
+    public ResponseResult<MyPageData<StudentVo>> list(
             @MyRequestBody Student studentFilter,
             @MyRequestBody MyOrderParam orderParam,
             @MyRequestBody MyPageParam pageParam) {
@@ -126,8 +127,8 @@ public class StudentController {
             PageMethod.startPage(pageParam.getPageNum(), pageParam.getPageSize());
         }
         String orderBy = MyOrderParam.buildOrderBy(orderParam, Student.class);
-        List<Student> resultList = studentService.getStudentListWithRelation(studentFilter, orderBy);
-        return ResponseResult.success(MyPageUtil.makeResponseData(resultList));
+        List<Student> studentList = studentService.getStudentListWithRelation(studentFilter, orderBy);
+        return ResponseResult.success(MyPageUtil.makeResponseData(studentList, Student.INSTANCE));
     }
 
     /**
@@ -137,7 +138,7 @@ public class StudentController {
      * @return 应答结果对象，包含对象详情。
      */
     @GetMapping("/view")
-    public ResponseResult<Student> view(@RequestParam Long studentId) {
+    public ResponseResult<StudentVo> view(@RequestParam Long studentId) {
         if (MyCommonUtil.existBlankArgument(studentId)) {
             return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
         }
@@ -145,7 +146,8 @@ public class StudentController {
         if (student == null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST);
         }
-        return ResponseResult.success(student);
+        StudentVo studentVo = Student.INSTANCE.fromModel(student);
+        return ResponseResult.success(studentVo);
     }
 
     /**

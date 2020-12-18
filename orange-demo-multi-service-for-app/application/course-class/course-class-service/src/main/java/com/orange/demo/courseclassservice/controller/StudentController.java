@@ -1,11 +1,11 @@
 package com.orange.demo.courseclassservice.controller;
 
 import cn.jimmyshi.beanquery.BeanQuery;
-import com.github.pagehelper.Page;
 import com.github.pagehelper.page.PageMethod;
 import com.orange.demo.courseclassservice.model.*;
 import com.orange.demo.courseclassservice.service.*;
 import com.orange.demo.courseclassinterface.dto.*;
+import com.orange.demo.courseclassinterface.vo.*;
 import com.orange.demo.common.core.object.*;
 import com.orange.demo.common.core.util.*;
 import com.orange.demo.common.core.constant.*;
@@ -13,9 +13,6 @@ import com.orange.demo.common.core.base.controller.BaseController;
 import com.orange.demo.common.core.base.service.BaseService;
 import com.orange.demo.common.core.annotation.MyRequestBody;
 import com.orange.demo.common.core.validator.UpdateGroup;
-import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -29,17 +26,16 @@ import java.util.*;
  * @author Jerry
  * @date 2020-08-08
  */
-@Api(tags = "学生数据管理接口")
 @Slf4j
 @RestController
 @RequestMapping("/student")
-public class StudentController extends BaseController<Student, StudentDto, Long> {
+public class StudentController extends BaseController<Student, StudentVo, Long> {
 
     @Autowired
     private StudentService studentService;
 
     @Override
-    protected BaseService<Student, StudentDto, Long> service() {
+    protected BaseService<Student, Long> service() {
         return studentService;
     }
 
@@ -49,20 +45,13 @@ public class StudentController extends BaseController<Student, StudentDto, Long>
      * @param studentDto 新增对象。
      * @return 应答结果对象，包含新增对象主键Id。
      */
-    @ApiOperationSupport(ignoreParameters = {
-            "student.studentId",
-            "student.searchString",
-            "student.birthdayStart",
-            "student.birthdayEnd",
-            "student.registerTimeStart",
-            "student.registerTimeEnd"})
     @PostMapping("/add")
     public ResponseResult<Long> add(@MyRequestBody("student") StudentDto studentDto) {
         String errorMessage = MyCommonUtil.getModelValidationError(studentDto);
         if (errorMessage != null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
-        Student student = Student.INSTANCE.toModel(studentDto);
+        Student student = MyModelUtil.copyTo(studentDto, Student.class);
         // 验证关联Id的数据合法性
         CallResult callResult = studentService.verifyRelatedData(student, null);
         if (!callResult.isSuccess()) {
@@ -79,19 +68,13 @@ public class StudentController extends BaseController<Student, StudentDto, Long>
      * @param studentDto 更新对象。
      * @return 应答结果对象。
      */
-    @ApiOperationSupport(ignoreParameters = {
-            "student.searchString",
-            "student.birthdayStart",
-            "student.birthdayEnd",
-            "student.registerTimeStart",
-            "student.registerTimeEnd"})
     @PostMapping("/update")
     public ResponseResult<Void> update(@MyRequestBody("student") StudentDto studentDto) {
         String errorMessage = MyCommonUtil.getModelValidationError(studentDto, Default.class, UpdateGroup.class);
         if (errorMessage != null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
-        Student student = Student.INSTANCE.toModel(studentDto);
+        Student student = MyModelUtil.copyTo(studentDto, Student.class);
         Student originalStudent = studentService.getById(student.getStudentId());
         if (originalStudent == null) {
             // NOTE: 修改下面方括号中的话述
@@ -145,25 +128,18 @@ public class StudentController extends BaseController<Student, StudentDto, Long>
      * @return 应答结果对象，包含查询结果集。
      */
     @PostMapping("/list")
-    public ResponseResult<MyPageData<StudentDto>> list(
+    public ResponseResult<MyPageData<StudentVo>> list(
             @MyRequestBody("studentFilter") StudentDto studentDtoFilter,
             @MyRequestBody MyOrderParam orderParam,
             @MyRequestBody MyPageParam pageParam) {
         if (pageParam != null) {
             PageMethod.startPage(pageParam.getPageNum(), pageParam.getPageSize());
         }
-        Student studentFilter = Student.INSTANCE.toModel(studentDtoFilter);
+        Student studentFilter = MyModelUtil.copyTo(studentDtoFilter, Student.class);
         String orderBy = MyOrderParam.buildOrderBy(orderParam, Student.class);
         List<Student> studentList =
                 studentService.getStudentListWithRelation(studentFilter, orderBy);
-        long totalCount = 0L;
-        if (studentList instanceof Page) {
-            totalCount = ((Page<Student>) studentList).getTotal();
-        }
-        // 分页连同对象数据转换copy工作，下面的方法一并完成。
-        Tuple2<List<StudentDto>, Long> responseData =
-                new Tuple2<>(Student.INSTANCE.fromModelList(studentList), totalCount);
-        return ResponseResult.success(MyPageUtil.makeResponseData(responseData));
+        return ResponseResult.success(MyPageUtil.makeResponseData(studentList, Student.INSTANCE));
     }
 
     /**
@@ -173,7 +149,7 @@ public class StudentController extends BaseController<Student, StudentDto, Long>
      * @return 应答结果对象，包含对象详情。
      */
     @GetMapping("/view")
-    public ResponseResult<StudentDto> view(@RequestParam Long studentId) {
+    public ResponseResult<StudentVo> view(@RequestParam Long studentId) {
         if (MyCommonUtil.existBlankArgument(studentId)) {
             return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
         }
@@ -182,8 +158,8 @@ public class StudentController extends BaseController<Student, StudentDto, Long>
         if (student == null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST);
         }
-        StudentDto studentDto = Student.INSTANCE.fromModel(student);
-        return ResponseResult.success(studentDto);
+        StudentVo studentVo = Student.INSTANCE.fromModel(student);
+        return ResponseResult.success(studentVo);
     }
 
     /**
@@ -207,9 +183,8 @@ public class StudentController extends BaseController<Student, StudentDto, Long>
      * @param withDict 是否包含字典关联。
      * @return 应答结果对象，包含主对象集合。
      */
-    @ApiOperation(hidden = true, value = "listByIds")
     @PostMapping("/listByIds")
-    public ResponseResult<List<StudentDto>> listByIds(
+    public ResponseResult<List<StudentVo>> listByIds(
             @RequestParam Set<Long> studentIds, @RequestParam Boolean withDict) {
         return super.baseListByIds(studentIds, withDict, Student.INSTANCE);
     }
@@ -221,9 +196,8 @@ public class StudentController extends BaseController<Student, StudentDto, Long>
      * @param withDict 是否包含字典关联。
      * @return 应答结果对象，包含主对象数据。
      */
-    @ApiOperation(hidden = true, value = "getById")
     @PostMapping("/getById")
-    public ResponseResult<StudentDto> getById(
+    public ResponseResult<StudentVo> getById(
             @RequestParam Long studentId, @RequestParam Boolean withDict) {
         return super.baseGetById(studentId, withDict, Student.INSTANCE);
     }
@@ -234,7 +208,6 @@ public class StudentController extends BaseController<Student, StudentDto, Long>
      * @param studentIds 主键Id集合。
      * @return 应答结果对象，包含true全部存在，否则false。
      */
-    @ApiOperation(hidden = true, value = "existIds")
     @PostMapping("/existIds")
     public ResponseResult<Boolean> existIds(@RequestParam Set<Long> studentIds) {
         return super.baseExistIds(studentIds);
@@ -246,7 +219,6 @@ public class StudentController extends BaseController<Student, StudentDto, Long>
      * @param studentId 主键Id。
      * @return 应答结果对象，包含true表示存在，否则false。
      */
-    @ApiOperation(hidden = true, value = "existId")
     @PostMapping("/existId")
     public ResponseResult<Boolean> existId(@RequestParam Long studentId) {
         return super.baseExistId(studentId);
@@ -258,33 +230,30 @@ public class StudentController extends BaseController<Student, StudentDto, Long>
      * @param filter 过滤对象。
      * @return 删除数量。
      */
-    @ApiOperation(hidden = true, value = "deleteBy")
     @PostMapping("/deleteBy")
     public ResponseResult<Integer> deleteBy(@RequestBody StudentDto filter) throws Exception {
-        return super.baseDeleteBy(filter, Student.INSTANCE);
+        return super.baseDeleteBy(MyModelUtil.copyTo(filter, Student.class));
     }
 
     /**
-     * 复杂的查询调用，包括(in list)过滤，对象条件过滤，分组和排序等。主要用于微服务间远程过程调用。
+     * 复杂的查询调用，包括(in list)过滤，对象条件过滤，分页和排序等。主要用于微服务间远程过程调用。
      *
      * @param queryParam 查询参数。
-     * @return 应答结果对象，包含符合查询过滤条件的对象结果集。
+     * @return 分页数据集合对象。如MyQueryParam参数的分页属性为空，则不会执行分页操作，只是基于MyPageData对象返回数据结果。
      */
-    @ApiOperation(hidden = true, value = "listBy")
     @PostMapping("/listBy")
-    public ResponseResult<List<StudentDto>> listBy(@RequestBody MyQueryParam queryParam) {
+    public ResponseResult<MyPageData<StudentVo>> listBy(@RequestBody MyQueryParam queryParam) {
         return super.baseListBy(queryParam, Student.INSTANCE);
     }
 
     /**
-     * 复杂的查询调用，包括(in list)过滤，对象条件过滤，分组和排序等。主要用于微服务间远程过程调用。
+     * 复杂的查询调用，包括(in list)过滤，对象条件过滤，分页和排序等。主要用于微服务间远程过程调用。
      *
      * @param queryParam 查询参数。
-     * @return 应答结果对象，包含符合查询过滤条件的对象结果集。
+     * @return 分页数据集合对象。如MyQueryParam参数的分页属性为空，则不会执行分页操作，只是基于MyPageData对象返回数据结果。
      */
-    @ApiOperation(hidden = true, value = "listMapBy")
     @PostMapping("/listMapBy")
-    public ResponseResult<List<Map<String, Object>>> listMapBy(@RequestBody MyQueryParam queryParam) {
+    public ResponseResult<MyPageData<Map<String, Object>>> listMapBy(@RequestBody MyQueryParam queryParam) {
         return super.baseListMapBy(queryParam, Student.INSTANCE);
     }
 
@@ -294,9 +263,8 @@ public class StudentController extends BaseController<Student, StudentDto, Long>
      * @param queryParam 查询参数。
      * @return 应答结果对象，包含符合查询过滤条件的对象结果集。
      */
-    @ApiOperation(hidden = true, value = "getBy")
     @PostMapping("/getBy")
-    public ResponseResult<StudentDto> getBy(@RequestBody MyQueryParam queryParam) {
+    public ResponseResult<StudentVo> getBy(@RequestBody MyQueryParam queryParam) {
         return super.baseGetBy(queryParam, Student.INSTANCE);
     }
 
@@ -306,7 +274,6 @@ public class StudentController extends BaseController<Student, StudentDto, Long>
      * @param queryParam 查询参数。
      * @return 应答结果对象，包含结果数量。
      */
-    @ApiOperation(hidden = true, value = "countBy")
     @PostMapping("/countBy")
     public ResponseResult<Integer> countBy(@RequestBody MyQueryParam queryParam) {
         return super.baseCountBy(queryParam);
@@ -318,7 +285,6 @@ public class StudentController extends BaseController<Student, StudentDto, Long>
      * @param aggregationParam 聚合参数。
      * @return 应该结果对象，包含聚合计算后的分组Map列表。
      */
-    @ApiOperation(hidden = true, value = "aggregateBy")
     @PostMapping("/aggregateBy")
     public ResponseResult<List<Map<String, Object>>> aggregateBy(@RequestBody MyAggregationParam aggregationParam) {
         return super.baseAggregateBy(aggregationParam);

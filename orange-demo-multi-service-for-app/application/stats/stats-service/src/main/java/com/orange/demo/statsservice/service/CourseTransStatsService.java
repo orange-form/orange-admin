@@ -2,7 +2,6 @@ package com.orange.demo.statsservice.service;
 
 import com.orange.demo.statsservice.dao.*;
 import com.orange.demo.statsservice.model.*;
-import com.orange.demo.statsinterface.dto.*;
 import com.orange.demo.common.core.util.*;
 import com.orange.demo.common.core.object.MyRelationParam;
 import com.orange.demo.common.core.object.MyWhereCriteria;
@@ -20,7 +19,7 @@ import java.util.*;
  * @date 2020-08-08
  */
 @Service
-public class CourseTransStatsService extends BaseService<CourseTransStats, CourseTransStatsDto, Long> {
+public class CourseTransStatsService extends BaseService<CourseTransStats, Long> {
 
     @Autowired
     private CourseTransStatsMapper courseTransStatsMapper;

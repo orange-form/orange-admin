@@ -14,8 +14,8 @@ import com.orange.demo.common.core.util.MyPageUtil;
 import com.orange.demo.common.core.annotation.MyRequestBody;
 import com.orange.demo.common.core.validator.UpdateGroup;
 import com.orange.demo.upmsinterface.dto.SysPermDto;
+import com.orange.demo.upmsinterface.vo.SysPermVo;
 import com.orange.demo.upmsservice.model.SysPerm;
-import com.orange.demo.upmsservice.model.SysPermModule;
 import com.orange.demo.upmsservice.service.SysPermService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -83,10 +83,6 @@ public class SysPermController {
         if (!result.isSuccess()) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, result.getErrorMessage());
         }
-        if (result.getData() != null) {
-            SysPermModule permModule = (SysPermModule) result.getData().get("permModule");
-            sysPerm.setModuleId(permModule.getModuleId());
-        }
         sysPermService.update(sysPerm, originalPerm);
         return ResponseResult.success();
     }
@@ -116,7 +112,7 @@ public class SysPermController {
      * @return 应答结果对象，包含权限资源对象详情。
      */
     @GetMapping("/view")
-    public ResponseResult<SysPermDto> view(@RequestParam Long permId) {
+    public ResponseResult<SysPermVo> view(@RequestParam Long permId) {
         if (MyCommonUtil.existBlankArgument(permId)) {
             return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
         }
@@ -124,8 +120,8 @@ public class SysPermController {
         if (perm == null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST);
         }
-        SysPermDto permDto = MyModelUtil.copyTo(perm, SysPermDto.class);
-        return ResponseResult.success(permDto);
+        SysPermVo permVo = MyModelUtil.copyTo(perm, SysPermVo.class);
+        return ResponseResult.success(permVo);
     }
 
     /**
@@ -136,19 +132,19 @@ public class SysPermController {
      * @return 应答结果对象，包含权限资源列表。
      */
     @PostMapping("/list")
-    public ResponseResult<MyPageData<SysPermDto>> list(
+    public ResponseResult<MyPageData<SysPermVo>> list(
             @MyRequestBody("sysPermFilter") SysPermDto sysPermDtoFiltter, @MyRequestBody MyPageParam pageParam) {
         if (pageParam != null) {
             PageMethod.startPage(pageParam.getPageNum(), pageParam.getPageSize());
         }
         SysPerm filter = MyModelUtil.copyTo(sysPermDtoFiltter, SysPerm.class);
         List<SysPerm> permList = sysPermService.getPermListWithRelation(filter);
-        List<SysPermDto> permDtoList = MyModelUtil.copyCollectionTo(permList, SysPermDto.class);
+        List<SysPermVo> permVoList = MyModelUtil.copyCollectionTo(permList, SysPermVo.class);
         long totalCount = 0L;
         if (permList instanceof Page) {
             totalCount = ((Page<SysPerm>) permList).getTotal();
         }
-        return ResponseResult.success(MyPageUtil.makeResponseData(permDtoList, totalCount));
+        return ResponseResult.success(MyPageUtil.makeResponseData(permVoList, totalCount));
     }
 
     /**

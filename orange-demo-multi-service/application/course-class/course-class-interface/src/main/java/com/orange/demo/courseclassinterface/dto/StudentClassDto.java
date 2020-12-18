@@ -11,7 +11,6 @@ import lombok.Data;
 import javax.validation.constraints.*;
 
 import java.util.Date;
-import java.util.Map;
 
 /**
  * StudentClassDto对象。
@@ -77,22 +76,4 @@ public class StudentClassDto {
      */
     @ApiModelProperty(value = "班级创建时间")
     private Date createTime;
-
-    /**
-     * schoolId 字典关联数据。
-     */
-    @ApiModelProperty(hidden = true)
-    private Map<String, Object> schoolIdDictMap;
-
-    /**
-     * leaderId 字典关联数据。
-     */
-    @ApiModelProperty(hidden = true)
-    private Map<String, Object> leaderIdDictMap;
-
-    /**
-     * classLevel 常量字典关联数据。
-     */
-    @ApiModelProperty(hidden = true)
-    private Map<String, Object> classLevelDictMap;
 }

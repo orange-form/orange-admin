@@ -1,11 +1,12 @@
 package com.orange.demo.upms.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import com.orange.demo.upms.vo.SysPermCodeVo;
 import com.orange.demo.upms.model.SysPermCode;
 import com.orange.demo.upms.service.SysPermCodeService;
 import com.orange.demo.common.core.constant.ErrorCodeEnum;
 import com.orange.demo.common.core.object.*;
-import com.orange.demo.common.core.util.MyCommonUtil;
+import com.orange.demo.common.core.util.*;
 import com.orange.demo.common.core.validator.UpdateGroup;
 import com.orange.demo.common.core.annotation.MyRequestBody;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -123,8 +124,10 @@ public class SysPermCodeController {
      * @return 应答结果对象，包含权限字列表。
      */
     @PostMapping("/list")
-    public ResponseResult<List<SysPermCode>> list() {
-        return ResponseResult.success(sysPermCodeService.getAllListByOrder("permCodeType", "showOrder"));
+    public ResponseResult<List<SysPermCodeVo>> list() {
+        List<SysPermCode> sysPermCodeList =
+                sysPermCodeService.getAllListByOrder("permCodeType", "showOrder");
+        return ResponseResult.success(MyModelUtil.copyCollectionTo(sysPermCodeList, SysPermCodeVo.class));
     }
 
     /**
@@ -134,15 +137,17 @@ public class SysPermCodeController {
      * @return 应答结果对象，包含权限字对象详情。
      */
     @GetMapping("/view")
-    public ResponseResult<SysPermCode> view(@RequestParam Long permCodeId) {
+    public ResponseResult<SysPermCodeVo> view(@RequestParam Long permCodeId) {
         if (MyCommonUtil.existBlankArgument(permCodeId)) {
             return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
         }
-        SysPermCode sysPermCode = sysPermCodeService.getByIdWithRelation(permCodeId, MyRelationParam.full());
+        SysPermCode sysPermCode =
+                sysPermCodeService.getByIdWithRelation(permCodeId, MyRelationParam.full());
         if (sysPermCode == null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST);
         }
-        return ResponseResult.success(sysPermCode);
+        SysPermCodeVo sysPermCodeVo = MyModelUtil.copyTo(sysPermCode, SysPermCodeVo.class);
+        return ResponseResult.success(sysPermCodeVo);
     }
 
     /**

@@ -1,10 +1,7 @@
 package com.orange.demo.common.core.base.client;
 
 import com.orange.demo.common.core.constant.ErrorCodeEnum;
-import com.orange.demo.common.core.object.MyAggregationParam;
-import com.orange.demo.common.core.object.MyQueryParam;
-import com.orange.demo.common.core.object.ResponseResult;
-import com.orange.demo.common.core.object.Tuple2;
+import com.orange.demo.common.core.object.*;
 import feign.hystrix.FallbackFactory;
 import lombok.extern.slf4j.Slf4j;
 
@@ -13,23 +10,24 @@ import java.util.*;
 /**
  * FeignClient 熔断降级处理对象。
  *
- * @param <D> 实体对象类型。
+ * @param <D> 主DomainDto域数据对象类型。
+ * @param <V> 主DomainVo域数据对象类型。
  * @param <K> 主键类型。
  * @param <T> Feign客户端对象类型。
  * @author Jerry
  * @date 2020-08-08
  */
 @Slf4j
-public abstract class BaseFallbackFactory<D, K, T extends BaseClient<D, K>>
-        implements FallbackFactory<T>, BaseClient<D, K> {
+public abstract class BaseFallbackFactory<D, V, K, T extends BaseClient<D, V, K>>
+        implements FallbackFactory<T>, BaseClient<D, V, K> {
 
     @Override
-    public ResponseResult<List<D>> listByIds(Set<K> idSet, Boolean withDict) {
+    public ResponseResult<List<V>> listByIds(Set<K> idSet, Boolean withDict) {
         return ResponseResult.error(ErrorCodeEnum.RPC_DATA_ACCESS_FAILED);
     }
 
     @Override
-    public ResponseResult<D> getById(K id, Boolean withDict) {
+    public ResponseResult<V> getById(K id, Boolean withDict) {
         return ResponseResult.error(ErrorCodeEnum.RPC_DATA_ACCESS_FAILED);
     }
 
@@ -54,17 +52,17 @@ public abstract class BaseFallbackFactory<D, K, T extends BaseClient<D, K>>
     }
 
     @Override
-    public ResponseResult<List<D>> listBy(MyQueryParam queryParam) {
+    public ResponseResult<MyPageData<V>> listBy(MyQueryParam queryParam) {
         return ResponseResult.error(ErrorCodeEnum.RPC_DATA_ACCESS_FAILED);
     }
 
     @Override
-    public ResponseResult<D> getBy(MyQueryParam queryParam) {
+    public ResponseResult<V> getBy(MyQueryParam queryParam) {
         return ResponseResult.error(ErrorCodeEnum.RPC_DATA_ACCESS_FAILED);
     }
 
     @Override
-    public ResponseResult<List<Map<String, Object>>> listMapBy(MyQueryParam queryParam) {
+    public ResponseResult<MyPageData<Map<String, Object>>> listMapBy(MyQueryParam queryParam) {
         return ResponseResult.error(ErrorCodeEnum.RPC_DATA_ACCESS_FAILED);
     }
 
@@ -79,7 +77,7 @@ public abstract class BaseFallbackFactory<D, K, T extends BaseClient<D, K>>
     }
 
     @Override
-    public ResponseResult<Tuple2<List<D>, K>> listByNotInList(MyQueryParam queryParam) {
+    public ResponseResult<MyPageData<V>> listByNotInList(MyQueryParam queryParam) {
         return ResponseResult.error(ErrorCodeEnum.RPC_DATA_ACCESS_FAILED);
     }
 }

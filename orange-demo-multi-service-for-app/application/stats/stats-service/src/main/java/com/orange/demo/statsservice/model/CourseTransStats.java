@@ -1,15 +1,15 @@
 package com.orange.demo.statsservice.model;
 
 import com.orange.demo.courseclassinterface.client.GradeClient;
-import com.orange.demo.courseclassinterface.dto.GradeDto;
 import com.orange.demo.courseclassinterface.client.CourseClient;
-import com.orange.demo.courseclassinterface.dto.CourseDto;
+import com.orange.demo.courseclassinterface.vo.CourseVo;
+import com.orange.demo.courseclassinterface.vo.GradeVo;
 import com.orange.demo.application.common.constant.Subject;
 import com.orange.demo.common.core.annotation.RelationDict;
 import com.orange.demo.common.core.annotation.RelationConstDict;
 import com.orange.demo.common.core.base.mapper.BaseModelMapper;
 import com.orange.demo.common.core.validator.ConstDictRef;
-import com.orange.demo.statsinterface.dto.CourseTransStatsDto;
+import com.orange.demo.statsinterface.vo.CourseTransStatsVo;
 import lombok.Data;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
@@ -115,7 +115,7 @@ public class CourseTransStats {
     @RelationDict(
             masterIdField = "gradeId",
             slaveClientClass = GradeClient.class,
-            slaveModelClass = GradeDto.class,
+            slaveModelClass = GradeVo.class,
             slaveIdField = "gradeId",
             slaveNameField = "gradeName")
     @Transient
@@ -124,7 +124,7 @@ public class CourseTransStats {
     @RelationDict(
             masterIdField = "courseId",
             slaveClientClass = CourseClient.class,
-            slaveModelClass = CourseDto.class,
+            slaveModelClass = CourseVo.class,
             slaveIdField = "courseId",
             slaveNameField = "courseName")
     @Transient
@@ -137,23 +137,23 @@ public class CourseTransStats {
     private Map<String, Object> subjectIdDictMap;
 
     @Mapper
-    public interface CourseTransStatsModelMapper extends BaseModelMapper<CourseTransStatsDto, CourseTransStats> {
+    public interface CourseTransStatsModelMapper extends BaseModelMapper<CourseTransStatsVo, CourseTransStats> {
         /**
-         * 转换Dto对象到实体对象。
+         * 转换Vo对象到实体对象。
          *
-         * @param courseTransStatsDto 域对象。
+         * @param courseTransStatsVo 域对象。
          * @return 实体对象。
          */
         @Override
-        CourseTransStats toModel(CourseTransStatsDto courseTransStatsDto);
+        CourseTransStats toModel(CourseTransStatsVo courseTransStatsVo);
         /**
-         * 转换实体对象到Dto对象。
+         * 转换实体对象到VO对象。
          *
          * @param courseTransStats 实体对象。
          * @return 域对象。
          */
         @Override
-        CourseTransStatsDto fromModel(CourseTransStats courseTransStats);
+        CourseTransStatsVo fromModel(CourseTransStats courseTransStats);
     }
     public static final CourseTransStatsModelMapper INSTANCE = Mappers.getMapper(CourseTransStatsModelMapper.class);
 }

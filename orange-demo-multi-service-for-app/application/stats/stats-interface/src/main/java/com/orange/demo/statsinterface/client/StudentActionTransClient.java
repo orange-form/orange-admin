@@ -5,6 +5,7 @@ import com.orange.demo.common.core.config.FeignConfig;
 import com.orange.demo.common.core.base.client.BaseClient;
 import com.orange.demo.common.core.object.*;
 import com.orange.demo.statsinterface.dto.StudentActionTransDto;
+import com.orange.demo.statsinterface.vo.StudentActionTransVo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.stereotype.Component;
@@ -22,7 +23,7 @@ import java.util.*;
         name = "stats",
         configuration = FeignConfig.class,
         fallbackFactory = StudentActionTransClient.StudentActionTransClientFallbackFactory.class)
-public interface StudentActionTransClient extends BaseClient<StudentActionTransDto, Long> {
+public interface StudentActionTransClient extends BaseClient<StudentActionTransDto, StudentActionTransVo, Long> {
 
     /**
      * 基于主键的(In-list)条件获取远程数据接口。
@@ -33,7 +34,7 @@ public interface StudentActionTransClient extends BaseClient<StudentActionTransD
      */
     @Override
     @PostMapping("/studentActionTrans/listByIds")
-    ResponseResult<List<StudentActionTransDto>> listByIds(
+    ResponseResult<List<StudentActionTransVo>> listByIds(
             @RequestParam("transIds") Set<Long> transIds,
             @RequestParam("withDict") Boolean withDict);
 
@@ -46,7 +47,7 @@ public interface StudentActionTransClient extends BaseClient<StudentActionTransD
      */
     @Override
     @PostMapping("/studentActionTrans/getById")
-    ResponseResult<StudentActionTransDto> getById(
+    ResponseResult<StudentActionTransVo> getById(
             @RequestParam("transId") Long transId,
             @RequestParam("withDict") Boolean withDict);
 
@@ -98,7 +99,7 @@ public interface StudentActionTransClient extends BaseClient<StudentActionTransD
      */
     @Override
     @PostMapping("/studentActionTrans/listBy")
-    ResponseResult<List<StudentActionTransDto>> listBy(@RequestBody MyQueryParam queryParam);
+    ResponseResult<MyPageData<StudentActionTransVo>> listBy(@RequestBody MyQueryParam queryParam);
 
     /**
      * 获取远程主对象中符合查询条件的单条数据对象。
@@ -108,7 +109,7 @@ public interface StudentActionTransClient extends BaseClient<StudentActionTransD
      */
     @Override
     @PostMapping("/studentActionTrans/getBy")
-    ResponseResult<StudentActionTransDto> getBy(@RequestBody MyQueryParam queryParam);
+    ResponseResult<StudentActionTransVo> getBy(@RequestBody MyQueryParam queryParam);
 
     /**
      * 获取远程主对象中符合查询条件的数据列表。
@@ -119,7 +120,7 @@ public interface StudentActionTransClient extends BaseClient<StudentActionTransD
      */
     @Override
     @PostMapping("/studentActionTrans/listMapBy")
-    ResponseResult<List<Map<String, Object>>> listMapBy(@RequestBody MyQueryParam queryParam);
+    ResponseResult<MyPageData<Map<String, Object>>> listMapBy(@RequestBody MyQueryParam queryParam);
 
     /**
      * 获取远程主对象中符合查询条件的数据数量。
@@ -144,7 +145,7 @@ public interface StudentActionTransClient extends BaseClient<StudentActionTransD
     @Component("StatsStudentActionTransClientFallbackFactory")
     @Slf4j
     class StudentActionTransClientFallbackFactory
-            extends BaseFallbackFactory<StudentActionTransDto, Long, StudentActionTransClient> implements StudentActionTransClient {
+            extends BaseFallbackFactory<StudentActionTransDto, StudentActionTransVo, Long, StudentActionTransClient> implements StudentActionTransClient {
 
         @Override
         public StudentActionTransClient create(Throwable throwable) {

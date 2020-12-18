@@ -148,10 +148,6 @@ public class AuthenticationPreFilter implements GlobalFilter, Ordered {
      * @return 是返回true，否则false。
      */
     private boolean shouldNotFilter(String url) {
-        // 这里过滤和swagger相关的url
-        if (url.endsWith("/v2/api-docs") || url.endsWith("/v2/api-docs-ext")) {
-            return true;
-        }
         if (url.equals(GatewayConstant.ADMIN_LOGIN_URL)) {
             return true;
         }

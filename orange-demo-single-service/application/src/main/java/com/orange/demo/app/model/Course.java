@@ -6,9 +6,13 @@ import com.orange.demo.common.core.upload.UploadStoreTypeEnum;
 import com.orange.demo.common.core.annotation.UploadFlagColumn;
 import com.orange.demo.common.core.annotation.RelationDict;
 import com.orange.demo.common.core.annotation.RelationConstDict;
+import com.orange.demo.common.core.base.mapper.BaseModelMapper;
 import com.orange.demo.common.core.validator.UpdateGroup;
 import com.orange.demo.common.core.validator.ConstDictRef;
+import com.orange.demo.app.vo.CourseVo;
 import lombok.Data;
+import org.mapstruct.*;
+import org.mapstruct.factory.Mappers;
 import javax.persistence.*;
 import javax.validation.constraints.*;
 
@@ -169,4 +173,27 @@ public class Course {
             constantDictClass = Subject.class)
     @Transient
     private Map<String, Object> subjectIdDictMap;
+
+    @Mapper
+    public interface CourseModelMapper extends BaseModelMapper<CourseVo, Course> {
+        /**
+         * 转换Vo对象到实体对象。
+         *
+         * @param courseVo 域对象。
+         * @return 实体对象。
+         */
+        @Mapping(target = "classCourse", expression = "java(mapToBean(courseVo.getClassCourse(), com.orange.demo.app.model.ClassCourse.class))")
+        @Override
+        Course toModel(CourseVo courseVo);
+        /**
+         * 转换实体对象到VO对象。
+         *
+         * @param course 实体对象。
+         * @return 域对象。
+         */
+        @Mapping(target = "classCourse", expression = "java(beanToMap(course.getClassCourse(), false))")
+        @Override
+        CourseVo fromModel(Course course);
+    }
+    public static final CourseModelMapper INSTANCE = Mappers.getMapper(CourseModelMapper.class);
 }

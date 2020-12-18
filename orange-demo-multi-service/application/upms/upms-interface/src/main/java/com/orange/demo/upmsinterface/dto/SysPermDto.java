@@ -8,7 +8,6 @@ import lombok.Data;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
-import java.util.Map;
 
 /**
  * 权限资源Dto。
@@ -66,10 +65,4 @@ public class SysPermDto {
      */
     @ApiModelProperty(value = "创建时间")
     private Date createTime;
-
-    /**
-     * 模块Id的字典关联数据。
-     */
-    @ApiModelProperty(hidden = true)
-    private Map<String, Object> moduleIdDictMap;
 }

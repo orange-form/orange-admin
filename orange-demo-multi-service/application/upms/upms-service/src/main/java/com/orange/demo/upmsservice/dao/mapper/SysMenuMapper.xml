@@ -17,18 +17,14 @@
         SELECT
             DISTINCT m.*
         FROM
-            zz_sys_user u,
             zz_sys_user_role ur,
             zz_sys_role_menu rm,
             zz_sys_menu m
         <where>
-            AND u.user_id = #{userId}
-            AND u.deleted_flag = ${@com.orange.demo.common.core.constant.GlobalDeletedFlag@NORMAL}
-            AND u.user_id = ur.user_id
+            AND ur.user_id = #{userId}
             AND ur.role_id = rm.role_id
             AND rm.menu_id = m.menu_id
             AND m.menu_type &lt;= ${@com.orange.demo.upmsinterface.constant.SysMenuType@TYPE_MENU}
-            AND m.deleted_flag = ${@com.orange.demo.common.core.constant.GlobalDeletedFlag@NORMAL}
         </where>
         ORDER BY m.show_order
     </select>

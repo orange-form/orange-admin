@@ -8,7 +8,6 @@ import lombok.Data;
 
 import javax.validation.constraints.*;
 
-import java.util.Map;
 
 /**
  * SchoolInfoDto对象。
@@ -47,16 +46,4 @@ public class SchoolInfoDto {
     @ApiModelProperty(value = "所在城市Id", required = true)
     @NotNull(message = "数据验证失败，所在城市不能为空！")
     private Long cityId;
-
-    /**
-     * provinceId 字典关联数据。
-     */
-    @ApiModelProperty(hidden = true)
-    private Map<String, Object> provinceIdDictMap;
-
-    /**
-     * cityId 字典关联数据。
-     */
-    @ApiModelProperty(hidden = true)
-    private Map<String, Object> cityIdDictMap;
 }

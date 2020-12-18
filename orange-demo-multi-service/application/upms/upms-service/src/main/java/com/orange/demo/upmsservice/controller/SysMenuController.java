@@ -10,8 +10,8 @@ import com.orange.demo.common.core.util.MyCommonUtil;
 import com.orange.demo.common.core.annotation.MyRequestBody;
 import com.orange.demo.common.core.validator.UpdateGroup;
 import com.orange.demo.upmsinterface.dto.SysMenuDto;
+import com.orange.demo.upmsinterface.vo.SysMenuVo;
 import com.orange.demo.upmsservice.model.SysMenu;
-import com.orange.demo.upmsservice.service.SysPermCodeService;
 import com.orange.demo.upmsservice.service.SysMenuService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -33,8 +33,6 @@ public class SysMenuController {
 
     @Autowired
     private SysMenuService sysMenuService;
-    @Autowired
-    private SysPermCodeService sysPermCodeService;
 
     /**
      * 添加新菜单操作。
@@ -130,9 +128,9 @@ public class SysMenuController {
      * @return 应答结果对象，包含全部菜单数据列表。
      */
     @GetMapping("/list")
-    public ResponseResult<List<SysMenuDto>> list() {
+    public ResponseResult<List<SysMenuVo>> list() {
         List<SysMenu> sysMenuList = sysMenuService.getAllListByOrder("menuType", "showOrder");
-        return ResponseResult.success(MyModelUtil.copyCollectionTo(sysMenuList, SysMenuDto.class));
+        return ResponseResult.success(MyModelUtil.copyCollectionTo(sysMenuList, SysMenuVo.class));
     }
 
     /**
@@ -142,7 +140,7 @@ public class SysMenuController {
      * @return 应答结果对象，包含菜单详情。
      */
     @GetMapping("/view")
-    public ResponseResult<SysMenuDto> view(@RequestParam Long menuId) {
+    public ResponseResult<SysMenuVo> view(@RequestParam Long menuId) {
         if (MyCommonUtil.existBlankArgument(menuId)) {
             return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
         }
@@ -150,8 +148,8 @@ public class SysMenuController {
         if (sysMenu == null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST);
         }
-        SysMenuDto sysMenuDto = MyModelUtil.copyTo(sysMenu, SysMenuDto.class);
-        return ResponseResult.success(sysMenuDto);
+        SysMenuVo sysMenuVo = MyModelUtil.copyTo(sysMenu, SysMenuVo.class);
+        return ResponseResult.success(sysMenuVo);
     }
 
     /**

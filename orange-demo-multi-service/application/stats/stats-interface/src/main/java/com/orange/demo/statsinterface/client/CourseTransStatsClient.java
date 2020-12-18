@@ -5,6 +5,7 @@ import com.orange.demo.common.core.config.FeignConfig;
 import com.orange.demo.common.core.base.client.BaseClient;
 import com.orange.demo.common.core.object.*;
 import com.orange.demo.statsinterface.dto.CourseTransStatsDto;
+import com.orange.demo.statsinterface.vo.CourseTransStatsVo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.stereotype.Component;
@@ -22,7 +23,7 @@ import java.util.*;
         name = "stats",
         configuration = FeignConfig.class,
         fallbackFactory = CourseTransStatsClient.CourseTransStatsClientFallbackFactory.class)
-public interface CourseTransStatsClient extends BaseClient<CourseTransStatsDto, Long> {
+public interface CourseTransStatsClient extends BaseClient<CourseTransStatsDto, CourseTransStatsVo, Long> {
 
     /**
      * 基于主键的(In-list)条件获取远程数据接口。
@@ -33,7 +34,7 @@ public interface CourseTransStatsClient extends BaseClient<CourseTransStatsDto, 
      */
     @Override
     @PostMapping("/courseTransStats/listByIds")
-    ResponseResult<List<CourseTransStatsDto>> listByIds(
+    ResponseResult<List<CourseTransStatsVo>> listByIds(
             @RequestParam("statsIds") Set<Long> statsIds,
             @RequestParam("withDict") Boolean withDict);
 
@@ -46,7 +47,7 @@ public interface CourseTransStatsClient extends BaseClient<CourseTransStatsDto, 
      */
     @Override
     @PostMapping("/courseTransStats/getById")
-    ResponseResult<CourseTransStatsDto> getById(
+    ResponseResult<CourseTransStatsVo> getById(
             @RequestParam("statsId") Long statsId,
             @RequestParam("withDict") Boolean withDict);
 
@@ -98,7 +99,7 @@ public interface CourseTransStatsClient extends BaseClient<CourseTransStatsDto, 
      */
     @Override
     @PostMapping("/courseTransStats/listBy")
-    ResponseResult<List<CourseTransStatsDto>> listBy(@RequestBody MyQueryParam queryParam);
+    ResponseResult<MyPageData<CourseTransStatsVo>> listBy(@RequestBody MyQueryParam queryParam);
 
     /**
      * 获取远程主对象中符合查询条件的单条数据对象。
@@ -108,7 +109,7 @@ public interface CourseTransStatsClient extends BaseClient<CourseTransStatsDto, 
      */
     @Override
     @PostMapping("/courseTransStats/getBy")
-    ResponseResult<CourseTransStatsDto> getBy(@RequestBody MyQueryParam queryParam);
+    ResponseResult<CourseTransStatsVo> getBy(@RequestBody MyQueryParam queryParam);
 
     /**
      * 获取远程主对象中符合查询条件的数据列表。
@@ -119,7 +120,7 @@ public interface CourseTransStatsClient extends BaseClient<CourseTransStatsDto, 
      */
     @Override
     @PostMapping("/courseTransStats/listMapBy")
-    ResponseResult<List<Map<String, Object>>> listMapBy(@RequestBody MyQueryParam queryParam);
+    ResponseResult<MyPageData<Map<String, Object>>> listMapBy(@RequestBody MyQueryParam queryParam);
 
     /**
      * 获取远程主对象中符合查询条件的数据数量。
@@ -144,7 +145,7 @@ public interface CourseTransStatsClient extends BaseClient<CourseTransStatsDto, 
     @Component("StatsCourseTransStatsClientFallbackFactory")
     @Slf4j
     class CourseTransStatsClientFallbackFactory
-            extends BaseFallbackFactory<CourseTransStatsDto, Long, CourseTransStatsClient> implements CourseTransStatsClient {
+            extends BaseFallbackFactory<CourseTransStatsDto, CourseTransStatsVo, Long, CourseTransStatsClient> implements CourseTransStatsClient {
 
         @Override
         public CourseTransStatsClient create(Throwable throwable) {

@@ -10,6 +10,7 @@ import com.orange.demo.common.core.util.MyCommonUtil;
 import com.orange.demo.common.core.annotation.MyRequestBody;
 import com.orange.demo.common.core.validator.UpdateGroup;
 import com.orange.demo.upmsinterface.dto.SysPermModuleDto;
+import com.orange.demo.upmsinterface.vo.SysPermModuleVo;
 import com.orange.demo.upmsservice.model.SysPerm;
 import com.orange.demo.upmsservice.model.SysPermModule;
 import com.orange.demo.upmsservice.service.SysPermModuleService;
@@ -122,9 +123,9 @@ public class SysPermModuleController {
      * @return 应答结果对象，包含权限资源模块列表。
      */
     @GetMapping("/list")
-    public ResponseResult<List<SysPermModuleDto>> list() {
+    public ResponseResult<List<SysPermModuleVo>> list() {
         List<SysPermModule> permModuleList = sysPermModuleService.getAllListByOrder("showOrder");
-        return ResponseResult.success(MyModelUtil.copyCollectionTo(permModuleList, SysPermModuleDto.class));
+        return ResponseResult.success(MyModelUtil.copyCollectionTo(permModuleList, SysPermModuleVo.class));
     }
 
     /**

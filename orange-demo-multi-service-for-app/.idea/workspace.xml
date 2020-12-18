@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="f71ed20c-0501-4c02-8940-3d4e2e7e6457" name="Default Changelist" comment="" />
+    <list default="true" id="2546802c-1b0b-4971-9f6c-08ccd8545f5e" name="Default Changelist" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -13,7 +13,7 @@
   <component name="ProjectCodeStyleSettingsMigration">
     <option name="version" value="1" />
   </component>
-  <component name="ProjectId" id="1kYG2XZZQJ0JPOk2FNtlsZjeVqT" />
+  <component name="ProjectId" id="1lpjNJvR3t3VxuhsomgdAIE1Dyu" />
   <component name="ProjectViewState">
     <option name="abbreviatePackageNames" value="true" />
     <option name="autoscrollFromSource" value="true" />
@@ -34,24 +34,9 @@
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/zz-resource/db-scripts" />
-      <recent name="$PROJECT_DIR$/zz-resource/api-docs" />
     </key>
   </component>
-  <component name="RunManager" selected="Application.ExportDocApp">
-    <configuration name="ExportApiApp" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="com.orange.demo.apidoc.tools.ExportApiApp" />
-      <module name="apidoc-tools" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="ExportDocApp" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="com.orange.demo.apidoc.tools.ExportDocApp" />
-      <module name="apidoc-tools" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
+  <component name="RunManager" selected="Spring Boot.AdminMonitorApplication">
     <configuration name="AdminMonitorApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
       <module name="admin-monitor" />
       <option name="SPRING_BOOT_MAIN_CLASS" value="com.orange.demo.adminmonitor.AdminMonitorApplication" />
@@ -80,12 +65,6 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <recent_temporary>
-      <list>
-        <item itemvalue="Application.ExportDocApp" />
-        <item itemvalue="Application.ExportApiApp" />
-      </list>
-    </recent_temporary>
   </component>
   <component name="ServiceViewManager">
     <option name="viewStates">
@@ -104,54 +83,16 @@
   </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="f71ed20c-0501-4c02-8940-3d4e2e7e6457" name="Default Changelist" comment="" />
-      <created>1605869904849</created>
+      <changelist id="2546802c-1b0b-4971-9f6c-08ccd8545f5e" name="Default Changelist" comment="" />
+      <created>1608300885867</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1605869904849</updated>
-      <workItem from="1605869906672" duration="424000" />
+      <updated>1608300885867</updated>
+      <workItem from="1608300887522" duration="274000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="1" />
-  </component>
-  <component name="WindowStateProjectService">
-    <state width="1398" height="294" key="GridCell.Tab.0.bottom" timestamp="1605870331385">
-      <screen x="0" y="0" width="1440" height="900" />
-    </state>
-    <state width="1398" height="294" key="GridCell.Tab.0.bottom/0.0.1440.900@0.0.1440.900" timestamp="1605870331385" />
-    <state width="1398" height="294" key="GridCell.Tab.0.center" timestamp="1605870331383">
-      <screen x="0" y="0" width="1440" height="900" />
-    </state>
-    <state width="1398" height="294" key="GridCell.Tab.0.center/0.0.1440.900@0.0.1440.900" timestamp="1605870331383" />
-    <state width="1398" height="294" key="GridCell.Tab.0.left" timestamp="1605870331383">
-      <screen x="0" y="0" width="1440" height="900" />
-    </state>
-    <state width="1398" height="294" key="GridCell.Tab.0.left/0.0.1440.900@0.0.1440.900" timestamp="1605870331383" />
-    <state width="1398" height="294" key="GridCell.Tab.0.right" timestamp="1605870331384">
-      <screen x="0" y="0" width="1440" height="900" />
-    </state>
-    <state width="1398" height="294" key="GridCell.Tab.0.right/0.0.1440.900@0.0.1440.900" timestamp="1605870331384" />
-    <state width="1398" height="294" key="GridCell.Tab.1.bottom" timestamp="1605870331389">
-      <screen x="0" y="0" width="1440" height="900" />
-    </state>
-    <state width="1398" height="294" key="GridCell.Tab.1.bottom/0.0.1440.900@0.0.1440.900" timestamp="1605870331389" />
-    <state width="1398" height="294" key="GridCell.Tab.1.center" timestamp="1605870331386">
-      <screen x="0" y="0" width="1440" height="900" />
-    </state>
-    <state width="1398" height="294" key="GridCell.Tab.1.center/0.0.1440.900@0.0.1440.900" timestamp="1605870331386" />
-    <state width="1398" height="294" key="GridCell.Tab.1.left" timestamp="1605870331385">
-      <screen x="0" y="0" width="1440" height="900" />
-    </state>
-    <state width="1398" height="294" key="GridCell.Tab.1.left/0.0.1440.900@0.0.1440.900" timestamp="1605870331385" />
-    <state width="1398" height="294" key="GridCell.Tab.1.right" timestamp="1605870331388">
-      <screen x="0" y="0" width="1440" height="900" />
-    </state>
-    <state width="1398" height="294" key="GridCell.Tab.1.right/0.0.1440.900@0.0.1440.900" timestamp="1605870331388" />
-    <state x="378" y="212" width="683" height="476" key="find.popup" timestamp="1605870222913">
-      <screen x="0" y="0" width="1440" height="900" />
-    </state>
-    <state x="378" y="212" width="683" height="476" key="find.popup/0.0.1440.900@0.0.1440.900" timestamp="1605870222913" />
   </component>
 </project>

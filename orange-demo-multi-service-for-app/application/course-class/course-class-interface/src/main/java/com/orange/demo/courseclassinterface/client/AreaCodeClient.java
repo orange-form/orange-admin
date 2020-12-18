@@ -3,9 +3,9 @@ package com.orange.demo.courseclassinterface.client;
 import com.orange.demo.common.core.base.client.BaseFallbackFactory;
 import com.orange.demo.common.core.base.client.BaseClient;
 import com.orange.demo.common.core.constant.ErrorCodeEnum;
-import com.orange.demo.common.core.object.MyQueryParam;
-import com.orange.demo.common.core.object.ResponseResult;
+import com.orange.demo.common.core.object.*;
 import com.orange.demo.courseclassinterface.dto.AreaCodeDto;
+import com.orange.demo.courseclassinterface.vo.AreaCodeVo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.stereotype.Component;
@@ -20,7 +20,7 @@ import java.util.*;
  * @date 2020-08-08
  */
 @FeignClient(name = "system-service", fallbackFactory = AreaCodeClient.AreaCodeClientFallbackFactory.class)
-public interface AreaCodeClient extends BaseClient<AreaCodeDto, Long> {
+public interface AreaCodeClient extends BaseClient<AreaCodeDto, AreaCodeVo, Long> {
 
     /**
      * 根据主键Id集合，返回给定的数据集合。
@@ -31,7 +31,7 @@ public interface AreaCodeClient extends BaseClient<AreaCodeDto, Long> {
      */
     @Override
     @PostMapping("/areaCode/listByIds")
-    ResponseResult<List<AreaCodeDto>> listByIds(
+    ResponseResult<List<AreaCodeVo>> listByIds(
             @RequestParam("areaCodeIds") Set<Long> areaCodeIds,
             @RequestParam("withDict") Boolean withDict);
 
@@ -44,7 +44,7 @@ public interface AreaCodeClient extends BaseClient<AreaCodeDto, Long> {
      */
     @Override
     @GetMapping("/areaCode/getById")
-    ResponseResult<AreaCodeDto> getById(
+    ResponseResult<AreaCodeVo> getById(
             @RequestParam("areaId") Long areaId,
             @RequestParam("withDict") Boolean withDict);
 
@@ -76,7 +76,7 @@ public interface AreaCodeClient extends BaseClient<AreaCodeDto, Long> {
      */
     @Override
     @PostMapping("/areaCode/listBy")
-    ResponseResult<List<AreaCodeDto>> listBy(@RequestBody MyQueryParam queryParam);
+    ResponseResult<MyPageData<AreaCodeVo>> listBy(@RequestBody MyQueryParam queryParam);
 
     /**
      * 获取远程主对象中符合查询条件的单条数据对象。
@@ -86,7 +86,7 @@ public interface AreaCodeClient extends BaseClient<AreaCodeDto, Long> {
      */
     @Override
     @PostMapping("/areaCode/getBy")
-    ResponseResult<AreaCodeDto> getBy(@RequestBody MyQueryParam queryParam);
+    ResponseResult<AreaCodeVo> getBy(@RequestBody MyQueryParam queryParam);
 
     /**
      * 以id、name的形式返回所有字典数据的列表。
@@ -108,7 +108,7 @@ public interface AreaCodeClient extends BaseClient<AreaCodeDto, Long> {
     @Component
     @Slf4j
     class AreaCodeClientFallbackFactory
-            extends BaseFallbackFactory<AreaCodeDto, Long, AreaCodeClient> implements AreaCodeClient {
+            extends BaseFallbackFactory<AreaCodeDto, AreaCodeVo, Long, AreaCodeClient> implements AreaCodeClient {
 
         @Override
         public ResponseResult<List<Map<String, Object>>> listDict() {

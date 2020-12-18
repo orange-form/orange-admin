@@ -7,7 +7,6 @@ import com.orange.demo.common.core.base.dao.BaseDaoMapper;
 import com.orange.demo.common.core.constant.GlobalDeletedFlag;
 import com.orange.demo.common.core.object.CallResult;
 import com.orange.demo.upmsinterface.constant.SysMenuType;
-import com.orange.demo.upmsinterface.dto.SysMenuDto;
 import com.orange.demo.upmsservice.dao.SysMenuMapper;
 import com.orange.demo.upmsservice.dao.SysMenuPermCodeMapper;
 import com.orange.demo.upmsservice.dao.SysRoleMenuMapper;
@@ -30,7 +29,7 @@ import java.util.stream.Collectors;
  * @date 2020-08-08
  */
 @Service
-public class SysMenuService extends BaseService<SysMenu, SysMenuDto, Long> {
+public class SysMenuService extends BaseService<SysMenu, Long> {
 
     @Autowired
     private SysMenuMapper sysMenuMapper;
@@ -179,20 +178,19 @@ public class SysMenuService extends BaseService<SysMenu, SysMenuDto, Long> {
      * @return 验证结果。
      */
     public CallResult verifyRelatedData(SysMenu sysMenu, SysMenu originalSysMenu, String permCodeIdListString) {
-        JSONObject jsonObject = null;
-        if (this.needToVerify(sysMenu, originalSysMenu, SysMenu::getParentId)) {
-            // menu、ui fragment和button类型的menu不能没有parentId
-            if (sysMenu.getParentId() == null) {
-                if (sysMenu.getMenuType() != SysMenuType.TYPE_DIRECTORY) {
-                    return CallResult.error("数据验证失败，当前类型菜单项的上级菜单不能为空！");
-                }
-            } else {
-                String errorMessage = checkErrorOfNonDirectoryMenu(sysMenu);
-                if (errorMessage != null) {
-                    return CallResult.error(errorMessage);
-                }
+        // menu、ui fragment和button类型的menu不能没有parentId
+        if (sysMenu.getParentId() == null) {
+            if (sysMenu.getMenuType() != SysMenuType.TYPE_DIRECTORY) {
+                return CallResult.error("数据验证失败，当前类型菜单项的上级菜单不能为空！");
             }
         }
+        if (this.needToVerify(sysMenu, originalSysMenu, SysMenu::getParentId)) {
+            String errorMessage = checkErrorOfNonDirectoryMenu(sysMenu);
+            if (errorMessage != null) {
+                return CallResult.error(errorMessage);
+            }
+        }
+        JSONObject jsonObject = null;
         if (StringUtils.isNotBlank(permCodeIdListString)) {
             Set<Long> permCodeIdSet = Arrays.stream(
                     permCodeIdListString.split(",")).map(Long::valueOf).collect(Collectors.toSet());

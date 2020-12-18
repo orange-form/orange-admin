@@ -1,8 +1,12 @@
 package com.orange.demo.app.model;
 
 import com.orange.demo.common.core.annotation.RelationDict;
+import com.orange.demo.common.core.base.mapper.BaseModelMapper;
 import com.orange.demo.common.core.validator.UpdateGroup;
+import com.orange.demo.app.vo.SchoolInfoVo;
 import lombok.Data;
+import org.mapstruct.*;
+import org.mapstruct.factory.Mappers;
 import javax.persistence.*;
 import javax.validation.constraints.*;
 
@@ -64,4 +68,25 @@ public class SchoolInfo {
             slaveNameField = "areaName")
     @Transient
     private Map<String, Object> cityIdDictMap;
+
+    @Mapper
+    public interface SchoolInfoModelMapper extends BaseModelMapper<SchoolInfoVo, SchoolInfo> {
+        /**
+         * 转换Vo对象到实体对象。
+         *
+         * @param schoolInfoVo 域对象。
+         * @return 实体对象。
+         */
+        @Override
+        SchoolInfo toModel(SchoolInfoVo schoolInfoVo);
+        /**
+         * 转换实体对象到VO对象。
+         *
+         * @param schoolInfo 实体对象。
+         * @return 域对象。
+         */
+        @Override
+        SchoolInfoVo fromModel(SchoolInfo schoolInfo);
+    }
+    public static final SchoolInfoModelMapper INSTANCE = Mappers.getMapper(SchoolInfoModelMapper.class);
 }

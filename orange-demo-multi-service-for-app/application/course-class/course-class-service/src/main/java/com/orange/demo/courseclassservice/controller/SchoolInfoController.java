@@ -1,11 +1,11 @@
 package com.orange.demo.courseclassservice.controller;
 
 import cn.jimmyshi.beanquery.BeanQuery;
-import com.github.pagehelper.Page;
 import com.github.pagehelper.page.PageMethod;
 import com.orange.demo.courseclassservice.model.*;
 import com.orange.demo.courseclassservice.service.*;
 import com.orange.demo.courseclassinterface.dto.*;
+import com.orange.demo.courseclassinterface.vo.*;
 import com.orange.demo.common.core.object.*;
 import com.orange.demo.common.core.util.*;
 import com.orange.demo.common.core.constant.*;
@@ -13,9 +13,6 @@ import com.orange.demo.common.core.base.controller.BaseController;
 import com.orange.demo.common.core.base.service.BaseService;
 import com.orange.demo.common.core.annotation.MyRequestBody;
 import com.orange.demo.common.core.validator.UpdateGroup;
-import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -29,17 +26,16 @@ import java.util.*;
  * @author Jerry
  * @date 2020-08-08
  */
-@Api(tags = "校区数据管理接口")
 @Slf4j
 @RestController
 @RequestMapping("/schoolInfo")
-public class SchoolInfoController extends BaseController<SchoolInfo, SchoolInfoDto, Long> {
+public class SchoolInfoController extends BaseController<SchoolInfo, SchoolInfoVo, Long> {
 
     @Autowired
     private SchoolInfoService schoolInfoService;
 
     @Override
-    protected BaseService<SchoolInfo, SchoolInfoDto, Long> service() {
+    protected BaseService<SchoolInfo, Long> service() {
         return schoolInfoService;
     }
 
@@ -49,14 +45,13 @@ public class SchoolInfoController extends BaseController<SchoolInfo, SchoolInfoD
      * @param schoolInfoDto 新增对象。
      * @return 应答结果对象，包含新增对象主键Id。
      */
-    @ApiOperationSupport(ignoreParameters = {"schoolInfo.userId"})
     @PostMapping("/add")
     public ResponseResult<Long> add(@MyRequestBody("schoolInfo") SchoolInfoDto schoolInfoDto) {
         String errorMessage = MyCommonUtil.getModelValidationError(schoolInfoDto);
         if (errorMessage != null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
-        SchoolInfo schoolInfo = SchoolInfo.INSTANCE.toModel(schoolInfoDto);
+        SchoolInfo schoolInfo = MyModelUtil.copyTo(schoolInfoDto, SchoolInfo.class);
         // 验证关联Id的数据合法性
         CallResult callResult = schoolInfoService.verifyRelatedData(schoolInfo, null);
         if (!callResult.isSuccess()) {
@@ -79,7 +74,7 @@ public class SchoolInfoController extends BaseController<SchoolInfo, SchoolInfoD
         if (errorMessage != null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
-        SchoolInfo schoolInfo = SchoolInfo.INSTANCE.toModel(schoolInfoDto);
+        SchoolInfo schoolInfo = MyModelUtil.copyTo(schoolInfoDto, SchoolInfo.class);
         SchoolInfo originalSchoolInfo = schoolInfoService.getById(schoolInfo.getSchoolId());
         if (originalSchoolInfo == null) {
             // NOTE: 修改下面方括号中的话述
@@ -133,25 +128,18 @@ public class SchoolInfoController extends BaseController<SchoolInfo, SchoolInfoD
      * @return 应答结果对象，包含查询结果集。
      */
     @PostMapping("/list")
-    public ResponseResult<MyPageData<SchoolInfoDto>> list(
+    public ResponseResult<MyPageData<SchoolInfoVo>> list(
             @MyRequestBody("schoolInfoFilter") SchoolInfoDto schoolInfoDtoFilter,
             @MyRequestBody MyOrderParam orderParam,
             @MyRequestBody MyPageParam pageParam) {
         if (pageParam != null) {
             PageMethod.startPage(pageParam.getPageNum(), pageParam.getPageSize());
         }
-        SchoolInfo schoolInfoFilter = SchoolInfo.INSTANCE.toModel(schoolInfoDtoFilter);
+        SchoolInfo schoolInfoFilter = MyModelUtil.copyTo(schoolInfoDtoFilter, SchoolInfo.class);
         String orderBy = MyOrderParam.buildOrderBy(orderParam, SchoolInfo.class);
         List<SchoolInfo> schoolInfoList =
                 schoolInfoService.getSchoolInfoListWithRelation(schoolInfoFilter, orderBy);
-        long totalCount = 0L;
-        if (schoolInfoList instanceof Page) {
-            totalCount = ((Page<SchoolInfo>) schoolInfoList).getTotal();
-        }
-        // 分页连同对象数据转换copy工作，下面的方法一并完成。
-        Tuple2<List<SchoolInfoDto>, Long> responseData =
-                new Tuple2<>(SchoolInfo.INSTANCE.fromModelList(schoolInfoList), totalCount);
-        return ResponseResult.success(MyPageUtil.makeResponseData(responseData));
+        return ResponseResult.success(MyPageUtil.makeResponseData(schoolInfoList, SchoolInfo.INSTANCE));
     }
 
     /**
@@ -161,7 +149,7 @@ public class SchoolInfoController extends BaseController<SchoolInfo, SchoolInfoD
      * @return 应答结果对象，包含对象详情。
      */
     @GetMapping("/view")
-    public ResponseResult<SchoolInfoDto> view(@RequestParam Long schoolId) {
+    public ResponseResult<SchoolInfoVo> view(@RequestParam Long schoolId) {
         if (MyCommonUtil.existBlankArgument(schoolId)) {
             return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
         }
@@ -170,8 +158,8 @@ public class SchoolInfoController extends BaseController<SchoolInfo, SchoolInfoD
         if (schoolInfo == null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST);
         }
-        SchoolInfoDto schoolInfoDto = SchoolInfo.INSTANCE.fromModel(schoolInfo);
-        return ResponseResult.success(schoolInfoDto);
+        SchoolInfoVo schoolInfoVo = SchoolInfo.INSTANCE.fromModel(schoolInfo);
+        return ResponseResult.success(schoolInfoVo);
     }
 
     /**
@@ -195,9 +183,8 @@ public class SchoolInfoController extends BaseController<SchoolInfo, SchoolInfoD
      * @param withDict 是否包含字典关联。
      * @return 应答结果对象，包含主对象集合。
      */
-    @ApiOperation(hidden = true, value = "listByIds")
     @PostMapping("/listByIds")
-    public ResponseResult<List<SchoolInfoDto>> listByIds(
+    public ResponseResult<List<SchoolInfoVo>> listByIds(
             @RequestParam Set<Long> schoolIds, @RequestParam Boolean withDict) {
         return super.baseListByIds(schoolIds, withDict, SchoolInfo.INSTANCE);
     }
@@ -209,9 +196,8 @@ public class SchoolInfoController extends BaseController<SchoolInfo, SchoolInfoD
      * @param withDict 是否包含字典关联。
      * @return 应答结果对象，包含主对象数据。
      */
-    @ApiOperation(hidden = true, value = "getById")
     @PostMapping("/getById")
-    public ResponseResult<SchoolInfoDto> getById(
+    public ResponseResult<SchoolInfoVo> getById(
             @RequestParam Long schoolId, @RequestParam Boolean withDict) {
         return super.baseGetById(schoolId, withDict, SchoolInfo.INSTANCE);
     }
@@ -222,7 +208,6 @@ public class SchoolInfoController extends BaseController<SchoolInfo, SchoolInfoD
      * @param schoolIds 主键Id集合。
      * @return 应答结果对象，包含true全部存在，否则false。
      */
-    @ApiOperation(hidden = true, value = "existIds")
     @PostMapping("/existIds")
     public ResponseResult<Boolean> existIds(@RequestParam Set<Long> schoolIds) {
         return super.baseExistIds(schoolIds);
@@ -234,7 +219,6 @@ public class SchoolInfoController extends BaseController<SchoolInfo, SchoolInfoD
      * @param schoolId 主键Id。
      * @return 应答结果对象，包含true表示存在，否则false。
      */
-    @ApiOperation(hidden = true, value = "existId")
     @PostMapping("/existId")
     public ResponseResult<Boolean> existId(@RequestParam Long schoolId) {
         return super.baseExistId(schoolId);
@@ -246,33 +230,30 @@ public class SchoolInfoController extends BaseController<SchoolInfo, SchoolInfoD
      * @param filter 过滤对象。
      * @return 删除数量。
      */
-    @ApiOperation(hidden = true, value = "deleteBy")
     @PostMapping("/deleteBy")
     public ResponseResult<Integer> deleteBy(@RequestBody SchoolInfoDto filter) throws Exception {
-        return super.baseDeleteBy(filter, SchoolInfo.INSTANCE);
+        return super.baseDeleteBy(MyModelUtil.copyTo(filter, SchoolInfo.class));
     }
 
     /**
-     * 复杂的查询调用，包括(in list)过滤，对象条件过滤，分组和排序等。主要用于微服务间远程过程调用。
+     * 复杂的查询调用，包括(in list)过滤，对象条件过滤，分页和排序等。主要用于微服务间远程过程调用。
      *
      * @param queryParam 查询参数。
-     * @return 应答结果对象，包含符合查询过滤条件的对象结果集。
+     * @return 分页数据集合对象。如MyQueryParam参数的分页属性为空，则不会执行分页操作，只是基于MyPageData对象返回数据结果。
      */
-    @ApiOperation(hidden = true, value = "listBy")
     @PostMapping("/listBy")
-    public ResponseResult<List<SchoolInfoDto>> listBy(@RequestBody MyQueryParam queryParam) {
+    public ResponseResult<MyPageData<SchoolInfoVo>> listBy(@RequestBody MyQueryParam queryParam) {
         return super.baseListBy(queryParam, SchoolInfo.INSTANCE);
     }
 
     /**
-     * 复杂的查询调用，包括(in list)过滤，对象条件过滤，分组和排序等。主要用于微服务间远程过程调用。
+     * 复杂的查询调用，包括(in list)过滤，对象条件过滤，分页和排序等。主要用于微服务间远程过程调用。
      *
      * @param queryParam 查询参数。
-     * @return 应答结果对象，包含符合查询过滤条件的对象结果集。
+     * @return 分页数据集合对象。如MyQueryParam参数的分页属性为空，则不会执行分页操作，只是基于MyPageData对象返回数据结果。
      */
-    @ApiOperation(hidden = true, value = "listMapBy")
     @PostMapping("/listMapBy")
-    public ResponseResult<List<Map<String, Object>>> listMapBy(@RequestBody MyQueryParam queryParam) {
+    public ResponseResult<MyPageData<Map<String, Object>>> listMapBy(@RequestBody MyQueryParam queryParam) {
         return super.baseListMapBy(queryParam, SchoolInfo.INSTANCE);
     }
 
@@ -282,9 +263,8 @@ public class SchoolInfoController extends BaseController<SchoolInfo, SchoolInfoD
      * @param queryParam 查询参数。
      * @return 应答结果对象，包含符合查询过滤条件的对象结果集。
      */
-    @ApiOperation(hidden = true, value = "getBy")
     @PostMapping("/getBy")
-    public ResponseResult<SchoolInfoDto> getBy(@RequestBody MyQueryParam queryParam) {
+    public ResponseResult<SchoolInfoVo> getBy(@RequestBody MyQueryParam queryParam) {
         return super.baseGetBy(queryParam, SchoolInfo.INSTANCE);
     }
 
@@ -294,7 +274,6 @@ public class SchoolInfoController extends BaseController<SchoolInfo, SchoolInfoD
      * @param queryParam 查询参数。
      * @return 应答结果对象，包含结果数量。
      */
-    @ApiOperation(hidden = true, value = "countBy")
     @PostMapping("/countBy")
     public ResponseResult<Integer> countBy(@RequestBody MyQueryParam queryParam) {
         return super.baseCountBy(queryParam);
@@ -306,7 +285,6 @@ public class SchoolInfoController extends BaseController<SchoolInfo, SchoolInfoD
      * @param aggregationParam 聚合参数。
      * @return 应该结果对象，包含聚合计算后的分组Map列表。
      */
-    @ApiOperation(hidden = true, value = "aggregateBy")
     @PostMapping("/aggregateBy")
     public ResponseResult<List<Map<String, Object>>> aggregateBy(@RequestBody MyAggregationParam aggregationParam) {
         return super.baseAggregateBy(aggregationParam);

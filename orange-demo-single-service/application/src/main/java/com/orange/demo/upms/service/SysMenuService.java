@@ -178,20 +178,19 @@ public class SysMenuService extends BaseService<SysMenu, Long> {
      * @return 验证结果。
      */
     public CallResult verifyRelatedData(SysMenu sysMenu, SysMenu originalSysMenu, String permCodeIdListString) {
-        JSONObject jsonObject = null;
-        if (this.needToVerify(sysMenu, originalSysMenu, SysMenu::getParentId)) {
-            // menu、ui fragment和button类型的menu不能没有parentId
-            if (sysMenu.getParentId() == null) {
-                if (sysMenu.getMenuType() != SysMenuType.TYPE_DIRECTORY) {
-                    return CallResult.error("数据验证失败，当前类型菜单项的上级菜单不能为空！");
-                }
-            } else {
-                String errorMessage = checkErrorOfNonDirectoryMenu(sysMenu);
-                if (errorMessage != null) {
-                    return CallResult.error(errorMessage);
-                }
+        // menu、ui fragment和button类型的menu不能没有parentId
+        if (sysMenu.getParentId() == null) {
+            if (sysMenu.getMenuType() != SysMenuType.TYPE_DIRECTORY) {
+                return CallResult.error("数据验证失败，当前类型菜单项的上级菜单不能为空！");
             }
         }
+        if (this.needToVerify(sysMenu, originalSysMenu, SysMenu::getParentId)) {
+            String errorMessage = checkErrorOfNonDirectoryMenu(sysMenu);
+            if (errorMessage != null) {
+                return CallResult.error(errorMessage);
+            }
+        }
+        JSONObject jsonObject = null;
         if (StringUtils.isNotBlank(permCodeIdListString)) {
             Set<Long> permCodeIdSet = Arrays.stream(
                     permCodeIdListString.split(",")).map(Long::valueOf).collect(Collectors.toSet());

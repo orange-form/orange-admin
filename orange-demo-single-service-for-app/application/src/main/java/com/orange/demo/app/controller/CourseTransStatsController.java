@@ -1,6 +1,7 @@
 package com.orange.demo.app.controller;
 
 import com.github.pagehelper.page.PageMethod;
+import com.orange.demo.app.vo.*;
 import com.orange.demo.app.model.*;
 import com.orange.demo.app.service.*;
 import com.orange.demo.common.core.object.*;
@@ -36,7 +37,7 @@ public class CourseTransStatsController {
      * @return 应答结果对象，包含查询结果集。
      */
     @PostMapping("/list")
-    public ResponseResult<MyPageData<CourseTransStats>> list(
+    public ResponseResult<MyPageData<CourseTransStatsVo>> list(
             @MyRequestBody CourseTransStats courseTransStatsFilter,
             @MyRequestBody MyOrderParam orderParam,
             @MyRequestBody MyPageParam pageParam) {
@@ -44,8 +45,8 @@ public class CourseTransStatsController {
             PageMethod.startPage(pageParam.getPageNum(), pageParam.getPageSize());
         }
         String orderBy = MyOrderParam.buildOrderBy(orderParam, CourseTransStats.class);
-        List<CourseTransStats> resultList = courseTransStatsService.getCourseTransStatsListWithRelation(courseTransStatsFilter, orderBy);
-        return ResponseResult.success(MyPageUtil.makeResponseData(resultList));
+        List<CourseTransStats> courseTransStatsList = courseTransStatsService.getCourseTransStatsListWithRelation(courseTransStatsFilter, orderBy);
+        return ResponseResult.success(MyPageUtil.makeResponseData(courseTransStatsList, CourseTransStats.INSTANCE));
     }
 
     /**
@@ -58,7 +59,7 @@ public class CourseTransStatsController {
      * @return 应答结果对象，包含查询结果集。
      */
     @PostMapping("/listWithGroup")
-    public ResponseResult<MyPageData<CourseTransStats>> listWithGroup(
+    public ResponseResult<MyPageData<CourseTransStatsVo>> listWithGroup(
             @MyRequestBody CourseTransStats courseTransStatsFilter,
             @MyRequestBody(required = true) MyGroupParam groupParam,
             @MyRequestBody MyOrderParam orderParam,
@@ -75,7 +76,8 @@ public class CourseTransStatsController {
         MyGroupCriteria criteria = groupParam.getGroupCriteria();
         List<CourseTransStats> resultList = courseTransStatsService.getGroupedCourseTransStatsListWithRelation(
                 courseTransStatsFilter, criteria.getGroupSelect(), criteria.getGroupBy(), orderBy);
-        return ResponseResult.success(MyPageUtil.makeResponseData(resultList));
+        // 分页连同对象数据转换copy工作，下面的方法一并完成。
+        return ResponseResult.success(MyPageUtil.makeResponseData(resultList, CourseTransStats.INSTANCE));
     }
 
     /**
@@ -85,7 +87,7 @@ public class CourseTransStatsController {
      * @return 应答结果对象，包含对象详情。
      */
     @GetMapping("/view")
-    public ResponseResult<CourseTransStats> view(@RequestParam Long statsId) {
+    public ResponseResult<CourseTransStatsVo> view(@RequestParam Long statsId) {
         if (MyCommonUtil.existBlankArgument(statsId)) {
             return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
         }
@@ -93,6 +95,7 @@ public class CourseTransStatsController {
         if (courseTransStats == null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST);
         }
-        return ResponseResult.success(courseTransStats);
+        CourseTransStatsVo courseTransStatsVo = CourseTransStats.INSTANCE.fromModel(courseTransStats);
+        return ResponseResult.success(courseTransStatsVo);
     }
 }

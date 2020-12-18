@@ -19,6 +19,7 @@ import javax.persistence.Column;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
@@ -427,6 +428,9 @@ public class MyModelUtil {
             Function<R, Object> thatIdGetterFunc,
             String thisRelationField,
             boolean orderByThatList) {
+        if (CollectionUtils.isEmpty(thisModelList)) {
+            return;
+        }
         Field thisTargetField = ReflectUtil.getField(thisClazz, thisRelationField);
         boolean isMap = thisTargetField.getType().equals(Map.class);
         if (orderByThatList) {
@@ -476,12 +480,12 @@ public class MyModelUtil {
         Example.Criteria c = e.createCriteria();
         Field[] fields = ReflectUtil.getFields(modelClass);
         for (Field field : fields) {
-            if (field.getAnnotation(Transient.class) != null) {
-                continue;
-            }
-            int modifiers = field.getModifiers();
-            // transient类型的字段不能作为查询条件
-            if ((modifiers & 128) == 0) {
+            if (field.getAnnotation(Transient.class) == null) {
+                int modifiers = field.getModifiers();
+                // transient类型的字段不能作为查询条件
+                if ((modifiers & 128) != 0 || Modifier.isStatic(modifiers)) {
+                    continue;
+                }
                 ReflectUtil.setAccessible(field);
                 try {
                     Object o = field.get(filterModel);

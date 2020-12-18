@@ -1,6 +1,7 @@
 package com.orange.demo.upms.controller;
 
 import com.github.pagehelper.page.PageMethod;
+import com.orange.demo.upms.vo.*;
 import com.orange.demo.upms.model.*;
 import com.orange.demo.upms.service.*;
 import com.orange.demo.common.core.object.*;
@@ -140,7 +141,7 @@ public class SysUserController {
      * @return 应答结果对象，包含查询结果集。
      */
     @PostMapping("/list")
-    public ResponseResult<MyPageData<SysUser>> list(
+    public ResponseResult<MyPageData<SysUserVo>> list(
             @MyRequestBody SysUser sysUserFilter,
             @MyRequestBody MyOrderParam orderParam,
             @MyRequestBody MyPageParam pageParam) {
@@ -148,8 +149,8 @@ public class SysUserController {
             PageMethod.startPage(pageParam.getPageNum(), pageParam.getPageSize());
         }
         String orderBy = MyOrderParam.buildOrderBy(orderParam, SysUser.class);
-        List<SysUser> resultList = sysUserService.getSysUserListWithRelation(sysUserFilter, orderBy);
-        return ResponseResult.success(MyPageUtil.makeResponseData(resultList));
+        List<SysUser> sysUserList = sysUserService.getSysUserListWithRelation(sysUserFilter, orderBy);
+        return ResponseResult.success(MyPageUtil.makeResponseData(sysUserList, SysUser.INSTANCE));
     }
 
     /**
@@ -159,7 +160,7 @@ public class SysUserController {
      * @return 应答结果对象，包含对象详情。
      */
     @GetMapping("/view")
-    public ResponseResult<SysUser> view(@RequestParam Long userId) {
+    public ResponseResult<SysUserVo> view(@RequestParam Long userId) {
         if (MyCommonUtil.existBlankArgument(userId)) {
             return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
         }
@@ -168,7 +169,8 @@ public class SysUserController {
         if (sysUser == null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST);
         }
-        return ResponseResult.success(sysUser);
+        SysUserVo sysUserVo = SysUser.INSTANCE.fromModel(sysUser);
+        return ResponseResult.success(sysUserVo);
     }
 
     /**

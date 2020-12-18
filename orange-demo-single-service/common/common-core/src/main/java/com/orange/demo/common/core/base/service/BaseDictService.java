@@ -125,7 +125,7 @@ public abstract class BaseDictService<M, K> extends BaseService<M, K> {
     @SuppressWarnings("unchecked")
     public <T> boolean existUniqueKeyList(String inFilterField, Set<T> inFilterValues) {
         if (CollectionUtils.isEmpty(inFilterValues)) {
-            return false;
+            return true;
         }
         if (inFilterField.equals(this.idFieldName)) {
             List<M> dataList = dictionaryCache.getInList((Set<K>) inFilterValues);

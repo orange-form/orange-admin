@@ -13,7 +13,6 @@ import javax.validation.constraints.*;
 
 import java.math.BigDecimal;
 import java.util.Date;
-import java.util.Map;
 
 /**
  * CourseDto对象。
@@ -142,28 +141,4 @@ public class CourseDto {
      */
     @ApiModelProperty(value = "updateTime 范围过滤结束值(<=)")
     private String updateTimeEnd;
-
-    /**
-     * courseId 的多对多关联表数据对象，数据对应类型为ClassCourseDto。
-     */
-    @ApiModelProperty(hidden = true)
-    private Map<String, Object> classCourse;
-
-    /**
-     * gradeId 字典关联数据。
-     */
-    @ApiModelProperty(hidden = true)
-    private Map<String, Object> gradeIdDictMap;
-
-    /**
-     * difficulty 常量字典关联数据。
-     */
-    @ApiModelProperty(hidden = true)
-    private Map<String, Object> difficultyDictMap;
-
-    /**
-     * subjectId 常量字典关联数据。
-     */
-    @ApiModelProperty(hidden = true)
-    private Map<String, Object> subjectIdDictMap;
 }

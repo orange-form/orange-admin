@@ -1,6 +1,7 @@
 package com.orange.demo.app.controller;
 
 import com.github.pagehelper.page.PageMethod;
+import com.orange.demo.app.vo.*;
 import com.orange.demo.app.model.*;
 import com.orange.demo.app.service.*;
 import com.orange.demo.common.core.object.*;
@@ -117,7 +118,7 @@ public class StudentActionTransController {
      * @return 应答结果对象，包含查询结果集。
      */
     @PostMapping("/list")
-    public ResponseResult<MyPageData<StudentActionTrans>> list(
+    public ResponseResult<MyPageData<StudentActionTransVo>> list(
             @MyRequestBody StudentActionTrans studentActionTransFilter,
             @MyRequestBody MyOrderParam orderParam,
             @MyRequestBody MyPageParam pageParam) {
@@ -125,8 +126,8 @@ public class StudentActionTransController {
             PageMethod.startPage(pageParam.getPageNum(), pageParam.getPageSize());
         }
         String orderBy = MyOrderParam.buildOrderBy(orderParam, StudentActionTrans.class);
-        List<StudentActionTrans> resultList = studentActionTransService.getStudentActionTransListWithRelation(studentActionTransFilter, orderBy);
-        return ResponseResult.success(MyPageUtil.makeResponseData(resultList));
+        List<StudentActionTrans> studentActionTransList = studentActionTransService.getStudentActionTransListWithRelation(studentActionTransFilter, orderBy);
+        return ResponseResult.success(MyPageUtil.makeResponseData(studentActionTransList, StudentActionTrans.INSTANCE));
     }
 
     /**
@@ -136,7 +137,7 @@ public class StudentActionTransController {
      * @return 应答结果对象，包含对象详情。
      */
     @GetMapping("/view")
-    public ResponseResult<StudentActionTrans> view(@RequestParam Long transId) {
+    public ResponseResult<StudentActionTransVo> view(@RequestParam Long transId) {
         if (MyCommonUtil.existBlankArgument(transId)) {
             return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
         }
@@ -144,6 +145,7 @@ public class StudentActionTransController {
         if (studentActionTrans == null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST);
         }
-        return ResponseResult.success(studentActionTrans);
+        StudentActionTransVo studentActionTransVo = StudentActionTrans.INSTANCE.fromModel(studentActionTrans);
+        return ResponseResult.success(studentActionTransVo);
     }
 }

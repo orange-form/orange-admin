@@ -2,11 +2,11 @@ package com.orange.demo.common.core.util;
 
 import cn.jimmyshi.beanquery.BeanQuery;
 import com.alibaba.fastjson.JSONObject;
-import com.orange.demo.common.core.object.MyPageData;
 import com.github.pagehelper.Page;
-import com.orange.demo.common.core.base.mapper.BaseModelMapper;
-import com.orange.demo.common.core.object.Tuple2;
 import org.apache.commons.collections4.CollectionUtils;
+import com.orange.demo.common.core.base.mapper.BaseModelMapper;
+import com.orange.demo.common.core.object.MyPageData;
+import com.orange.demo.common.core.object.Tuple2;
 
 import java.util.List;
 
@@ -75,18 +75,17 @@ public class MyPageUtil {
      * 用户构建带有分页信息的数据列表。
      *
      * @param dataList    实体对象数据列表。
-     * @param modelMapper 实体对象到Dto对象的数据映射器。
-     * @param <D>         Dto对象类型。
+     * @param modelMapper 实体对象到DomainVO对象的数据映射器。
+     * @param <D>         DomainVO对象类型。
      * @param <T>         实体对象类型。
      * @return 返回分页数据对象。
      */
     public static <D, T> MyPageData<D> makeResponseData(List<T> dataList, BaseModelMapper<D, T> modelMapper) {
-        MyPageData<D> pageData = new MyPageData<>();
+        long totalCount = 0L;
         if (CollectionUtils.isEmpty(dataList)) {
             // 这里需要构建分页数据对象，统一前端数据格式
-            return pageData;
+            return MyPageData.emptyPageData();
         }
-        long totalCount = 0L;
         if (dataList instanceof Page) {
             totalCount = ((Page<T>) dataList).getTotal();
         }

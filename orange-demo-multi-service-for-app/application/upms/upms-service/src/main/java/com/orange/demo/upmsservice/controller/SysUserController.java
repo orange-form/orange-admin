@@ -1,10 +1,10 @@
 package com.orange.demo.upmsservice.controller;
 
-import com.github.pagehelper.Page;
 import com.github.pagehelper.page.PageMethod;
 import com.orange.demo.upmsservice.model.*;
 import com.orange.demo.upmsservice.service.*;
 import com.orange.demo.upmsinterface.dto.*;
+import com.orange.demo.upmsinterface.vo.*;
 import com.orange.demo.common.core.object.*;
 import com.orange.demo.common.core.util.*;
 import com.orange.demo.common.core.constant.*;
@@ -14,9 +14,6 @@ import com.orange.demo.common.core.annotation.MyRequestBody;
 import com.orange.demo.common.core.validator.AddGroup;
 import com.orange.demo.common.core.validator.UpdateGroup;
 import com.orange.demo.upmsservice.config.ApplicationConfig;
-import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -30,11 +27,10 @@ import java.util.*;
  * @author Jerry
  * @date 2020-08-08
  */
-@Api(tags = "用户管理管理接口")
 @Slf4j
 @RestController
 @RequestMapping("/sysUser")
-public class SysUserController extends BaseController<SysUser, SysUserDto, Long> {
+public class SysUserController extends BaseController<SysUser, SysUserVo, Long> {
 
     @Autowired
     private SysUserService sysUserService;
@@ -42,7 +38,7 @@ public class SysUserController extends BaseController<SysUser, SysUserDto, Long>
     private ApplicationConfig appConfig;
 
     @Override
-    protected BaseService<SysUser, SysUserDto, Long> service() {
+    protected BaseService<SysUser, Long> service() {
         return sysUserService;
     }
 
@@ -52,17 +48,13 @@ public class SysUserController extends BaseController<SysUser, SysUserDto, Long>
      * @param sysUserDto 新增用户对象。
      * @return 应答结果对象，包含新增用户的主键Id。
      */
-    @ApiOperationSupport(ignoreParameters = {
-            "sysUser.userId",
-            "sysUser.createTimeStart",
-            "sysUser.createTimeEnd"})
     @PostMapping("/add")
     public ResponseResult<Long> add(@MyRequestBody("sysUser") SysUserDto sysUserDto) {
         String errorMessage = MyCommonUtil.getModelValidationError(sysUserDto, Default.class, AddGroup.class);
         if (errorMessage != null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
-        SysUser sysUser = SysUser.INSTANCE.toModel(sysUserDto);
+        SysUser sysUser = MyModelUtil.copyTo(sysUserDto, SysUser.class);
         CallResult result = sysUserService.verifyRelatedData(sysUser, null);
         if (!result.isSuccess()) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, result.getErrorMessage());
@@ -77,9 +69,6 @@ public class SysUserController extends BaseController<SysUser, SysUserDto, Long>
      * @param sysUserDto 更新用户对象。
      * @return 应答结果对象。
      */
-    @ApiOperationSupport(ignoreParameters = {
-            "sysUser.createTimeStart",
-            "sysUser.createTimeEnd"})
     @PostMapping("/update")
     public ResponseResult<Void> update(@MyRequestBody("sysUser") SysUserDto sysUserDto) {
         String errorMessage = MyCommonUtil.getModelValidationError(sysUserDto, Default.class, UpdateGroup.class);
@@ -90,7 +79,7 @@ public class SysUserController extends BaseController<SysUser, SysUserDto, Long>
         if (originalUser == null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST);
         }
-        SysUser sysUser = SysUser.INSTANCE.toModel(sysUserDto);
+        SysUser sysUser = MyModelUtil.copyTo(sysUserDto, SysUser.class);
         CallResult result = sysUserService.verifyRelatedData(sysUser, originalUser);
         if (!result.isSuccess()) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, result.getErrorMessage());
@@ -153,25 +142,18 @@ public class SysUserController extends BaseController<SysUser, SysUserDto, Long>
      * @return 应答结果对象，包含查询结果集。
      */
     @PostMapping("/list")
-    public ResponseResult<MyPageData<SysUserDto>> list(
+    public ResponseResult<MyPageData<SysUserVo>> list(
             @MyRequestBody("sysUserFilter") SysUserDto sysUserDtoFilter,
             @MyRequestBody MyOrderParam orderParam,
             @MyRequestBody MyPageParam pageParam) {
         if (pageParam != null) {
             PageMethod.startPage(pageParam.getPageNum(), pageParam.getPageSize());
         }
-        SysUser sysUserFilter = SysUser.INSTANCE.toModel(sysUserDtoFilter);
+        SysUser sysUserFilter = MyModelUtil.copyTo(sysUserDtoFilter, SysUser.class);
         String orderBy = MyOrderParam.buildOrderBy(orderParam, SysUser.class);
         List<SysUser> sysUserList =
                 sysUserService.getSysUserListWithRelation(sysUserFilter, orderBy);
-        long totalCount = 0L;
-        if (sysUserList instanceof Page) {
-            totalCount = ((Page<SysUser>) sysUserList).getTotal();
-        }
-        // 分页连同对象数据转换copy工作，下面的方法一并完成。
-        Tuple2<List<SysUserDto>, Long> responseData =
-                new Tuple2<>(SysUser.INSTANCE.fromModelList(sysUserList), totalCount);
-        return ResponseResult.success(MyPageUtil.makeResponseData(responseData));
+        return ResponseResult.success(MyPageUtil.makeResponseData(sysUserList, SysUser.INSTANCE));
     }
 
     /**
@@ -181,7 +163,7 @@ public class SysUserController extends BaseController<SysUser, SysUserDto, Long>
      * @return 应答结果对象，包含对象详情。
      */
     @GetMapping("/view")
-    public ResponseResult<SysUserDto> view(@RequestParam Long userId) {
+    public ResponseResult<SysUserVo> view(@RequestParam Long userId) {
         if (MyCommonUtil.existBlankArgument(userId)) {
             return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
         }
@@ -191,8 +173,8 @@ public class SysUserController extends BaseController<SysUser, SysUserDto, Long>
         if (sysUser == null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST);
         }
-        SysUserDto sysUserDto = SysUser.INSTANCE.fromModel(sysUser);
-        return ResponseResult.success(sysUserDto);
+        SysUserVo sysUserVo = SysUser.INSTANCE.fromModel(sysUser);
+        return ResponseResult.success(sysUserVo);
     }
 
     /**
@@ -202,9 +184,8 @@ public class SysUserController extends BaseController<SysUser, SysUserDto, Long>
      * @param withDict 是否包含字典关联。
      * @return 应答结果对象，包含主对象集合。
      */
-    @ApiOperation(hidden = true, value = "listByIds")
     @PostMapping("/listByIds")
-    public ResponseResult<List<SysUserDto>> listByIds(
+    public ResponseResult<List<SysUserVo>> listByIds(
             @RequestParam Set<Long> userIds, @RequestParam Boolean withDict) {
         return super.baseListByIds(userIds, withDict, SysUser.INSTANCE);
     }
@@ -216,9 +197,8 @@ public class SysUserController extends BaseController<SysUser, SysUserDto, Long>
      * @param withDict 是否包含字典关联。
      * @return 应答结果对象，包含主对象数据。
      */
-    @ApiOperation(hidden = true, value = "getById")
     @PostMapping("/getById")
-    public ResponseResult<SysUserDto> getById(
+    public ResponseResult<SysUserVo> getById(
             @RequestParam Long userId, @RequestParam Boolean withDict) {
         return super.baseGetById(userId, withDict, SysUser.INSTANCE);
     }
@@ -229,7 +209,6 @@ public class SysUserController extends BaseController<SysUser, SysUserDto, Long>
      * @param userIds 主键Id集合。
      * @return 应答结果对象，包含true全部存在，否则false。
      */
-    @ApiOperation(hidden = true, value = "existIds")
     @PostMapping("/existIds")
     public ResponseResult<Boolean> existIds(@RequestParam Set<Long> userIds) {
         return super.baseExistIds(userIds);
@@ -241,7 +220,6 @@ public class SysUserController extends BaseController<SysUser, SysUserDto, Long>
      * @param userId 主键Id。
      * @return 应答结果对象，包含true表示存在，否则false。
      */
-    @ApiOperation(hidden = true, value = "existId")
     @PostMapping("/existId")
     public ResponseResult<Boolean> existId(@RequestParam Long userId) {
         return super.baseExistId(userId);
@@ -253,33 +231,30 @@ public class SysUserController extends BaseController<SysUser, SysUserDto, Long>
      * @param filter 过滤对象。
      * @return 删除数量。
      */
-    @ApiOperation(hidden = true, value = "deleteBy")
     @PostMapping("/deleteBy")
     public ResponseResult<Integer> deleteBy(@RequestBody SysUserDto filter) throws Exception {
-        return super.baseDeleteBy(filter, SysUser.INSTANCE);
+        return super.baseDeleteBy(MyModelUtil.copyTo(filter, SysUser.class));
     }
 
     /**
-     * 复杂的查询调用，包括(in list)过滤，对象条件过滤，分组和排序等。主要用于微服务间远程过程调用。
+     * 复杂的查询调用，包括(in list)过滤，对象条件过滤，分页和排序等。主要用于微服务间远程过程调用。
      *
      * @param queryParam 查询参数。
-     * @return 应答结果对象，包含符合查询过滤条件的对象结果集。
+     * @return 分页数据集合对象。如MyQueryParam参数的分页属性为空，则不会执行分页操作，只是基于MyPageData对象返回数据结果。
      */
-    @ApiOperation(hidden = true, value = "listBy")
     @PostMapping("/listBy")
-    public ResponseResult<List<SysUserDto>> listBy(@RequestBody MyQueryParam queryParam) {
+    public ResponseResult<MyPageData<SysUserVo>> listBy(@RequestBody MyQueryParam queryParam) {
         return super.baseListBy(queryParam, SysUser.INSTANCE);
     }
 
     /**
-     * 复杂的查询调用，包括(in list)过滤，对象条件过滤，分组和排序等。主要用于微服务间远程过程调用。
+     * 复杂的查询调用，包括(in list)过滤，对象条件过滤，分页和排序等。主要用于微服务间远程过程调用。
      *
      * @param queryParam 查询参数。
-     * @return 应答结果对象，包含符合查询过滤条件的对象结果集。
+     * @return 分页数据集合对象。如MyQueryParam参数的分页属性为空，则不会执行分页操作，只是基于MyPageData对象返回数据结果。
      */
-    @ApiOperation(hidden = true, value = "listMapBy")
     @PostMapping("/listMapBy")
-    public ResponseResult<List<Map<String, Object>>> listMapBy(@RequestBody MyQueryParam queryParam) {
+    public ResponseResult<MyPageData<Map<String, Object>>> listMapBy(@RequestBody MyQueryParam queryParam) {
         return super.baseListMapBy(queryParam, SysUser.INSTANCE);
     }
 
@@ -289,9 +264,8 @@ public class SysUserController extends BaseController<SysUser, SysUserDto, Long>
      * @param queryParam 查询参数。
      * @return 应答结果对象，包含符合查询过滤条件的对象结果集。
      */
-    @ApiOperation(hidden = true, value = "getBy")
     @PostMapping("/getBy")
-    public ResponseResult<SysUserDto> getBy(@RequestBody MyQueryParam queryParam) {
+    public ResponseResult<SysUserVo> getBy(@RequestBody MyQueryParam queryParam) {
         return super.baseGetBy(queryParam, SysUser.INSTANCE);
     }
 
@@ -301,7 +275,6 @@ public class SysUserController extends BaseController<SysUser, SysUserDto, Long>
      * @param queryParam 查询参数。
      * @return 应答结果对象，包含结果数量。
      */
-    @ApiOperation(hidden = true, value = "countBy")
     @PostMapping("/countBy")
     public ResponseResult<Integer> countBy(@RequestBody MyQueryParam queryParam) {
         return super.baseCountBy(queryParam);
@@ -313,7 +286,6 @@ public class SysUserController extends BaseController<SysUser, SysUserDto, Long>
      * @param aggregationParam 聚合参数。
      * @return 应该结果对象，包含聚合计算后的分组Map列表。
      */
-    @ApiOperation(hidden = true, value = "aggregateBy")
     @PostMapping("/aggregateBy")
     public ResponseResult<List<Map<String, Object>>> aggregateBy(@RequestBody MyAggregationParam aggregationParam) {
         return super.baseAggregateBy(aggregationParam);

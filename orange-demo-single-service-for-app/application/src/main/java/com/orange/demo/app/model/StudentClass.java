@@ -4,10 +4,14 @@ import com.alibaba.fastjson.annotation.JSONField;
 import com.orange.demo.app.model.constant.ClassLevel;
 import com.orange.demo.common.core.annotation.RelationDict;
 import com.orange.demo.common.core.annotation.RelationConstDict;
+import com.orange.demo.common.core.base.mapper.BaseModelMapper;
 import com.orange.demo.common.core.annotation.DeletedFlagColumn;
 import com.orange.demo.common.core.validator.UpdateGroup;
 import com.orange.demo.common.core.validator.ConstDictRef;
+import com.orange.demo.app.vo.StudentClassVo;
 import lombok.Data;
+import org.mapstruct.*;
+import org.mapstruct.factory.Mappers;
 import javax.persistence.*;
 import javax.validation.constraints.*;
 
@@ -110,4 +114,25 @@ public class StudentClass {
             constantDictClass = ClassLevel.class)
     @Transient
     private Map<String, Object> classLevelDictMap;
+
+    @Mapper
+    public interface StudentClassModelMapper extends BaseModelMapper<StudentClassVo, StudentClass> {
+        /**
+         * 转换Vo对象到实体对象。
+         *
+         * @param studentClassVo 域对象。
+         * @return 实体对象。
+         */
+        @Override
+        StudentClass toModel(StudentClassVo studentClassVo);
+        /**
+         * 转换实体对象到VO对象。
+         *
+         * @param studentClass 实体对象。
+         * @return 域对象。
+         */
+        @Override
+        StudentClassVo fromModel(StudentClass studentClass);
+    }
+    public static final StudentClassModelMapper INSTANCE = Mappers.getMapper(StudentClassModelMapper.class);
 }

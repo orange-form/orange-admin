@@ -1,14 +1,14 @@
 package com.orange.demo.upms.controller;
 
+import com.github.pagehelper.Page;
 import com.github.pagehelper.page.PageMethod;
 import lombok.extern.slf4j.Slf4j;
+import com.orange.demo.upms.vo.SysPermVo;
 import com.orange.demo.upms.model.SysPerm;
-import com.orange.demo.upms.model.SysPermModule;
 import com.orange.demo.upms.service.SysPermService;
 import com.orange.demo.common.core.constant.ErrorCodeEnum;
 import com.orange.demo.common.core.object.*;
-import com.orange.demo.common.core.util.MyCommonUtil;
-import com.orange.demo.common.core.util.MyPageUtil;
+import com.orange.demo.common.core.util.*;
 import com.orange.demo.common.core.validator.UpdateGroup;
 import com.orange.demo.common.core.annotation.MyRequestBody;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,10 +73,6 @@ public class SysPermController {
         if (!result.isSuccess()) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, result.getErrorMessage());
         }
-        if (result.getData() != null) {
-            SysPermModule permModule = (SysPermModule) result.getData().get("permModule");
-            sysPerm.setModuleId(permModule.getModuleId());
-        }
         sysPermService.update(sysPerm, originalPerm);
         return ResponseResult.success();
     }
@@ -106,7 +102,7 @@ public class SysPermController {
      * @return 应答结果对象，包含权限资源对象详情。
      */
     @GetMapping("/view")
-    public ResponseResult<SysPerm> view(@RequestParam Long permId) {
+    public ResponseResult<SysPermVo> view(@RequestParam Long permId) {
         if (MyCommonUtil.existBlankArgument(permId)) {
             return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
         }
@@ -114,7 +110,8 @@ public class SysPermController {
         if (perm == null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST);
         }
-        return ResponseResult.success(perm);
+        SysPermVo permVo = MyModelUtil.copyTo(perm, SysPermVo.class);
+        return ResponseResult.success(permVo);
     }
 
     /**
@@ -125,13 +122,18 @@ public class SysPermController {
      * @return 应答结果对象，包含权限资源列表。
      */
     @PostMapping("/list")
-    public ResponseResult<MyPageData<SysPerm>> list(
+    public ResponseResult<MyPageData<SysPermVo>> list(
             @MyRequestBody SysPerm sysPermFilter, @MyRequestBody MyPageParam pageParam) {
         if (pageParam != null) {
             PageMethod.startPage(pageParam.getPageNum(), pageParam.getPageSize());
         }
-        List<SysPerm> resultList = sysPermService.getPermListWithRelation(sysPermFilter);
-        return ResponseResult.success(MyPageUtil.makeResponseData(resultList));
+        List<SysPerm> permList = sysPermService.getPermListWithRelation(sysPermFilter);
+        List<SysPermVo> permVoList = MyModelUtil.copyCollectionTo(permList, SysPermVo.class);
+        long totalCount = 0L;
+        if (permList instanceof Page) {
+            totalCount = ((Page<SysPerm>) permList).getTotal();
+        }
+        return ResponseResult.success(MyPageUtil.makeResponseData(permVoList, totalCount));
     }
 
     /**

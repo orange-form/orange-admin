@@ -115,8 +115,37 @@ public class LoginController {
      */
     @PostMapping("/doLogout")
     public ResponseResult<Void> doLogout() {
-        cacheHelper.removeAllSessionCache();
+        TokenData tokenData = TokenData.takeFromRequest();
+        cacheHelper.removeAllSessionCache(tokenData.getSessionId());
         return ResponseResult.success();
+    }
+
+    /**
+     * 在登录之后，通过token再次获取登录信息。
+     * 用于在当前浏览器登录系统后，在新tab页中可以免密登录。
+     *
+     * @return 应答结果对象，其中包括JWT的Token数据，以及菜单列表。
+     */
+    @GetMapping("/getLoginInfo")
+    public ResponseResult<JSONObject> getLoginInfo() {
+        TokenData tokenData = TokenData.takeFromRequest();
+        // 这里解释一下为什么没有缓存menuList和permCodeList。
+        // 1. 该操作和权限验证不同，属于低频操作。
+        // 2. 第一次登录和再次获取登录信息之间，如果修改了用户的权限，那么本次获取的是最新权限。
+        // 3. 上一个问题无法避免，因为即便缓存也是有过期时间的，过期之后还是要从数据库获取的。
+        JSONObject jsonData = new JSONObject();
+        jsonData.put("showName", tokenData.getShowName());
+        jsonData.put("isAdmin", tokenData.getIsAdmin());
+        List<SysMenu> menuList;
+        if (tokenData.getIsAdmin()) {
+            menuList = sysMenuService.getAllMenuList();
+        } else {
+            menuList = sysMenuService.getMenuListByUserId(tokenData.getUserId());
+            List<String> permCodeList = sysPermCodeService.getPermCodeListByUserId(tokenData.getUserId());
+            jsonData.put("permCodeList", permCodeList);
+        }
+        jsonData.put("menuList", menuList);
+        return ResponseResult.success(jsonData);
     }
 
     /**

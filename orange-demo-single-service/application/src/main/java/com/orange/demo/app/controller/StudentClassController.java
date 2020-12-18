@@ -1,6 +1,7 @@
 package com.orange.demo.app.controller;
 
 import com.github.pagehelper.page.PageMethod;
+import com.orange.demo.app.vo.*;
 import com.orange.demo.app.model.*;
 import com.orange.demo.app.service.*;
 import com.orange.demo.common.core.object.*;
@@ -122,7 +123,7 @@ public class StudentClassController {
      * @return 应答结果对象，包含查询结果集。
      */
     @PostMapping("/list")
-    public ResponseResult<MyPageData<StudentClass>> list(
+    public ResponseResult<MyPageData<StudentClassVo>> list(
             @MyRequestBody StudentClass studentClassFilter,
             @MyRequestBody MyOrderParam orderParam,
             @MyRequestBody MyPageParam pageParam) {
@@ -130,8 +131,8 @@ public class StudentClassController {
             PageMethod.startPage(pageParam.getPageNum(), pageParam.getPageSize());
         }
         String orderBy = MyOrderParam.buildOrderBy(orderParam, StudentClass.class);
-        List<StudentClass> resultList = studentClassService.getStudentClassListWithRelation(studentClassFilter, orderBy);
-        return ResponseResult.success(MyPageUtil.makeResponseData(resultList));
+        List<StudentClass> studentClassList = studentClassService.getStudentClassListWithRelation(studentClassFilter, orderBy);
+        return ResponseResult.success(MyPageUtil.makeResponseData(studentClassList, StudentClass.INSTANCE));
     }
 
     /**
@@ -141,7 +142,7 @@ public class StudentClassController {
      * @return 应答结果对象，包含对象详情。
      */
     @GetMapping("/view")
-    public ResponseResult<StudentClass> view(@RequestParam Long classId) {
+    public ResponseResult<StudentClassVo> view(@RequestParam Long classId) {
         if (MyCommonUtil.existBlankArgument(classId)) {
             return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
         }
@@ -149,7 +150,8 @@ public class StudentClassController {
         if (studentClass == null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST);
         }
-        return ResponseResult.success(studentClass);
+        StudentClassVo studentClassVo = StudentClass.INSTANCE.fromModel(studentClass);
+        return ResponseResult.success(studentClassVo);
     }
 
     /**
@@ -162,7 +164,7 @@ public class StudentClassController {
      * @return 应答结果对象，返回符合条件的数据列表。
      */
     @PostMapping("/listNotInClassCourse")
-    public ResponseResult<MyPageData<Course>> listNotInClassCourse(
+    public ResponseResult<MyPageData<CourseVo>> listNotInClassCourse(
             @MyRequestBody Long classId,
             @MyRequestBody Course courseFilter,
             @MyRequestBody MyOrderParam orderParam,
@@ -175,9 +177,9 @@ public class StudentClassController {
             PageMethod.startPage(pageParam.getPageNum(), pageParam.getPageSize());
         }
         String orderBy = MyOrderParam.buildOrderBy(orderParam, Course.class);
-        List<Course> resultList =
+        List<Course> courseList =
                 courseService.getNotInCourseListByClassId(classId, courseFilter, orderBy);
-        return ResponseResult.success(MyPageUtil.makeResponseData(resultList));
+        return ResponseResult.success(MyPageUtil.makeResponseData(courseList, Course.INSTANCE));
     }
 
     /**
@@ -190,7 +192,7 @@ public class StudentClassController {
      * @return 应答结果对象，返回符合条件的数据列表。
      */
     @PostMapping("/listClassCourse")
-    public ResponseResult<MyPageData<Course>> listClassCourse(
+    public ResponseResult<MyPageData<CourseVo>> listClassCourse(
             @MyRequestBody Long classId,
             @MyRequestBody Course courseFilter,
             @MyRequestBody MyOrderParam orderParam,
@@ -203,9 +205,9 @@ public class StudentClassController {
             PageMethod.startPage(pageParam.getPageNum(), pageParam.getPageSize());
         }
         String orderBy = MyOrderParam.buildOrderBy(orderParam, Course.class);
-        List<Course> resultList =
+        List<Course> courseList =
                 courseService.getCourseListByClassId(classId, courseFilter, orderBy);
-        return ResponseResult.success(MyPageUtil.makeResponseData(resultList));
+        return ResponseResult.success(MyPageUtil.makeResponseData(courseList, Course.INSTANCE));
     }
 
     private ResponseResult<Void> doClassCourseVerify(Long classId) {
@@ -274,7 +276,7 @@ public class StudentClassController {
      * @return 应答结果对象，包括中间表详情。
      */
     @GetMapping("/viewClassCourse")
-    public ResponseResult<ClassCourse> viewClassCourse(
+    public ResponseResult<ClassCourseVo> viewClassCourse(
             @RequestParam Long classId, @RequestParam Long courseId) {
         if (MyCommonUtil.existBlankArgument(classId, courseId)) {
             return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
@@ -283,7 +285,8 @@ public class StudentClassController {
         if (classCourse == null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST);
         }
-        return ResponseResult.success(classCourse);
+        ClassCourseVo classCourseVo = MyModelUtil.copyTo(classCourse, ClassCourseVo.class);
+        return ResponseResult.success(classCourseVo);
     }
 
     /**
@@ -315,7 +318,7 @@ public class StudentClassController {
      * @return 应答结果对象，返回符合条件的数据列表。
      */
     @PostMapping("/listNotInClassStudent")
-    public ResponseResult<MyPageData<Student>> listNotInClassStudent(
+    public ResponseResult<MyPageData<StudentVo>> listNotInClassStudent(
             @MyRequestBody Long classId,
             @MyRequestBody Student studentFilter,
             @MyRequestBody MyOrderParam orderParam,
@@ -328,9 +331,9 @@ public class StudentClassController {
             PageMethod.startPage(pageParam.getPageNum(), pageParam.getPageSize());
         }
         String orderBy = MyOrderParam.buildOrderBy(orderParam, Student.class);
-        List<Student> resultList =
+        List<Student> studentList =
                 studentService.getNotInStudentListByClassId(classId, studentFilter, orderBy);
-        return ResponseResult.success(MyPageUtil.makeResponseData(resultList));
+        return ResponseResult.success(MyPageUtil.makeResponseData(studentList, Student.INSTANCE));
     }
 
     /**
@@ -343,7 +346,7 @@ public class StudentClassController {
      * @return 应答结果对象，返回符合条件的数据列表。
      */
     @PostMapping("/listClassStudent")
-    public ResponseResult<MyPageData<Student>> listClassStudent(
+    public ResponseResult<MyPageData<StudentVo>> listClassStudent(
             @MyRequestBody Long classId,
             @MyRequestBody Student studentFilter,
             @MyRequestBody MyOrderParam orderParam,
@@ -356,9 +359,9 @@ public class StudentClassController {
             PageMethod.startPage(pageParam.getPageNum(), pageParam.getPageSize());
         }
         String orderBy = MyOrderParam.buildOrderBy(orderParam, Student.class);
-        List<Student> resultList =
+        List<Student> studentList =
                 studentService.getStudentListByClassId(classId, studentFilter, orderBy);
-        return ResponseResult.success(MyPageUtil.makeResponseData(resultList));
+        return ResponseResult.success(MyPageUtil.makeResponseData(studentList, Student.INSTANCE));
     }
 
     private ResponseResult<Void> doClassStudentVerify(Long classId) {

@@ -4,7 +4,7 @@ import com.alibaba.fastjson.annotation.JSONField;
 import com.orange.demo.common.core.annotation.DeletedFlagColumn;
 import com.orange.demo.common.core.annotation.RelationManyToMany;
 import com.orange.demo.common.core.base.mapper.BaseModelMapper;
-import com.orange.demo.upmsinterface.dto.SysRoleDto;
+import com.orange.demo.upmsinterface.vo.SysRoleVo;
 import lombok.Data;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -79,32 +79,26 @@ public class SysRole {
     @Transient
     private List<SysRoleMenu> sysRoleMenuList;
 
-    @Transient
-    private String createTimeStart;
-
-    @Transient
-    private String createTimeEnd;
-
     @Mapper
-    public interface SysRoleModelMapper extends BaseModelMapper<SysRoleDto, SysRole> {
+    public interface SysRoleModelMapper extends BaseModelMapper<SysRoleVo, SysRole> {
         /**
-         * 转换Dto对象到实体对象。
+         * 转换VO对象到实体对象。
          *
-         * @param sysRoleDto 域对象。
+         * @param sysRoleVo 域对象。
          * @return 实体对象。
          */
-        @Mapping(target = "sysRoleMenuList", expression = "java(mapToBean(sysRoleDto.getSysRoleMenuList(), com.orange.demo.upmsservice.model.SysRoleMenu.class))")
+        @Mapping(target = "sysRoleMenuList", expression = "java(mapToBean(sysRoleVo.getSysRoleMenuList(), com.orange.demo.upmsservice.model.SysRoleMenu.class))")
         @Override
-        SysRole toModel(SysRoleDto sysRoleDto);
+        SysRole toModel(SysRoleVo sysRoleVo);
         /**
-         * 转换实体对象到Dto对象。
+         * 转换实体对象到VO对象。
          *
          * @param sysRole 实体对象。
          * @return 域对象。
          */
         @Mapping(target = "sysRoleMenuList", expression = "java(beanToMap(sysRole.getSysRoleMenuList(), false))")
         @Override
-        SysRoleDto fromModel(SysRole sysRole);
+        SysRoleVo fromModel(SysRole sysRole);
     }
     public static final SysRoleModelMapper INSTANCE = Mappers.getMapper(SysRole.SysRoleModelMapper.class);
 }

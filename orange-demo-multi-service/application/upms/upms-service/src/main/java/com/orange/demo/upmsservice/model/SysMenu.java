@@ -6,7 +6,7 @@ import com.orange.demo.common.core.annotation.RelationManyToMany;
 import com.orange.demo.common.core.base.mapper.BaseModelMapper;
 import com.orange.demo.common.core.validator.ConstDictRef;
 import com.orange.demo.upmsinterface.constant.SysMenuType;
-import com.orange.demo.upmsinterface.dto.SysMenuDto;
+import com.orange.demo.upmsinterface.vo.SysMenuVo;
 import lombok.Data;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -96,25 +96,25 @@ public class SysMenu {
     private List<SysMenuPermCode> sysMenuPermCodeList;
 
     @Mapper
-    public interface SysMenuModelMapper extends BaseModelMapper<SysMenuDto, SysMenu> {
+    public interface SysMenuModelMapper extends BaseModelMapper<SysMenuVo, SysMenu> {
         /**
-         * 转换Dto对象到实体对象。
+         * 转换VO对象到实体对象。
          *
-         * @param sysMenuDto 域对象。
+         * @param sysMenuVo 域对象。
          * @return 实体对象。
          */
-        @Mapping(target = "sysMenuPermCodeList", expression = "java(mapToBean(sysMenuDto.getSysMenuPermCodeList(), com.orange.demo.upmsservice.model.SysMenuPermCode.class))")
+        @Mapping(target = "sysMenuPermCodeList", expression = "java(mapToBean(sysMenuVo.getSysMenuPermCodeList(), com.orange.demo.upmsservice.model.SysMenuPermCode.class))")
         @Override
-        SysMenu toModel(SysMenuDto sysMenuDto);
+        SysMenu toModel(SysMenuVo sysMenuVo);
         /**
-         * 转换实体对象到Dto对象。
+         * 转换实体对象到VO对象。
          *
          * @param sysMenu 实体对象。
          * @return 域对象。
          */
         @Mapping(target = "sysMenuPermCodeList", expression = "java(beanToMap(sysMenu.getSysMenuPermCodeList(), false))")
         @Override
-        SysMenuDto fromModel(SysMenu sysMenu);
+        SysMenuVo fromModel(SysMenu sysMenu);
     }
     public static final SysMenuModelMapper INSTANCE = Mappers.getMapper(SysMenu.SysMenuModelMapper.class);
 }

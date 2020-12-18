@@ -3,7 +3,10 @@ package com.orange.demo.common.core.util;
 import cn.jimmyshi.beanquery.BeanQuery;
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.Page;
+import org.apache.commons.collections4.CollectionUtils;
+import com.orange.demo.common.core.base.mapper.BaseModelMapper;
 import com.orange.demo.common.core.object.MyPageData;
+import com.orange.demo.common.core.object.Tuple2;
 
 import java.util.List;
 
@@ -63,6 +66,38 @@ public class MyPageUtil {
             pageData.setTotalCount(totalCount);
         }
         return pageData;
+    }
+
+    /**
+     * 用户构建带有分页信息的数据列表。
+     *
+     * @param dataList    实体对象数据列表。
+     * @param modelMapper 实体对象到DomainVO对象的数据映射器。
+     * @param <D>         DomainVO对象类型。
+     * @param <T>         实体对象类型。
+     * @return 返回分页数据对象。
+     */
+    public static <D, T> MyPageData<D> makeResponseData(List<T> dataList, BaseModelMapper<D, T> modelMapper) {
+        long totalCount = 0L;
+        if (CollectionUtils.isEmpty(dataList)) {
+            // 这里需要构建分页数据对象，统一前端数据格式
+            return MyPageData.emptyPageData();
+        }
+        if (dataList instanceof Page) {
+            totalCount = ((Page<T>) dataList).getTotal();
+        }
+        return MyPageUtil.makeResponseData(modelMapper.fromModelList(dataList), totalCount);
+    }
+
+    /**
+     * 用户构建带有分页信息的数据列表。
+     *
+     * @param responseData 第一个数据时数据列表，第二个是列表数量。
+     * @param <T>          源数据类型。
+     * @return 返回分页数据对象。
+     */
+    public static <T> MyPageData<T> makeResponseData(Tuple2<List<T>, Long> responseData) {
+        return makeResponseData(responseData.getFirst(), responseData.getSecond());
     }
 
     /**

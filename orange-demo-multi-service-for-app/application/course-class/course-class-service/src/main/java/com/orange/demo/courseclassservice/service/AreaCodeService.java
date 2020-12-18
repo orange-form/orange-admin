@@ -1,6 +1,5 @@
 package com.orange.demo.courseclassservice.service;
 
-import com.orange.demo.courseclassinterface.dto.AreaCodeDto;
 import com.orange.demo.courseclassservice.dao.AreaCodeMapper;
 import com.orange.demo.courseclassservice.model.AreaCode;
 import com.orange.demo.common.core.cache.MapTreeDictionaryCache;
@@ -20,7 +19,7 @@ import java.util.List;
  * @date 2020-08-08
  */
 @Service
-public class AreaCodeService extends BaseDictService<AreaCode, AreaCodeDto, Long> {
+public class AreaCodeService extends BaseDictService<AreaCode, Long> {
 
     @Autowired
     private AreaCodeMapper areaCodeMapper;

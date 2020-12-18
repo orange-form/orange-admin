@@ -1,9 +1,6 @@
 package com.orange.demo.common.core.base.client;
 
-import com.orange.demo.common.core.object.MyAggregationParam;
-import com.orange.demo.common.core.object.MyQueryParam;
-import com.orange.demo.common.core.object.ResponseResult;
-import com.orange.demo.common.core.object.Tuple2;
+import com.orange.demo.common.core.object.*;
 
 import java.util.*;
 
@@ -11,11 +8,12 @@ import java.util.*;
  * 远程调用接口。
  *
  * @param <D> 主DomainDto域数据对象类型。
+ * @param <V> 主DomainVo域数据对象类型。
  * @param <K> 主键类型。
  * @author Jerry
  * @date 2020-08-08
  */
-public interface BaseClient<D, K> {
+public interface BaseClient<D, V, K> {
 
     /**
      * 基于主键的(in list)获取远程数据接口。
@@ -24,7 +22,7 @@ public interface BaseClient<D, K> {
      * @param withDict  是否包含字典关联。
      * @return 应答结果对象，包含主对象集合。
      */
-    ResponseResult<List<D>> listByIds(Set<K> filterIds, Boolean withDict);
+    ResponseResult<List<V>> listByIds(Set<K> filterIds, Boolean withDict);
 
     /**
      * 基于主键Id，获取远程对象。
@@ -33,7 +31,7 @@ public interface BaseClient<D, K> {
      * @param withDict 是否包含字典关联。
      * @return 应答结果对象，包含主对象数据。
      */
-    ResponseResult<D> getById(K id, Boolean withDict);
+    ResponseResult<V> getById(K id, Boolean withDict);
 
     /**
      * 判断参数列表中指定的主键Id，是否全部存在。
@@ -76,9 +74,9 @@ public interface BaseClient<D, K> {
      * 缺省实现是因为字典类型的远程调用客户端中，不需要实现该方法，因此尽早抛出异常，用户可自行修改。
      *
      * @param queryParam 查询参数。
-     * @return 应答结果对象，包含主对象集合。
+     * @return 分页数据集合对象。如MyQueryParam参数的分页属性为空，则不会执行分页操作，只是基于MyPageData对象返回数据结果。
      */
-    default ResponseResult<List<D>> listBy(MyQueryParam queryParam) {
+    default ResponseResult<MyPageData<V>> listBy(MyQueryParam queryParam) {
         throw new UnsupportedOperationException();
     }
 
@@ -89,7 +87,7 @@ public interface BaseClient<D, K> {
      * @param queryParam 查询参数。
      * @return 应答结果对象，包含主对象集合。
      */
-    default ResponseResult<D> getBy(MyQueryParam queryParam) {
+    default ResponseResult<V> getBy(MyQueryParam queryParam) {
         throw new UnsupportedOperationException();
     }
 
@@ -98,9 +96,9 @@ public interface BaseClient<D, K> {
      * 缺省实现是因为字典类型的远程调用客户端中，不需要实现该方法，因此尽早抛出异常，用户可自行修改。
      *
      * @param queryParam 查询参数。
-     * @return 应答结果对象，包含主对象集合。
+     * @return 分页数据集合对象。如MyQueryParam参数的分页属性为空，则不会执行分页操作，只是基于MyPageData对象返回数据结果。
      */
-    default ResponseResult<List<Map<String, Object>>> listMapBy(MyQueryParam queryParam) {
+    default ResponseResult<MyPageData<Map<String, Object>>> listMapBy(MyQueryParam queryParam) {
         throw new UnsupportedOperationException();
     }
 
@@ -130,9 +128,9 @@ public interface BaseClient<D, K> {
      * 根据主键Id及其列表数据(not in list)进行过滤，返回给定的数据。返回的对象数据中，仅仅包含实体对象自己的数据，以及配置的字典关联数据。
      *
      * @param queryParam 查询参数。
-     * @return 应答结果对象，包含数据列表，以及整个符合条件的数据总量(分页之前)。
+     * @return 应答结果对象，包含分页查询数据列表。
      */
-    default ResponseResult<Tuple2<List<D>, K>> listByNotInList(MyQueryParam queryParam) {
+    default ResponseResult<MyPageData<V>> listByNotInList(MyQueryParam queryParam) {
         throw new UnsupportedOperationException();
     }
 }

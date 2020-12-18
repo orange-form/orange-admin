@@ -8,7 +8,7 @@ import com.orange.demo.common.core.annotation.RelationManyToMany;
 import com.orange.demo.common.core.base.mapper.BaseModelMapper;
 import com.orange.demo.common.core.annotation.DeletedFlagColumn;
 import com.orange.demo.common.core.validator.ConstDictRef;
-import com.orange.demo.upmsinterface.dto.SysUserDto;
+import com.orange.demo.upmsinterface.vo.SysUserVo;
 import lombok.Data;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
@@ -146,25 +146,25 @@ public class SysUser {
     private Map<String, Object> userStatusDictMap;
 
     @Mapper
-    public interface SysUserModelMapper extends BaseModelMapper<SysUserDto, SysUser> {
+    public interface SysUserModelMapper extends BaseModelMapper<SysUserVo, SysUser> {
         /**
-         * 转换Dto对象到实体对象。
+         * 转换Vo对象到实体对象。
          *
-         * @param sysUserDto 域对象。
+         * @param sysUserVo 域对象。
          * @return 实体对象。
          */
-        @Mapping(target = "sysUserRoleList", expression = "java(mapToBean(sysUserDto.getSysUserRoleList(), com.orange.demo.upmsservice.model.SysUserRole.class))")
+        @Mapping(target = "sysUserRoleList", expression = "java(mapToBean(sysUserVo.getSysUserRoleList(), com.orange.demo.upmsservice.model.SysUserRole.class))")
         @Override
-        SysUser toModel(SysUserDto sysUserDto);
+        SysUser toModel(SysUserVo sysUserVo);
         /**
-         * 转换实体对象到Dto对象。
+         * 转换实体对象到VO对象。
          *
          * @param sysUser 实体对象。
          * @return 域对象。
          */
         @Mapping(target = "sysUserRoleList", expression = "java(beanToMap(sysUser.getSysUserRoleList(), false))")
         @Override
-        SysUserDto fromModel(SysUser sysUser);
+        SysUserVo fromModel(SysUser sysUser);
     }
     public static final SysUserModelMapper INSTANCE = Mappers.getMapper(SysUserModelMapper.class);
 }

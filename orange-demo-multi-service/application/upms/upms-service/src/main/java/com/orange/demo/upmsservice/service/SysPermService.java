@@ -1,14 +1,12 @@
 package com.orange.demo.upmsservice.service;
 
 import cn.hutool.core.util.ObjectUtil;
-import com.alibaba.fastjson.JSONObject;
 import com.orange.demo.common.core.base.service.BaseService;
 import com.orange.demo.common.sequence.wrapper.IdGeneratorWrapper;
 import com.orange.demo.common.core.base.dao.BaseDaoMapper;
 import com.orange.demo.common.core.object.MyRelationParam;
 import com.orange.demo.common.core.constant.GlobalDeletedFlag;
 import com.orange.demo.common.core.object.CallResult;
-import com.orange.demo.upmsinterface.dto.SysPermDto;
 import com.orange.demo.upmsservice.dao.SysPermCodePermMapper;
 import com.orange.demo.upmsservice.dao.SysPermMapper;
 import com.orange.demo.upmsservice.model.SysPerm;
@@ -30,7 +28,7 @@ import java.util.Map;
  * @date 2020-08-08
  */
 @Service
-public class SysPermService extends BaseService<SysPerm, SysPermDto, Long> {
+public class SysPermService extends BaseService<SysPerm, Long> {
 
     @Autowired
     private SysPermMapper sysPermMapper;
@@ -124,17 +122,6 @@ public class SysPermService extends BaseService<SysPerm, SysPermDto, Long> {
     }
 
     /**
-     * 获取与指定权限字关联的权限资源列表。
-     *
-     * @param permCodeId 关联的权限字主键Id。
-     * @param orderBy    排序参数。
-     * @return 与指定权限字Id关联的权限资源列表。
-     */
-    public List<SysPerm> getPermListByPermCodeId(Long permCodeId, String orderBy) {
-        return sysPermMapper.getPermListByPermCodeId(permCodeId, orderBy);
-    }
-
-    /**
      * 获取与指定用户关联的权限资源列表。
      *
      * @param userId 关联的用户主键Id。
@@ -152,16 +139,13 @@ public class SysPermService extends BaseService<SysPerm, SysPermDto, Long> {
      * @return 验证结果。
      */
     public CallResult verifyRelatedData(SysPerm sysPerm, SysPerm originalSysPerm) {
-        JSONObject jsonObject = null;
         if (this.needToVerify(sysPerm, originalSysPerm, SysPerm::getModuleId)) {
             SysPermModule permModule = sysPermModuleService.getById(sysPerm.getModuleId());
             if (permModule == null) {
                 return CallResult.error("数据验证失败，关联的权限模块Id并不存在，请刷新后重试！");
             }
-            jsonObject = new JSONObject();
-            jsonObject.put("permModule", permModule);
         }
-        return CallResult.ok(jsonObject);
+        return CallResult.ok();
     }
     
     /**

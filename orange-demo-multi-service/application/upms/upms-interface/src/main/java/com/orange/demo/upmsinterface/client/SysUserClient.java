@@ -5,6 +5,7 @@ import com.orange.demo.common.core.config.FeignConfig;
 import com.orange.demo.common.core.base.client.BaseClient;
 import com.orange.demo.common.core.object.*;
 import com.orange.demo.upmsinterface.dto.SysUserDto;
+import com.orange.demo.upmsinterface.vo.SysUserVo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.stereotype.Component;
@@ -22,7 +23,7 @@ import java.util.*;
         name = "upms",
         configuration = FeignConfig.class,
         fallbackFactory = SysUserClient.SysUserClientFallbackFactory.class)
-public interface SysUserClient extends BaseClient<SysUserDto, Long> {
+public interface SysUserClient extends BaseClient<SysUserDto, SysUserVo, Long> {
 
     /**
      * 基于主键的(In-list)条件获取远程数据接口。
@@ -33,7 +34,7 @@ public interface SysUserClient extends BaseClient<SysUserDto, Long> {
      */
     @Override
     @PostMapping("/sysUser/listByIds")
-    ResponseResult<List<SysUserDto>> listByIds(
+    ResponseResult<List<SysUserVo>> listByIds(
             @RequestParam("userIds") Set<Long> userIds,
             @RequestParam("withDict") Boolean withDict);
 
@@ -46,7 +47,7 @@ public interface SysUserClient extends BaseClient<SysUserDto, Long> {
      */
     @Override
     @PostMapping("/sysUser/getById")
-    ResponseResult<SysUserDto> getById(
+    ResponseResult<SysUserVo> getById(
             @RequestParam("userId") Long userId,
             @RequestParam("withDict") Boolean withDict);
 
@@ -98,7 +99,7 @@ public interface SysUserClient extends BaseClient<SysUserDto, Long> {
      */
     @Override
     @PostMapping("/sysUser/listBy")
-    ResponseResult<List<SysUserDto>> listBy(@RequestBody MyQueryParam queryParam);
+    ResponseResult<MyPageData<SysUserVo>> listBy(@RequestBody MyQueryParam queryParam);
 
     /**
      * 获取远程主对象中符合查询条件的单条数据对象。
@@ -108,7 +109,7 @@ public interface SysUserClient extends BaseClient<SysUserDto, Long> {
      */
     @Override
     @PostMapping("/sysUser/getBy")
-    ResponseResult<SysUserDto> getBy(@RequestBody MyQueryParam queryParam);
+    ResponseResult<SysUserVo> getBy(@RequestBody MyQueryParam queryParam);
 
     /**
      * 获取远程主对象中符合查询条件的数据列表。
@@ -119,7 +120,7 @@ public interface SysUserClient extends BaseClient<SysUserDto, Long> {
      */
     @Override
     @PostMapping("/sysUser/listMapBy")
-    ResponseResult<List<Map<String, Object>>> listMapBy(@RequestBody MyQueryParam queryParam);
+    ResponseResult<MyPageData<Map<String, Object>>> listMapBy(@RequestBody MyQueryParam queryParam);
 
     /**
      * 获取远程主对象中符合查询条件的数据数量。
@@ -144,7 +145,7 @@ public interface SysUserClient extends BaseClient<SysUserDto, Long> {
     @Component("UpmsSysUserClientFallbackFactory")
     @Slf4j
     class SysUserClientFallbackFactory
-            extends BaseFallbackFactory<SysUserDto, Long, SysUserClient> implements SysUserClient {
+            extends BaseFallbackFactory<SysUserDto, SysUserVo, Long, SysUserClient> implements SysUserClient {
 
         @Override
         public SysUserClient create(Throwable throwable) {

@@ -1,8 +1,6 @@
 package com.orange.demo.common.core.advice;
 
-import com.orange.demo.common.core.exception.InvalidClassFieldException;
-import com.orange.demo.common.core.exception.InvalidDataFieldException;
-import com.orange.demo.common.core.exception.InvalidDataModelException;
+import com.orange.demo.common.core.exception.*;
 import com.orange.demo.common.core.constant.ErrorCodeEnum;
 import com.orange.demo.common.core.exception.RedisCacheAccessException;
 import com.orange.demo.common.core.object.ResponseResult;
@@ -111,6 +109,19 @@ public class MyExceptionHandler {
 			return ResponseResult.error(ErrorCodeEnum.DATA_PERM_ACCESS_FAILED);
 		}
 		return ResponseResult.error(ErrorCodeEnum.DATA_ACCESS_FAILED);
+	}
+
+	/**
+	 * 操作不存在或已逻辑删除数据的异常处理方法。
+	 *
+	 * @param ex       异常对象。
+	 * @param request  http请求。
+	 * @return 应答对象。
+	 */
+	@ExceptionHandler(value = NoDataAffectException.class)
+	public ResponseResult<Void> noDataEffectExceptionHandle(Exception ex, HttpServletRequest request) {
+		log.error("NoDataAffectException exception from URL [" + request.getRequestURI() + "]", ex);
+		return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST);
 	}
 
 	/**

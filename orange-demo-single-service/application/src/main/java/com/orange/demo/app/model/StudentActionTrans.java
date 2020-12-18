@@ -4,9 +4,13 @@ import com.orange.demo.application.common.constant.StudentActionType;
 import com.orange.demo.application.common.constant.DeviceType;
 import com.orange.demo.common.core.annotation.RelationDict;
 import com.orange.demo.common.core.annotation.RelationConstDict;
+import com.orange.demo.common.core.base.mapper.BaseModelMapper;
 import com.orange.demo.common.core.validator.UpdateGroup;
 import com.orange.demo.common.core.validator.ConstDictRef;
+import com.orange.demo.app.vo.StudentActionTransVo;
 import lombok.Data;
+import org.mapstruct.*;
+import org.mapstruct.factory.Mappers;
 import javax.persistence.*;
 import javax.validation.constraints.*;
 
@@ -165,4 +169,25 @@ public class StudentActionTrans {
             constantDictClass = DeviceType.class)
     @Transient
     private Map<String, Object> deviceTypeDictMap;
+
+    @Mapper
+    public interface StudentActionTransModelMapper extends BaseModelMapper<StudentActionTransVo, StudentActionTrans> {
+        /**
+         * 转换Vo对象到实体对象。
+         *
+         * @param studentActionTransVo 域对象。
+         * @return 实体对象。
+         */
+        @Override
+        StudentActionTrans toModel(StudentActionTransVo studentActionTransVo);
+        /**
+         * 转换实体对象到VO对象。
+         *
+         * @param studentActionTrans 实体对象。
+         * @return 域对象。
+         */
+        @Override
+        StudentActionTransVo fromModel(StudentActionTrans studentActionTrans);
+    }
+    public static final StudentActionTransModelMapper INSTANCE = Mappers.getMapper(StudentActionTransModelMapper.class);
 }

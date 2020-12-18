@@ -1,12 +1,12 @@
 package com.orange.demo.statsservice.model;
 
+import com.orange.demo.courseclassinterface.vo.AreaCodeVo;
 import com.orange.demo.courseclassinterface.client.GradeClient;
-import com.orange.demo.courseclassinterface.dto.GradeDto;
 import com.orange.demo.courseclassinterface.client.AreaCodeClient;
-import com.orange.demo.courseclassinterface.dto.AreaCodeDto;
+import com.orange.demo.courseclassinterface.vo.GradeVo;
 import com.orange.demo.common.core.annotation.RelationDict;
 import com.orange.demo.common.core.base.mapper.BaseModelMapper;
-import com.orange.demo.statsinterface.dto.StudentActionStatsDto;
+import com.orange.demo.statsinterface.vo.StudentActionStatsVo;
 import lombok.Data;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
@@ -188,7 +188,7 @@ public class StudentActionStats {
     @RelationDict(
             masterIdField = "gradeId",
             slaveClientClass = GradeClient.class,
-            slaveModelClass = GradeDto.class,
+            slaveModelClass = GradeVo.class,
             slaveIdField = "gradeId",
             slaveNameField = "gradeName")
     @Transient
@@ -197,7 +197,7 @@ public class StudentActionStats {
     @RelationDict(
             masterIdField = "provinceId",
             slaveClientClass = AreaCodeClient.class,
-            slaveModelClass = AreaCodeDto.class,
+            slaveModelClass = AreaCodeVo.class,
             slaveIdField = "areaId",
             slaveNameField = "areaName")
     @Transient
@@ -206,30 +206,30 @@ public class StudentActionStats {
     @RelationDict(
             masterIdField = "cityId",
             slaveClientClass = AreaCodeClient.class,
-            slaveModelClass = AreaCodeDto.class,
+            slaveModelClass = AreaCodeVo.class,
             slaveIdField = "areaId",
             slaveNameField = "areaName")
     @Transient
     private Map<String, Object> cityIdDictMap;
 
     @Mapper
-    public interface StudentActionStatsModelMapper extends BaseModelMapper<StudentActionStatsDto, StudentActionStats> {
+    public interface StudentActionStatsModelMapper extends BaseModelMapper<StudentActionStatsVo, StudentActionStats> {
         /**
-         * 转换Dto对象到实体对象。
+         * 转换Vo对象到实体对象。
          *
-         * @param studentActionStatsDto 域对象。
+         * @param studentActionStatsVo 域对象。
          * @return 实体对象。
          */
         @Override
-        StudentActionStats toModel(StudentActionStatsDto studentActionStatsDto);
+        StudentActionStats toModel(StudentActionStatsVo studentActionStatsVo);
         /**
-         * 转换实体对象到Dto对象。
+         * 转换实体对象到VO对象。
          *
          * @param studentActionStats 实体对象。
          * @return 域对象。
          */
         @Override
-        StudentActionStatsDto fromModel(StudentActionStats studentActionStats);
+        StudentActionStatsVo fromModel(StudentActionStats studentActionStats);
     }
     public static final StudentActionStatsModelMapper INSTANCE = Mappers.getMapper(StudentActionStatsModelMapper.class);
 }

@@ -14,13 +14,12 @@ import java.util.List;
  * 目前仅支持基于主键字段的缓存查找，其他条件的查找仍然从数据源获取。
  *
  * @param <M> Model实体对象的类型。
- * @param <D> Model对应的DomainDto域对象类型。
  * @param <K> Model对象主键的类型。
  * @author Jerry
  * @date 2020-08-08
  */
 @Slf4j
-public abstract class BaseDictService<M, D, K> extends BaseService<M, D, K> {
+public abstract class BaseDictService<M, K> extends BaseService<M, K> {
 
     /**
      * 缓存池对象。
@@ -126,7 +125,7 @@ public abstract class BaseDictService<M, D, K> extends BaseService<M, D, K> {
     @SuppressWarnings("unchecked")
     public <T> boolean existUniqueKeyList(String inFilterField, Set<T> inFilterValues) {
         if (CollectionUtils.isEmpty(inFilterValues)) {
-            return false;
+            return true;
         }
         if (inFilterField.equals(this.idFieldName)) {
             List<M> dataList = dictionaryCache.getInList((Set<K>) inFilterValues);

@@ -5,6 +5,7 @@ import com.orange.demo.common.core.config.FeignConfig;
 import com.orange.demo.common.core.base.client.BaseClient;
 import com.orange.demo.common.core.object.*;
 import com.orange.demo.statsinterface.dto.StudentActionStatsDto;
+import com.orange.demo.statsinterface.vo.StudentActionStatsVo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.stereotype.Component;
@@ -22,7 +23,7 @@ import java.util.*;
         name = "stats",
         configuration = FeignConfig.class,
         fallbackFactory = StudentActionStatsClient.StudentActionStatsClientFallbackFactory.class)
-public interface StudentActionStatsClient extends BaseClient<StudentActionStatsDto, Long> {
+public interface StudentActionStatsClient extends BaseClient<StudentActionStatsDto, StudentActionStatsVo, Long> {
 
     /**
      * 基于主键的(In-list)条件获取远程数据接口。
@@ -33,7 +34,7 @@ public interface StudentActionStatsClient extends BaseClient<StudentActionStatsD
      */
     @Override
     @PostMapping("/studentActionStats/listByIds")
-    ResponseResult<List<StudentActionStatsDto>> listByIds(
+    ResponseResult<List<StudentActionStatsVo>> listByIds(
             @RequestParam("statsIds") Set<Long> statsIds,
             @RequestParam("withDict") Boolean withDict);
 
@@ -46,7 +47,7 @@ public interface StudentActionStatsClient extends BaseClient<StudentActionStatsD
      */
     @Override
     @PostMapping("/studentActionStats/getById")
-    ResponseResult<StudentActionStatsDto> getById(
+    ResponseResult<StudentActionStatsVo> getById(
             @RequestParam("statsId") Long statsId,
             @RequestParam("withDict") Boolean withDict);
 
@@ -98,7 +99,7 @@ public interface StudentActionStatsClient extends BaseClient<StudentActionStatsD
      */
     @Override
     @PostMapping("/studentActionStats/listBy")
-    ResponseResult<List<StudentActionStatsDto>> listBy(@RequestBody MyQueryParam queryParam);
+    ResponseResult<MyPageData<StudentActionStatsVo>> listBy(@RequestBody MyQueryParam queryParam);
 
     /**
      * 获取远程主对象中符合查询条件的单条数据对象。
@@ -108,7 +109,7 @@ public interface StudentActionStatsClient extends BaseClient<StudentActionStatsD
      */
     @Override
     @PostMapping("/studentActionStats/getBy")
-    ResponseResult<StudentActionStatsDto> getBy(@RequestBody MyQueryParam queryParam);
+    ResponseResult<StudentActionStatsVo> getBy(@RequestBody MyQueryParam queryParam);
 
     /**
      * 获取远程主对象中符合查询条件的数据列表。
@@ -119,7 +120,7 @@ public interface StudentActionStatsClient extends BaseClient<StudentActionStatsD
      */
     @Override
     @PostMapping("/studentActionStats/listMapBy")
-    ResponseResult<List<Map<String, Object>>> listMapBy(@RequestBody MyQueryParam queryParam);
+    ResponseResult<MyPageData<Map<String, Object>>> listMapBy(@RequestBody MyQueryParam queryParam);
 
     /**
      * 获取远程主对象中符合查询条件的数据数量。
@@ -144,7 +145,7 @@ public interface StudentActionStatsClient extends BaseClient<StudentActionStatsD
     @Component("StatsStudentActionStatsClientFallbackFactory")
     @Slf4j
     class StudentActionStatsClientFallbackFactory
-            extends BaseFallbackFactory<StudentActionStatsDto, Long, StudentActionStatsClient> implements StudentActionStatsClient {
+            extends BaseFallbackFactory<StudentActionStatsDto, StudentActionStatsVo, Long, StudentActionStatsClient> implements StudentActionStatsClient {
 
         @Override
         public StudentActionStatsClient create(Throwable throwable) {

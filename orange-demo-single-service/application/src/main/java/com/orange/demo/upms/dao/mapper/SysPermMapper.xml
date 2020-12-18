@@ -15,38 +15,18 @@
         SELECT
             p.*
         FROM
-            zz_sys_user u,
             zz_sys_user_role ur,
             zz_sys_role_menu rm,
             zz_sys_menu_perm_code mpc,
             zz_sys_perm_code_perm pcp,
             zz_sys_perm p
         <where>
-            AND u.user_id = #{userId}
-            AND u.deleted_flag = ${@com.orange.demo.common.core.constant.GlobalDeletedFlag@NORMAL}
-            AND u.user_id = ur.user_id
+            AND ur.user_id = #{userId}
             AND ur.role_id = rm.role_id
             AND rm.menu_id = mpc.menu_id
             AND mpc.perm_code_id = pcp.perm_code_id
             AND pcp.perm_id = p.perm_id
-            AND p.deleted_flag = ${@com.orange.demo.common.core.constant.GlobalDeletedFlag@NORMAL}
         </where>
-    </select>
-
-    <select id="getPermListByPermCodeId" resultMap="BaseResultMap">
-        SELECT
-            p.*
-        FROM
-            zz_sys_perm_code_perm pcp,
-            zz_sys_perm p
-        <where>
-            AND pcp.perm_code_id = #{permCodeId}
-            AND pcp.perm_id = p.perm_id
-            AND p.deleted_flag = ${@com.orange.demo.common.core.constant.GlobalDeletedFlag@NORMAL}
-        </where>
-        <if test="orderBy != null and orderBy != ''">
-            ORDER BY ${orderBy}
-        </if>
     </select>
 
     <!-- 以下查询仅用于权限分配的问题定位，由于关联表较多，可能会给系统运行带来性能影响 -->

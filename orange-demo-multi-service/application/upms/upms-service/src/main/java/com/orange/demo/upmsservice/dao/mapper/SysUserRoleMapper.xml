@@ -5,11 +5,4 @@
         <id column="user_id" jdbcType="BIGINT" property="userId"/>
         <id column="role_id" jdbcType="BIGINT" property="roleId"/>
     </resultMap>
-
-    <insert id="addUserRoleList">
-        REPLACE INTO zz_sys_user_role(user_id, role_id) VALUES
-        <foreach collection="list" index="index" item="item" separator=",">
-            (#{item.userId}, #{item.roleId})
-        </foreach>
-    </insert>
 </mapper>

@@ -20,6 +20,7 @@ import javax.persistence.Column;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
@@ -169,7 +170,7 @@ public abstract class BaseService<M, K> {
         }
         Example e = new Example(modelClass);
         e.createCriteria().andEqualTo(fieldName, fieldValue);
-        return mapper().selectByExample(e).size() == 1;
+        return mapper().selectCountByExample(e) == 1;
     }
 
     /**
@@ -263,7 +264,7 @@ public abstract class BaseService<M, K> {
      */
     public boolean existAllPrimaryKeys(Set<K> idSet) {
         if (CollectionUtils.isEmpty(idSet)) {
-            return false;
+            return true;
         }
         return this.existUniqueKeyList(idFieldName, idSet);
     }
@@ -277,7 +278,7 @@ public abstract class BaseService<M, K> {
      */
     public <T> boolean existUniqueKeyList(String inFilterField, Set<T> inFilterValues) {
         if (CollectionUtils.isEmpty(inFilterValues)) {
-            return false;
+            return true;
         }
         Example e = this.makeDefaultInListExample(inFilterField, inFilterValues, null);
         if (deletedFlagFieldName != null) {
@@ -450,20 +451,21 @@ public abstract class BaseService<M, K> {
         int modifiers = field.getModifiers();
         // transient类型的字段不能作为查询条件
         int transientMask = 128;
-        if ((modifiers & transientMask) == 0) {
-            if (field.getName().equals(deletedFlagFieldName)) {
-                c.andEqualTo(deletedFlagFieldName, GlobalDeletedFlag.NORMAL);
-            } else {
-                ReflectUtil.setAccessible(field);
-                try {
-                    Object o = field.get(filter);
-                    if (o != null) {
-                        c.andEqualTo(field.getName(), field.get(filter));
-                    }
-                } catch (IllegalAccessException ex) {
-                    log.error("Failed to call reflection code of BaseService.getListByFilter.", ex);
-                    throw new MyRuntimeException(ex);
+        if ((modifiers & transientMask) != 0 || Modifier.isStatic(modifiers)) {
+            return;
+        }
+        if (field.getName().equals(deletedFlagFieldName)) {
+            c.andEqualTo(deletedFlagFieldName, GlobalDeletedFlag.NORMAL);
+        } else {
+            ReflectUtil.setAccessible(field);
+            try {
+                Object o = field.get(filter);
+                if (o != null) {
+                    c.andEqualTo(field.getName(), field.get(filter));
                 }
+            } catch (IllegalAccessException ex) {
+                log.error("Failed to call reflection code of BaseService.getListByFilter.", ex);
+                throw new MyRuntimeException(ex);
             }
         }
     }
@@ -492,10 +494,14 @@ public abstract class BaseService<M, K> {
      */
     public List<M> getListByParentId(String parentIdFieldName, K parentId) {
         Example e = new Example(modelClass);
+        Example.Criteria c = e.createCriteria();
         if (parentId != null) {
-            e.createCriteria().andEqualTo(parentIdFieldName, parentId);
+            c.andEqualTo(parentIdFieldName, parentId);
         } else {
-            e.createCriteria().andIsNull(parentIdFieldName);
+            c.andIsNull(parentIdFieldName);
+        }
+        if (deletedFlagFieldName != null) {
+            c.andEqualTo(deletedFlagFieldName, GlobalDeletedFlag.NORMAL);
         }
         return mapper().selectByExample(e);
     }

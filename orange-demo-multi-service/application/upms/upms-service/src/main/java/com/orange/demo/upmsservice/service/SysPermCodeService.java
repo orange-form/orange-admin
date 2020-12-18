@@ -6,7 +6,6 @@ import com.orange.demo.common.sequence.wrapper.IdGeneratorWrapper;
 import com.orange.demo.common.core.base.dao.BaseDaoMapper;
 import com.orange.demo.common.core.constant.GlobalDeletedFlag;
 import com.orange.demo.common.core.object.CallResult;
-import com.orange.demo.upmsinterface.dto.SysPermCodeDto;
 import com.orange.demo.upmsservice.dao.SysMenuPermCodeMapper;
 import com.orange.demo.upmsservice.dao.SysPermCodeMapper;
 import com.orange.demo.upmsservice.dao.SysPermCodePermMapper;
@@ -28,7 +27,7 @@ import java.util.stream.Collectors;
  * @date 2020-08-08
  */
 @Service
-public class SysPermCodeService extends BaseService<SysPermCode, SysPermCodeDto, Long> {
+public class SysPermCodeService extends BaseService<SysPermCode, Long> {
 
     @Autowired
     private SysPermCodeMapper sysPermCodeMapper;

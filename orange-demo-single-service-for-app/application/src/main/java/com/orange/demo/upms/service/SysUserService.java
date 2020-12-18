@@ -109,8 +109,9 @@ public class SysUserService extends BaseService<SysUser, Long> {
     @Transactional(rollbackFor = Exception.class)
     public boolean changePassword(Long userId, String newPass) {
         Example e = new Example(SysUser.class);
-        e.createCriteria().andEqualTo(super.idFieldName, userId);
-        e.createCriteria().andEqualTo(super.deletedFlagFieldName, GlobalDeletedFlag.NORMAL);
+        e.createCriteria()
+                .andEqualTo(super.idFieldName, userId)
+                .andEqualTo(super.deletedFlagFieldName, GlobalDeletedFlag.NORMAL);
         SysUser updatedUser = new SysUser();
         updatedUser.setPassword(passwordEncoder.encode(newPass));
         return sysUserMapper.updateByExampleSelective(updatedUser, e) == 1;

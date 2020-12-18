@@ -4,7 +4,6 @@ import com.orange.demo.common.core.base.service.BaseService;
 import com.orange.demo.common.sequence.wrapper.IdGeneratorWrapper;
 import com.orange.demo.common.core.base.dao.BaseDaoMapper;
 import com.orange.demo.common.core.constant.GlobalDeletedFlag;
-import com.orange.demo.upmsinterface.dto.SysPermModuleDto;
 import com.orange.demo.upmsservice.dao.SysPermModuleMapper;
 import com.orange.demo.upmsservice.model.SysPerm;
 import com.orange.demo.upmsservice.model.SysPermModule;
@@ -22,7 +21,7 @@ import java.util.List;
  * @date 2020-08-08
  */
 @Service
-public class SysPermModuleService extends BaseService<SysPermModule, SysPermModuleDto, Long> {
+public class SysPermModuleService extends BaseService<SysPermModule, Long> {
 
     @Autowired
     private SysPermModuleMapper sysPermModuleMapper;

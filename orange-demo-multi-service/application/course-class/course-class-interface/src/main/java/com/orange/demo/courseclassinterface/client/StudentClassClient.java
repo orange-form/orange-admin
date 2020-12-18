@@ -5,6 +5,7 @@ import com.orange.demo.common.core.config.FeignConfig;
 import com.orange.demo.common.core.base.client.BaseClient;
 import com.orange.demo.common.core.object.*;
 import com.orange.demo.courseclassinterface.dto.StudentClassDto;
+import com.orange.demo.courseclassinterface.vo.StudentClassVo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.stereotype.Component;
@@ -22,7 +23,7 @@ import java.util.*;
         name = "course-class",
         configuration = FeignConfig.class,
         fallbackFactory = StudentClassClient.StudentClassClientFallbackFactory.class)
-public interface StudentClassClient extends BaseClient<StudentClassDto, Long> {
+public interface StudentClassClient extends BaseClient<StudentClassDto, StudentClassVo, Long> {
 
     /**
      * 基于主键的(In-list)条件获取远程数据接口。
@@ -33,7 +34,7 @@ public interface StudentClassClient extends BaseClient<StudentClassDto, Long> {
      */
     @Override
     @PostMapping("/studentClass/listByIds")
-    ResponseResult<List<StudentClassDto>> listByIds(
+    ResponseResult<List<StudentClassVo>> listByIds(
             @RequestParam("classIds") Set<Long> classIds,
             @RequestParam("withDict") Boolean withDict);
 
@@ -46,7 +47,7 @@ public interface StudentClassClient extends BaseClient<StudentClassDto, Long> {
      */
     @Override
     @PostMapping("/studentClass/getById")
-    ResponseResult<StudentClassDto> getById(
+    ResponseResult<StudentClassVo> getById(
             @RequestParam("classId") Long classId,
             @RequestParam("withDict") Boolean withDict);
 
@@ -98,7 +99,7 @@ public interface StudentClassClient extends BaseClient<StudentClassDto, Long> {
      */
     @Override
     @PostMapping("/studentClass/listBy")
-    ResponseResult<List<StudentClassDto>> listBy(@RequestBody MyQueryParam queryParam);
+    ResponseResult<MyPageData<StudentClassVo>> listBy(@RequestBody MyQueryParam queryParam);
 
     /**
      * 获取远程主对象中符合查询条件的单条数据对象。
@@ -108,7 +109,7 @@ public interface StudentClassClient extends BaseClient<StudentClassDto, Long> {
      */
     @Override
     @PostMapping("/studentClass/getBy")
-    ResponseResult<StudentClassDto> getBy(@RequestBody MyQueryParam queryParam);
+    ResponseResult<StudentClassVo> getBy(@RequestBody MyQueryParam queryParam);
 
     /**
      * 获取远程主对象中符合查询条件的数据列表。
@@ -119,7 +120,7 @@ public interface StudentClassClient extends BaseClient<StudentClassDto, Long> {
      */
     @Override
     @PostMapping("/studentClass/listMapBy")
-    ResponseResult<List<Map<String, Object>>> listMapBy(@RequestBody MyQueryParam queryParam);
+    ResponseResult<MyPageData<Map<String, Object>>> listMapBy(@RequestBody MyQueryParam queryParam);
 
     /**
      * 获取远程主对象中符合查询条件的数据数量。
@@ -144,7 +145,7 @@ public interface StudentClassClient extends BaseClient<StudentClassDto, Long> {
     @Component("CourseClassStudentClassClientFallbackFactory")
     @Slf4j
     class StudentClassClientFallbackFactory
-            extends BaseFallbackFactory<StudentClassDto, Long, StudentClassClient> implements StudentClassClient {
+            extends BaseFallbackFactory<StudentClassDto, StudentClassVo, Long, StudentClassClient> implements StudentClassClient {
 
         @Override
         public StudentClassClient create(Throwable throwable) {

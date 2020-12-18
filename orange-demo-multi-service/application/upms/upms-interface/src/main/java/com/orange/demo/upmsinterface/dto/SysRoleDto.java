@@ -7,8 +7,6 @@ import lombok.Data;
 
 import javax.validation.constraints.*;
 import java.util.Date;
-import java.util.List;
-import java.util.Map;
 
 /**
  * 角色Dto。
@@ -57,19 +55,4 @@ public class SysRoleDto {
      */
     @ApiModelProperty(value = "更新时间")
     private Date updateTime;
-
-    /**
-     * 角色与菜单关联对象列表。
-     */
-    @ApiModelProperty(hidden = true)
-    private List<Map<String, Object>> sysRoleMenuList;
-
-    @ApiModelProperty(value = "创建时间开始查询时间")
-    private String createTimeStart;
-
-    @ApiModelProperty(value = "创建时间结束查询时间")
-    private String createTimeEnd;
-
-    @ApiModelProperty(value = "LIKE 模糊搜索字符串")
-    private String searchString;
 }

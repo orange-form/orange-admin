@@ -6,7 +6,7 @@ import com.orange.demo.common.core.annotation.RelationManyToMany;
 import com.orange.demo.common.core.base.mapper.BaseModelMapper;
 import com.orange.demo.common.core.validator.ConstDictRef;
 import com.orange.demo.upmsinterface.constant.SysPermCodeType;
-import com.orange.demo.upmsinterface.dto.SysPermCodeDto;
+import com.orange.demo.upmsinterface.vo.SysPermCodeVo;
 import lombok.Data;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -92,25 +92,25 @@ public class SysPermCode {
     private List<SysPermCodePerm> sysPermCodePermList;
 
     @Mapper
-    public interface SysPermCodeModelMapper extends BaseModelMapper<SysPermCodeDto, SysPermCode> {
+    public interface SysPermCodeModelMapper extends BaseModelMapper<SysPermCodeVo, SysPermCode> {
         /**
-         * 转换Dto对象到实体对象。
+         * 转换VO对象到实体对象。
          *
-         * @param sysPermCodeDto 域对象。
+         * @param sysPermCodeVo 域对象。
          * @return 实体对象。
          */
-        @Mapping(target = "sysPermCodePermList", expression = "java(mapToBean(sysPermCodeDto.getSysPermCodePermList(), com.orange.demo.upmsservice.model.SysPermCodePerm.class))")
+        @Mapping(target = "sysPermCodePermList", expression = "java(mapToBean(sysPermCodeVo.getSysPermCodePermList(), com.orange.demo.upmsservice.model.SysPermCodePerm.class))")
         @Override
-        SysPermCode toModel(SysPermCodeDto sysPermCodeDto);
+        SysPermCode toModel(SysPermCodeVo sysPermCodeVo);
         /**
-         * 转换实体对象到Dto对象。
+         * 转换实体对象到VO对象。
          *
          * @param sysPermCode 实体对象。
          * @return 域对象。
          */
         @Mapping(target = "sysPermCodePermList", expression = "java(beanToMap(sysPermCode.getSysPermCodePermList(), false))")
         @Override
-        SysPermCodeDto fromModel(SysPermCode sysPermCode);
+        SysPermCodeVo fromModel(SysPermCode sysPermCode);
     }
     public static final SysPermCodeModelMapper INSTANCE = Mappers.getMapper(SysPermCode.SysPermCodeModelMapper.class);
 }

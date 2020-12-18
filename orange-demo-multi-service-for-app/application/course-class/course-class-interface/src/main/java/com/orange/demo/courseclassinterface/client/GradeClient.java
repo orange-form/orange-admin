@@ -5,6 +5,7 @@ import com.orange.demo.common.core.config.FeignConfig;
 import com.orange.demo.common.core.base.client.BaseClient;
 import com.orange.demo.common.core.object.*;
 import com.orange.demo.courseclassinterface.dto.GradeDto;
+import com.orange.demo.courseclassinterface.vo.GradeVo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.stereotype.Component;
@@ -22,7 +23,7 @@ import java.util.*;
         name = "course-class",
         configuration = FeignConfig.class,
         fallbackFactory = GradeClient.GradeClientFallbackFactory.class)
-public interface GradeClient extends BaseClient<GradeDto, Integer> {
+public interface GradeClient extends BaseClient<GradeDto, GradeVo, Integer> {
 
     /**
      * 基于主键的(in list)条件获取远程数据接口。
@@ -33,7 +34,7 @@ public interface GradeClient extends BaseClient<GradeDto, Integer> {
      */
     @Override
     @PostMapping("/grade/listByIds")
-    ResponseResult<List<GradeDto>> listByIds(
+    ResponseResult<List<GradeVo>> listByIds(
             @RequestParam("gradeIds") Set<Integer> gradeIds,
             @RequestParam("withDict") Boolean withDict);
 
@@ -46,7 +47,7 @@ public interface GradeClient extends BaseClient<GradeDto, Integer> {
      */
     @Override
     @PostMapping("/grade/getById")
-    ResponseResult<GradeDto> getById(
+    ResponseResult<GradeVo> getById(
             @RequestParam("gradeId") Integer gradeId,
             @RequestParam("withDict") Boolean withDict);
 
@@ -98,7 +99,7 @@ public interface GradeClient extends BaseClient<GradeDto, Integer> {
      */
     @Override
     @PostMapping("/grade/listBy")
-    ResponseResult<List<GradeDto>> listBy(@RequestBody MyQueryParam queryParam);
+    ResponseResult<MyPageData<GradeVo>> listBy(@RequestBody MyQueryParam queryParam);
 
     /**
      * 获取远程主对象中符合查询条件的单条数据对象。
@@ -108,12 +109,12 @@ public interface GradeClient extends BaseClient<GradeDto, Integer> {
      */
     @Override
     @PostMapping("/grade/getBy")
-    ResponseResult<GradeDto> getBy(@RequestBody MyQueryParam queryParam);
+    ResponseResult<GradeVo> getBy(@RequestBody MyQueryParam queryParam);
 
     @Component("CourseClassGradeClientFallbackFactory")
     @Slf4j
     class GradeClientFallbackFactory
-            extends BaseFallbackFactory<GradeDto, Integer, GradeClient> implements GradeClient {
+            extends BaseFallbackFactory<GradeDto, GradeVo, Integer, GradeClient> implements GradeClient {
 
         @Override
         public GradeClient create(Throwable throwable) {

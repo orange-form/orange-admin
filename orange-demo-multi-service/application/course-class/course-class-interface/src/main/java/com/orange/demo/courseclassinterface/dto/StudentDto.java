@@ -13,7 +13,6 @@ import lombok.Data;
 import javax.validation.constraints.*;
 
 import java.util.Date;
-import java.util.Map;
 
 /**
  * StudentDto对象。
@@ -161,52 +160,4 @@ public class StudentDto {
      */
     @ApiModelProperty(value = "LIKE模糊搜索字符串")
     private String searchString;
-
-    /**
-     * provinceId 字典关联数据。
-     */
-    @ApiModelProperty(hidden = true)
-    private Map<String, Object> provinceIdDictMap;
-
-    /**
-     * cityId 字典关联数据。
-     */
-    @ApiModelProperty(hidden = true)
-    private Map<String, Object> cityIdDictMap;
-
-    /**
-     * districtId 字典关联数据。
-     */
-    @ApiModelProperty(hidden = true)
-    private Map<String, Object> districtIdDictMap;
-
-    /**
-     * gradeId 字典关联数据。
-     */
-    @ApiModelProperty(hidden = true)
-    private Map<String, Object> gradeIdDictMap;
-
-    /**
-     * schoolId 字典关联数据。
-     */
-    @ApiModelProperty(hidden = true)
-    private Map<String, Object> schoolIdDictMap;
-
-    /**
-     * gender 常量字典关联数据。
-     */
-    @ApiModelProperty(hidden = true)
-    private Map<String, Object> genderDictMap;
-
-    /**
-     * experienceLevel 常量字典关联数据。
-     */
-    @ApiModelProperty(hidden = true)
-    private Map<String, Object> experienceLevelDictMap;
-
-    /**
-     * status 常量字典关联数据。
-     */
-    @ApiModelProperty(hidden = true)
-    private Map<String, Object> statusDictMap;
 }

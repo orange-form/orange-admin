@@ -13,8 +13,6 @@ import lombok.Data;
 import javax.validation.constraints.*;
 
 import java.util.Date;
-import java.util.Map;
-import java.util.List;
 
 /**
  * SysUserDto对象。
@@ -111,22 +109,4 @@ public class SysUserDto {
      */
     @ApiModelProperty(value = "createTime 范围过滤结束值(<=)")
     private String createTimeEnd;
-
-    /**
-     * 多对多用户角色数据集合。
-     */
-    @ApiModelProperty(hidden = true)
-    private List<Map<String, Object>> sysUserRoleList;
-
-    /**
-     * userType 常量字典关联数据。
-     */
-    @ApiModelProperty(hidden = true)
-    private Map<String, Object> userTypeDictMap;
-
-    /**
-     * userStatus 常量字典关联数据。
-     */
-    @ApiModelProperty(hidden = true)
-    private Map<String, Object> userStatusDictMap;
 }

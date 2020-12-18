@@ -12,7 +12,6 @@ import lombok.Data;
 import javax.validation.constraints.*;
 
 import java.util.Date;
-import java.util.Map;
 
 /**
  * StudentActionTransDto对象。
@@ -135,28 +134,4 @@ public class StudentActionTransDto {
      */
     @ApiModelProperty(value = "createTime 范围过滤结束值(<=)")
     private String createTimeEnd;
-
-    /**
-     * schoolId 字典关联数据。
-     */
-    @ApiModelProperty(hidden = true)
-    private Map<String, Object> schoolIdDictMap;
-
-    /**
-     * gradeId 字典关联数据。
-     */
-    @ApiModelProperty(hidden = true)
-    private Map<String, Object> gradeIdDictMap;
-
-    /**
-     * actionType 常量字典关联数据。
-     */
-    @ApiModelProperty(hidden = true)
-    private Map<String, Object> actionTypeDictMap;
-
-    /**
-     * deviceType 常量字典关联数据。
-     */
-    @ApiModelProperty(hidden = true)
-    private Map<String, Object> deviceTypeDictMap;
 }

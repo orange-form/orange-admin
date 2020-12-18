@@ -11,7 +11,6 @@ import lombok.Data;
 import javax.validation.constraints.*;
 
 import java.util.Date;
-import java.util.Map;
 
 /**
  * CourseTransStatsDto对象。
@@ -103,22 +102,4 @@ public class CourseTransStatsDto {
      */
     @ApiModelProperty(value = "statsDate 范围过滤结束值(<=)")
     private String statsDateEnd;
-
-    /**
-     * gradeId 字典关联数据。
-     */
-    @ApiModelProperty(hidden = true)
-    private Map<String, Object> gradeIdDictMap;
-
-    /**
-     * courseId 字典关联数据。
-     */
-    @ApiModelProperty(hidden = true)
-    private Map<String, Object> courseIdDictMap;
-
-    /**
-     * subjectId 常量字典关联数据。
-     */
-    @ApiModelProperty(hidden = true)
-    private Map<String, Object> subjectIdDictMap;
 }

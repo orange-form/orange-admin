@@ -6,11 +6,11 @@ import com.orange.demo.common.core.upload.BaseUpDownloader;
 import com.orange.demo.common.core.upload.UpDownloaderFactory;
 import com.orange.demo.common.core.upload.UploadResponseInfo;
 import com.orange.demo.common.core.upload.UploadStoreInfo;
-import com.github.pagehelper.Page;
 import com.github.pagehelper.page.PageMethod;
 import com.orange.demo.courseclassservice.model.*;
 import com.orange.demo.courseclassservice.service.*;
 import com.orange.demo.courseclassinterface.dto.*;
+import com.orange.demo.courseclassinterface.vo.*;
 import com.orange.demo.common.core.object.*;
 import com.orange.demo.common.core.util.*;
 import com.orange.demo.common.core.constant.*;
@@ -42,7 +42,7 @@ import java.util.*;
 @Slf4j
 @RestController
 @RequestMapping("/course")
-public class CourseController extends BaseController<Course, CourseDto, Long> {
+public class CourseController extends BaseController<Course, CourseVo, Long> {
 
     @Autowired
     private CourseService courseService;
@@ -54,7 +54,7 @@ public class CourseController extends BaseController<Course, CourseDto, Long> {
     private UpDownloaderFactory upDownloaderFactory;
 
     @Override
-    protected BaseService<Course, CourseDto, Long> service() {
+    protected BaseService<Course, Long> service() {
         return courseService;
     }
 
@@ -78,7 +78,7 @@ public class CourseController extends BaseController<Course, CourseDto, Long> {
         if (errorMessage != null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
-        Course course = Course.INSTANCE.toModel(courseDto);
+        Course course = MyModelUtil.copyTo(courseDto, Course.class);
         // 验证关联Id的数据合法性
         CallResult callResult = courseService.verifyRelatedData(course, null);
         if (!callResult.isSuccess()) {
@@ -108,7 +108,7 @@ public class CourseController extends BaseController<Course, CourseDto, Long> {
         if (errorMessage != null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
-        Course course = Course.INSTANCE.toModel(courseDto);
+        Course course = MyModelUtil.copyTo(courseDto, Course.class);
         Course originalCourse = courseService.getById(course.getCourseId());
         if (originalCourse == null) {
             // NOTE: 修改下面方括号中的话述
@@ -162,25 +162,18 @@ public class CourseController extends BaseController<Course, CourseDto, Long> {
      * @return 应答结果对象，包含查询结果集。
      */
     @PostMapping("/list")
-    public ResponseResult<MyPageData<CourseDto>> list(
+    public ResponseResult<MyPageData<CourseVo>> list(
             @MyRequestBody("courseFilter") CourseDto courseDtoFilter,
             @MyRequestBody MyOrderParam orderParam,
             @MyRequestBody MyPageParam pageParam) {
         if (pageParam != null) {
             PageMethod.startPage(pageParam.getPageNum(), pageParam.getPageSize());
         }
-        Course courseFilter = Course.INSTANCE.toModel(courseDtoFilter);
+        Course courseFilter = MyModelUtil.copyTo(courseDtoFilter, Course.class);
         String orderBy = MyOrderParam.buildOrderBy(orderParam, Course.class);
         List<Course> courseList =
                 courseService.getCourseListWithRelation(courseFilter, orderBy);
-        long totalCount = 0L;
-        if (courseList instanceof Page) {
-            totalCount = ((Page<Course>) courseList).getTotal();
-        }
-        // 分页连同对象数据转换copy工作，下面的方法一并完成。
-        Tuple2<List<CourseDto>, Long> responseData =
-                new Tuple2<>(Course.INSTANCE.fromModelList(courseList), totalCount);
-        return ResponseResult.success(MyPageUtil.makeResponseData(responseData));
+        return ResponseResult.success(MyPageUtil.makeResponseData(courseList, Course.INSTANCE));
     }
 
     /**
@@ -190,7 +183,7 @@ public class CourseController extends BaseController<Course, CourseDto, Long> {
      * @return 应答结果对象，包含对象详情。
      */
     @GetMapping("/view")
-    public ResponseResult<CourseDto> view(@RequestParam Long courseId) {
+    public ResponseResult<CourseVo> view(@RequestParam Long courseId) {
         if (MyCommonUtil.existBlankArgument(courseId)) {
             return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
         }
@@ -199,8 +192,8 @@ public class CourseController extends BaseController<Course, CourseDto, Long> {
         if (course == null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST);
         }
-        CourseDto courseDto = Course.INSTANCE.fromModel(course);
-        return ResponseResult.success(courseDto);
+        CourseVo courseVo = Course.INSTANCE.fromModel(course);
+        return ResponseResult.success(courseVo);
     }
 
     /**
@@ -319,7 +312,7 @@ public class CourseController extends BaseController<Course, CourseDto, Long> {
      */
     @ApiOperation(hidden = true, value = "listByIds")
     @PostMapping("/listByIds")
-    public ResponseResult<List<CourseDto>> listByIds(
+    public ResponseResult<List<CourseVo>> listByIds(
             @RequestParam Set<Long> courseIds, @RequestParam Boolean withDict) {
         return super.baseListByIds(courseIds, withDict, Course.INSTANCE);
     }
@@ -333,7 +326,7 @@ public class CourseController extends BaseController<Course, CourseDto, Long> {
      */
     @ApiOperation(hidden = true, value = "getById")
     @PostMapping("/getById")
-    public ResponseResult<CourseDto> getById(
+    public ResponseResult<CourseVo> getById(
             @RequestParam Long courseId, @RequestParam Boolean withDict) {
         return super.baseGetById(courseId, withDict, Course.INSTANCE);
     }
@@ -371,30 +364,30 @@ public class CourseController extends BaseController<Course, CourseDto, Long> {
     @ApiOperation(hidden = true, value = "deleteBy")
     @PostMapping("/deleteBy")
     public ResponseResult<Integer> deleteBy(@RequestBody CourseDto filter) throws Exception {
-        return super.baseDeleteBy(filter, Course.INSTANCE);
+        return super.baseDeleteBy(MyModelUtil.copyTo(filter, Course.class));
     }
 
     /**
-     * 复杂的查询调用，包括(in list)过滤，对象条件过滤，分组和排序等。主要用于微服务间远程过程调用。
+     * 复杂的查询调用，包括(in list)过滤，对象条件过滤，分页和排序等。主要用于微服务间远程过程调用。
      *
      * @param queryParam 查询参数。
-     * @return 应答结果对象，包含符合查询过滤条件的对象结果集。
+     * @return 分页数据集合对象。如MyQueryParam参数的分页属性为空，则不会执行分页操作，只是基于MyPageData对象返回数据结果。
      */
     @ApiOperation(hidden = true, value = "listBy")
     @PostMapping("/listBy")
-    public ResponseResult<List<CourseDto>> listBy(@RequestBody MyQueryParam queryParam) {
+    public ResponseResult<MyPageData<CourseVo>> listBy(@RequestBody MyQueryParam queryParam) {
         return super.baseListBy(queryParam, Course.INSTANCE);
     }
 
     /**
-     * 复杂的查询调用，包括(in list)过滤，对象条件过滤，分组和排序等。主要用于微服务间远程过程调用。
+     * 复杂的查询调用，包括(in list)过滤，对象条件过滤，分页和排序等。主要用于微服务间远程过程调用。
      *
      * @param queryParam 查询参数。
-     * @return 应答结果对象，包含符合查询过滤条件的对象结果集。
+     * @return 分页数据集合对象。如MyQueryParam参数的分页属性为空，则不会执行分页操作，只是基于MyPageData对象返回数据结果。
      */
     @ApiOperation(hidden = true, value = "listMapBy")
     @PostMapping("/listMapBy")
-    public ResponseResult<List<Map<String, Object>>> listMapBy(@RequestBody MyQueryParam queryParam) {
+    public ResponseResult<MyPageData<Map<String, Object>>> listMapBy(@RequestBody MyQueryParam queryParam) {
         return super.baseListMapBy(queryParam, Course.INSTANCE);
     }
 
@@ -406,7 +399,7 @@ public class CourseController extends BaseController<Course, CourseDto, Long> {
      */
     @ApiOperation(hidden = true, value = "getBy")
     @PostMapping("/getBy")
-    public ResponseResult<CourseDto> getBy(@RequestBody MyQueryParam queryParam) {
+    public ResponseResult<CourseVo> getBy(@RequestBody MyQueryParam queryParam) {
         return super.baseGetBy(queryParam, Course.INSTANCE);
     }
 

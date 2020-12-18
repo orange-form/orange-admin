@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
  * @date 2020-08-08
  */
 @Service
-public class SysPermWhitelistService extends BaseService<SysPermWhitelist, SysPermWhitelist, String> {
+public class SysPermWhitelistService extends BaseService<SysPermWhitelist, String> {
 
     @Autowired
     private SysPermWhitelistMapper sysPermWhitelistMapper;

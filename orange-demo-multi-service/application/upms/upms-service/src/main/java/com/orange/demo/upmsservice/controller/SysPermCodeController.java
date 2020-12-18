@@ -10,6 +10,7 @@ import com.orange.demo.common.core.util.MyCommonUtil;
 import com.orange.demo.common.core.annotation.MyRequestBody;
 import com.orange.demo.common.core.validator.UpdateGroup;
 import com.orange.demo.upmsinterface.dto.SysPermCodeDto;
+import com.orange.demo.upmsinterface.vo.SysPermCodeVo;
 import com.orange.demo.upmsservice.model.SysPermCode;
 import com.orange.demo.upmsservice.service.SysPermCodeService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -133,10 +134,10 @@ public class SysPermCodeController {
      * @return 应答结果对象，包含权限字列表。
      */
     @PostMapping("/list")
-    public ResponseResult<List<SysPermCodeDto>> list() {
+    public ResponseResult<List<SysPermCodeVo>> list() {
         List<SysPermCode> sysPermCodeList =
                 sysPermCodeService.getAllListByOrder("permCodeType", "showOrder");
-        return ResponseResult.success(MyModelUtil.copyCollectionTo(sysPermCodeList, SysPermCodeDto.class));
+        return ResponseResult.success(MyModelUtil.copyCollectionTo(sysPermCodeList, SysPermCodeVo.class));
     }
 
     /**
@@ -146,7 +147,7 @@ public class SysPermCodeController {
      * @return 应答结果对象，包含权限字对象详情。
      */
     @GetMapping("/view")
-    public ResponseResult<SysPermCodeDto> view(@RequestParam Long permCodeId) {
+    public ResponseResult<SysPermCodeVo> view(@RequestParam Long permCodeId) {
         if (MyCommonUtil.existBlankArgument(permCodeId)) {
             return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
         }
@@ -155,8 +156,8 @@ public class SysPermCodeController {
         if (sysPermCode == null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST);
         }
-        SysPermCodeDto sysPermCodeDto = MyModelUtil.copyTo(sysPermCode, SysPermCodeDto.class);
-        return ResponseResult.success(sysPermCodeDto);
+        SysPermCodeVo sysPermCodeVo = MyModelUtil.copyTo(sysPermCode, SysPermCodeVo.class);
+        return ResponseResult.success(sysPermCodeVo);
     }
 
     /**

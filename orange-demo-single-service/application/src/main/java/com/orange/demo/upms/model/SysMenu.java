@@ -3,10 +3,15 @@ package com.orange.demo.upms.model;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.orange.demo.common.core.annotation.DeletedFlagColumn;
 import com.orange.demo.common.core.annotation.RelationManyToMany;
+import com.orange.demo.common.core.base.mapper.BaseModelMapper;
 import com.orange.demo.common.core.validator.ConstDictRef;
 import com.orange.demo.common.core.validator.UpdateGroup;
 import com.orange.demo.upms.model.constant.SysMenuType;
+import com.orange.demo.upms.vo.SysMenuVo;
 import lombok.Data;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.factory.Mappers;
 
 import javax.persistence.*;
 import javax.validation.constraints.*;
@@ -90,4 +95,27 @@ public class SysMenu {
             relationModelClass = SysMenuPermCode.class)
     @Transient
     private List<SysMenuPermCode> sysMenuPermCodeList;
+
+    @Mapper
+    public interface SysMenuModelMapper extends BaseModelMapper<SysMenuVo, SysMenu> {
+        /**
+         * 转换VO对象到实体对象。
+         *
+         * @param sysMenuVo 域对象。
+         * @return 实体对象。
+         */
+        @Mapping(target = "sysMenuPermCodeList", expression = "java(mapToBean(sysMenuVo.getSysMenuPermCodeList(), com.orange.demo.upms.model.SysMenuPermCode.class))")
+        @Override
+        SysMenu toModel(SysMenuVo sysMenuVo);
+        /**
+         * 转换实体对象到VO对象。
+         *
+         * @param sysMenu 实体对象。
+         * @return 域对象。
+         */
+        @Mapping(target = "sysMenuPermCodeList", expression = "java(beanToMap(sysMenu.getSysMenuPermCodeList(), false))")
+        @Override
+        SysMenuVo fromModel(SysMenu sysMenu);
+    }
+    public static final SysMenuModelMapper INSTANCE = Mappers.getMapper(SysMenu.SysMenuModelMapper.class);
 }

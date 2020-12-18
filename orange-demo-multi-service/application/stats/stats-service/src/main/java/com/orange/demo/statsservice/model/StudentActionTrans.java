@@ -1,16 +1,16 @@
 package com.orange.demo.statsservice.model;
 
-import com.orange.demo.courseclassinterface.dto.SchoolInfoDto;
 import com.orange.demo.courseclassinterface.client.GradeClient;
-import com.orange.demo.courseclassinterface.dto.GradeDto;
 import com.orange.demo.courseclassinterface.client.SchoolInfoClient;
+import com.orange.demo.courseclassinterface.vo.SchoolInfoVo;
+import com.orange.demo.courseclassinterface.vo.GradeVo;
 import com.orange.demo.application.common.constant.StudentActionType;
 import com.orange.demo.application.common.constant.DeviceType;
 import com.orange.demo.common.core.annotation.RelationDict;
 import com.orange.demo.common.core.annotation.RelationConstDict;
 import com.orange.demo.common.core.base.mapper.BaseModelMapper;
 import com.orange.demo.common.core.validator.ConstDictRef;
-import com.orange.demo.statsinterface.dto.StudentActionTransDto;
+import com.orange.demo.statsinterface.vo.StudentActionTransVo;
 import lombok.Data;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
@@ -146,7 +146,7 @@ public class StudentActionTrans {
     @RelationDict(
             masterIdField = "schoolId",
             slaveClientClass = SchoolInfoClient.class,
-            slaveModelClass = SchoolInfoDto.class,
+            slaveModelClass = SchoolInfoVo.class,
             slaveIdField = "schoolId",
             slaveNameField = "schoolName")
     @Transient
@@ -155,7 +155,7 @@ public class StudentActionTrans {
     @RelationDict(
             masterIdField = "gradeId",
             slaveClientClass = GradeClient.class,
-            slaveModelClass = GradeDto.class,
+            slaveModelClass = GradeVo.class,
             slaveIdField = "gradeId",
             slaveNameField = "gradeName")
     @Transient
@@ -174,23 +174,23 @@ public class StudentActionTrans {
     private Map<String, Object> deviceTypeDictMap;
 
     @Mapper
-    public interface StudentActionTransModelMapper extends BaseModelMapper<StudentActionTransDto, StudentActionTrans> {
+    public interface StudentActionTransModelMapper extends BaseModelMapper<StudentActionTransVo, StudentActionTrans> {
         /**
-         * 转换Dto对象到实体对象。
+         * 转换Vo对象到实体对象。
          *
-         * @param studentActionTransDto 域对象。
+         * @param studentActionTransVo 域对象。
          * @return 实体对象。
          */
         @Override
-        StudentActionTrans toModel(StudentActionTransDto studentActionTransDto);
+        StudentActionTrans toModel(StudentActionTransVo studentActionTransVo);
         /**
-         * 转换实体对象到Dto对象。
+         * 转换实体对象到VO对象。
          *
          * @param studentActionTrans 实体对象。
          * @return 域对象。
          */
         @Override
-        StudentActionTransDto fromModel(StudentActionTrans studentActionTrans);
+        StudentActionTransVo fromModel(StudentActionTrans studentActionTrans);
     }
     public static final StudentActionTransModelMapper INSTANCE = Mappers.getMapper(StudentActionTransModelMapper.class);
 }

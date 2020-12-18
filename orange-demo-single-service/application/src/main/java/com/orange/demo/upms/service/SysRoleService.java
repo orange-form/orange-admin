@@ -14,7 +14,6 @@ import com.orange.demo.upms.model.SysRole;
 import com.orange.demo.upms.model.SysRoleMenu;
 import com.orange.demo.upms.model.SysUserRole;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -93,11 +92,11 @@ public class SysRoleService extends BaseService<SysRole, Long> {
      */
     @Transactional(rollbackFor = Exception.class)
     public boolean update(SysRole role, SysRole originalRole, Set<Long> menuIdSet) {
-        SysRole updateRole = new SysRole();
-        BeanUtils.copyProperties(role, updateRole, "createUserId", "createUsername", "createTime");
-        updateRole.setUpdateTime(new Date());
-        updateRole.setDeletedFlag(GlobalDeletedFlag.NORMAL);
-        if (sysRoleMapper.updateByPrimaryKeySelective(updateRole) != 1) {
+        role.setCreateUserId(originalRole.getCreateUserId());
+        role.setCreateTime(originalRole.getCreateTime());
+        role.setUpdateTime(new Date());
+        role.setDeletedFlag(GlobalDeletedFlag.NORMAL);
+        if (sysRoleMapper.updateByPrimaryKey(role) != 1) {
             return false;
         }
         SysRoleMenu deletedRoleMenu = new SysRoleMenu();
@@ -157,7 +156,7 @@ public class SysRoleService extends BaseService<SysRole, Long> {
      */
     @Transactional(rollbackFor = Exception.class)
     public void addUserRoleList(List<SysUserRole> userRoleList) {
-        sysUserRoleMapper.addUserRoleList(userRoleList);
+        sysUserRoleMapper.insertList(userRoleList);
     }
 
     /**

@@ -3,10 +3,15 @@ package com.orange.demo.upms.model;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.orange.demo.common.core.annotation.DeletedFlagColumn;
 import com.orange.demo.common.core.annotation.RelationManyToMany;
+import com.orange.demo.common.core.base.mapper.BaseModelMapper;
 import com.orange.demo.common.core.validator.ConstDictRef;
 import com.orange.demo.common.core.validator.UpdateGroup;
 import com.orange.demo.upms.model.constant.SysPermCodeType;
+import com.orange.demo.upms.vo.SysPermCodeVo;
 import lombok.Data;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.factory.Mappers;
 
 import javax.persistence.*;
 import javax.validation.constraints.*;
@@ -86,4 +91,27 @@ public class SysPermCode {
             relationModelClass = SysPermCodePerm.class)
     @Transient
     private List<SysPermCodePerm> sysPermCodePermList;
+
+    @Mapper
+    public interface SysPermCodeModelMapper extends BaseModelMapper<SysPermCodeVo, SysPermCode> {
+        /**
+         * 转换VO对象到实体对象。
+         *
+         * @param sysPermCodeVo 域对象。
+         * @return 实体对象。
+         */
+        @Mapping(target = "sysPermCodePermList", expression = "java(mapToBean(sysPermCodeVo.getSysPermCodePermList(), com.orange.demo.upms.model.SysPermCodePerm.class))")
+        @Override
+        SysPermCode toModel(SysPermCodeVo sysPermCodeVo);
+        /**
+         * 转换实体对象到VO对象。
+         *
+         * @param sysPermCode 实体对象。
+         * @return 域对象。
+         */
+        @Mapping(target = "sysPermCodePermList", expression = "java(beanToMap(sysPermCode.getSysPermCodePermList(), false))")
+        @Override
+        SysPermCodeVo fromModel(SysPermCode sysPermCode);
+    }
+    public static final SysPermCodeModelMapper INSTANCE = Mappers.getMapper(SysPermCode.SysPermCodeModelMapper.class);
 }

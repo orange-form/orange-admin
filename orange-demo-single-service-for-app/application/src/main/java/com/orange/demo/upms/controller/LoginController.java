@@ -95,7 +95,8 @@ public class LoginController {
      */
     @PostMapping("/doLogout")
     public ResponseResult<Void> doLogout() {
-        cacheHelper.removeAllSessionCache();
+        TokenData tokenData = TokenData.takeFromRequest();
+        cacheHelper.removeAllSessionCache(tokenData.getSessionId());
         return ResponseResult.success();
     }
 

@@ -1,6 +1,7 @@
 package com.orange.demo.app.controller;
 
 import com.github.pagehelper.page.PageMethod;
+import com.orange.demo.app.vo.*;
 import com.orange.demo.app.model.*;
 import com.orange.demo.app.service.*;
 import com.orange.demo.common.core.object.*;
@@ -36,7 +37,7 @@ public class StudentActionStatsController {
      * @return 应答结果对象，包含查询结果集。
      */
     @PostMapping("/list")
-    public ResponseResult<MyPageData<StudentActionStats>> list(
+    public ResponseResult<MyPageData<StudentActionStatsVo>> list(
             @MyRequestBody StudentActionStats studentActionStatsFilter,
             @MyRequestBody MyOrderParam orderParam,
             @MyRequestBody MyPageParam pageParam) {
@@ -44,8 +45,8 @@ public class StudentActionStatsController {
             PageMethod.startPage(pageParam.getPageNum(), pageParam.getPageSize());
         }
         String orderBy = MyOrderParam.buildOrderBy(orderParam, StudentActionStats.class);
-        List<StudentActionStats> resultList = studentActionStatsService.getStudentActionStatsListWithRelation(studentActionStatsFilter, orderBy);
-        return ResponseResult.success(MyPageUtil.makeResponseData(resultList));
+        List<StudentActionStats> studentActionStatsList = studentActionStatsService.getStudentActionStatsListWithRelation(studentActionStatsFilter, orderBy);
+        return ResponseResult.success(MyPageUtil.makeResponseData(studentActionStatsList, StudentActionStats.INSTANCE));
     }
 
     /**
@@ -58,7 +59,7 @@ public class StudentActionStatsController {
      * @return 应答结果对象，包含查询结果集。
      */
     @PostMapping("/listWithGroup")
-    public ResponseResult<MyPageData<StudentActionStats>> listWithGroup(
+    public ResponseResult<MyPageData<StudentActionStatsVo>> listWithGroup(
             @MyRequestBody StudentActionStats studentActionStatsFilter,
             @MyRequestBody(required = true) MyGroupParam groupParam,
             @MyRequestBody MyOrderParam orderParam,
@@ -75,7 +76,8 @@ public class StudentActionStatsController {
         MyGroupCriteria criteria = groupParam.getGroupCriteria();
         List<StudentActionStats> resultList = studentActionStatsService.getGroupedStudentActionStatsListWithRelation(
                 studentActionStatsFilter, criteria.getGroupSelect(), criteria.getGroupBy(), orderBy);
-        return ResponseResult.success(MyPageUtil.makeResponseData(resultList));
+        // 分页连同对象数据转换copy工作，下面的方法一并完成。
+        return ResponseResult.success(MyPageUtil.makeResponseData(resultList, StudentActionStats.INSTANCE));
     }
 
     /**
@@ -85,7 +87,7 @@ public class StudentActionStatsController {
      * @return 应答结果对象，包含对象详情。
      */
     @GetMapping("/view")
-    public ResponseResult<StudentActionStats> view(@RequestParam Long statsId) {
+    public ResponseResult<StudentActionStatsVo> view(@RequestParam Long statsId) {
         if (MyCommonUtil.existBlankArgument(statsId)) {
             return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
         }
@@ -93,6 +95,7 @@ public class StudentActionStatsController {
         if (studentActionStats == null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST);
         }
-        return ResponseResult.success(studentActionStats);
+        StudentActionStatsVo studentActionStatsVo = StudentActionStats.INSTANCE.fromModel(studentActionStats);
+        return ResponseResult.success(studentActionStatsVo);
     }
 }

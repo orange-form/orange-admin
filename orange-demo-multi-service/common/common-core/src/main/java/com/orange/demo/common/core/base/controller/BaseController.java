@@ -11,6 +11,7 @@ import com.orange.demo.common.core.exception.RemoteDataBuildException;
 import com.orange.demo.common.core.object.*;
 import com.orange.demo.common.core.util.MyCommonUtil;
 import com.orange.demo.common.core.util.MyModelUtil;
+import com.github.pagehelper.Page;
 import com.github.pagehelper.page.PageMethod;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -30,22 +31,22 @@ import java.util.stream.Collectors;
  * 控制器Controller的基类。
  *
  * @param <M> 主Model实体对象类型。
- * @param <D> 主DomainDto域对象类型。
+ * @param <V> 主Model的DomainVO域对象类型。
  * @param <K> 主键类型。
  * @author Jerry
  * @date 2020-08-08
  */
 @Slf4j
-public abstract class BaseController<M, D, K> {
+public abstract class BaseController<M, V, K> {
 
     /**
      * 当前Service关联的主Model实体对象的Class。
      */
     protected Class<M> modelClass;
     /**
-     * 当前Service关联的主DomainDto域对象的Class。
+     * 当前Service关联的主model的VO对象的Class。
      */
-    protected Class<D> domainDtoClass;
+    protected Class<V> domainVoClass;
     /**
      * 当前Service关联的主Model对象主键字段名称。
      */
@@ -56,7 +57,7 @@ public abstract class BaseController<M, D, K> {
      *
      * @return 子类中注入的BaseService类。
      */
-    protected abstract BaseService<M, D, K> service();
+    protected abstract BaseService<M, K> service();
 
     /**
      * 构造函数。
@@ -64,7 +65,7 @@ public abstract class BaseController<M, D, K> {
     @SuppressWarnings("unchecked")
     public BaseController() {
         modelClass = (Class<M>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
-        domainDtoClass = (Class<D>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[1];
+        domainVoClass = (Class<V>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[1];
         Field[] fields = ReflectUtil.getFields(modelClass);
         for (Field field : fields) {
             if (null != field.getAnnotation(Id.class)) {
@@ -83,21 +84,21 @@ public abstract class BaseController<M, D, K> {
      * @return 应答结果对象，包含主对象集合。
      * @throws RemoteDataBuildException buildRelationForDataList会抛出该异常。
      */
-    public ResponseResult<List<D>> baseListByIds(
-            Set<K> filterIds, Boolean withDict, BaseModelMapper<D, M> modelMapper) {
+    public ResponseResult<List<V>> baseListByIds(
+            Set<K> filterIds, Boolean withDict, BaseModelMapper<V, M> modelMapper) {
         if (MyCommonUtil.existBlankArgument(filterIds, withDict)) {
             return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
         }
         List<M> resultList = service().getInList(idFieldName, filterIds);
-        List<D> resultDtoList = null;
+        List<V> resultVoList = null;
         if (CollectionUtils.isEmpty(resultList)) {
-            return ResponseResult.success(resultDtoList);
+            return ResponseResult.success(resultVoList);
         }
         if (Boolean.TRUE.equals(withDict)) {
             service().buildRelationForDataList(resultList, MyRelationParam.dictOnly(), null);
         }
-        resultDtoList = convertToDomainList(resultList, modelMapper);
-        return ResponseResult.success(resultDtoList);
+        resultVoList = convertToVoList(resultList, modelMapper);
+        return ResponseResult.success(resultVoList);
     }
 
     /**
@@ -109,20 +110,20 @@ public abstract class BaseController<M, D, K> {
      * @return 应答结果对象，包含主对象数据。
      * @throws RemoteDataBuildException buildRelationForData会抛出此异常。
      */
-    public ResponseResult<D> baseGetById(K id, Boolean withDict, BaseModelMapper<D, M> modelMapper) {
+    public ResponseResult<V> baseGetById(K id, Boolean withDict, BaseModelMapper<V, M> modelMapper) {
         if (MyCommonUtil.existBlankArgument(id, withDict)) {
             return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
         }
         M resultObject = service().getById(id);
-        D resultDtoObject = null;
+        V resultVoObject = null;
         if (resultObject == null) {
-            return ResponseResult.success(resultDtoObject);
+            return ResponseResult.success(resultVoObject);
         }
         if (Boolean.TRUE.equals(withDict)) {
             service().buildRelationForData(resultObject, MyRelationParam.dictOnly(), null);
         }
-        resultDtoObject = this.convertToDomain(resultObject, modelMapper);
-        return ResponseResult.success(resultDtoObject);
+        resultVoObject = this.convertToVo(resultObject, modelMapper);
+        return ResponseResult.success(resultVoObject);
     }
 
     /**
@@ -150,13 +151,11 @@ public abstract class BaseController<M, D, K> {
     /**
      * 删除符合过滤条件的数据。
      *
-     * @param filter      过滤对象。
-     * @param modelMapper 对象映射函数对象。如果为空，则使用MyModelUtil中的缺省转换函数。
+     * @param filter 过滤对象。
      * @return 删除数量。
      */
-    public ResponseResult<Integer> baseDeleteBy(
-            D filter, BaseModelMapper<D, M> modelMapper) throws Exception {
-        return ResponseResult.success(service().removeBy(convertToModel(filter, modelMapper)));
+    public ResponseResult<Integer> baseDeleteBy(M filter) throws Exception {
+        return ResponseResult.success(service().removeBy(filter));
     }
 
     /**
@@ -165,10 +164,10 @@ public abstract class BaseController<M, D, K> {
      *
      * @param queryParam  查询参数。
      * @param modelMapper 对象映射函数对象。如果为空，则使用MyModelUtil中的缺省转换函数。
-     * @return 应答结果对象，包含符合查询过滤条件的对象结果集。
+     * @return 分页数据集合对象。如MyQueryParam参数的分页属性为空，则不会执行分页操作，只是基于MyPageData对象返回数据结果。
      * @throws RemoteDataBuildException buildRelationForDataList会抛出此异常。
      */
-    public ResponseResult<List<D>> baseListBy(MyQueryParam queryParam, BaseModelMapper<D, M> modelMapper) {
+    public ResponseResult<MyPageData<V>> baseListBy(MyQueryParam queryParam, BaseModelMapper<V, M> modelMapper) {
         if (CollectionUtils.isNotEmpty(queryParam.getSelectFieldList())) {
             for (String fieldName : queryParam.getSelectFieldList()) {
                 String columnName = MyModelUtil.mapToColumnName(fieldName, modelClass);
@@ -179,22 +178,29 @@ public abstract class BaseController<M, D, K> {
                 }
             }
         }
+        M filter = queryParam.getFilterDto(modelClass);
         String whereClause = MyWhereCriteria.makeCriteriaString(queryParam.getCriteriaList(), modelClass);
         String orderBy = MyOrderParam.buildOrderBy(queryParam.getOrderParam(), modelClass);
         MyPageParam pageParam = queryParam.getPageParam();
         if (pageParam != null) {
             PageMethod.startPage(pageParam.getPageNum(), pageParam.getPageSize());
         }
-        List<M> resultList = service().getListByCondition(queryParam.getSelectFieldList(), whereClause, orderBy);
-        List<D> resultDtoList = null;
+        List<M> resultList = service().getListByCondition(
+                queryParam.getSelectFieldList(), filter, whereClause, orderBy);
         if (CollectionUtils.isEmpty(resultList)) {
-            return ResponseResult.success(resultDtoList);
+            return ResponseResult.success(MyPageData.emptyPageData());
+        }
+        long totalCount;
+        if (resultList instanceof Page) {
+            totalCount = ((Page<M>) resultList).getTotal();
+        } else {
+            totalCount = resultList.size();
         }
         if (queryParam.getWithDict()) {
             service().buildRelationForDataList(resultList, MyRelationParam.dictOnly(), null);
         }
-        resultDtoList = convertToDomainList(resultList, modelMapper);
-        return ResponseResult.success(resultDtoList);
+        List<V> resultVoList = convertToVoList(resultList, modelMapper);
+        return ResponseResult.success(new MyPageData<>(resultVoList, totalCount));
     }
 
     /**
@@ -203,17 +209,17 @@ public abstract class BaseController<M, D, K> {
      *
      * @param queryParam     查询参数。
      * @param modelMapper    对象映射函数对象。如果为空，则使用MyModelUtil中的缺省转换函数。
-     * @return 应答结果对象，包含符合查询过滤条件的对象结果集。
+     * @return 分页数据集合对象。如MyQueryParam参数的分页属性为空，则不会执行分页操作，只是基于MyPageData对象返回数据结果。
      */
-    public ResponseResult<List<Map<String, Object>>> baseListMapBy(
-            MyQueryParam queryParam, BaseModelMapper<D, M> modelMapper) {
-        ResponseResult<List<D>> result = this.baseListBy(queryParam, modelMapper);
+    public ResponseResult<MyPageData<Map<String, Object>>> baseListMapBy(
+            MyQueryParam queryParam, BaseModelMapper<V, M> modelMapper) {
+        ResponseResult<MyPageData<V>> result = this.baseListBy(queryParam, modelMapper);
         if (!result.isSuccess()) {
             return ResponseResult.errorFrom(result);
         }
         List<Map<String, Object>> resultMapList =
-                result.getData().stream().map(BeanUtil::beanToMap).collect(Collectors.toList());
-        return ResponseResult.success(resultMapList);
+                result.getData().getDataList().stream().map(BeanUtil::beanToMap).collect(Collectors.toList());
+        return ResponseResult.success(new MyPageData<>(resultMapList, result.getData().getTotalCount()));
     }
 
     /**
@@ -223,13 +229,13 @@ public abstract class BaseController<M, D, K> {
      * @param modelMapper 对象映射函数对象。如果为空，则使用MyModelUtil中的缺省转换函数。
      * @return 应答结果对象，包含符合查询过滤条件的单条实体对象。
      */
-    public ResponseResult<D> baseGetBy(MyQueryParam queryParam, BaseModelMapper<D, M> modelMapper) {
-        ResponseResult<List<D>> result = baseListBy(queryParam, modelMapper);
+    public ResponseResult<V> baseGetBy(MyQueryParam queryParam, BaseModelMapper<V, M> modelMapper) {
+        ResponseResult<MyPageData<V>> result = baseListBy(queryParam, modelMapper);
         if (!result.isSuccess()) {
             return ResponseResult.errorFrom(result);
         }
-        List<D> dataList = result.getData();
-        D data = null;
+        List<V> dataList = result.getData().getDataList();
+        V data = null;
         if (CollectionUtils.isNotEmpty(dataList)) {
             data = dataList.get(0);
         }
@@ -310,77 +316,39 @@ public abstract class BaseController<M, D, K> {
     }
 
     /**
-     * 将查询对象中，过滤域对象转换为实体对象。以便作为Service的参数进行数据过滤。
-     * 如果Model存在该实体的ModelMapper，就用该ModelMapper转换，否则使用缺省的基于字段反射的copy。
-     *
-     * @param filterDto   过滤域对象。
-     * @param modelMapper 从Dto对象到实体对象的映射对象。
-     * @return 转换后的实体过滤对象。
-     */
-    public M convertFilter(D filterDto, BaseModelMapper<D, M> modelMapper) {
-        M filter = null;
-        if (filterDto != null) {
-            if (modelMapper != null) {
-                filter = modelMapper.toModel(filterDto);
-            } else {
-                filter = MyModelUtil.copyTo(filterDto, modelClass);
-            }
-        }
-        return filter;
-    }
-
-    /**
-     * 将Model实体对象的集合转换为DomainDto域对象的集合。
+     * 将Model实体对象的集合转换为DomainVO域对象的集合。
      * 如果Model存在该实体的ModelMapper，就用该ModelMapper转换，否则使用缺省的基于字段反射的copy。
      *
      * @param modelList   实体对象列表。
-     * @param modelMapper 从实体对象到Dto对象的映射对象。
-     * @return 转换后的Dto域对象列表。
+     * @param modelMapper 从实体对象到VO对象的映射对象。
+     * @return 转换后的VO域对象列表。
      */
-    private List<D> convertToDomainList(List<M> modelList, BaseModelMapper<D, M> modelMapper) {
-        List<D> resultDtoList;
+    private List<V> convertToVoList(List<M> modelList, BaseModelMapper<V, M> modelMapper) {
+        List<V> resultVoList;
         if (modelMapper != null) {
-            resultDtoList = modelMapper.fromModelList(modelList);
+            resultVoList = modelMapper.fromModelList(modelList);
         } else {
-            resultDtoList = MyModelUtil.copyCollectionTo(modelList, domainDtoClass);
+            resultVoList = MyModelUtil.copyCollectionTo(modelList, domainVoClass);
         }
-        return resultDtoList;
+        return resultVoList;
     }
 
     /**
-     * 将Model实体对象转换为DomainDto域对象。
+     * 将Model实体对象转换为DomainVO域对象。
      * 如果Model存在该实体的ModelMapper，就用该ModelMapper转换，否则使用缺省的基于字段反射的copy。
      *
      * @param model       实体对象。
-     * @param modelMapper 从实体对象到Dto对象的映射对象。
-     * @return 转换后的Dto域对象。
+     * @param modelMapper 从实体对象到VO对象的映射对象。
+     * @return 转换后的VO域对象。
      */
-    private D convertToDomain(M model, BaseModelMapper<D, M> modelMapper) {
-        D resultDto;
+    private V convertToVo(M model, BaseModelMapper<V, M> modelMapper) {
+        V resultVo;
         if (modelMapper != null) {
-            resultDto = modelMapper.fromModel(model);
+            resultVo = modelMapper.fromModel(model);
         } else {
-            resultDto = MyModelUtil.copyTo(model, domainDtoClass);
+            resultVo = MyModelUtil.copyTo(model, domainVoClass);
         }
-        return resultDto;
-    }
-
-    /**
-     * 将Dto对象转换为Model实体对象。
-     * 如果Model存在该实体的ModelMapper，就用该ModelMapper转换，否则使用缺省的基于字段反射的copy。
-     *
-     * @param dto         Dto对象。
-     * @param modelMapper 从实体对象到Dto对象的映射对象。
-     * @return 转换后的Dto域对象。
-     */
-    private M convertToModel(D dto, BaseModelMapper<D, M> modelMapper) {
-        M result;
-        if (modelMapper != null) {
-            result = modelMapper.toModel(dto);
-        } else {
-            result = MyModelUtil.copyTo(dto, modelClass);
-        }
-        return result;
+        return resultVo;
     }
 
     private VerifyAggregationInfo verifyAndParseAggregationParam(MyAggregationParam param) {
