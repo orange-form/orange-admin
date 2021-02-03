@@ -2,11 +2,9 @@ package com.orange.demo.common.core.util;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.ReflectUtil;
-import com.orange.demo.common.core.annotation.RelationConstDict;
-import com.orange.demo.common.core.annotation.RelationDict;
-import com.orange.demo.common.core.annotation.RelationOneToOne;
-import com.orange.demo.common.core.annotation.UploadFlagColumn;
+import com.orange.demo.common.core.annotation.*;
 import com.orange.demo.common.core.exception.MyRuntimeException;
+import com.orange.demo.common.core.object.TokenData;
 import com.orange.demo.common.core.object.Tuple2;
 import com.orange.demo.common.core.upload.UploadStoreInfo;
 import lombok.extern.slf4j.Slf4j;
@@ -18,8 +16,8 @@ import tk.mybatis.mapper.entity.Example;
 import javax.persistence.Column;
 import javax.persistence.Table;
 import javax.persistence.Transient;
-import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Field;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
@@ -47,9 +45,25 @@ public class MyModelUtil {
      */
     public static final Integer DATE_FIELD_TYPE = 2;
     /**
+     * 整个工程的实体对象中，创建者Id字段的Java对象名。
+     */
+    public static final String CREATE_USER_ID_FIELD_NAME = "createUserId";
+    /**
+     * 整个工程的实体对象中，创建时间字段的Java对象名。
+     */
+    public static final String CREATE_TIME_FIELD_NAME = "createTime";
+    /**
+     * 整个工程的实体对象中，更新者Id字段的Java对象名。
+     */
+    public static final String UPDATE_USER_ID_FIELD_NAME = "updateUserId";
+    /**
+     * 整个工程的实体对象中，更新时间字段的Java对象名。
+     */
+    public static final String UPDATE_TIME_FIELD_NAME = "updateTime";
+    /**
      * mapToColumnName和mapToColumnInfo使用的缓存。
      */
-    private static Map<String, Tuple2<String, Integer>> cachedColumnInfoMap = new ConcurrentHashMap<>();
+    private static final Map<String, Tuple2<String, Integer>> CACHED_COLUMNINFO_MAP = new ConcurrentHashMap<>();
 
     /**
      * 拷贝源类型的集合数据到目标类型的集合中，其中源类型和目标类型中的对象字段类型完全相同。
@@ -140,17 +154,17 @@ public class MyModelUtil {
         }
         StringBuilder sb = new StringBuilder(128);
         sb.append(modelClazz.getName()).append("-#-").append(fieldName);
-        Tuple2<String, Integer> columnInfo = cachedColumnInfoMap.get(sb.toString());
+        Tuple2<String, Integer> columnInfo = CACHED_COLUMNINFO_MAP.get(sb.toString());
         if (columnInfo == null) {
             Field field = ReflectUtil.getField(modelClazz, fieldName);
             if (field == null) {
                 return null;
             }
             Column c = field.getAnnotation(Column.class);
-            String typeName = field.getType().getSimpleName();
             String columnName = c == null ? fieldName : c.name();
             // 这里缺省情况下都是按照整型去处理，因为他覆盖太多的类型了。
             // 如Integer/Long/Double/BigDecimal，可根据实际情况完善和扩充。
+            String typeName = field.getType().getSimpleName();
             Integer type = NUMERIC_FIELD_TYPE;
             if (String.class.getSimpleName().equals(typeName)) {
                 type = STRING_FIELD_TYPE;
@@ -158,7 +172,7 @@ public class MyModelUtil {
                 type = DATE_FIELD_TYPE;
             }
             columnInfo = new Tuple2<>(columnName, type);
-            cachedColumnInfoMap.put(sb.toString(), columnInfo);
+            CACHED_COLUMNINFO_MAP.put(sb.toString(), columnInfo);
         }
         return columnInfo;
     }
@@ -447,6 +461,43 @@ public class MyModelUtil {
         }
     }
 
+    /**
+     * 在主Model类型中，根据thisRelationField字段的RelationOneToMany注解参数，将被关联对象列表thatModelList中的数据，
+     * 逐个关联到thisModelList每一个元素的thisRelationField字段中。
+     *
+     * @param thisClazz         主对象的Class对象。
+     * @param thisModelList     主对象列表。
+     * @param thatModelList     一对多关联对象列表。
+     * @param thisRelationField 主表对象中保存被关联对象的字段名称。
+     * @param <T>               主表对象类型。
+     * @param <R>               从表对象类型。
+     */
+    public static <T, R> void makeOneToManyRelation(
+            Class<T> thisClazz, List<T> thisModelList, List<R> thatModelList, String thisRelationField) {
+        if (CollectionUtils.isEmpty(thatModelList) || CollectionUtils.isEmpty(thisModelList)) {
+            return;
+        }
+        // 这里不做任何空值判断，从而让配置错误在调试期间即可抛出
+        Field thisTargetField = ReflectUtil.getField(thisClazz, thisRelationField);
+        RelationOneToMany r = thisTargetField.getAnnotation(RelationOneToMany.class);
+        Field masterIdField = ReflectUtil.getField(thisClazz, r.masterIdField());
+        Class<?> thatClass = r.slaveModelClass();
+        Field slaveIdField = ReflectUtil.getField(thatClass, r.slaveIdField());
+        Map<Object, List<R>> thatMap = new HashMap<>(20);
+        thatModelList.forEach(thatModel -> {
+            Object id = ReflectUtil.getFieldValue(thatModel, slaveIdField);
+            List<R> thatModelSubList = thatMap.computeIfAbsent(id, k -> new LinkedList<>());
+            thatModelSubList.add(thatModel);
+        });
+        thisModelList.forEach(thisModel -> {
+            Object id = ReflectUtil.getFieldValue(thisModel, masterIdField);
+            List<R> thatModel = thatMap.get(id);
+            if (thatModel != null) {
+                ReflectUtil.setFieldValue(thisModel, thisTargetField, thatModel);
+            }
+        });
+    }
+
     private static <M> Object normalize(boolean isMap, M model) {
         return isMap ? BeanUtil.beanToMap(model) : model;
     }
@@ -510,6 +561,86 @@ public class MyModelUtil {
             uploadStoreInfo.setStoreType(anno.storeType());
         }
         return uploadStoreInfo;
+    }
+
+    /**
+     * 在插入实体对象数据之前，可以调用该方法，初始化通用字段的数据。
+     *
+     * @param data 实体对象。
+     * @param <M>  实体对象类型。
+     */
+    public static <M> void fillCommonsForInsert(M data) {
+        try {
+            Field createdByField = ReflectUtil.getField(data.getClass(), CREATE_USER_ID_FIELD_NAME);
+            if (createdByField != null) {
+                ReflectUtil.setAccessible(createdByField);
+                createdByField.set(data, TokenData.takeFromRequest().getUserId());
+            }
+            Field createTimeField = ReflectUtil.getField(data.getClass(), CREATE_TIME_FIELD_NAME);
+            if (createTimeField != null) {
+                ReflectUtil.setAccessible(createTimeField);
+                createTimeField.set(data, new Date());
+            }
+            Field updatedByField = ReflectUtil.getField(data.getClass(), UPDATE_USER_ID_FIELD_NAME);
+            if (updatedByField != null) {
+                ReflectUtil.setAccessible(updatedByField);
+                updatedByField.set(data, TokenData.takeFromRequest().getUserId());
+            }
+            Field updateTimeField = ReflectUtil.getField(data.getClass(), UPDATE_TIME_FIELD_NAME);
+            if (updateTimeField != null) {
+                ReflectUtil.setAccessible(updateTimeField);
+                updateTimeField.set(data, new Date());
+            }
+        } catch (IllegalAccessException e) {
+            throw new MyRuntimeException(e);
+        }
+    }
+
+    /**
+     * 在更新实体对象数据之前，可以调用该方法，更新通用字段的数据。
+     *
+     * @param data         实体对象。
+     * @param originalData 原有实体对象。
+     * @param <M>          实体对象类型。
+     */
+    public static <M> void fillCommonsForUpdate(M data, M originalData) {
+        try {
+            Object createdByValue = ReflectUtil.getFieldValue(originalData, CREATE_USER_ID_FIELD_NAME);
+            if (createdByValue != null) {
+                ReflectUtil.setFieldValue(data, CREATE_USER_ID_FIELD_NAME, createdByValue);
+            }
+            Object createTimeValue = ReflectUtil.getFieldValue(originalData, CREATE_TIME_FIELD_NAME);
+            if (createTimeValue != null) {
+                ReflectUtil.setFieldValue(data, CREATE_TIME_FIELD_NAME, createTimeValue);
+            }
+            Field updatedByField = ReflectUtil.getField(data.getClass(), UPDATE_USER_ID_FIELD_NAME);
+            if (updatedByField != null) {
+                ReflectUtil.setAccessible(updatedByField);
+                updatedByField.set(data, TokenData.takeFromRequest().getUserId());
+            }
+            Field updateTimeField = ReflectUtil.getField(data.getClass(), UPDATE_TIME_FIELD_NAME);
+            if (updateTimeField != null) {
+                ReflectUtil.setAccessible(updateTimeField);
+                updateTimeField.set(data, new Date());
+            }
+        } catch (IllegalAccessException e) {
+            throw new MyRuntimeException(e);
+        }
+    }
+
+    /**
+     * 为实体对象字段设置缺省值。如果data对象中指定字段的值为NULL，则设置缺省值，否则跳过。
+     * @param data         实体对象。
+     * @param fieldName    实体对象字段名。
+     * @param defaultValue 缺省值。
+     * @param <M> 实体对象类型。
+     * @param <V> 缺省值类型。
+     */
+    public static <M, V> void setDefaultValue(M data, String fieldName, V defaultValue) {
+        Object v = ReflectUtil.getFieldValue(data, fieldName);
+        if (v == null) {
+            ReflectUtil.setFieldValue(data, fieldName, defaultValue);
+        }
     }
 
     /**

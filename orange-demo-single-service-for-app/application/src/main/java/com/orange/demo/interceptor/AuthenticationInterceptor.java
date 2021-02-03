@@ -8,7 +8,7 @@ import com.orange.demo.common.core.object.ResponseResult;
 import com.orange.demo.common.core.object.TokenData;
 import com.orange.demo.common.core.util.ApplicationContextHolder;
 import com.orange.demo.common.core.util.JwtUtil;
-import com.orange.demo.common.core.cache.SessionCacheHelper;
+import com.orange.demo.common.redis.cache.SessionCacheHelper;
 import io.jsonwebtoken.Claims;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -30,10 +30,10 @@ import java.io.PrintWriter;
 @Slf4j
 public class AuthenticationInterceptor implements HandlerInterceptor {
 
-    private ApplicationConfig appConfig =
+    private final ApplicationConfig appConfig =
             ApplicationContextHolder.getBean("applicationConfig");
 
-    private SessionCacheHelper cacheHelper =
+    private final SessionCacheHelper cacheHelper =
             ApplicationContextHolder.getBean("sessionCacheHelper");
 
     @Override

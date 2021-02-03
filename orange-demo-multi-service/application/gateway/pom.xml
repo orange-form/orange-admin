@@ -34,7 +34,7 @@
         <dependency>
             <groupId>io.swagger</groupId>
             <artifactId>swagger-models</artifactId>
-            <version>${swagger.version}</version>
+            <version>${zz-swagger.version}</version>
         </dependency>
         <dependency>
             <groupId>io.springfox</groupId>

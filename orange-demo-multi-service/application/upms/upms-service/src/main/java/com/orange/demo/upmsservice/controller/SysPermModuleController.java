@@ -122,7 +122,7 @@ public class SysPermModuleController {
      *
      * @return 应答结果对象，包含权限资源模块列表。
      */
-    @GetMapping("/list")
+    @PostMapping("/list")
     public ResponseResult<List<SysPermModuleVo>> list() {
         List<SysPermModule> permModuleList = sysPermModuleService.getAllListByOrder("showOrder");
         return ResponseResult.success(MyModelUtil.copyCollectionTo(permModuleList, SysPermModuleVo.class));
@@ -133,7 +133,7 @@ public class SysPermModuleController {
      *
      * @return 应答结果对象，包含树状列表，
      */
-    @GetMapping("/listAll")
+    @PostMapping("/listAll")
     public ResponseResult<List<Map<String, Object>>> listAll() {
         List<SysPermModule> sysPermModuleList = sysPermModuleService.getPermModuleAndPermList();
         List<Map<String, Object>> resultList = new LinkedList<>();

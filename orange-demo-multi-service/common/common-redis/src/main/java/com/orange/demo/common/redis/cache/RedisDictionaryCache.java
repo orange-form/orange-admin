@@ -31,27 +31,27 @@ public class RedisDictionaryCache<K, V> implements DictionaryCache<K, V> {
     /**
      * redisson客户端。
      */
-    protected RedissonClient redissonClient;
+    protected final RedissonClient redissonClient;
     /**
      * 数据存储对象。
      */
-    protected RMap<K, String> dataMap;
+    protected final RMap<K, String> dataMap;
     /**
      * 字典值对象类型。
      */
-    protected Class<V> valueClazz;
+    protected final Class<V> valueClazz;
     /**
      * 由于大部分场景是读取操作，所以使用读写锁提高并发的伸缩性。
      */
-    protected ReadWriteLock lock;
+    protected final ReadWriteLock lock;
+    /**
+     * 获取字典主键数据的函数对象。
+     */
+    protected final Function<V, K> idGetter;
     /**
      * 超时时长。单位毫秒。
      */
     protected static final long TIMEOUT = 2000L;
-    /**
-     * 获取字典主键数据的函数对象。
-     */
-    protected Function<V, K> idGetter;
 
     /**
      * 当前对象的构造器函数。

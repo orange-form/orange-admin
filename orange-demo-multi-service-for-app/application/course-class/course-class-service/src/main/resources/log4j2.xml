@@ -59,6 +59,9 @@
         <Root level="${OUTPUT_LOG_LEVEL}">
             <AppenderRef ref="console"/>
         </Root>
+        <Logger name="springfox.documentation" additivity="false" level="error">
+            <AppenderRef ref="console"/>
+        </Logger>
         <!-- AsyncLogger 是基于Disruptor的全量异步队列，性能极高，队列默认大小4096。-->
         <!-- 队列默认值可通过JVM参数设置，参考博客：https://www.jianshu.com/p/82469047acbf -->
         <AsyncLogger name="com.orange.demo" additivity="false" level="info">

@@ -3,7 +3,7 @@ package com.orange.demo.common.core.base.controller;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.ReflectUtil;
 import com.orange.demo.common.core.base.mapper.BaseModelMapper;
-import com.orange.demo.common.core.base.service.BaseService;
+import com.orange.demo.common.core.base.service.IBaseService;
 import com.orange.demo.common.core.constant.AggregationKind;
 import com.orange.demo.common.core.constant.AggregationType;
 import com.orange.demo.common.core.constant.ErrorCodeEnum;
@@ -42,22 +42,22 @@ public abstract class BaseController<M, V, K> {
     /**
      * 当前Service关联的主Model实体对象的Class。
      */
-    protected Class<M> modelClass;
+    protected final Class<M> modelClass;
     /**
      * 当前Service关联的主model的VO对象的Class。
      */
-    protected Class<V> domainVoClass;
+    protected final Class<V> domainVoClass;
     /**
      * 当前Service关联的主Model对象主键字段名称。
      */
     protected String idFieldName;
 
     /**
-     * 获取子类中注入的BaseService类。
+     * 获取子类中注入的IBaseService接口。
      *
      * @return 子类中注入的BaseService类。
      */
-    protected abstract BaseService<M, K> service();
+    protected abstract IBaseService<M, K> service();
 
     /**
      * 构造函数。
@@ -95,7 +95,7 @@ public abstract class BaseController<M, V, K> {
             return ResponseResult.success(resultVoList);
         }
         if (Boolean.TRUE.equals(withDict)) {
-            service().buildRelationForDataList(resultList, MyRelationParam.dictOnly(), null);
+            service().buildRelationForDataList(resultList, MyRelationParam.dictOnly());
         }
         resultVoList = convertToVoList(resultList, modelMapper);
         return ResponseResult.success(resultVoList);
@@ -120,7 +120,7 @@ public abstract class BaseController<M, V, K> {
             return ResponseResult.success(resultVoObject);
         }
         if (Boolean.TRUE.equals(withDict)) {
-            service().buildRelationForData(resultObject, MyRelationParam.dictOnly(), null);
+            service().buildRelationForData(resultObject, MyRelationParam.dictOnly());
         }
         resultVoObject = this.convertToVo(resultObject, modelMapper);
         return ResponseResult.success(resultVoObject);
@@ -197,7 +197,7 @@ public abstract class BaseController<M, V, K> {
             totalCount = resultList.size();
         }
         if (queryParam.getWithDict()) {
-            service().buildRelationForDataList(resultList, MyRelationParam.dictOnly(), null);
+            service().buildRelationForDataList(resultList, MyRelationParam.dictOnly());
         }
         List<V> resultVoList = convertToVoList(resultList, modelMapper);
         return ResponseResult.success(new MyPageData<>(resultVoList, totalCount));

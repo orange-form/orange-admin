@@ -94,7 +94,7 @@ swagger:
 management:
   metrics:
     tags:
-      application: 
+      application: ${spring.application.name}
   endpoints:
     web:
       exposure:

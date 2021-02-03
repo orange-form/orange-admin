@@ -3,6 +3,7 @@ package com.orange.demo.upms.controller;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.page.PageMethod;
 import lombok.extern.slf4j.Slf4j;
+import com.orange.demo.upms.dto.SysPermDto;
 import com.orange.demo.upms.vo.SysPermVo;
 import com.orange.demo.upms.model.SysPerm;
 import com.orange.demo.upms.service.SysPermService;
@@ -35,15 +36,16 @@ public class SysPermController {
     /**
      * 新增权限资源操作。
      *
-     * @param sysPerm 新增权限资源对象。
+     * @param sysPermDto 新增权限资源对象。
      * @return 应答结果对象，包含新增权限资源的主键Id。
      */
     @PostMapping("/add")
-    public ResponseResult<Long> add(@MyRequestBody SysPerm sysPerm) {
-        String errorMessage = MyCommonUtil.getModelValidationError(sysPerm);
+    public ResponseResult<Long> add(@MyRequestBody("sysPerm") SysPermDto sysPermDto) {
+        String errorMessage = MyCommonUtil.getModelValidationError(sysPermDto);
         if (errorMessage != null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
+        SysPerm sysPerm = MyModelUtil.copyTo(sysPermDto, SysPerm.class);
         CallResult result = sysPermService.verifyRelatedData(sysPerm, null);
         if (!result.isSuccess()) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, result.getErrorMessage());
@@ -55,20 +57,21 @@ public class SysPermController {
     /**
      * 更新权限资源操作。
      *
-     * @param sysPerm 更新权限资源对象。
+     * @param sysPermDto 更新权限资源对象。
      * @return 应答结果对象，包含更新权限资源的主键Id。
      */
     @PostMapping("/update")
-    public ResponseResult<Void> update(@MyRequestBody SysPerm sysPerm) {
-        String errorMessage = MyCommonUtil.getModelValidationError(sysPerm, Default.class, UpdateGroup.class);
+    public ResponseResult<Void> update(@MyRequestBody("sysPerm") SysPermDto sysPermDto) {
+        String errorMessage = MyCommonUtil.getModelValidationError(sysPermDto, Default.class, UpdateGroup.class);
         if (errorMessage != null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
-        SysPerm originalPerm = sysPermService.getById(sysPerm.getPermId());
+        SysPerm originalPerm = sysPermService.getById(sysPermDto.getPermId());
         if (originalPerm == null) {
             errorMessage = "数据验证失败，当前权限资源并不存在，请刷新后重试！";
             return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST, errorMessage);
         }
+        SysPerm sysPerm = MyModelUtil.copyTo(sysPermDto, SysPerm.class);
         CallResult result = sysPermService.verifyRelatedData(sysPerm, originalPerm);
         if (!result.isSuccess()) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, result.getErrorMessage());
@@ -117,17 +120,18 @@ public class SysPermController {
     /**
      * 查看权限资源列表。
      *
-     * @param sysPermFilter 过滤对象。
-     * @param pageParam     分页参数。
+     * @param sysPermDtoFiltter 过滤对象。
+     * @param pageParam         分页参数。
      * @return 应答结果对象，包含权限资源列表。
      */
     @PostMapping("/list")
     public ResponseResult<MyPageData<SysPermVo>> list(
-            @MyRequestBody SysPerm sysPermFilter, @MyRequestBody MyPageParam pageParam) {
+            @MyRequestBody("sysPermFilter") SysPermDto sysPermDtoFiltter, @MyRequestBody MyPageParam pageParam) {
         if (pageParam != null) {
             PageMethod.startPage(pageParam.getPageNum(), pageParam.getPageSize());
         }
-        List<SysPerm> permList = sysPermService.getPermListWithRelation(sysPermFilter);
+        SysPerm filter = MyModelUtil.copyTo(sysPermDtoFiltter, SysPerm.class);
+        List<SysPerm> permList = sysPermService.getPermListWithRelation(filter);
         List<SysPermVo> permVoList = MyModelUtil.copyCollectionTo(permList, SysPermVo.class);
         long totalCount = 0L;
         if (permList instanceof Page) {

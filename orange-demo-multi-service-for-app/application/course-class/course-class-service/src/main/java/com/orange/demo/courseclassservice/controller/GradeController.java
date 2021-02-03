@@ -1,9 +1,13 @@
 package com.orange.demo.courseclassservice.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import cn.jimmyshi.beanquery.BeanQuery;
+import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import com.orange.demo.common.core.base.controller.BaseController;
-import com.orange.demo.common.core.base.service.BaseDictService;
+import com.orange.demo.common.core.base.service.IBaseDictService;
 import com.orange.demo.common.core.constant.ErrorCodeEnum;
 import com.orange.demo.common.core.object.*;
 import com.orange.demo.common.core.util.MyModelUtil;
@@ -26,6 +30,7 @@ import java.util.*;
  * @author Jerry
  * @date 2020-08-08
  */
+@Api(tags = "年级管理接口")
 @Slf4j
 @RestController
 @RequestMapping("/grade")
@@ -35,7 +40,7 @@ public class GradeController extends BaseController<Grade, GradeVo, Integer> {
     private GradeService gradeService;
 
     @Override
-    protected BaseDictService<Grade, Integer> service() {
+    protected IBaseDictService<Grade, Integer> service() {
         return gradeService;
     }
 
@@ -45,6 +50,7 @@ public class GradeController extends BaseController<Grade, GradeVo, Integer> {
      * @param gradeDto 新增对象。
      * @return 应答结果对象，包含新增对象主键Id。
      */
+    @ApiOperationSupport(ignoreParameters = {"grade.gradeId"})
     @PostMapping("/add")
     public ResponseResult<Integer> add(@MyRequestBody("grade") GradeDto gradeDto) {
         String errorMessage = MyCommonUtil.getModelValidationError(gradeDto);
@@ -116,16 +122,32 @@ public class GradeController extends BaseController<Grade, GradeVo, Integer> {
     }
 
     /**
-     * 以字典形式返回全部年级数据集合。
-     * 白名单接口，登录用户均可访问。
+     * 白名单接口，登录用户均可访问。以字典形式返回全部年级数据集合。
+     * 所有数据全部取自于缓存，对于数据库中存在，但是缓存中不存在的数据，不会返回。
      *
      * @return 应答结果对象，包含字典形式的数据集合。
      */
     @GetMapping("/listDict")
     public ResponseResult<List<Map<String, Object>>> listDict() {
-        List<Grade> resultList = gradeService.getAllList();
+        List<Grade> resultList = gradeService.getAllListFromCache();
         return ResponseResult.success(BeanQuery.select(
                 "gradeId as id", "gradeName as name").executeFrom(resultList));
+    }
+
+    /**
+     * 白名单接口，登录用户均可访问。以字典形式返回全部年级数据集合。
+     * fullResultList中的字典列表全部取自于数据库，而cachedResultList全部取自于缓存，前端负责比对。
+     *
+     * @return 应答结果对象，包含字典形式的数据集合。
+     */
+    @GetMapping("/listAll")
+    public ResponseResult<JSONObject> listAll() {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("fullResultList", BeanQuery.select(
+                "gradeId as id", "gradeName as name").executeFrom(gradeService.getAllList()));
+        jsonObject.put("cachedResultList", BeanQuery.select(
+                "gradeId as id", "gradeName as name").executeFrom(gradeService.getAllListFromCache()));
+        return ResponseResult.success(jsonObject);
     }
 
     /**
@@ -135,6 +157,7 @@ public class GradeController extends BaseController<Grade, GradeVo, Integer> {
      * @param withDict 是否包含字典关联。
      * @return 应答结果对象，包含主对象集合。
      */
+    @ApiOperation(hidden = true, value = "listByIds")
     @PostMapping("/listByIds")
     public ResponseResult<List<GradeVo>> listByIds(
             @RequestParam Set<Integer> gradeIds, @RequestParam Boolean withDict) {
@@ -148,6 +171,7 @@ public class GradeController extends BaseController<Grade, GradeVo, Integer> {
      * @param withDict 是否包含字典关联。
      * @return 应答结果对象，包含主对象数据。
      */
+    @ApiOperation(hidden = true, value = "getById")
     @PostMapping("/getById")
     public ResponseResult<GradeVo> getById(
             @RequestParam Integer gradeId, @RequestParam Boolean withDict) {
@@ -160,6 +184,7 @@ public class GradeController extends BaseController<Grade, GradeVo, Integer> {
      * @param gradeIds 主键Id集合。
      * @return 应答结果对象，包含true全部存在，否则false。
      */
+    @ApiOperation(hidden = true, value = "existIds")
     @PostMapping("/existIds")
     public ResponseResult<Boolean> existIds(@RequestParam Set<Integer> gradeIds) {
         return super.baseExistIds(gradeIds);
@@ -171,6 +196,7 @@ public class GradeController extends BaseController<Grade, GradeVo, Integer> {
      * @param gradeId 主键Id。
      * @return 应答结果对象，包含true全部存在，否则false。
      */
+    @ApiOperation(hidden = true, value = "existId")
     @PostMapping("/existId")
     public ResponseResult<Boolean> existId(@RequestParam Integer gradeId) {
         return super.baseExistId(gradeId);
@@ -182,6 +208,7 @@ public class GradeController extends BaseController<Grade, GradeVo, Integer> {
      * @param filter 过滤对象。
      * @return 删除数量。
      */
+    @ApiOperation(hidden = true, value = "deleteBy")
     @PostMapping("/deleteBy")
     public ResponseResult<Integer> deleteBy(@RequestBody GradeDto filter) throws Exception {
         return super.baseDeleteBy(MyModelUtil.copyTo(filter, Grade.class));
@@ -193,6 +220,7 @@ public class GradeController extends BaseController<Grade, GradeVo, Integer> {
      * @param queryParam 查询参数。
      * @return 应答结果对象，包含符合查询过滤条件的对象结果集。
      */
+    @ApiOperation(hidden = true, value = "listBy")
     @PostMapping("/listBy")
     public ResponseResult<MyPageData<GradeVo>> listBy(@RequestBody MyQueryParam queryParam) {
         return super.baseListBy(queryParam, null);
@@ -204,6 +232,7 @@ public class GradeController extends BaseController<Grade, GradeVo, Integer> {
      * @param queryParam 查询参数。
      * @return 应答结果对象，包含符合查询过滤条件的对象结果集。
      */
+    @ApiOperation(hidden = true, value = "getBy")
     @PostMapping("/getBy")
     public ResponseResult<GradeVo> getBy(@RequestBody MyQueryParam queryParam) {
         return super.baseGetBy(queryParam, null);

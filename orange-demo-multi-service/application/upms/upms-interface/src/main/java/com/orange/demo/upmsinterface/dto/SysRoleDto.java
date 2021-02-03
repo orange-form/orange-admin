@@ -6,7 +6,6 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import javax.validation.constraints.*;
-import java.util.Date;
 
 /**
  * 角色Dto。
@@ -31,28 +30,4 @@ public class SysRoleDto {
     @ApiModelProperty(value = "角色名称", required = true)
     @NotBlank(message = "角色名称不能为空！")
     private String roleName;
-
-    /**
-     * 创建者Id。
-     */
-    @ApiModelProperty(value = "创建者Id")
-    private Long createUserId;
-
-    /**
-     * 创建者显示名称。
-     */
-    @ApiModelProperty(value = "创建者显示名称")
-    private String createUsername;
-
-    /**
-     * 创建时间。
-     */
-    @ApiModelProperty(value = "创建时间")
-    private Date createTime;
-
-    /**
-     * 更新时间。
-     */
-    @ApiModelProperty(value = "更新时间")
-    private Date updateTime;
 }

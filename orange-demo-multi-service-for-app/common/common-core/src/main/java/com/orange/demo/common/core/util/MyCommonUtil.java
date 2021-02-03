@@ -1,9 +1,9 @@
 package com.orange.demo.common.core.util;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ReflectUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.digest.DigestUtil;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
@@ -20,10 +20,10 @@ import java.util.stream.Collectors;
  */
 public class MyCommonUtil {
 
-    private static Validator validator;
+    private static final Validator VALIDATOR;
 
     static {
-        validator = Validation.buildDefaultValidatorFactory().getValidator();
+        VALIDATOR = Validation.buildDefaultValidatorFactory().getValidator();
     }
 
     /**
@@ -85,9 +85,9 @@ public class MyCommonUtil {
      */
     public static boolean isBlankOrNull(Object obj) {
         if (obj instanceof Collection) {
-            return CollectionUtils.isEmpty((Collection<?>) obj);
+            return CollUtil.isEmpty((Collection<?>) obj);
         }
-        return obj == null || (obj instanceof CharSequence && StringUtils.isBlank((CharSequence) obj));
+        return obj == null || (obj instanceof CharSequence && StrUtil.isBlank((CharSequence) obj));
     }
 
     /**
@@ -108,7 +108,7 @@ public class MyCommonUtil {
      * @return 没有错误返回null，否则返回具体的错误信息。
      */
     public static <T> String getModelValidationError(T model, Class<?>...groups) {
-        Set<ConstraintViolation<T>> constraintViolations = validator.validate(model, groups);
+        Set<ConstraintViolation<T>> constraintViolations = VALIDATOR.validate(model, groups);
         if (!constraintViolations.isEmpty()) {
             Iterator<ConstraintViolation<T>> it = constraintViolations.iterator();
             ConstraintViolation<T> constraint = it.next();
@@ -137,6 +137,19 @@ public class MyCommonUtil {
     }
 
     /**
+     * 将SQL Like中的通配符替换为字符本身的含义，以便于比较。
+     *
+     * @param str 待替换的字符串。
+     * @return 替换后的字符串。
+     */
+    public static String replaceSqlWildcard(String str) {
+        if (StrUtil.isBlank(str)) {
+            return str;
+        }
+        return StrUtil.replaceChars(StrUtil.replaceChars(str, "_", "\\_"), "%", "\\%");
+    }
+
+    /**
      * 获取对象中，非空字段的名字列表。
      *
      * @param object 数据对象。
@@ -149,7 +162,7 @@ public class MyCommonUtil {
         List<String> fieldNameList = Arrays.stream(fields)
                 .filter(f -> ReflectUtil.getFieldValue(object, f) != null)
                 .map(Field::getName).collect(Collectors.toList());
-        if (CollectionUtils.isNotEmpty(fieldNameList)) {
+        if (CollUtil.isNotEmpty(fieldNameList)) {
             return fieldNameList.toArray(new String[]{});
         }
         return new String[]{};

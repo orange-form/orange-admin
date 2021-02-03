@@ -1,18 +1,15 @@
 package com.orange.demo.courseclassservice.model;
 
-import com.alibaba.fastjson.annotation.JSONField;
 import com.orange.demo.courseclassinterface.constant.ClassLevel;
 import com.orange.demo.common.core.annotation.RelationDict;
 import com.orange.demo.common.core.annotation.RelationConstDict;
 import com.orange.demo.common.core.base.mapper.BaseModelMapper;
 import com.orange.demo.common.core.annotation.DeletedFlagColumn;
-import com.orange.demo.common.core.validator.ConstDictRef;
 import com.orange.demo.courseclassinterface.vo.StudentClassVo;
 import lombok.Data;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
 import javax.persistence.*;
-import javax.validation.constraints.*;
 
 import java.util.Date;
 import java.util.Map;
@@ -30,7 +27,6 @@ public class StudentClass {
     /**
      * 班级Id。
      */
-    @NotNull(message = "数据验证失败，班级Id不能为空！")
     @Id
     @Column(name = "class_id")
     private Long classId;
@@ -38,36 +34,30 @@ public class StudentClass {
     /**
      * 班级名称。
      */
-    @NotBlank(message = "数据验证失败，班级名称不能为空！")
     @Column(name = "class_name")
     private String className;
 
     /**
      * 学校Id。
      */
-    @NotNull(message = "数据验证失败，所属校区不能为空！")
     @Column(name = "school_id")
     private Long schoolId;
 
     /**
      * 学生班长Id。
      */
-    @NotNull(message = "数据验证失败，班长不能为空！")
     @Column(name = "leader_id")
     private Long leaderId;
 
     /**
      * 已完成课时数量。
      */
-    @NotNull(message = "数据验证失败，已完成课时不能为空！")
     @Column(name = "finish_class_hour")
     private Integer finishClassHour;
 
     /**
      * 班级级别(0: 初级班 1: 培优班 2: 冲刺提分班 3: 竞赛班)。
      */
-    @NotNull(message = "数据验证失败，班级级别不能为空！")
-    @ConstDictRef(constDictClass = ClassLevel.class, message = "数据验证失败，班级级别为无效值！")
     @Column(name = "class_level")
     private Integer classLevel;
 
@@ -86,7 +76,6 @@ public class StudentClass {
     /**
      * 逻辑删除标记字段(1: 正常 -1: 已删除)。
      */
-    @JSONField(serialize = false)
     @DeletedFlagColumn
     private Integer status;
 

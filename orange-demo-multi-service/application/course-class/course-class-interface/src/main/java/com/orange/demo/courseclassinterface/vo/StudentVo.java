@@ -110,48 +110,48 @@ public class StudentVo {
     /**
      * provinceId 字典关联数据。
      */
-    @ApiModelProperty(hidden = true)
+    @ApiModelProperty(value = "provinceId 字典关联数据")
     private Map<String, Object> provinceIdDictMap;
 
     /**
      * cityId 字典关联数据。
      */
-    @ApiModelProperty(hidden = true)
+    @ApiModelProperty(value = "cityId 字典关联数据")
     private Map<String, Object> cityIdDictMap;
 
     /**
      * districtId 字典关联数据。
      */
-    @ApiModelProperty(hidden = true)
+    @ApiModelProperty(value = "districtId 字典关联数据")
     private Map<String, Object> districtIdDictMap;
 
     /**
      * gradeId 字典关联数据。
      */
-    @ApiModelProperty(hidden = true)
+    @ApiModelProperty(value = "gradeId 字典关联数据")
     private Map<String, Object> gradeIdDictMap;
 
     /**
      * schoolId 字典关联数据。
      */
-    @ApiModelProperty(hidden = true)
+    @ApiModelProperty(value = "schoolId 字典关联数据")
     private Map<String, Object> schoolIdDictMap;
 
     /**
      * gender 常量字典关联数据。
      */
-    @ApiModelProperty(hidden = true)
+    @ApiModelProperty(value = "gender 常量字典关联数据")
     private Map<String, Object> genderDictMap;
 
     /**
      * experienceLevel 常量字典关联数据。
      */
-    @ApiModelProperty(hidden = true)
+    @ApiModelProperty(value = "experienceLevel 常量字典关联数据")
     private Map<String, Object> experienceLevelDictMap;
 
     /**
      * status 常量字典关联数据。
      */
-    @ApiModelProperty(hidden = true)
+    @ApiModelProperty(value = "status 常量字典关联数据")
     private Map<String, Object> statusDictMap;
 }

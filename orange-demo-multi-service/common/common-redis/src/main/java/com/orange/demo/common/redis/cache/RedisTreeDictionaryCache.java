@@ -29,11 +29,11 @@ public class RedisTreeDictionaryCache<K, V> extends RedisDictionaryCache<K, V> {
     /**
      * 树形数据存储对象。
      */
-    private RListMultimap<K, String> allTreeMap;
+    private final RListMultimap<K, String> allTreeMap;
     /**
      * 获取字典父主键数据的函数对象。
      */
-    protected Function<V, K> parentIdGetter;
+    protected final Function<V, K> parentIdGetter;
 
     /**
      * 当前对象的构造器函数。

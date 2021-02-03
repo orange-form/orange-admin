@@ -18,6 +18,8 @@
     <file url="file://$PROJECT_DIR$/common/common-redis/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/common/common-sequence/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/common/common-sequence/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/common/common-swagger/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/common/common-swagger/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/framework/admin-monitor/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/framework/admin-monitor/src/main/resources" charset="UTF-8" />
   </component>

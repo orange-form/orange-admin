@@ -3,6 +3,7 @@ package com.orange.demo.app.controller;
 import cn.jimmyshi.beanquery.BeanQuery;
 import com.github.pagehelper.page.PageMethod;
 import com.orange.demo.app.vo.*;
+import com.orange.demo.app.dto.*;
 import com.orange.demo.app.model.*;
 import com.orange.demo.app.service.*;
 import com.orange.demo.common.core.object.*;
@@ -34,15 +35,16 @@ public class SchoolInfoController {
     /**
      * 新增校区数据数据。
      *
-     * @param schoolInfo 新增对象。
+     * @param schoolInfoDto 新增对象。
      * @return 应答结果对象，包含新增对象主键Id。
      */
     @PostMapping("/add")
-    public ResponseResult<Long> add(@MyRequestBody SchoolInfo schoolInfo) {
-        String errorMessage = MyCommonUtil.getModelValidationError(schoolInfo);
+    public ResponseResult<Long> add(@MyRequestBody("schoolInfo") SchoolInfoDto schoolInfoDto) {
+        String errorMessage = MyCommonUtil.getModelValidationError(schoolInfoDto);
         if (errorMessage != null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
+        SchoolInfo schoolInfo = MyModelUtil.copyTo(schoolInfoDto, SchoolInfo.class);
         // 验证关联Id的数据合法性
         CallResult callResult = schoolInfoService.verifyRelatedData(schoolInfo, null);
         if (!callResult.isSuccess()) {
@@ -56,16 +58,16 @@ public class SchoolInfoController {
     /**
      * 更新校区数据数据。
      *
-     * @param schoolInfo 更新对象。
+     * @param schoolInfoDto 更新对象。
      * @return 应答结果对象。
      */
     @PostMapping("/update")
-    public ResponseResult<Void> update(@MyRequestBody SchoolInfo schoolInfo) {
-        String errorMessage = MyCommonUtil.getModelValidationError(schoolInfo, Default.class, UpdateGroup.class);
+    public ResponseResult<Void> update(@MyRequestBody("schoolInfo") SchoolInfoDto schoolInfoDto) {
+        String errorMessage = MyCommonUtil.getModelValidationError(schoolInfoDto, Default.class, UpdateGroup.class);
         if (errorMessage != null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
-        // 验证关联Id的数据合法性
+        SchoolInfo schoolInfo = MyModelUtil.copyTo(schoolInfoDto, SchoolInfo.class);
         SchoolInfo originalSchoolInfo = schoolInfoService.getById(schoolInfo.getSchoolId());
         if (originalSchoolInfo == null) {
             // NOTE: 修改下面方括号中的话述
@@ -113,19 +115,20 @@ public class SchoolInfoController {
     /**
      * 列出符合过滤条件的校区数据列表。
      *
-     * @param schoolInfoFilter 过滤对象。
+     * @param schoolInfoDtoFilter 过滤对象。
      * @param orderParam 排序参数。
      * @param pageParam 分页参数。
      * @return 应答结果对象，包含查询结果集。
      */
     @PostMapping("/list")
     public ResponseResult<MyPageData<SchoolInfoVo>> list(
-            @MyRequestBody SchoolInfo schoolInfoFilter,
+            @MyRequestBody("schoolInfoFilter") SchoolInfoDto schoolInfoDtoFilter,
             @MyRequestBody MyOrderParam orderParam,
             @MyRequestBody MyPageParam pageParam) {
         if (pageParam != null) {
             PageMethod.startPage(pageParam.getPageNum(), pageParam.getPageSize());
         }
+        SchoolInfo schoolInfoFilter = MyModelUtil.copyTo(schoolInfoDtoFilter, SchoolInfo.class);
         String orderBy = MyOrderParam.buildOrderBy(orderParam, SchoolInfo.class);
         List<SchoolInfo> schoolInfoList = schoolInfoService.getSchoolInfoListWithRelation(schoolInfoFilter, orderBy);
         return ResponseResult.success(MyPageUtil.makeResponseData(schoolInfoList, SchoolInfo.INSTANCE));
@@ -159,7 +162,7 @@ public class SchoolInfoController {
      */
     @GetMapping("/listDict")
     public ResponseResult<List<Map<String, Object>>> listDict(SchoolInfo filter) {
-        List<SchoolInfo> resultList = schoolInfoService.getListByFilter(filter, null);
+        List<SchoolInfo> resultList = schoolInfoService.getListByFilter(filter);
         return ResponseResult.success(BeanQuery.select(
                 "schoolId as id", "schoolName as name").executeFrom(resultList));
     }

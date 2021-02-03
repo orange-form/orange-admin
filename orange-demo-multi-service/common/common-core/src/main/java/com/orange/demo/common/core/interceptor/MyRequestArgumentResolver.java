@@ -36,18 +36,18 @@ public class MyRequestArgumentResolver implements HandlerMethodArgumentResolver 
 
     private static final String JSONBODY_ATTRIBUTE = "MY_REQUEST_BODY_ATTRIBUTE_XX";
 
-    private static Set<Class<?>> classSet = new HashSet<>();
+    private static final Set<Class<?>> CLASS_SET = new HashSet<>();
 
     static {
-        classSet.add(Integer.class);
-        classSet.add(Long.class);
-        classSet.add(Short.class);
-        classSet.add(Float.class);
-        classSet.add(Double.class);
-        classSet.add(Boolean.class);
-        classSet.add(Byte.class);
-        classSet.add(BigDecimal.class);
-        classSet.add(Character.class);
+        CLASS_SET.add(Integer.class);
+        CLASS_SET.add(Long.class);
+        CLASS_SET.add(Short.class);
+        CLASS_SET.add(Float.class);
+        CLASS_SET.add(Double.class);
+        CLASS_SET.add(Boolean.class);
+        CLASS_SET.add(Byte.class);
+        CLASS_SET.add(BigDecimal.class);
+        CLASS_SET.add(Character.class);
     }
 
     /**
@@ -206,7 +206,7 @@ public class MyRequestArgumentResolver implements HandlerMethodArgumentResolver 
                 }
             }
         } else if (parameterType == Boolean.class) {
-            return value.toString();
+            return value;
         } else if (parameterType == Character.class) {
             return value.toString().charAt(0);
         }
@@ -214,7 +214,7 @@ public class MyRequestArgumentResolver implements HandlerMethodArgumentResolver 
     }
 
     private boolean isBasicDataTypes(Class<?> clazz) {
-        return classSet.contains(clazz);
+        return CLASS_SET.contains(clazz);
     }
 
     private JSONObject getRequestBody(NativeWebRequest webRequest) throws IOException {

@@ -68,18 +68,18 @@ public class StudentClassVo {
     /**
      * schoolId 字典关联数据。
      */
-    @ApiModelProperty(hidden = true)
+    @ApiModelProperty(value = "schoolId 字典关联数据")
     private Map<String, Object> schoolIdDictMap;
 
     /**
      * leaderId 字典关联数据。
      */
-    @ApiModelProperty(hidden = true)
+    @ApiModelProperty(value = "leaderId 字典关联数据")
     private Map<String, Object> leaderIdDictMap;
 
     /**
      * classLevel 常量字典关联数据。
      */
-    @ApiModelProperty(hidden = true)
+    @ApiModelProperty(value = "classLevel 常量字典关联数据")
     private Map<String, Object> classLevelDictMap;
 }

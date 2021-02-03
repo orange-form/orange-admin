@@ -30,7 +30,11 @@ public class RedissonCacheConfig {
         /**
          * session下上传文件名的缓存(时间是24小时)。
          */
-        UPLOAD_FILENAME_CACHE(86400000);
+        UPLOAD_FILENAME_CACHE(86400000),
+        /**
+         * 缺省全局缓存(时间是24小时)。
+         */
+        GLOBAL_CACHE(86400000);
 
         /**
          * 缓存的时长(单位：毫秒)

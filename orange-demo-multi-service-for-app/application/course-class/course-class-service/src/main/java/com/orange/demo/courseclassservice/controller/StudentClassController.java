@@ -9,9 +9,11 @@ import com.orange.demo.common.core.object.*;
 import com.orange.demo.common.core.util.*;
 import com.orange.demo.common.core.constant.*;
 import com.orange.demo.common.core.base.controller.BaseController;
-import com.orange.demo.common.core.base.service.BaseService;
+import com.orange.demo.common.core.base.service.IBaseService;
 import com.orange.demo.common.core.annotation.MyRequestBody;
 import com.orange.demo.common.core.validator.UpdateGroup;
+import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
+import io.swagger.annotations.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -26,6 +28,7 @@ import java.util.stream.Collectors;
  * @author Jerry
  * @date 2020-08-08
  */
+@Api(tags = "班级数据管理接口")
 @Slf4j
 @RestController
 @RequestMapping("/studentClass")
@@ -39,7 +42,7 @@ public class StudentClassController extends BaseController<StudentClass, Student
     private StudentService studentService;
 
     @Override
-    protected BaseService<StudentClass, Long> service() {
+    protected IBaseService<StudentClass, Long> service() {
         return studentClassService;
     }
 
@@ -49,6 +52,7 @@ public class StudentClassController extends BaseController<StudentClass, Student
      * @param studentClassDto 新增对象。
      * @return 应答结果对象，包含新增对象主键Id。
      */
+    @ApiOperationSupport(ignoreParameters = {"studentClass.classId"})
     @PostMapping("/add")
     public ResponseResult<Long> add(@MyRequestBody("studentClass") StudentClassDto studentClassDto) {
         String errorMessage = MyCommonUtil.getModelValidationError(studentClassDto);
@@ -182,11 +186,9 @@ public class StudentClassController extends BaseController<StudentClass, Student
             @MyRequestBody("courseFilter") CourseDto courseDtoFilter,
             @MyRequestBody MyOrderParam orderParam,
             @MyRequestBody MyPageParam pageParam) {
-        if (MyCommonUtil.existBlankArgument(classId)) {
-            return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
-        }
-        if (!studentClassService.existId(classId)) {
-            return ResponseResult.error(ErrorCodeEnum.INVALID_RELATED_RECORD_ID);
+        ResponseResult<Void> verifyResult = this.doClassCourseVerify(classId);
+        if (!verifyResult.isSuccess()) {
+            return ResponseResult.errorFrom(verifyResult);
         }
         if (pageParam != null) {
             PageMethod.startPage(pageParam.getPageNum(), pageParam.getPageSize());
@@ -213,11 +215,9 @@ public class StudentClassController extends BaseController<StudentClass, Student
             @MyRequestBody("courseFilter") CourseDto courseDtoFilter,
             @MyRequestBody MyOrderParam orderParam,
             @MyRequestBody MyPageParam pageParam) {
-        if (MyCommonUtil.existBlankArgument(classId)) {
-            return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
-        }
-        if (!studentClassService.existId(classId)) {
-            return ResponseResult.error(ErrorCodeEnum.INVALID_RELATED_RECORD_ID);
+        ResponseResult<Void> verifyResult = this.doClassCourseVerify(classId);
+        if (!verifyResult.isSuccess()) {
+            return ResponseResult.errorFrom(verifyResult);
         }
         if (pageParam != null) {
             PageMethod.startPage(pageParam.getPageNum(), pageParam.getPageSize());
@@ -227,6 +227,16 @@ public class StudentClassController extends BaseController<StudentClass, Student
         List<Course> courseList =
                 courseService.getCourseListByClassId(classId, filter, orderBy);
         return ResponseResult.success(MyPageUtil.makeResponseData(courseList, Course.INSTANCE));
+    }
+
+    private ResponseResult<Void> doClassCourseVerify(Long classId) {
+        if (MyCommonUtil.existBlankArgument(classId)) {
+            return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
+        }
+        if (!studentClassService.existId(classId)) {
+            return ResponseResult.error(ErrorCodeEnum.INVALID_RELATED_RECORD_ID);
+        }
+        return ResponseResult.success();
     }
 
     /**
@@ -337,11 +347,9 @@ public class StudentClassController extends BaseController<StudentClass, Student
             @MyRequestBody("studentFilter") StudentDto studentDtoFilter,
             @MyRequestBody MyOrderParam orderParam,
             @MyRequestBody MyPageParam pageParam) {
-        if (MyCommonUtil.existBlankArgument(classId)) {
-            return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
-        }
-        if (!studentClassService.existId(classId)) {
-            return ResponseResult.error(ErrorCodeEnum.INVALID_RELATED_RECORD_ID);
+        ResponseResult<Void> verifyResult = this.doClassStudentVerify(classId);
+        if (!verifyResult.isSuccess()) {
+            return ResponseResult.errorFrom(verifyResult);
         }
         if (pageParam != null) {
             PageMethod.startPage(pageParam.getPageNum(), pageParam.getPageSize());
@@ -368,11 +376,9 @@ public class StudentClassController extends BaseController<StudentClass, Student
             @MyRequestBody("studentFilter") StudentDto studentDtoFilter,
             @MyRequestBody MyOrderParam orderParam,
             @MyRequestBody MyPageParam pageParam) {
-        if (MyCommonUtil.existBlankArgument(classId)) {
-            return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
-        }
-        if (!studentClassService.existId(classId)) {
-            return ResponseResult.error(ErrorCodeEnum.INVALID_RELATED_RECORD_ID);
+        ResponseResult<Void> verifyResult = this.doClassStudentVerify(classId);
+        if (!verifyResult.isSuccess()) {
+            return ResponseResult.errorFrom(verifyResult);
         }
         if (pageParam != null) {
             PageMethod.startPage(pageParam.getPageNum(), pageParam.getPageSize());
@@ -382,6 +388,16 @@ public class StudentClassController extends BaseController<StudentClass, Student
         List<Student> studentList =
                 studentService.getStudentListByClassId(classId, filter, orderBy);
         return ResponseResult.success(MyPageUtil.makeResponseData(studentList, Student.INSTANCE));
+    }
+
+    private ResponseResult<Void> doClassStudentVerify(Long classId) {
+        if (MyCommonUtil.existBlankArgument(classId)) {
+            return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
+        }
+        if (!studentClassService.existId(classId)) {
+            return ResponseResult.error(ErrorCodeEnum.INVALID_RELATED_RECORD_ID);
+        }
+        return ResponseResult.success();
     }
 
     /**
@@ -442,6 +458,7 @@ public class StudentClassController extends BaseController<StudentClass, Student
      * @param withDict 是否包含字典关联。
      * @return 应答结果对象，包含主对象集合。
      */
+    @ApiOperation(hidden = true, value = "listByIds")
     @PostMapping("/listByIds")
     public ResponseResult<List<StudentClassVo>> listByIds(
             @RequestParam Set<Long> classIds, @RequestParam Boolean withDict) {
@@ -455,6 +472,7 @@ public class StudentClassController extends BaseController<StudentClass, Student
      * @param withDict 是否包含字典关联。
      * @return 应答结果对象，包含主对象数据。
      */
+    @ApiOperation(hidden = true, value = "getById")
     @PostMapping("/getById")
     public ResponseResult<StudentClassVo> getById(
             @RequestParam Long classId, @RequestParam Boolean withDict) {
@@ -467,6 +485,7 @@ public class StudentClassController extends BaseController<StudentClass, Student
      * @param classIds 主键Id集合。
      * @return 应答结果对象，包含true全部存在，否则false。
      */
+    @ApiOperation(hidden = true, value = "existIds")
     @PostMapping("/existIds")
     public ResponseResult<Boolean> existIds(@RequestParam Set<Long> classIds) {
         return super.baseExistIds(classIds);
@@ -478,6 +497,7 @@ public class StudentClassController extends BaseController<StudentClass, Student
      * @param classId 主键Id。
      * @return 应答结果对象，包含true表示存在，否则false。
      */
+    @ApiOperation(hidden = true, value = "existId")
     @PostMapping("/existId")
     public ResponseResult<Boolean> existId(@RequestParam Long classId) {
         return super.baseExistId(classId);
@@ -489,6 +509,7 @@ public class StudentClassController extends BaseController<StudentClass, Student
      * @param filter 过滤对象。
      * @return 删除数量。
      */
+    @ApiOperation(hidden = true, value = "deleteBy")
     @PostMapping("/deleteBy")
     public ResponseResult<Integer> deleteBy(@RequestBody StudentClassDto filter) throws Exception {
         return super.baseDeleteBy(MyModelUtil.copyTo(filter, StudentClass.class));
@@ -500,6 +521,7 @@ public class StudentClassController extends BaseController<StudentClass, Student
      * @param queryParam 查询参数。
      * @return 分页数据集合对象。如MyQueryParam参数的分页属性为空，则不会执行分页操作，只是基于MyPageData对象返回数据结果。
      */
+    @ApiOperation(hidden = true, value = "listBy")
     @PostMapping("/listBy")
     public ResponseResult<MyPageData<StudentClassVo>> listBy(@RequestBody MyQueryParam queryParam) {
         return super.baseListBy(queryParam, StudentClass.INSTANCE);
@@ -511,6 +533,7 @@ public class StudentClassController extends BaseController<StudentClass, Student
      * @param queryParam 查询参数。
      * @return 分页数据集合对象。如MyQueryParam参数的分页属性为空，则不会执行分页操作，只是基于MyPageData对象返回数据结果。
      */
+    @ApiOperation(hidden = true, value = "listMapBy")
     @PostMapping("/listMapBy")
     public ResponseResult<MyPageData<Map<String, Object>>> listMapBy(@RequestBody MyQueryParam queryParam) {
         return super.baseListMapBy(queryParam, StudentClass.INSTANCE);
@@ -522,6 +545,7 @@ public class StudentClassController extends BaseController<StudentClass, Student
      * @param queryParam 查询参数。
      * @return 应答结果对象，包含符合查询过滤条件的对象结果集。
      */
+    @ApiOperation(hidden = true, value = "getBy")
     @PostMapping("/getBy")
     public ResponseResult<StudentClassVo> getBy(@RequestBody MyQueryParam queryParam) {
         return super.baseGetBy(queryParam, StudentClass.INSTANCE);
@@ -533,6 +557,7 @@ public class StudentClassController extends BaseController<StudentClass, Student
      * @param queryParam 查询参数。
      * @return 应答结果对象，包含结果数量。
      */
+    @ApiOperation(hidden = true, value = "countBy")
     @PostMapping("/countBy")
     public ResponseResult<Integer> countBy(@RequestBody MyQueryParam queryParam) {
         return super.baseCountBy(queryParam);
@@ -544,6 +569,7 @@ public class StudentClassController extends BaseController<StudentClass, Student
      * @param aggregationParam 聚合参数。
      * @return 应该结果对象，包含聚合计算后的分组Map列表。
      */
+    @ApiOperation(hidden = true, value = "aggregateBy")
     @PostMapping("/aggregateBy")
     public ResponseResult<List<Map<String, Object>>> aggregateBy(@RequestBody MyAggregationParam aggregationParam) {
         return super.baseAggregateBy(aggregationParam);

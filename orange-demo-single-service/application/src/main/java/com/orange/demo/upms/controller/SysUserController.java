@@ -2,6 +2,7 @@ package com.orange.demo.upms.controller;
 
 import com.github.pagehelper.page.PageMethod;
 import com.orange.demo.upms.vo.*;
+import com.orange.demo.upms.dto.*;
 import com.orange.demo.upms.model.*;
 import com.orange.demo.upms.service.*;
 import com.orange.demo.common.core.object.*;
@@ -40,17 +41,19 @@ public class SysUserController {
     /**
      * 新增用户操作。
      *
-     * @param sysUser          新增用户对象。
+     * @param sysUserDto       新增用户对象。
      * @param roleIdListString 逗号分隔的角色Id列表。
      * @return 应答结果对象，包含新增用户的主键Id。
      */
     @SuppressWarnings("unchecked")
     @PostMapping("/add")
-    public ResponseResult<Long> add(@MyRequestBody SysUser sysUser, @MyRequestBody String roleIdListString) {
-        String errorMessage = MyCommonUtil.getModelValidationError(sysUser, Default.class, AddGroup.class);
+    public ResponseResult<Long> add(
+            @MyRequestBody("sysUser") SysUserDto sysUserDto, @MyRequestBody String roleIdListString) {
+        String errorMessage = MyCommonUtil.getModelValidationError(sysUserDto, Default.class, AddGroup.class);
         if (errorMessage != null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
+        SysUser sysUser = MyModelUtil.copyTo(sysUserDto, SysUser.class);
         CallResult result = sysUserService.verifyRelatedData(sysUser, null, roleIdListString);
         if (!result.isSuccess()) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, result.getErrorMessage());
@@ -63,21 +66,23 @@ public class SysUserController {
     /**
      * 更新用户操作。
      *
-     * @param sysUser          更新用户对象。
+     * @param sysUserDto       更新用户对象。
      * @param roleIdListString 逗号分隔的角色Id列表。
      * @return 应答结果对象。
      */
     @SuppressWarnings("unchecked")
     @PostMapping("/update")
-    public ResponseResult<Void> update(@MyRequestBody SysUser sysUser, @MyRequestBody String roleIdListString) {
-        String errorMessage = MyCommonUtil.getModelValidationError(sysUser, Default.class, UpdateGroup.class);
+    public ResponseResult<Void> update(
+            @MyRequestBody("sysUser") SysUserDto sysUserDto, @MyRequestBody String roleIdListString) {
+        String errorMessage = MyCommonUtil.getModelValidationError(sysUserDto, Default.class, UpdateGroup.class);
         if (errorMessage != null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
-        SysUser originalUser = sysUserService.getById(sysUser.getUserId());
+        SysUser originalUser = sysUserService.getById(sysUserDto.getUserId());
         if (originalUser == null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST);
         }
+        SysUser sysUser = MyModelUtil.copyTo(sysUserDto, SysUser.class);
         CallResult result = sysUserService.verifyRelatedData(sysUser, originalUser, roleIdListString);
         if (!result.isSuccess()) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, result.getErrorMessage());
@@ -135,19 +140,20 @@ public class SysUserController {
     /**
      * 列出符合过滤条件的用户管理列表。
      *
-     * @param sysUserFilter 过滤对象。
+     * @param sysUserDtoFilter 过滤对象。
      * @param orderParam 排序参数。
      * @param pageParam 分页参数。
      * @return 应答结果对象，包含查询结果集。
      */
     @PostMapping("/list")
     public ResponseResult<MyPageData<SysUserVo>> list(
-            @MyRequestBody SysUser sysUserFilter,
+            @MyRequestBody("sysUserFilter") SysUserDto sysUserDtoFilter,
             @MyRequestBody MyOrderParam orderParam,
             @MyRequestBody MyPageParam pageParam) {
         if (pageParam != null) {
             PageMethod.startPage(pageParam.getPageNum(), pageParam.getPageSize());
         }
+        SysUser sysUserFilter = MyModelUtil.copyTo(sysUserDtoFilter, SysUser.class);
         String orderBy = MyOrderParam.buildOrderBy(orderParam, SysUser.class);
         List<SysUser> sysUserList = sysUserService.getSysUserListWithRelation(sysUserFilter, orderBy);
         return ResponseResult.success(MyPageUtil.makeResponseData(sysUserList, SysUser.INSTANCE));

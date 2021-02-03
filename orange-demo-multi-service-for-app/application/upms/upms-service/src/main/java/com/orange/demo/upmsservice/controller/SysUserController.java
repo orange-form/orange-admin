@@ -9,11 +9,13 @@ import com.orange.demo.common.core.object.*;
 import com.orange.demo.common.core.util.*;
 import com.orange.demo.common.core.constant.*;
 import com.orange.demo.common.core.base.controller.BaseController;
-import com.orange.demo.common.core.base.service.BaseService;
+import com.orange.demo.common.core.base.service.IBaseService;
 import com.orange.demo.common.core.annotation.MyRequestBody;
 import com.orange.demo.common.core.validator.AddGroup;
 import com.orange.demo.common.core.validator.UpdateGroup;
 import com.orange.demo.upmsservice.config.ApplicationConfig;
+import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
+import io.swagger.annotations.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -27,6 +29,7 @@ import java.util.*;
  * @author Jerry
  * @date 2020-08-08
  */
+@Api(tags = "用户管理管理接口")
 @Slf4j
 @RestController
 @RequestMapping("/sysUser")
@@ -38,7 +41,7 @@ public class SysUserController extends BaseController<SysUser, SysUserVo, Long> 
     private ApplicationConfig appConfig;
 
     @Override
-    protected BaseService<SysUser, Long> service() {
+    protected IBaseService<SysUser, Long> service() {
         return sysUserService;
     }
 
@@ -48,6 +51,10 @@ public class SysUserController extends BaseController<SysUser, SysUserVo, Long> 
      * @param sysUserDto 新增用户对象。
      * @return 应答结果对象，包含新增用户的主键Id。
      */
+    @ApiOperationSupport(ignoreParameters = {
+            "sysUser.userId",
+            "sysUser.createTimeStart",
+            "sysUser.createTimeEnd"})
     @PostMapping("/add")
     public ResponseResult<Long> add(@MyRequestBody("sysUser") SysUserDto sysUserDto) {
         String errorMessage = MyCommonUtil.getModelValidationError(sysUserDto, Default.class, AddGroup.class);
@@ -69,6 +76,9 @@ public class SysUserController extends BaseController<SysUser, SysUserVo, Long> 
      * @param sysUserDto 更新用户对象。
      * @return 应答结果对象。
      */
+    @ApiOperationSupport(ignoreParameters = {
+            "sysUser.createTimeStart",
+            "sysUser.createTimeEnd"})
     @PostMapping("/update")
     public ResponseResult<Void> update(@MyRequestBody("sysUser") SysUserDto sysUserDto) {
         String errorMessage = MyCommonUtil.getModelValidationError(sysUserDto, Default.class, UpdateGroup.class);
@@ -184,6 +194,7 @@ public class SysUserController extends BaseController<SysUser, SysUserVo, Long> 
      * @param withDict 是否包含字典关联。
      * @return 应答结果对象，包含主对象集合。
      */
+    @ApiOperation(hidden = true, value = "listByIds")
     @PostMapping("/listByIds")
     public ResponseResult<List<SysUserVo>> listByIds(
             @RequestParam Set<Long> userIds, @RequestParam Boolean withDict) {
@@ -197,6 +208,7 @@ public class SysUserController extends BaseController<SysUser, SysUserVo, Long> 
      * @param withDict 是否包含字典关联。
      * @return 应答结果对象，包含主对象数据。
      */
+    @ApiOperation(hidden = true, value = "getById")
     @PostMapping("/getById")
     public ResponseResult<SysUserVo> getById(
             @RequestParam Long userId, @RequestParam Boolean withDict) {
@@ -209,6 +221,7 @@ public class SysUserController extends BaseController<SysUser, SysUserVo, Long> 
      * @param userIds 主键Id集合。
      * @return 应答结果对象，包含true全部存在，否则false。
      */
+    @ApiOperation(hidden = true, value = "existIds")
     @PostMapping("/existIds")
     public ResponseResult<Boolean> existIds(@RequestParam Set<Long> userIds) {
         return super.baseExistIds(userIds);
@@ -220,6 +233,7 @@ public class SysUserController extends BaseController<SysUser, SysUserVo, Long> 
      * @param userId 主键Id。
      * @return 应答结果对象，包含true表示存在，否则false。
      */
+    @ApiOperation(hidden = true, value = "existId")
     @PostMapping("/existId")
     public ResponseResult<Boolean> existId(@RequestParam Long userId) {
         return super.baseExistId(userId);
@@ -231,6 +245,7 @@ public class SysUserController extends BaseController<SysUser, SysUserVo, Long> 
      * @param filter 过滤对象。
      * @return 删除数量。
      */
+    @ApiOperation(hidden = true, value = "deleteBy")
     @PostMapping("/deleteBy")
     public ResponseResult<Integer> deleteBy(@RequestBody SysUserDto filter) throws Exception {
         return super.baseDeleteBy(MyModelUtil.copyTo(filter, SysUser.class));
@@ -242,6 +257,7 @@ public class SysUserController extends BaseController<SysUser, SysUserVo, Long> 
      * @param queryParam 查询参数。
      * @return 分页数据集合对象。如MyQueryParam参数的分页属性为空，则不会执行分页操作，只是基于MyPageData对象返回数据结果。
      */
+    @ApiOperation(hidden = true, value = "listBy")
     @PostMapping("/listBy")
     public ResponseResult<MyPageData<SysUserVo>> listBy(@RequestBody MyQueryParam queryParam) {
         return super.baseListBy(queryParam, SysUser.INSTANCE);
@@ -253,6 +269,7 @@ public class SysUserController extends BaseController<SysUser, SysUserVo, Long> 
      * @param queryParam 查询参数。
      * @return 分页数据集合对象。如MyQueryParam参数的分页属性为空，则不会执行分页操作，只是基于MyPageData对象返回数据结果。
      */
+    @ApiOperation(hidden = true, value = "listMapBy")
     @PostMapping("/listMapBy")
     public ResponseResult<MyPageData<Map<String, Object>>> listMapBy(@RequestBody MyQueryParam queryParam) {
         return super.baseListMapBy(queryParam, SysUser.INSTANCE);
@@ -264,6 +281,7 @@ public class SysUserController extends BaseController<SysUser, SysUserVo, Long> 
      * @param queryParam 查询参数。
      * @return 应答结果对象，包含符合查询过滤条件的对象结果集。
      */
+    @ApiOperation(hidden = true, value = "getBy")
     @PostMapping("/getBy")
     public ResponseResult<SysUserVo> getBy(@RequestBody MyQueryParam queryParam) {
         return super.baseGetBy(queryParam, SysUser.INSTANCE);
@@ -275,6 +293,7 @@ public class SysUserController extends BaseController<SysUser, SysUserVo, Long> 
      * @param queryParam 查询参数。
      * @return 应答结果对象，包含结果数量。
      */
+    @ApiOperation(hidden = true, value = "countBy")
     @PostMapping("/countBy")
     public ResponseResult<Integer> countBy(@RequestBody MyQueryParam queryParam) {
         return super.baseCountBy(queryParam);
@@ -286,6 +305,7 @@ public class SysUserController extends BaseController<SysUser, SysUserVo, Long> 
      * @param aggregationParam 聚合参数。
      * @return 应该结果对象，包含聚合计算后的分组Map列表。
      */
+    @ApiOperation(hidden = true, value = "aggregateBy")
     @PostMapping("/aggregateBy")
     public ResponseResult<List<Map<String, Object>>> aggregateBy(@RequestBody MyAggregationParam aggregationParam) {
         return super.baseAggregateBy(aggregationParam);

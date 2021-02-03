@@ -56,7 +56,10 @@ public enum ErrorCodeEnum {
     INVALID_CLASS_FIELD("数据验证失败，无效的类对象字段！"),
     SERVER_INTERNAL_ERROR("服务器内部错误，请联系管理员！"),
     REDIS_CACHE_ACCESS_TIMEOUT("Redis缓存数据访问超时，请刷新后重试！"),
-    REDIS_CACHE_ACCESS_STATE_ERROR("Redis缓存数据访问状态错误，请刷新后重试！");
+    REDIS_CACHE_ACCESS_STATE_ERROR("Redis缓存数据访问状态错误，请刷新后重试！"),
+    MESSAGE_SEND_FAIL("消息发送失败！"),
+    TRANSACTION_MESSAGE_LOCAL_STATUS_ROLLBACK("本地数据操作失败，请联系管理员！"),
+    TRANSACTION_MESSAGE_LOCAL_STATUS_UNKNOW("本地数据操作结果未知，请刷新后重试！");
 
     // 下面的枚举值为特定枚举值，即开发者可以根据自己的项目需求定义更多的非通用枚举值
 
@@ -72,7 +75,7 @@ public enum ErrorCodeEnum {
     /**
      * 错误信息。
      */
-    private String errorMessage;
+    private final String errorMessage;
 
     /**
      * 获取错误信息。

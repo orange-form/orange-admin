@@ -11,13 +11,16 @@ import com.orange.demo.common.core.object.ResponseResult;
 import com.orange.demo.common.core.object.TokenData;
 import com.orange.demo.common.core.util.ApplicationContextHolder;
 import com.orange.demo.common.core.util.JwtUtil;
-import com.orange.demo.common.core.cache.SessionCacheHelper;
+import com.orange.demo.common.core.util.RedisKeyUtil;
+import com.orange.demo.common.redis.cache.SessionCacheHelper;
 import io.jsonwebtoken.Claims;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -36,17 +39,19 @@ import java.util.stream.Collectors;
 @Slf4j
 public class AuthenticationInterceptor implements HandlerInterceptor {
 
-    private ApplicationConfig appConfig =
+    private final ApplicationConfig appConfig =
             ApplicationContextHolder.getBean("applicationConfig");
 
-    private SessionCacheHelper cacheHelper =
+    private final JedisPool jedisPool = ApplicationContextHolder.getBean(JedisPool.class);
+
+    private final SessionCacheHelper cacheHelper =
             ApplicationContextHolder.getBean("sessionCacheHelper");
 
-    private SysPermService sysPermService =
-            ApplicationContextHolder.getBean("sysPermService");
+    private final SysPermService sysPermService =
+            ApplicationContextHolder.getBean(SysPermService.class);
 
     private static SysPermWhitelistService sysPermWhitelistService =
-            ApplicationContextHolder.getBean("sysPermWhitelistService");
+            ApplicationContextHolder.getBean(SysPermWhitelistService.class);
 
     private static Set<String> whitelistPermSet;
 
@@ -90,13 +95,13 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
         TokenData.addToRequest(tokenData);
         // 如果url在权限资源白名单中，则不需要进行鉴权操作
         if (Boolean.FALSE.equals(tokenData.getIsAdmin()) && !whitelistPermSet.contains(url)) {
-            Set<String> urlSet = sysPermService.getCacheableSysPermSetByUserId(
-                    tokenData.getSessionId(), tokenData.getUserId());
-            if (!urlSet.contains(url)) {
-                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                this.outputResponseMessage(response,
-                        ResponseResult.error(ErrorCodeEnum.NO_OPERATION_PERMISSION));
-                return false;
+            try (Jedis jedis = jedisPool.getResource()) {
+                if (!jedis.sismember(RedisKeyUtil.makeSessionPermIdKeyForRedis(tokenData.getSessionId()), url)) {
+                    response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                    this.outputResponseMessage(response,
+                            ResponseResult.error(ErrorCodeEnum.NO_OPERATION_PERMISSION));
+                    return false;
+                }
             }
         }
         if (JwtUtil.needToRefresh(c)) {

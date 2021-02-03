@@ -1,12 +1,13 @@
 package com.orange.demo.courseclassservice.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import cn.jimmyshi.beanquery.BeanQuery;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import com.orange.demo.common.core.base.controller.BaseController;
-import com.orange.demo.common.core.base.service.BaseDictService;
+import com.orange.demo.common.core.base.service.IBaseDictService;
 import com.orange.demo.common.core.constant.ErrorCodeEnum;
 import com.orange.demo.common.core.object.*;
 import com.orange.demo.common.core.util.MyModelUtil;
@@ -39,7 +40,7 @@ public class GradeController extends BaseController<Grade, GradeVo, Integer> {
     private GradeService gradeService;
 
     @Override
-    protected BaseDictService<Grade, Integer> service() {
+    protected IBaseDictService<Grade, Integer> service() {
         return gradeService;
     }
 
@@ -121,16 +122,32 @@ public class GradeController extends BaseController<Grade, GradeVo, Integer> {
     }
 
     /**
-     * 以字典形式返回全部年级数据集合。
-     * 白名单接口，登录用户均可访问。
+     * 白名单接口，登录用户均可访问。以字典形式返回全部年级数据集合。
+     * 所有数据全部取自于缓存，对于数据库中存在，但是缓存中不存在的数据，不会返回。
      *
      * @return 应答结果对象，包含字典形式的数据集合。
      */
     @GetMapping("/listDict")
     public ResponseResult<List<Map<String, Object>>> listDict() {
-        List<Grade> resultList = gradeService.getAllList();
+        List<Grade> resultList = gradeService.getAllListFromCache();
         return ResponseResult.success(BeanQuery.select(
                 "gradeId as id", "gradeName as name").executeFrom(resultList));
+    }
+
+    /**
+     * 白名单接口，登录用户均可访问。以字典形式返回全部年级数据集合。
+     * fullResultList中的字典列表全部取自于数据库，而cachedResultList全部取自于缓存，前端负责比对。
+     *
+     * @return 应答结果对象，包含字典形式的数据集合。
+     */
+    @GetMapping("/listAll")
+    public ResponseResult<JSONObject> listAll() {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("fullResultList", BeanQuery.select(
+                "gradeId as id", "gradeName as name").executeFrom(gradeService.getAllList()));
+        jsonObject.put("cachedResultList", BeanQuery.select(
+                "gradeId as id", "gradeName as name").executeFrom(gradeService.getAllListFromCache()));
+        return ResponseResult.success(jsonObject);
     }
 
     /**

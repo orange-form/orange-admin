@@ -2,6 +2,7 @@ package com.orange.demo.app.controller;
 
 import com.github.pagehelper.page.PageMethod;
 import com.orange.demo.app.vo.*;
+import com.orange.demo.app.dto.*;
 import com.orange.demo.app.model.*;
 import com.orange.demo.app.service.*;
 import com.orange.demo.common.core.object.*;
@@ -38,15 +39,16 @@ public class StudentClassController {
     /**
      * 新增班级数据数据。
      *
-     * @param studentClass 新增对象。
+     * @param studentClassDto 新增对象。
      * @return 应答结果对象，包含新增对象主键Id。
      */
     @PostMapping("/add")
-    public ResponseResult<Long> add(@MyRequestBody StudentClass studentClass) {
-        String errorMessage = MyCommonUtil.getModelValidationError(studentClass);
+    public ResponseResult<Long> add(@MyRequestBody("studentClass") StudentClassDto studentClassDto) {
+        String errorMessage = MyCommonUtil.getModelValidationError(studentClassDto);
         if (errorMessage != null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
+        StudentClass studentClass = MyModelUtil.copyTo(studentClassDto, StudentClass.class);
         // 验证关联Id的数据合法性
         CallResult callResult = studentClassService.verifyRelatedData(studentClass, null);
         if (!callResult.isSuccess()) {
@@ -60,16 +62,16 @@ public class StudentClassController {
     /**
      * 更新班级数据数据。
      *
-     * @param studentClass 更新对象。
+     * @param studentClassDto 更新对象。
      * @return 应答结果对象。
      */
     @PostMapping("/update")
-    public ResponseResult<Void> update(@MyRequestBody StudentClass studentClass) {
-        String errorMessage = MyCommonUtil.getModelValidationError(studentClass, Default.class, UpdateGroup.class);
+    public ResponseResult<Void> update(@MyRequestBody("studentClass") StudentClassDto studentClassDto) {
+        String errorMessage = MyCommonUtil.getModelValidationError(studentClassDto, Default.class, UpdateGroup.class);
         if (errorMessage != null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
-        // 验证关联Id的数据合法性
+        StudentClass studentClass = MyModelUtil.copyTo(studentClassDto, StudentClass.class);
         StudentClass originalStudentClass = studentClassService.getById(studentClass.getClassId());
         if (originalStudentClass == null) {
             // NOTE: 修改下面方括号中的话述
@@ -117,19 +119,20 @@ public class StudentClassController {
     /**
      * 列出符合过滤条件的班级数据列表。
      *
-     * @param studentClassFilter 过滤对象。
+     * @param studentClassDtoFilter 过滤对象。
      * @param orderParam 排序参数。
      * @param pageParam 分页参数。
      * @return 应答结果对象，包含查询结果集。
      */
     @PostMapping("/list")
     public ResponseResult<MyPageData<StudentClassVo>> list(
-            @MyRequestBody StudentClass studentClassFilter,
+            @MyRequestBody("studentClassFilter") StudentClassDto studentClassDtoFilter,
             @MyRequestBody MyOrderParam orderParam,
             @MyRequestBody MyPageParam pageParam) {
         if (pageParam != null) {
             PageMethod.startPage(pageParam.getPageNum(), pageParam.getPageSize());
         }
+        StudentClass studentClassFilter = MyModelUtil.copyTo(studentClassDtoFilter, StudentClass.class);
         String orderBy = MyOrderParam.buildOrderBy(orderParam, StudentClass.class);
         List<StudentClass> studentClassList = studentClassService.getStudentClassListWithRelation(studentClassFilter, orderBy);
         return ResponseResult.success(MyPageUtil.makeResponseData(studentClassList, StudentClass.INSTANCE));
@@ -158,7 +161,7 @@ public class StudentClassController {
      * 列出不与指定班级数据存在多对多关系的 [课程数据] 列表数据。通常用于查看添加新 [课程数据] 对象的候选列表。
      *
      * @param classId 主表关联字段。
-     * @param courseFilter [课程数据] 过滤对象。
+     * @param courseDtoFilter [课程数据] 过滤对象。
      * @param orderParam 排序参数。
      * @param pageParam 分页参数。
      * @return 应答结果对象，返回符合条件的数据列表。
@@ -166,7 +169,7 @@ public class StudentClassController {
     @PostMapping("/listNotInClassCourse")
     public ResponseResult<MyPageData<CourseVo>> listNotInClassCourse(
             @MyRequestBody Long classId,
-            @MyRequestBody Course courseFilter,
+            @MyRequestBody("courseFilter") CourseDto courseDtoFilter,
             @MyRequestBody MyOrderParam orderParam,
             @MyRequestBody MyPageParam pageParam) {
         ResponseResult<Void> verifyResult = this.doClassCourseVerify(classId);
@@ -176,9 +179,10 @@ public class StudentClassController {
         if (pageParam != null) {
             PageMethod.startPage(pageParam.getPageNum(), pageParam.getPageSize());
         }
+        Course filter = MyModelUtil.copyTo(courseDtoFilter, Course.class);
         String orderBy = MyOrderParam.buildOrderBy(orderParam, Course.class);
         List<Course> courseList =
-                courseService.getNotInCourseListByClassId(classId, courseFilter, orderBy);
+                courseService.getNotInCourseListByClassId(classId, filter, orderBy);
         return ResponseResult.success(MyPageUtil.makeResponseData(courseList, Course.INSTANCE));
     }
 
@@ -186,7 +190,7 @@ public class StudentClassController {
      * 列出与指定班级数据存在多对多关系的 [课程数据] 列表数据。
      *
      * @param classId 主表关联字段。
-     * @param courseFilter [课程数据] 过滤对象。
+     * @param courseDtoFilter [课程数据] 过滤对象。
      * @param orderParam 排序参数。
      * @param pageParam 分页参数。
      * @return 应答结果对象，返回符合条件的数据列表。
@@ -194,7 +198,7 @@ public class StudentClassController {
     @PostMapping("/listClassCourse")
     public ResponseResult<MyPageData<CourseVo>> listClassCourse(
             @MyRequestBody Long classId,
-            @MyRequestBody Course courseFilter,
+            @MyRequestBody("courseFilter") CourseDto courseDtoFilter,
             @MyRequestBody MyOrderParam orderParam,
             @MyRequestBody MyPageParam pageParam) {
         ResponseResult<Void> verifyResult = this.doClassCourseVerify(classId);
@@ -204,9 +208,10 @@ public class StudentClassController {
         if (pageParam != null) {
             PageMethod.startPage(pageParam.getPageNum(), pageParam.getPageSize());
         }
+        Course filter = MyModelUtil.copyTo(courseDtoFilter, Course.class);
         String orderBy = MyOrderParam.buildOrderBy(orderParam, Course.class);
         List<Course> courseList =
-                courseService.getCourseListByClassId(classId, courseFilter, orderBy);
+                courseService.getCourseListByClassId(classId, filter, orderBy);
         return ResponseResult.success(MyPageUtil.makeResponseData(courseList, Course.INSTANCE));
     }
 
@@ -224,28 +229,30 @@ public class StudentClassController {
      * 批量添加班级数据和 [课程数据] 对象的多对多关联关系数据。
      *
      * @param classId 主表主键Id。
-     * @param classCourseList 关联对象列表。
+     * @param classCourseDtoList 关联对象列表。
      * @return 应答结果对象。
      */
     @PostMapping("/addClassCourse")
     public ResponseResult<Void> addClassCourse(
             @MyRequestBody Long classId,
-            @MyRequestBody(elementType = ClassCourse.class) List<ClassCourse> classCourseList) {
-        if (MyCommonUtil.existBlankArgument(classId, classCourseList)) {
+            @MyRequestBody(value = "classCourseList", elementType = ClassCourseDto.class) List<ClassCourseDto> classCourseDtoList) {
+        if (MyCommonUtil.existBlankArgument(classId, classCourseDtoList)) {
             return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
         }
-        for (ClassCourse classCourse : classCourseList) {
+        for (ClassCourseDto classCourse : classCourseDtoList) {
             String errorMessage = MyCommonUtil.getModelValidationError(classCourse);
             if (errorMessage != null) {
                 return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
             }
         }
         Set<Long> courseIdSet =
-                classCourseList.stream().map(ClassCourse::getCourseId).collect(Collectors.toSet());
+                classCourseDtoList.stream().map(ClassCourseDto::getCourseId).collect(Collectors.toSet());
         if (!studentClassService.existId(classId)
                 || !courseService.existUniqueKeyList("courseId", courseIdSet)) {
             return ResponseResult.error(ErrorCodeEnum.INVALID_RELATED_RECORD_ID);
         }
+        List<ClassCourse> classCourseList =
+                MyModelUtil.copyCollectionTo(classCourseDtoList, ClassCourse.class);
         studentClassService.addClassCourseList(classCourseList, classId);
         return ResponseResult.success();
     }
@@ -253,15 +260,17 @@ public class StudentClassController {
     /**
      * 更新指定班级数据和指定 [课程数据] 的多对多关联数据。
      *
-     * @param classCourse 对多对中间表对象。
+     * @param classCourseDto 对多对中间表对象。
      * @return 应答结果对象。
      */
     @PostMapping("/updateClassCourse")
-    public ResponseResult<Void> updateClassCourse(@MyRequestBody ClassCourse classCourse) {
-        String errorMessage = MyCommonUtil.getModelValidationError(classCourse);
+    public ResponseResult<Void> updateClassCourse(
+            @MyRequestBody("classCourse") ClassCourseDto classCourseDto) {
+        String errorMessage = MyCommonUtil.getModelValidationError(classCourseDto);
         if (errorMessage != null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
+        ClassCourse classCourse = MyModelUtil.copyTo(classCourseDto, ClassCourse.class);
         if (!studentClassService.updateClassCourse(classCourse)) {
             return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST);
         }
@@ -312,7 +321,7 @@ public class StudentClassController {
      * 列出不与指定班级数据存在多对多关系的 [学生数据] 列表数据。通常用于查看添加新 [学生数据] 对象的候选列表。
      *
      * @param classId 主表关联字段。
-     * @param studentFilter [学生数据] 过滤对象。
+     * @param studentDtoFilter [学生数据] 过滤对象。
      * @param orderParam 排序参数。
      * @param pageParam 分页参数。
      * @return 应答结果对象，返回符合条件的数据列表。
@@ -320,7 +329,7 @@ public class StudentClassController {
     @PostMapping("/listNotInClassStudent")
     public ResponseResult<MyPageData<StudentVo>> listNotInClassStudent(
             @MyRequestBody Long classId,
-            @MyRequestBody Student studentFilter,
+            @MyRequestBody("studentFilter") StudentDto studentDtoFilter,
             @MyRequestBody MyOrderParam orderParam,
             @MyRequestBody MyPageParam pageParam) {
         ResponseResult<Void> verifyResult = this.doClassStudentVerify(classId);
@@ -330,9 +339,10 @@ public class StudentClassController {
         if (pageParam != null) {
             PageMethod.startPage(pageParam.getPageNum(), pageParam.getPageSize());
         }
+        Student filter = MyModelUtil.copyTo(studentDtoFilter, Student.class);
         String orderBy = MyOrderParam.buildOrderBy(orderParam, Student.class);
         List<Student> studentList =
-                studentService.getNotInStudentListByClassId(classId, studentFilter, orderBy);
+                studentService.getNotInStudentListByClassId(classId, filter, orderBy);
         return ResponseResult.success(MyPageUtil.makeResponseData(studentList, Student.INSTANCE));
     }
 
@@ -340,7 +350,7 @@ public class StudentClassController {
      * 列出与指定班级数据存在多对多关系的 [学生数据] 列表数据。
      *
      * @param classId 主表关联字段。
-     * @param studentFilter [学生数据] 过滤对象。
+     * @param studentDtoFilter [学生数据] 过滤对象。
      * @param orderParam 排序参数。
      * @param pageParam 分页参数。
      * @return 应答结果对象，返回符合条件的数据列表。
@@ -348,7 +358,7 @@ public class StudentClassController {
     @PostMapping("/listClassStudent")
     public ResponseResult<MyPageData<StudentVo>> listClassStudent(
             @MyRequestBody Long classId,
-            @MyRequestBody Student studentFilter,
+            @MyRequestBody("studentFilter") StudentDto studentDtoFilter,
             @MyRequestBody MyOrderParam orderParam,
             @MyRequestBody MyPageParam pageParam) {
         ResponseResult<Void> verifyResult = this.doClassStudentVerify(classId);
@@ -358,9 +368,10 @@ public class StudentClassController {
         if (pageParam != null) {
             PageMethod.startPage(pageParam.getPageNum(), pageParam.getPageSize());
         }
+        Student filter = MyModelUtil.copyTo(studentDtoFilter, Student.class);
         String orderBy = MyOrderParam.buildOrderBy(orderParam, Student.class);
         List<Student> studentList =
-                studentService.getStudentListByClassId(classId, studentFilter, orderBy);
+                studentService.getStudentListByClassId(classId, filter, orderBy);
         return ResponseResult.success(MyPageUtil.makeResponseData(studentList, Student.INSTANCE));
     }
 
@@ -378,28 +389,30 @@ public class StudentClassController {
      * 批量添加班级数据和 [学生数据] 对象的多对多关联关系数据。
      *
      * @param classId 主表主键Id。
-     * @param classStudentList 关联对象列表。
+     * @param classStudentDtoList 关联对象列表。
      * @return 应答结果对象。
      */
     @PostMapping("/addClassStudent")
     public ResponseResult<Void> addClassStudent(
             @MyRequestBody Long classId,
-            @MyRequestBody(elementType = ClassStudent.class) List<ClassStudent> classStudentList) {
-        if (MyCommonUtil.existBlankArgument(classId, classStudentList)) {
+            @MyRequestBody(value = "classStudentList", elementType = ClassStudentDto.class) List<ClassStudentDto> classStudentDtoList) {
+        if (MyCommonUtil.existBlankArgument(classId, classStudentDtoList)) {
             return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
         }
-        for (ClassStudent classStudent : classStudentList) {
+        for (ClassStudentDto classStudent : classStudentDtoList) {
             String errorMessage = MyCommonUtil.getModelValidationError(classStudent);
             if (errorMessage != null) {
                 return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
             }
         }
         Set<Long> studentIdSet =
-                classStudentList.stream().map(ClassStudent::getStudentId).collect(Collectors.toSet());
+                classStudentDtoList.stream().map(ClassStudentDto::getStudentId).collect(Collectors.toSet());
         if (!studentClassService.existId(classId)
                 || !studentService.existUniqueKeyList("studentId", studentIdSet)) {
             return ResponseResult.error(ErrorCodeEnum.INVALID_RELATED_RECORD_ID);
         }
+        List<ClassStudent> classStudentList =
+                MyModelUtil.copyCollectionTo(classStudentDtoList, ClassStudent.class);
         studentClassService.addClassStudentList(classStudentList, classId);
         return ResponseResult.success();
     }

@@ -86,7 +86,7 @@ public interface BaseModelMapper<D, M> {
      * @return 转换后的bean对象。
      */
     default <T> T mapToBean(Map<String, Object> map, Class<T> beanClazz) {
-        return BeanUtil.mapToBean(map, beanClazz, true);
+        return BeanUtil.toBeanIgnoreError(map, beanClazz);
     }
 
     /**
@@ -102,7 +102,7 @@ public interface BaseModelMapper<D, M> {
             return new LinkedList<>();
         }
         return mapList.stream()
-                .map(m -> BeanUtil.mapToBean(m, beanClazz, true))
+                .map(m -> BeanUtil.toBeanIgnoreError(m, beanClazz))
                 .collect(Collectors.toList());
     }
 

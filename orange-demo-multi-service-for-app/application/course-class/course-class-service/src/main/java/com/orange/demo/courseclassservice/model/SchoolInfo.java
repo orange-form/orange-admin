@@ -7,7 +7,6 @@ import lombok.Data;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
 import javax.persistence.*;
-import javax.validation.constraints.*;
 
 import java.util.Map;
 
@@ -24,7 +23,6 @@ public class SchoolInfo {
     /**
      * 学校Id。
      */
-    @NotNull(message = "数据验证失败，学校Id不能为空！")
     @Id
     @Column(name = "school_id")
     private Long schoolId;
@@ -32,21 +30,18 @@ public class SchoolInfo {
     /**
      * 学校名称。
      */
-    @NotBlank(message = "数据验证失败，学校名称不能为空！")
     @Column(name = "school_name")
     private String schoolName;
 
     /**
      * 所在省Id。
      */
-    @NotNull(message = "数据验证失败，所在省份不能为空！")
     @Column(name = "province_id")
     private Long provinceId;
 
     /**
      * 所在城市Id。
      */
-    @NotNull(message = "数据验证失败，所在城市不能为空！")
     @Column(name = "city_id")
     private Long cityId;
 

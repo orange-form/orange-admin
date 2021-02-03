@@ -1,0 +1,16 @@
+version: '3.2'
+
+services:
+
+  redis:
+    container_name: redis
+    build:
+      context: services/redis/
+      args:
+        - REDIS_VER=4
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./services/redis/redis.conf:/usr/local/etc/redis/redis.conf:rw
+      - ./data/redis:/data:rw
+      - ./logs/redis:/var/log/:rw

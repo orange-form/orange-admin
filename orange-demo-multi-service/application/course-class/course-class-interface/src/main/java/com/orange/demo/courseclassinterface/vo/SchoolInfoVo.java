@@ -43,12 +43,12 @@ public class SchoolInfoVo {
     /**
      * provinceId 字典关联数据。
      */
-    @ApiModelProperty(hidden = true)
+    @ApiModelProperty(value = "provinceId 字典关联数据")
     private Map<String, Object> provinceIdDictMap;
 
     /**
      * cityId 字典关联数据。
      */
-    @ApiModelProperty(hidden = true)
+    @ApiModelProperty(value = "cityId 字典关联数据")
     private Map<String, Object> cityIdDictMap;
 }

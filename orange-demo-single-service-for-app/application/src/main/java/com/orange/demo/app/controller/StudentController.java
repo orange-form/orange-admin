@@ -3,6 +3,7 @@ package com.orange.demo.app.controller;
 import cn.jimmyshi.beanquery.BeanQuery;
 import com.github.pagehelper.page.PageMethod;
 import com.orange.demo.app.vo.*;
+import com.orange.demo.app.dto.*;
 import com.orange.demo.app.model.*;
 import com.orange.demo.app.service.*;
 import com.orange.demo.common.core.object.*;
@@ -34,15 +35,16 @@ public class StudentController {
     /**
      * 新增学生数据数据。
      *
-     * @param student 新增对象。
+     * @param studentDto 新增对象。
      * @return 应答结果对象，包含新增对象主键Id。
      */
     @PostMapping("/add")
-    public ResponseResult<Long> add(@MyRequestBody Student student) {
-        String errorMessage = MyCommonUtil.getModelValidationError(student);
+    public ResponseResult<Long> add(@MyRequestBody("student") StudentDto studentDto) {
+        String errorMessage = MyCommonUtil.getModelValidationError(studentDto);
         if (errorMessage != null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
+        Student student = MyModelUtil.copyTo(studentDto, Student.class);
         // 验证关联Id的数据合法性
         CallResult callResult = studentService.verifyRelatedData(student, null);
         if (!callResult.isSuccess()) {
@@ -56,16 +58,16 @@ public class StudentController {
     /**
      * 更新学生数据数据。
      *
-     * @param student 更新对象。
+     * @param studentDto 更新对象。
      * @return 应答结果对象。
      */
     @PostMapping("/update")
-    public ResponseResult<Void> update(@MyRequestBody Student student) {
-        String errorMessage = MyCommonUtil.getModelValidationError(student, Default.class, UpdateGroup.class);
+    public ResponseResult<Void> update(@MyRequestBody("student") StudentDto studentDto) {
+        String errorMessage = MyCommonUtil.getModelValidationError(studentDto, Default.class, UpdateGroup.class);
         if (errorMessage != null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
-        // 验证关联Id的数据合法性
+        Student student = MyModelUtil.copyTo(studentDto, Student.class);
         Student originalStudent = studentService.getById(student.getStudentId());
         if (originalStudent == null) {
             // NOTE: 修改下面方括号中的话述
@@ -113,19 +115,20 @@ public class StudentController {
     /**
      * 列出符合过滤条件的学生数据列表。
      *
-     * @param studentFilter 过滤对象。
+     * @param studentDtoFilter 过滤对象。
      * @param orderParam 排序参数。
      * @param pageParam 分页参数。
      * @return 应答结果对象，包含查询结果集。
      */
     @PostMapping("/list")
     public ResponseResult<MyPageData<StudentVo>> list(
-            @MyRequestBody Student studentFilter,
+            @MyRequestBody("studentFilter") StudentDto studentDtoFilter,
             @MyRequestBody MyOrderParam orderParam,
             @MyRequestBody MyPageParam pageParam) {
         if (pageParam != null) {
             PageMethod.startPage(pageParam.getPageNum(), pageParam.getPageSize());
         }
+        Student studentFilter = MyModelUtil.copyTo(studentDtoFilter, Student.class);
         String orderBy = MyOrderParam.buildOrderBy(orderParam, Student.class);
         List<Student> studentList = studentService.getStudentListWithRelation(studentFilter, orderBy);
         return ResponseResult.success(MyPageUtil.makeResponseData(studentList, Student.INSTANCE));
@@ -159,7 +162,7 @@ public class StudentController {
      */
     @GetMapping("/listDict")
     public ResponseResult<List<Map<String, Object>>> listDict(Student filter) {
-        List<Student> resultList = studentService.getListByFilter(filter, null);
+        List<Student> resultList = studentService.getListByFilter(filter);
         return ResponseResult.success(BeanQuery.select(
                 "studentId as id", "studentName as name").executeFrom(resultList));
     }

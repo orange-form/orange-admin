@@ -26,11 +26,6 @@ public class SysUserVo {
     private String loginName;
 
     /**
-     * 用户密码。
-     */
-    private String password;
-
-    /**
      * 用户显示名称。
      */
     private String showName;
@@ -56,9 +51,9 @@ public class SysUserVo {
     private Long createUserId;
 
     /**
-     * 创建用户名。
+     * 更新者Id。
      */
-    private String createUsername;
+    private Long updateUserId;
 
     /**
      * 创建时间。

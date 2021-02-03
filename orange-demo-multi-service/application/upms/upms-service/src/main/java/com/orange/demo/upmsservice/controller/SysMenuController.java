@@ -127,9 +127,9 @@ public class SysMenuController {
      *
      * @return 应答结果对象，包含全部菜单数据列表。
      */
-    @GetMapping("/list")
+    @PostMapping("/list")
     public ResponseResult<List<SysMenuVo>> list() {
-        List<SysMenu> sysMenuList = sysMenuService.getAllListByOrder("menuType", "showOrder");
+        Collection<SysMenu> sysMenuList = sysMenuService.getAllListByOrder("showOrder");
         return ResponseResult.success(MyModelUtil.copyCollectionTo(sysMenuList, SysMenuVo.class));
     }
 

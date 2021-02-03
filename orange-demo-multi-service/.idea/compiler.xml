@@ -6,19 +6,19 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="upms-service" />
+        <module name="common-redis" />
         <module name="stats-interface" />
         <module name="application-common" />
         <module name="gateway" />
-        <module name="stats-service" />
         <module name="common-swagger" />
-        <module name="common-redis" />
+        <module name="common-sequence" />
         <module name="course-class-service" />
         <module name="common-core" />
         <module name="upms-interface" />
         <module name="admin-monitor" />
-        <module name="common-sequence" />
+        <module name="stats-service" />
         <module name="course-class-interface" />
+        <module name="upms-service" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
@@ -28,6 +28,7 @@
       <module name="application-common" target="1.8" />
       <module name="common" target="1.8" />
       <module name="common-core" target="1.8" />
+      <module name="common-datafilter" target="1.8" />
       <module name="common-redis" target="1.8" />
       <module name="common-sequence" target="1.8" />
       <module name="common-swagger" target="1.8" />

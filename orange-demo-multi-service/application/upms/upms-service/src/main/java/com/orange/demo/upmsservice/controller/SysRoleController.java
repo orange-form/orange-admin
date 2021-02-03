@@ -5,7 +5,6 @@ import com.github.pagehelper.page.PageMethod;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
-import com.orange.demo.common.core.object.CallResult;
 import com.orange.demo.common.core.validator.UpdateGroup;
 import com.orange.demo.common.core.constant.ErrorCodeEnum;
 import com.orange.demo.common.core.object.*;
@@ -293,7 +292,7 @@ public class SysRoleController {
         }
         return ResponseResult.success();
     }
-    
+
     /**
      * 查询角色的权限资源地址列表。同时返回详细的分配路径。
      *

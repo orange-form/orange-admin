@@ -2,7 +2,6 @@ package com.orange.demo.common.core.advice;
 
 import com.orange.demo.common.core.exception.*;
 import com.orange.demo.common.core.constant.ErrorCodeEnum;
-import com.orange.demo.common.core.exception.RedisCacheAccessException;
 import com.orange.demo.common.core.object.ResponseResult;
 import com.orange.demo.common.core.util.ContextUtil;
 import lombok.extern.slf4j.Slf4j;

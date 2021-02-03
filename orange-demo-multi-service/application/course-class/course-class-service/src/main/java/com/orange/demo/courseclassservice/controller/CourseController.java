@@ -15,14 +15,13 @@ import com.orange.demo.common.core.object.*;
 import com.orange.demo.common.core.util.*;
 import com.orange.demo.common.core.constant.*;
 import com.orange.demo.common.core.base.controller.BaseController;
-import com.orange.demo.common.core.base.service.BaseService;
+import com.orange.demo.common.core.base.service.IBaseService;
 import com.orange.demo.common.core.annotation.MyRequestBody;
 import com.orange.demo.common.core.validator.UpdateGroup;
 import com.orange.demo.common.redis.cache.SessionCacheHelper;
 import com.orange.demo.courseclassservice.config.ApplicationConfig;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -54,7 +53,7 @@ public class CourseController extends BaseController<Course, CourseVo, Long> {
     private UpDownloaderFactory upDownloaderFactory;
 
     @Override
-    protected BaseService<Course, Long> service() {
+    protected IBaseService<Course, Long> service() {
         return courseService;
     }
 
@@ -298,7 +297,7 @@ public class CourseController extends BaseController<Course, CourseVo, Long> {
      */
     @GetMapping("/listDict")
     public ResponseResult<List<Map<String, Object>>> listDict(Course filter) {
-        List<Course> resultList = courseService.getListByFilter(filter, null);
+        List<Course> resultList = courseService.getListByFilter(filter);
         return ResponseResult.success(
                 BeanQuery.select("courseId as id", "courseName as name").executeFrom(resultList));
     }

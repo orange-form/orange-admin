@@ -8,13 +8,16 @@
         <result column="perm_code_type" jdbcType="INTEGER" property="permCodeType"/>
         <result column="show_name" jdbcType="VARCHAR" property="showName"/>
         <result column="show_order" jdbcType="INTEGER" property="showOrder"/>
+        <result column="create_user_id" jdbcType="BIGINT" property="createUserId"/>
         <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_user_id" jdbcType="BIGINT" property="updateUserId"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
         <result column="deleted_flag" jdbcType="INTEGER" property="deletedFlag"/>
     </resultMap>
 
     <select id="getPermCodeListByUserId" resultType="java.lang.String">
         SELECT
-            DISTINCT pc.perm_code
+            pc.perm_code
         FROM
             zz_sys_user_role ur,
             zz_sys_role_menu rm,

@@ -1,6 +1,7 @@
 package com.orange.demo.upms.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import com.orange.demo.upms.dto.SysPermCodeDto;
 import com.orange.demo.upms.vo.SysPermCodeVo;
 import com.orange.demo.upms.model.SysPermCode;
 import com.orange.demo.upms.service.SysPermCodeService;
@@ -33,17 +34,19 @@ public class SysPermCodeController {
     /**
      * 新增权限字操作。
      *
-     * @param sysPermCode      新增权限字对象。
+     * @param sysPermCodeDto   新增权限字对象。
      * @param permIdListString 与当前权限Id绑定的权限资源Id列表，多个权限资源之间逗号分隔。
      * @return 应答结果对象，包含新增权限字的主键Id。
      */
     @SuppressWarnings("unchecked")
     @PostMapping("/add")
-    public ResponseResult<Long> add(@MyRequestBody SysPermCode sysPermCode, @MyRequestBody String permIdListString) {
-        String errorMessage = MyCommonUtil.getModelValidationError(sysPermCode);
+    public ResponseResult<Long> add(
+            @MyRequestBody("sysPermCode") SysPermCodeDto sysPermCodeDto, @MyRequestBody String permIdListString) {
+        String errorMessage = MyCommonUtil.getModelValidationError(sysPermCodeDto);
         if (errorMessage != null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED);
         }
+        SysPermCode sysPermCode = MyModelUtil.copyTo(sysPermCodeDto, SysPermCode.class);
         CallResult result = sysPermCodeService.verifyRelatedData(sysPermCode, null, permIdListString);
         if (!result.isSuccess()) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, result.getErrorMessage());
@@ -59,22 +62,24 @@ public class SysPermCodeController {
     /**
      * 更新权限字操作。
      *
-     * @param sysPermCode      更新权限字对象。
+     * @param sysPermCodeDto   更新权限字对象。
      * @param permIdListString 与当前权限Id绑定的权限资源Id列表，多个权限资源之间逗号分隔。
      * @return 应答结果对象。
      */
     @SuppressWarnings("unchecked")
     @PostMapping("/update")
-    public ResponseResult<Void> update(@MyRequestBody SysPermCode sysPermCode, @MyRequestBody String permIdListString) {
-        String errorMessage = MyCommonUtil.getModelValidationError(sysPermCode, Default.class, UpdateGroup.class);
+    public ResponseResult<Void> update(
+            @MyRequestBody("sysPermCode") SysPermCodeDto sysPermCodeDto, @MyRequestBody String permIdListString) {
+        String errorMessage = MyCommonUtil.getModelValidationError(sysPermCodeDto, Default.class, UpdateGroup.class);
         if (errorMessage != null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
-        SysPermCode originalSysPermCode = sysPermCodeService.getById(sysPermCode.getPermCodeId());
+        SysPermCode originalSysPermCode = sysPermCodeService.getById(sysPermCodeDto.getPermCodeId());
         if (originalSysPermCode == null) {
             errorMessage = "数据验证失败，当前权限字并不存在，请刷新后重试！";
             return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST, errorMessage);
         }
+        SysPermCode sysPermCode = MyModelUtil.copyTo(sysPermCodeDto, SysPermCode.class);
         CallResult result = sysPermCodeService.verifyRelatedData(sysPermCode, originalSysPermCode, permIdListString);
         if (!result.isSuccess()) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, result.getErrorMessage());
@@ -178,5 +183,5 @@ public class SysPermCodeController {
             return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
         }
         return ResponseResult.success(sysPermCodeService.getSysRoleListWithDetail(permCodeId, roleName));
-    }    
+    }
 }

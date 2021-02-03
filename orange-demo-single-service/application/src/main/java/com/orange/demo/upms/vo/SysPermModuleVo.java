@@ -39,9 +39,24 @@ public class SysPermModuleVo {
     private Integer showOrder;
 
     /**
+     * 创建者Id。
+     */
+    private Long createUserId;
+
+    /**
      * 创建时间。
      */
     private Date createTime;
+
+    /**
+     * 更新者Id。
+     */
+    private Long updateUserId;
+
+    /**
+     * 更新时间。
+     */
+    private Date updateTime;
 
     /**
      * 权限资源对象列表。

@@ -2,6 +2,7 @@ package com.orange.demo.app.controller;
 
 import com.github.pagehelper.page.PageMethod;
 import com.orange.demo.app.vo.*;
+import com.orange.demo.app.dto.*;
 import com.orange.demo.app.model.*;
 import com.orange.demo.app.service.*;
 import com.orange.demo.common.core.object.*;
@@ -31,19 +32,20 @@ public class StudentActionStatsController {
     /**
      * 列出符合过滤条件的学生行为统计列表。
      *
-     * @param studentActionStatsFilter 过滤对象。
+     * @param studentActionStatsDtoFilter 过滤对象。
      * @param orderParam 排序参数。
      * @param pageParam 分页参数。
      * @return 应答结果对象，包含查询结果集。
      */
     @PostMapping("/list")
     public ResponseResult<MyPageData<StudentActionStatsVo>> list(
-            @MyRequestBody StudentActionStats studentActionStatsFilter,
+            @MyRequestBody("studentActionStatsFilter") StudentActionStatsDto studentActionStatsDtoFilter,
             @MyRequestBody MyOrderParam orderParam,
             @MyRequestBody MyPageParam pageParam) {
         if (pageParam != null) {
             PageMethod.startPage(pageParam.getPageNum(), pageParam.getPageSize());
         }
+        StudentActionStats studentActionStatsFilter = MyModelUtil.copyTo(studentActionStatsDtoFilter, StudentActionStats.class);
         String orderBy = MyOrderParam.buildOrderBy(orderParam, StudentActionStats.class);
         List<StudentActionStats> studentActionStatsList = studentActionStatsService.getStudentActionStatsListWithRelation(studentActionStatsFilter, orderBy);
         return ResponseResult.success(MyPageUtil.makeResponseData(studentActionStatsList, StudentActionStats.INSTANCE));
@@ -52,7 +54,7 @@ public class StudentActionStatsController {
     /**
      * 分组列出符合过滤条件的学生行为统计列表。
      *
-     * @param studentActionStatsFilter 过滤对象。
+     * @param studentActionStatsDtoFilter 过滤对象。
      * @param groupParam 分组参数。
      * @param orderParam 排序参数。
      * @param pageParam 分页参数。
@@ -60,7 +62,7 @@ public class StudentActionStatsController {
      */
     @PostMapping("/listWithGroup")
     public ResponseResult<MyPageData<StudentActionStatsVo>> listWithGroup(
-            @MyRequestBody StudentActionStats studentActionStatsFilter,
+            @MyRequestBody("studentActionStatsFilter") StudentActionStatsDto studentActionStatsDtoFilter,
             @MyRequestBody(required = true) MyGroupParam groupParam,
             @MyRequestBody MyOrderParam orderParam,
             @MyRequestBody MyPageParam pageParam) {
@@ -73,9 +75,10 @@ public class StudentActionStatsController {
         if (pageParam != null) {
             PageMethod.startPage(pageParam.getPageNum(), pageParam.getPageSize());
         }
+        StudentActionStats filter = MyModelUtil.copyTo(studentActionStatsDtoFilter, StudentActionStats.class);
         MyGroupCriteria criteria = groupParam.getGroupCriteria();
         List<StudentActionStats> resultList = studentActionStatsService.getGroupedStudentActionStatsListWithRelation(
-                studentActionStatsFilter, criteria.getGroupSelect(), criteria.getGroupBy(), orderBy);
+                filter, criteria.getGroupSelect(), criteria.getGroupBy(), orderBy);
         // 分页连同对象数据转换copy工作，下面的方法一并完成。
         return ResponseResult.success(MyPageUtil.makeResponseData(resultList, StudentActionStats.INSTANCE));
     }

@@ -53,10 +53,16 @@ public class MyRelationParam {
     private boolean buildRemoteOneToOneWithDict;
 
     /**
+     * 是否组装本地一对多关联的标记。
+     * 组装RelationOneToMany注解标记的字段。
+     */
+    private boolean buildOneToMany;
+
+    /**
      * 是否组装主表对多对多中间表关联的标记。
      * 组装RelationManyToMany注解标记的字段。
      */
-    private boolean buildManyToManyRelation;
+    private boolean buildRelationManyToMany;
 
     /**
      * 是否组装聚合计算关联的标记。
@@ -93,6 +99,7 @@ public class MyRelationParam {
                 .buildRemoteOneToOneWithDict(true)
                 .buildAggregation(true)
                 .buildRemoteAggregation(true)
+                .buildOneToMany(true)
                 .build();
     }
 
@@ -109,7 +116,8 @@ public class MyRelationParam {
                 .buildRemoteOneToOneWithDict(true)
                 .buildAggregation(true)
                 .buildRemoteAggregation(true)
-                .buildManyToManyRelation(true)
+                .buildRelationManyToMany(true)
+                .buildOneToMany(true)
                 .build();
     }
 }

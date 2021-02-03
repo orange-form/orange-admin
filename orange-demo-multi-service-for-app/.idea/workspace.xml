@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="2546802c-1b0b-4971-9f6c-08ccd8545f5e" name="Default Changelist" comment="" />
+    <list default="true" id="be2ffe74-d2e3-4651-9b2b-9383f02a6ecc" name="Default Changelist" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -13,7 +13,7 @@
   <component name="ProjectCodeStyleSettingsMigration">
     <option name="version" value="1" />
   </component>
-  <component name="ProjectId" id="1lpjNJvR3t3VxuhsomgdAIE1Dyu" />
+  <component name="ProjectId" id="1nyJS1Tf4x77OAvHc5z1TqP813w" />
   <component name="ProjectViewState">
     <option name="abbreviatePackageNames" value="true" />
     <option name="autoscrollFromSource" value="true" />
@@ -36,7 +36,7 @@
       <recent name="$PROJECT_DIR$/zz-resource/db-scripts" />
     </key>
   </component>
-  <component name="RunManager" selected="Spring Boot.AdminMonitorApplication">
+  <component name="RunManager" selected="Spring Boot.StatsApplication">
     <configuration name="AdminMonitorApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
       <module name="admin-monitor" />
       <option name="SPRING_BOOT_MAIN_CLASS" value="com.orange.demo.adminmonitor.AdminMonitorApplication" />
@@ -83,12 +83,12 @@
   </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="2546802c-1b0b-4971-9f6c-08ccd8545f5e" name="Default Changelist" comment="" />
-      <created>1608300885867</created>
+      <changelist id="be2ffe74-d2e3-4651-9b2b-9383f02a6ecc" name="Default Changelist" comment="" />
+      <created>1612356392884</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1608300885867</updated>
-      <workItem from="1608300887522" duration="274000" />
+      <updated>1612356392884</updated>
+      <workItem from="1612356394589" duration="241000" />
     </task>
     <servers />
   </component>

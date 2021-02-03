@@ -8,14 +8,13 @@ import lombok.Data;
 
 import javax.validation.constraints.*;
 
-
 /**
  * SchoolInfoDto对象。
  *
  * @author Jerry
  * @date 2020-08-08
  */
-@ApiModel("SchoolInfoDto实体对象")
+@ApiModel("SchoolInfoDto对象")
 @Data
 public class SchoolInfoDto {
 

@@ -2,6 +2,7 @@ package com.orange.demo.app.controller;
 
 import com.github.pagehelper.page.PageMethod;
 import com.orange.demo.app.vo.*;
+import com.orange.demo.app.dto.*;
 import com.orange.demo.app.model.*;
 import com.orange.demo.app.service.*;
 import com.orange.demo.common.core.object.*;
@@ -31,19 +32,20 @@ public class CourseTransStatsController {
     /**
      * 列出符合过滤条件的课程统计列表。
      *
-     * @param courseTransStatsFilter 过滤对象。
+     * @param courseTransStatsDtoFilter 过滤对象。
      * @param orderParam 排序参数。
      * @param pageParam 分页参数。
      * @return 应答结果对象，包含查询结果集。
      */
     @PostMapping("/list")
     public ResponseResult<MyPageData<CourseTransStatsVo>> list(
-            @MyRequestBody CourseTransStats courseTransStatsFilter,
+            @MyRequestBody("courseTransStatsFilter") CourseTransStatsDto courseTransStatsDtoFilter,
             @MyRequestBody MyOrderParam orderParam,
             @MyRequestBody MyPageParam pageParam) {
         if (pageParam != null) {
             PageMethod.startPage(pageParam.getPageNum(), pageParam.getPageSize());
         }
+        CourseTransStats courseTransStatsFilter = MyModelUtil.copyTo(courseTransStatsDtoFilter, CourseTransStats.class);
         String orderBy = MyOrderParam.buildOrderBy(orderParam, CourseTransStats.class);
         List<CourseTransStats> courseTransStatsList = courseTransStatsService.getCourseTransStatsListWithRelation(courseTransStatsFilter, orderBy);
         return ResponseResult.success(MyPageUtil.makeResponseData(courseTransStatsList, CourseTransStats.INSTANCE));
@@ -52,7 +54,7 @@ public class CourseTransStatsController {
     /**
      * 分组列出符合过滤条件的课程统计列表。
      *
-     * @param courseTransStatsFilter 过滤对象。
+     * @param courseTransStatsDtoFilter 过滤对象。
      * @param groupParam 分组参数。
      * @param orderParam 排序参数。
      * @param pageParam 分页参数。
@@ -60,7 +62,7 @@ public class CourseTransStatsController {
      */
     @PostMapping("/listWithGroup")
     public ResponseResult<MyPageData<CourseTransStatsVo>> listWithGroup(
-            @MyRequestBody CourseTransStats courseTransStatsFilter,
+            @MyRequestBody("courseTransStatsFilter") CourseTransStatsDto courseTransStatsDtoFilter,
             @MyRequestBody(required = true) MyGroupParam groupParam,
             @MyRequestBody MyOrderParam orderParam,
             @MyRequestBody MyPageParam pageParam) {
@@ -73,9 +75,10 @@ public class CourseTransStatsController {
         if (pageParam != null) {
             PageMethod.startPage(pageParam.getPageNum(), pageParam.getPageSize());
         }
+        CourseTransStats filter = MyModelUtil.copyTo(courseTransStatsDtoFilter, CourseTransStats.class);
         MyGroupCriteria criteria = groupParam.getGroupCriteria();
         List<CourseTransStats> resultList = courseTransStatsService.getGroupedCourseTransStatsListWithRelation(
-                courseTransStatsFilter, criteria.getGroupSelect(), criteria.getGroupBy(), orderBy);
+                filter, criteria.getGroupSelect(), criteria.getGroupBy(), orderBy);
         // 分页连同对象数据转换copy工作，下面的方法一并完成。
         return ResponseResult.success(MyPageUtil.makeResponseData(resultList, CourseTransStats.INSTANCE));
     }

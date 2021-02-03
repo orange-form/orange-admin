@@ -9,12 +9,11 @@ import com.orange.demo.common.core.object.*;
 import com.orange.demo.common.core.util.*;
 import com.orange.demo.common.core.constant.*;
 import com.orange.demo.common.core.base.controller.BaseController;
-import com.orange.demo.common.core.base.service.BaseService;
+import com.orange.demo.common.core.base.service.IBaseService;
 import com.orange.demo.common.core.annotation.MyRequestBody;
 import com.orange.demo.common.core.validator.UpdateGroup;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -43,7 +42,7 @@ public class StudentClassController extends BaseController<StudentClass, Student
     private StudentService studentService;
 
     @Override
-    protected BaseService<StudentClass, Long> service() {
+    protected IBaseService<StudentClass, Long> service() {
         return studentClassService;
     }
 
@@ -53,7 +52,7 @@ public class StudentClassController extends BaseController<StudentClass, Student
      * @param studentClassDto 新增对象。
      * @return 应答结果对象，包含新增对象主键Id。
      */
-    @ApiOperationSupport(ignoreParameters = {"studentClass.userId"})
+    @ApiOperationSupport(ignoreParameters = {"studentClass.classId"})
     @PostMapping("/add")
     public ResponseResult<Long> add(@MyRequestBody("studentClass") StudentClassDto studentClassDto) {
         String errorMessage = MyCommonUtil.getModelValidationError(studentClassDto);
@@ -187,11 +186,9 @@ public class StudentClassController extends BaseController<StudentClass, Student
             @MyRequestBody("courseFilter") CourseDto courseDtoFilter,
             @MyRequestBody MyOrderParam orderParam,
             @MyRequestBody MyPageParam pageParam) {
-        if (MyCommonUtil.existBlankArgument(classId)) {
-            return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
-        }
-        if (!studentClassService.existId(classId)) {
-            return ResponseResult.error(ErrorCodeEnum.INVALID_RELATED_RECORD_ID);
+        ResponseResult<Void> verifyResult = this.doClassCourseVerify(classId);
+        if (!verifyResult.isSuccess()) {
+            return ResponseResult.errorFrom(verifyResult);
         }
         if (pageParam != null) {
             PageMethod.startPage(pageParam.getPageNum(), pageParam.getPageSize());
@@ -218,11 +215,9 @@ public class StudentClassController extends BaseController<StudentClass, Student
             @MyRequestBody("courseFilter") CourseDto courseDtoFilter,
             @MyRequestBody MyOrderParam orderParam,
             @MyRequestBody MyPageParam pageParam) {
-        if (MyCommonUtil.existBlankArgument(classId)) {
-            return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
-        }
-        if (!studentClassService.existId(classId)) {
-            return ResponseResult.error(ErrorCodeEnum.INVALID_RELATED_RECORD_ID);
+        ResponseResult<Void> verifyResult = this.doClassCourseVerify(classId);
+        if (!verifyResult.isSuccess()) {
+            return ResponseResult.errorFrom(verifyResult);
         }
         if (pageParam != null) {
             PageMethod.startPage(pageParam.getPageNum(), pageParam.getPageSize());
@@ -232,6 +227,16 @@ public class StudentClassController extends BaseController<StudentClass, Student
         List<Course> courseList =
                 courseService.getCourseListByClassId(classId, filter, orderBy);
         return ResponseResult.success(MyPageUtil.makeResponseData(courseList, Course.INSTANCE));
+    }
+
+    private ResponseResult<Void> doClassCourseVerify(Long classId) {
+        if (MyCommonUtil.existBlankArgument(classId)) {
+            return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
+        }
+        if (!studentClassService.existId(classId)) {
+            return ResponseResult.error(ErrorCodeEnum.INVALID_RELATED_RECORD_ID);
+        }
+        return ResponseResult.success();
     }
 
     /**
@@ -342,11 +347,9 @@ public class StudentClassController extends BaseController<StudentClass, Student
             @MyRequestBody("studentFilter") StudentDto studentDtoFilter,
             @MyRequestBody MyOrderParam orderParam,
             @MyRequestBody MyPageParam pageParam) {
-        if (MyCommonUtil.existBlankArgument(classId)) {
-            return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
-        }
-        if (!studentClassService.existId(classId)) {
-            return ResponseResult.error(ErrorCodeEnum.INVALID_RELATED_RECORD_ID);
+        ResponseResult<Void> verifyResult = this.doClassStudentVerify(classId);
+        if (!verifyResult.isSuccess()) {
+            return ResponseResult.errorFrom(verifyResult);
         }
         if (pageParam != null) {
             PageMethod.startPage(pageParam.getPageNum(), pageParam.getPageSize());
@@ -373,11 +376,9 @@ public class StudentClassController extends BaseController<StudentClass, Student
             @MyRequestBody("studentFilter") StudentDto studentDtoFilter,
             @MyRequestBody MyOrderParam orderParam,
             @MyRequestBody MyPageParam pageParam) {
-        if (MyCommonUtil.existBlankArgument(classId)) {
-            return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
-        }
-        if (!studentClassService.existId(classId)) {
-            return ResponseResult.error(ErrorCodeEnum.INVALID_RELATED_RECORD_ID);
+        ResponseResult<Void> verifyResult = this.doClassStudentVerify(classId);
+        if (!verifyResult.isSuccess()) {
+            return ResponseResult.errorFrom(verifyResult);
         }
         if (pageParam != null) {
             PageMethod.startPage(pageParam.getPageNum(), pageParam.getPageSize());
@@ -387,6 +388,16 @@ public class StudentClassController extends BaseController<StudentClass, Student
         List<Student> studentList =
                 studentService.getStudentListByClassId(classId, filter, orderBy);
         return ResponseResult.success(MyPageUtil.makeResponseData(studentList, Student.INSTANCE));
+    }
+
+    private ResponseResult<Void> doClassStudentVerify(Long classId) {
+        if (MyCommonUtil.existBlankArgument(classId)) {
+            return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
+        }
+        if (!studentClassService.existId(classId)) {
+            return ResponseResult.error(ErrorCodeEnum.INVALID_RELATED_RECORD_ID);
+        }
+        return ResponseResult.success();
     }
 
     /**

@@ -80,18 +80,18 @@ public class CourseTransStatsVo {
     /**
      * gradeId 字典关联数据。
      */
-    @ApiModelProperty(hidden = true)
+    @ApiModelProperty(value = "gradeId 字典关联数据")
     private Map<String, Object> gradeIdDictMap;
 
     /**
      * courseId 字典关联数据。
      */
-    @ApiModelProperty(hidden = true)
+    @ApiModelProperty(value = "courseId 字典关联数据")
     private Map<String, Object> courseIdDictMap;
 
     /**
      * subjectId 常量字典关联数据。
      */
-    @ApiModelProperty(hidden = true)
+    @ApiModelProperty(value = "subjectId 常量字典关联数据")
     private Map<String, Object> subjectIdDictMap;
 }

@@ -24,15 +24,15 @@ public class MapDictionaryCache<K, V> implements DictionaryCache<K, V> {
     /**
      * 存储字典数据的Map。
      */
-    protected LinkedHashMap<K, V> dataMap = new LinkedHashMap<>();
+    protected final LinkedHashMap<K, V> dataMap = new LinkedHashMap<>();
     /**
      * 获取字典主键数据的函数对象。
      */
-    protected Function<V, K> idGetter;
+    protected final Function<V, K> idGetter;
     /**
      * 由于大部分场景是读取操作，所以使用读写锁提高并发的伸缩性。
      */
-    protected ReadWriteLock lock = new ReentrantReadWriteLock();
+    protected final ReadWriteLock lock = new ReentrantReadWriteLock();
     /**
      * 超时时长。单位毫秒。
      */

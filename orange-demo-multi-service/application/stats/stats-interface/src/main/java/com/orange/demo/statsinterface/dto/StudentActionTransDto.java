@@ -11,15 +11,13 @@ import lombok.Data;
 
 import javax.validation.constraints.*;
 
-import java.util.Date;
-
 /**
  * StudentActionTransDto对象。
  *
  * @author Jerry
  * @date 2020-08-08
  */
-@ApiModel("StudentActionTransDto实体对象")
+@ApiModel("StudentActionTransDto对象")
 @Data
 public class StudentActionTransDto {
 
@@ -115,13 +113,6 @@ public class StudentActionTransDto {
      */
     @ApiModelProperty(value = "做题是否正确标记")
     private Integer exerciseCorrectFlag;
-
-    /**
-     * 发生时间。
-     */
-    @ApiModelProperty(value = "发生时间", required = true)
-    @NotNull(message = "数据验证失败，发生时间不能为空！")
-    private Date createTime;
 
     /**
      * createTime 范围过滤起始值(>=)。

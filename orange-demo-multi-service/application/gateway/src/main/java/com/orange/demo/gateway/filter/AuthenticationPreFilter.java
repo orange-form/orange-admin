@@ -50,7 +50,7 @@ public class AuthenticationPreFilter implements GlobalFilter, Ordered {
     /**
      * Ant Pattern模式的白名单地址匹配器。
      */
-    private AntPathMatcher antMatcher = new AntPathMatcher();
+    private final AntPathMatcher antMatcher = new AntPathMatcher();
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {

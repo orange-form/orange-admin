@@ -3,6 +3,8 @@ package com.orange.demo.upms.controller;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.page.PageMethod;
 import lombok.extern.slf4j.Slf4j;
+import com.orange.demo.upms.dto.SysRoleDto;
+import com.orange.demo.upms.dto.SysUserDto;
 import com.orange.demo.upms.vo.SysRoleVo;
 import com.orange.demo.upms.vo.SysUserVo;
 import com.orange.demo.upms.model.SysRole;
@@ -41,17 +43,19 @@ public class SysRoleController {
     /**
      * 新增角色操作。
      *
-     * @param sysRole          新增角色对象。
+     * @param sysRoleDto       新增角色对象。
      * @param menuIdListString 与当前角色Id绑定的menuId列表，多个menuId之间逗号分隔。
      * @return 应答结果对象，包含新增角色的主键Id。
      */
     @SuppressWarnings("unchecked")
     @PostMapping("/add")
-    public ResponseResult<Long> add(@MyRequestBody SysRole sysRole, @MyRequestBody String menuIdListString) {
-        String errorMessage = MyCommonUtil.getModelValidationError(sysRole);
+    public ResponseResult<Long> add(
+            @MyRequestBody("sysRole") SysRoleDto sysRoleDto, @MyRequestBody String menuIdListString) {
+        String errorMessage = MyCommonUtil.getModelValidationError(sysRoleDto);
         if (errorMessage != null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
+        SysRole sysRole = MyModelUtil.copyTo(sysRoleDto, SysRole.class);
         CallResult result = sysRoleService.verifyRelatedData(sysRole, null, menuIdListString);
         if (!result.isSuccess()) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, result.getErrorMessage());
@@ -67,22 +71,24 @@ public class SysRoleController {
     /**
      * 更新角色操作。
      *
-     * @param sysRole          更新角色对象。
+     * @param sysRoleDto       更新角色对象。
      * @param menuIdListString 与当前角色Id绑定的menuId列表，多个menuId之间逗号分隔。
      * @return 应答结果对象。
      */
     @SuppressWarnings("unchecked")
     @PostMapping("/update")
-    public ResponseResult<Void> update(@MyRequestBody SysRole sysRole, @MyRequestBody String menuIdListString) {
-        String errorMessage = MyCommonUtil.getModelValidationError(sysRole, Default.class, UpdateGroup.class);
+    public ResponseResult<Void> update(
+            @MyRequestBody("sysRole") SysRoleDto sysRoleDto, @MyRequestBody String menuIdListString) {
+        String errorMessage = MyCommonUtil.getModelValidationError(sysRoleDto, Default.class, UpdateGroup.class);
         if (errorMessage != null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
-        SysRole originalSysRole = sysRoleService.getById(sysRole.getRoleId());
+        SysRole originalSysRole = sysRoleService.getById(sysRoleDto.getRoleId());
         if (originalSysRole == null) {
             errorMessage = "数据验证失败，当前角色并不存在，请刷新后重试！";
             return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST, errorMessage);
         }
+        SysRole sysRole = MyModelUtil.copyTo(sysRoleDto, SysRole.class);
         CallResult result = sysRoleService.verifyRelatedData(sysRole, originalSysRole, menuIdListString);
         if (!result.isSuccess()) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, result.getErrorMessage());
@@ -119,21 +125,22 @@ public class SysRoleController {
     /**
      * 查看角色列表。
      *
-     * @param sysRoleFilter 角色过滤对象。
-     * @param orderParam    排序参数。
-     * @param pageParam     分页参数。
+     * @param sysRoleDtoFilter 角色过滤对象。
+     * @param orderParam       排序参数。
+     * @param pageParam        分页参数。
      * @return 应答结果对象，包含角色列表。
      */
     @PostMapping("/list")
     public ResponseResult<MyPageData<SysRoleVo>> list(
-            @MyRequestBody SysRole sysRoleFilter,
+            @MyRequestBody("sysRoleFilter") SysRoleDto sysRoleDtoFilter,
             @MyRequestBody MyOrderParam orderParam,
             @MyRequestBody MyPageParam pageParam) {
         if (pageParam != null) {
             PageMethod.startPage(pageParam.getPageNum(), pageParam.getPageSize());
         }
+        SysRole filter = MyModelUtil.copyTo(sysRoleDtoFilter, SysRole.class);
         List<SysRole> roleList = sysRoleService.getSysRoleList(
-                sysRoleFilter, MyOrderParam.buildOrderBy(orderParam, SysRole.class));
+                filter, MyOrderParam.buildOrderBy(orderParam, SysRole.class));
         List<SysRoleVo> roleVoList = MyModelUtil.copyCollectionTo(roleList, SysRoleVo.class);
         long totalCount = 0L;
         if (roleList instanceof Page) {
@@ -165,16 +172,16 @@ public class SysRoleController {
      * 获取不包含指定角色Id的用户列表。
      * 用户和角色是多对多关系，当前接口将返回没有赋值指定RoleId的用户列表。可用于给角色添加新用户。
      *
-     * @param roleId        角色主键Id。
-     * @param sysUserFilter 用户过滤对象。
-     * @param orderParam    排序参数。
-     * @param pageParam     分页参数。
+     * @param roleId           角色主键Id。
+     * @param sysUserDtoFilter 用户过滤对象。
+     * @param orderParam       排序参数。
+     * @param pageParam        分页参数。
      * @return 应答结果对象，包含用户列表数据。
      */
     @PostMapping("/listNotInUserRole")
     public ResponseResult<MyPageData<SysUserVo>> listNotInUserRole(
             @MyRequestBody Long roleId,
-            @MyRequestBody SysUser sysUserFilter,
+            @MyRequestBody("sysUserFilter") SysUserDto sysUserDtoFilter,
             @MyRequestBody MyOrderParam orderParam,
             @MyRequestBody MyPageParam pageParam) {
         ResponseResult<Void> verifyResult = this.doRoleUserVerify(roleId);
@@ -184,9 +191,9 @@ public class SysRoleController {
         if (pageParam != null) {
             PageMethod.startPage(pageParam.getPageNum(), pageParam.getPageSize());
         }
+        SysUser filter = MyModelUtil.copyTo(sysUserDtoFilter, SysUser.class);
         String orderBy = MyOrderParam.buildOrderBy(orderParam, SysUser.class);
-        List<SysUser> userList =
-                sysUserService.getNotInSysUserListByRoleId(roleId, sysUserFilter, orderBy);
+        List<SysUser> userList = sysUserService.getNotInSysUserListByRoleId(roleId, filter, orderBy);
         List<SysUserVo> userVoList = MyModelUtil.copyCollectionTo(userList, SysUserVo.class);
         return ResponseResult.success(MyPageUtil.makeResponseData(userVoList));
     }
@@ -194,16 +201,16 @@ public class SysRoleController {
     /**
      * 拥有指定角色的用户列表。
      *
-     * @param roleId        角色主键Id。
-     * @param sysUserFilter 用户过滤对象。
-     * @param orderParam    排序参数。
-     * @param pageParam     分页参数。
+     * @param roleId           角色主键Id。
+     * @param sysUserDtoFilter 用户过滤对象。
+     * @param orderParam       排序参数。
+     * @param pageParam        分页参数。
      * @return 应答结果对象，包含用户列表数据。
      */
     @PostMapping("/listUserRole")
     public ResponseResult<MyPageData<SysUserVo>> listUserRole(
             @MyRequestBody Long roleId,
-            @MyRequestBody SysUser sysUserFilter,
+            @MyRequestBody("sysUserFilter") SysUserDto sysUserDtoFilter,
             @MyRequestBody MyOrderParam orderParam,
             @MyRequestBody MyPageParam pageParam) {
         ResponseResult<Void> verifyResult = this.doRoleUserVerify(roleId);
@@ -213,8 +220,9 @@ public class SysRoleController {
         if (pageParam != null) {
             PageMethod.startPage(pageParam.getPageNum(), pageParam.getPageSize());
         }
+        SysUser filter = MyModelUtil.copyTo(sysUserDtoFilter, SysUser.class);
         String orderBy = MyOrderParam.buildOrderBy(orderParam, SysUser.class);
-        List<SysUser> userList = sysUserService.getSysUserListByRoleId(roleId, sysUserFilter, orderBy);
+        List<SysUser> userList = sysUserService.getSysUserListByRoleId(roleId, filter, orderBy);
         List<SysUserVo> userVoList = MyModelUtil.copyCollectionTo(userList, SysUserVo.class);
         return ResponseResult.success(MyPageUtil.makeResponseData(userVoList));
     }

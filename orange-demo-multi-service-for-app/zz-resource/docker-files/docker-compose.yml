@@ -59,7 +59,7 @@ services:
       - zz-test
     depends_on:
       - zookeeper
-  
+
   sentinel:
     image: bladex/sentinel-dashboard
     ports:

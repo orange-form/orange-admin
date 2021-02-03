@@ -8,6 +8,7 @@ import com.orange.demo.common.core.upload.UploadResponseInfo;
 import com.orange.demo.common.core.upload.UploadStoreInfo;
 import com.github.pagehelper.page.PageMethod;
 import com.orange.demo.app.vo.*;
+import com.orange.demo.app.dto.*;
 import com.orange.demo.app.model.*;
 import com.orange.demo.app.service.*;
 import com.orange.demo.common.core.object.*;
@@ -15,7 +16,7 @@ import com.orange.demo.common.core.util.*;
 import com.orange.demo.common.core.constant.*;
 import com.orange.demo.common.core.annotation.MyRequestBody;
 import com.orange.demo.common.core.validator.UpdateGroup;
-import com.orange.demo.common.core.cache.SessionCacheHelper;
+import com.orange.demo.common.redis.cache.SessionCacheHelper;
 import com.orange.demo.config.ApplicationConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,15 +50,16 @@ public class CourseController {
     /**
      * 新增课程数据数据。
      *
-     * @param course 新增对象。
+     * @param courseDto 新增对象。
      * @return 应答结果对象，包含新增对象主键Id。
      */
     @PostMapping("/add")
-    public ResponseResult<Long> add(@MyRequestBody Course course) {
-        String errorMessage = MyCommonUtil.getModelValidationError(course);
+    public ResponseResult<Long> add(@MyRequestBody("course") CourseDto courseDto) {
+        String errorMessage = MyCommonUtil.getModelValidationError(courseDto);
         if (errorMessage != null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
+        Course course = MyModelUtil.copyTo(courseDto, Course.class);
         // 验证关联Id的数据合法性
         CallResult callResult = courseService.verifyRelatedData(course, null);
         if (!callResult.isSuccess()) {
@@ -71,16 +73,16 @@ public class CourseController {
     /**
      * 更新课程数据数据。
      *
-     * @param course 更新对象。
+     * @param courseDto 更新对象。
      * @return 应答结果对象。
      */
     @PostMapping("/update")
-    public ResponseResult<Void> update(@MyRequestBody Course course) {
-        String errorMessage = MyCommonUtil.getModelValidationError(course, Default.class, UpdateGroup.class);
+    public ResponseResult<Void> update(@MyRequestBody("course") CourseDto courseDto) {
+        String errorMessage = MyCommonUtil.getModelValidationError(courseDto, Default.class, UpdateGroup.class);
         if (errorMessage != null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
-        // 验证关联Id的数据合法性
+        Course course = MyModelUtil.copyTo(courseDto, Course.class);
         Course originalCourse = courseService.getById(course.getCourseId());
         if (originalCourse == null) {
             // NOTE: 修改下面方括号中的话述
@@ -128,19 +130,20 @@ public class CourseController {
     /**
      * 列出符合过滤条件的课程数据列表。
      *
-     * @param courseFilter 过滤对象。
+     * @param courseDtoFilter 过滤对象。
      * @param orderParam 排序参数。
      * @param pageParam 分页参数。
      * @return 应答结果对象，包含查询结果集。
      */
     @PostMapping("/list")
     public ResponseResult<MyPageData<CourseVo>> list(
-            @MyRequestBody Course courseFilter,
+            @MyRequestBody("courseFilter") CourseDto courseDtoFilter,
             @MyRequestBody MyOrderParam orderParam,
             @MyRequestBody MyPageParam pageParam) {
         if (pageParam != null) {
             PageMethod.startPage(pageParam.getPageNum(), pageParam.getPageSize());
         }
+        Course courseFilter = MyModelUtil.copyTo(courseDtoFilter, Course.class);
         String orderBy = MyOrderParam.buildOrderBy(orderParam, Course.class);
         List<Course> courseList = courseService.getCourseListWithRelation(courseFilter, orderBy);
         return ResponseResult.success(MyPageUtil.makeResponseData(courseList, Course.INSTANCE));
@@ -267,7 +270,7 @@ public class CourseController {
      */
     @GetMapping("/listDict")
     public ResponseResult<List<Map<String, Object>>> listDict(Course filter) {
-        List<Course> resultList = courseService.getListByFilter(filter, null);
+        List<Course> resultList = courseService.getListByFilter(filter);
         return ResponseResult.success(BeanQuery.select(
                 "courseId as id", "courseName as name").executeFrom(resultList));
     }

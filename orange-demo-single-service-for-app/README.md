@@ -6,3 +6,10 @@
 ### 服务启动环境依赖
 ---
 
+执行docker-compose up -d 命令启动下面依赖的服务。
+执行docker-compose down 命令停止下面服务。
+
+- Redis
+  - 版本：4
+  - 端口: 6379
+  - 推荐客户端工具 [AnotherRedisDesktopManager](https://github.com/qishibo/AnotherRedisDesktopManager)

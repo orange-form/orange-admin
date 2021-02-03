@@ -12,7 +12,6 @@ import lombok.Data;
 import javax.validation.constraints.*;
 
 import java.math.BigDecimal;
-import java.util.Date;
 
 /**
  * CourseDto对象。
@@ -20,7 +19,7 @@ import java.util.Date;
  * @author Jerry
  * @date 2020-08-08
  */
-@ApiModel("CourseDto实体对象")
+@ApiModel("CourseDto对象")
 @Data
 public class CourseDto {
 
@@ -87,24 +86,6 @@ public class CourseDto {
     @ApiModelProperty(value = "多张课程图片地址", required = true)
     @NotBlank(message = "数据验证失败，课程图片不能为空！")
     private String pictureUrl;
-
-    /**
-     * 创建用户Id。
-     */
-    @ApiModelProperty(value = "创建用户Id")
-    private Long createUserId;
-
-    /**
-     * 创建时间。
-     */
-    @ApiModelProperty(value = "创建时间")
-    private Date createTime;
-
-    /**
-     * 最后修改时间。
-     */
-    @ApiModelProperty(value = "最后修改时间")
-    private Date updateTime;
 
     /**
      * price 范围过滤起始值(>=)。

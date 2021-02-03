@@ -20,11 +20,5 @@
             <artifactId>common-core</artifactId>
             <version>1.0.0</version>
         </dependency>
-        <!-- zk客户端 -->
-        <dependency>
-            <groupId>org.apache.curator</groupId>
-            <artifactId>curator-recipes</artifactId>
-            <version>${curator.version}</version>
-        </dependency>
     </dependencies>
 </project>

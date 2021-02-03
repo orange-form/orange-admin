@@ -93,24 +93,24 @@ public class CourseVo {
     /**
      * courseId 的多对多关联表数据对象，数据对应类型为ClassCourseVo。
      */
-    @ApiModelProperty(hidden = true)
+    @ApiModelProperty(value = "courseId 的多对多关联表数据对象，数据对应类型为ClassCourseVo")
     private Map<String, Object> classCourse;
 
     /**
      * gradeId 字典关联数据。
      */
-    @ApiModelProperty(hidden = true)
+    @ApiModelProperty(value = "gradeId 字典关联数据")
     private Map<String, Object> gradeIdDictMap;
 
     /**
      * difficulty 常量字典关联数据。
      */
-    @ApiModelProperty(hidden = true)
+    @ApiModelProperty(value = "difficulty 常量字典关联数据")
     private Map<String, Object> difficultyDictMap;
 
     /**
      * subjectId 常量字典关联数据。
      */
-    @ApiModelProperty(hidden = true)
+    @ApiModelProperty(value = "subjectId 常量字典关联数据")
     private Map<String, Object> subjectIdDictMap;
 }

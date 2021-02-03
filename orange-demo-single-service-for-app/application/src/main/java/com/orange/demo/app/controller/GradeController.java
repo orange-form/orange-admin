@@ -1,8 +1,12 @@
 package com.orange.demo.app.controller;
 
-import com.orange.demo.app.model.*;
-import com.orange.demo.app.service.*;
+import com.alibaba.fastjson.JSONObject;
+import cn.jimmyshi.beanquery.BeanQuery;
+import com.orange.demo.app.dto.GradeDto;
+import com.orange.demo.app.model.Grade;
+import com.orange.demo.app.service.GradeService;
 import com.orange.demo.common.core.constant.ErrorCodeEnum;
+import com.orange.demo.common.core.util.MyModelUtil;
 import com.orange.demo.common.core.util.MyCommonUtil;
 import com.orange.demo.common.core.object.ResponseResult;
 import com.orange.demo.common.core.annotation.MyRequestBody;
@@ -11,7 +15,6 @@ import com.orange.demo.common.core.validator.UpdateGroup;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import cn.jimmyshi.beanquery.BeanQuery;
 
 import javax.validation.groups.Default;
 import java.util.*;
@@ -33,15 +36,16 @@ public class GradeController {
     /**
      * 新增年级数据。
      *
-     * @param grade 新增对象。
+     * @param gradeDto 新增对象。
      * @return 应答结果对象，包含新增对象主键Id。
      */
     @PostMapping("/add")
-    public ResponseResult<Integer> add(@MyRequestBody Grade grade) {
-        String errorMessage = MyCommonUtil.getModelValidationError(grade);
+    public ResponseResult<Integer> add(@MyRequestBody("grade") GradeDto gradeDto) {
+        String errorMessage = MyCommonUtil.getModelValidationError(gradeDto);
         if (errorMessage != null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
+        Grade grade = MyModelUtil.copyTo(gradeDto, Grade.class);
         grade = gradeService.saveNew(grade);
         return ResponseResult.success(grade.getGradeId());
     }
@@ -49,15 +53,16 @@ public class GradeController {
     /**
      * 更新年级数据。
      *
-     * @param grade 更新对象。
+     * @param gradeDto 更新对象。
      * @return 应答结果对象。
      */
     @PostMapping("/update")
-    public ResponseResult<Void> update(@MyRequestBody Grade grade) {
-        String errorMessage = MyCommonUtil.getModelValidationError(grade, Default.class, UpdateGroup.class);
+    public ResponseResult<Void> update(@MyRequestBody("grade") GradeDto gradeDto) {
+        String errorMessage = MyCommonUtil.getModelValidationError(gradeDto, Default.class, UpdateGroup.class);
         if (errorMessage != null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
+        Grade grade = MyModelUtil.copyTo(gradeDto, Grade.class);
         Grade originalGrade = gradeService.getById(grade.getGradeId());
         if (originalGrade == null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST);
@@ -86,16 +91,32 @@ public class GradeController {
     }
 
     /**
-     * 以字典形式返回全部年级数据集合。
-     * 白名单接口，登录用户均可访问。
+     * 白名单接口，登录用户均可访问。以字典形式返回全部年级数据集合。
+     * 所有数据全部取自于缓存，对于数据库中存在，但是缓存中不存在的数据，不会返回。
      *
      * @return 应答结果对象，包含字典形式的数据集合。
      */
     @GetMapping("/listDict")
     public ResponseResult<List<Map<String, Object>>> listDict() {
-        List<Grade> resultList = gradeService.getAllList();
+        List<Grade> resultList = gradeService.getAllListFromCache();
         return ResponseResult.success(BeanQuery.select(
                 "gradeId as id", "gradeName as name").executeFrom(resultList));
+    }
+
+    /**
+     * 白名单接口，登录用户均可访问。以字典形式返回全部年级数据集合。
+     * fullResultList中的字典列表全部取自于数据库，而cachedResultList全部取自于缓存，前端负责比对。
+     *
+     * @return 应答结果对象，包含字典形式的数据集合。
+     */
+    @GetMapping("/listAll")
+    public ResponseResult<JSONObject> listAll() {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("fullResultList", BeanQuery.select(
+                "gradeId as id", "gradeName as name").executeFrom(gradeService.getAllList()));
+        jsonObject.put("cachedResultList", BeanQuery.select(
+                "gradeId as id", "gradeName as name").executeFrom(gradeService.getAllListFromCache()));
+        return ResponseResult.success(jsonObject);
     }
 
     /**

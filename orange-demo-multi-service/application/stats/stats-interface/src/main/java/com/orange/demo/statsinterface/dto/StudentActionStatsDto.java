@@ -16,7 +16,7 @@ import java.util.Date;
  * @author Jerry
  * @date 2020-08-08
  */
-@ApiModel("StudentActionStatsDto实体对象")
+@ApiModel("StudentActionStatsDto对象")
 @Data
 public class StudentActionStatsDto {
 

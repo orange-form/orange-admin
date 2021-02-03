@@ -13,7 +13,7 @@ import cn.hutool.core.util.IdUtil;
  */
 public class BasicIdGenerator implements MyIdGenerator {
 
-    private Snowflake snowflake;
+    private final Snowflake snowflake;
 
     /**
      * 构造函数。

@@ -101,11 +101,11 @@ public class ImportUtil {
      * @param <T> 导入数据对象类型。
      */
     public abstract static class BaseImporter<T> {
-        private Class<T> beanType;
-        private List<T> batchRowList = new LinkedList<>();
-        private int batchSize;
+        private final Class<T> beanType;
+        private final List<T> batchRowList = new LinkedList<>();
+        private final int batchSize;
+        private final Map<String, String> headerColumnMap;
         private Field[] fieldArray = null;
-        private Map<String, String> headerColumnMap;
 
         public BaseImporter(int batchSize, Class<T> beanType, Map<String, String> headerColumnMap) {
             if (batchSize <= 0) {
@@ -185,7 +185,7 @@ public class ImportUtil {
     }
 
     static class MyExcel07SaxReader<T> extends Excel07SaxReader {
-        private BaseImporter<T> importer;
+        private final BaseImporter<T> importer;
 
         MyExcel07SaxReader(BaseImporter<T> importer) {
             super((sheetIndex, rowIndex, rowList) -> importer.doImport(rowIndex, rowList));

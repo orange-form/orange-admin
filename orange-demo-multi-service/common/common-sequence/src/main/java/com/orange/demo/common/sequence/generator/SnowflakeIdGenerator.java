@@ -25,7 +25,7 @@ public class SnowflakeIdGenerator implements MyIdGenerator {
     private static final long SEQUENCE_BITS = 12L;
     private static final long TIMESTAMP_LEFT_SHIFT = SEQUENCE_BITS + WORKER_ID_BITS;
     private static final long SEQUENCE_MASK = ~(-1L << SEQUENCE_BITS);
-    private long workerId;
+    private final long workerId;
     private long sequence = 0L;
     private long lastTimestamp = -1L;
     private static final Random RANDOM = RandomUtil.getRandom();

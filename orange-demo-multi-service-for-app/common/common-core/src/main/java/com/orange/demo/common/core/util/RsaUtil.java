@@ -26,7 +26,7 @@ public class RsaUtil {
     /**
      * 用于封装随机产生的公钥与私钥
      */
-    private static Map<Integer, String> keyMap = new HashMap<>();
+    private static final Map<Integer, String> KEY_MAP = new HashMap<>();
 
     /**
      * 随机生成密钥对。
@@ -47,9 +47,9 @@ public class RsaUtil {
         String privateKeyString = Base64.getEncoder().encodeToString(privateKey.getEncoded());
         // 将公钥和私钥保存到Map
         // 0表示公钥
-        keyMap.put(0, publicKeyString);
+        KEY_MAP.put(0, publicKeyString);
         // 1表示私钥
-        keyMap.put(1, privateKeyString);
+        KEY_MAP.put(1, privateKeyString);
     }
 
     /**
@@ -96,8 +96,8 @@ public class RsaUtil {
         // 生成公钥和私钥
         genKeyPair();
         // 加密字符串
-        System.out.println("公钥:" + keyMap.get(0));
-        System.out.println("私钥:" + keyMap.get(1));
+        System.out.println("公钥:" + KEY_MAP.get(0));
+        System.out.println("私钥:" + KEY_MAP.get(1));
         System.out.println("生成密钥消耗时间:" + (System.currentTimeMillis() - temp) / 1000.0 + "秒");
         System.out.println("生成后的公钥前端使用!");
         System.out.println("生成后的私钥后台使用!");
@@ -105,11 +105,11 @@ public class RsaUtil {
         String message = "RSA测试ABCD~!@#$";
         System.out.println("原文:" + message);
         temp = System.currentTimeMillis();
-        String messageEn = encrypt(message, keyMap.get(0));
+        String messageEn = encrypt(message, KEY_MAP.get(0));
         System.out.println("密文:" + messageEn);
         System.out.println("加密消耗时间:" + (System.currentTimeMillis() - temp) / 1000.0 + "秒");
         temp = System.currentTimeMillis();
-        String messageDe = decrypt(messageEn, keyMap.get(1));
+        String messageDe = decrypt(messageEn, KEY_MAP.get(1));
         System.out.println("解密:" + messageDe);
         System.out.println("解密消耗时间:" + (System.currentTimeMillis() - temp) / 1000.0 + "秒");
     }

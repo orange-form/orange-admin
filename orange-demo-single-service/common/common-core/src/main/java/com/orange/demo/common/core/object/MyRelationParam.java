@@ -27,6 +27,12 @@ public class MyRelationParam {
     private boolean buildOneToOne;
 
     /**
+     * 是否组装一对多关联的标记。
+     * 组装RelationOneToMany注解标记的字段。
+     */
+    private boolean buildOneToMany;
+
+    /**
      * 在组装一对一关联的同时，是否继续关联从表中的字典。
      * 从表中RelationDict和RelationConstDict注解标记的字段。
      * 该字段为true时，无需设置buildOneToOne了。
@@ -65,6 +71,7 @@ public class MyRelationParam {
                 .buildDict(true)
                 .buildOneToOneWithDict(true)
                 .buildRelationAggregation(true)
+                .buildOneToMany(true)
                 .build();
     }
 
@@ -79,6 +86,7 @@ public class MyRelationParam {
                 .buildOneToOneWithDict(true)
                 .buildRelationAggregation(true)
                 .buildRelationManyToMany(true)
+                .buildOneToMany(true)
                 .build();
     }
 }

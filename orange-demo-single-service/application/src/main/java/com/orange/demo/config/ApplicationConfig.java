@@ -43,4 +43,9 @@ public class ApplicationConfig {
      * 授信ip列表，没有填写表示全部信任。多个ip之间逗号分隔，如: http://10.10.10.1:8080,http://10.10.10.2:8080
      */
     private String credentialIpList;
+    /**
+     * Session的用户权限在Redis中的过期时间(秒)。
+     * 缺省值是 one day
+     */
+    private int permRedisExpiredSeconds = 86400;
 }

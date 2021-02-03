@@ -14,7 +14,7 @@ import javax.validation.constraints.*;
  * @author Jerry
  * @date 2020-08-08
  */
-@ApiModel("GradeDto实体对象")
+@ApiModel("GradeDto对象")
 @Data
 public class GradeDto {
 

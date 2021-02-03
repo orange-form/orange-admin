@@ -1,7 +1,7 @@
 package com.orange.demo.upmsinterface.dto;
 
-import com.orange.demo.common.core.validator.ConstDictRef;
 import com.orange.demo.common.core.validator.UpdateGroup;
+import com.orange.demo.common.core.validator.ConstDictRef;
 import com.orange.demo.upmsinterface.constant.SysMenuType;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -9,7 +9,6 @@ import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import java.util.Date;
 
 /**
  * 菜单Dto。
@@ -67,10 +66,4 @@ public class SysMenuDto {
      */
     @ApiModelProperty(value = "菜单显示顺序")
     private String icon;
-
-    /**
-     * 创建时间。
-     */
-    @ApiModelProperty(value = "创建时间")
-    private Date createTime;
 }

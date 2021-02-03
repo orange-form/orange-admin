@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.transaction.annotation.Transactional;
 import tk.mybatis.mapper.entity.Example;
 import cn.hutool.core.util.ReflectUtil;
 
@@ -38,16 +39,19 @@ import static java.util.stream.Collectors.*;
  * @date 2020-09-24
  */
 @Slf4j
-public abstract class BaseService<M, K> {
-
+public abstract class BaseService<M, K> implements IBaseService<M, K> {
     /**
      * 当前Service关联的主Model实体对象的Class。
      */
-    protected Class<M> modelClass;
+    protected final Class<M> modelClass;
+    /**
+     * 当前Service关联的主Model实体对象主键字段的Class。
+     */
+    protected final Class<K> idFieldClass;
     /**
      * 当前Service关联的主Model实体对象的实际表名称。
      */
-    protected String tableName;
+    protected final String tableName;
     /**
      * 当前Service关联的主Model对象主键字段名称。
      */
@@ -73,41 +77,45 @@ public abstract class BaseService<M, K> {
      */
     protected String updateTimeColumnName;
     /**
-     * 当前Service关联的主Model对象主键字段反射对象。
+     * 当前Service关联的主Model对象主键字段赋值方法的反射对象。
      */
-    protected Field idField;
+    protected Method setIdFieldMethod;
     /**
-     * 当前Service关联的主Model对象逻辑删除字段反射对象。
+     * 当前Service关联的主Model对象主键字段访问方法的反射对象。
      */
-    protected Field deletedFlagField;
+    protected Method getIdFieldMethod;
     /**
-     * 当前Service关联的主Model对象逻辑字段赋值方法的反射对象。
+     * 当前Service关联的主Model对象逻辑删除字段赋值方法的反射对象。
      */
-    private Method setDeletedFlagMethod;
+    protected Method setDeletedFlagMethod;
     /**
      * 当前Service关联的主Model对象的所有字典关联的结构列表，该字段在系统启动阶段一次性预加载，提升运行时效率。
      */
-    private List<RelationStruct> relationDictStructList = new LinkedList<>();
+    private final List<RelationStruct> relationDictStructList = new LinkedList<>();
     /**
      * 当前Service关联的主Model对象的所有常量字典关联的结构列表，该字段在系统启动阶段一次性预加载，提升运行时效率。
      */
-    private List<RelationStruct> relationConstDictStructList = new LinkedList<>();
+    private final List<RelationStruct> relationConstDictStructList = new LinkedList<>();
     /**
      * 当前Service关联的主Model对象的所有一对一关联的结构列表，该字段在系统启动阶段一次性预加载，提升运行时效率。
      */
-    private List<RelationStruct> relationOneToOneStructList = new LinkedList<>();
+    private final List<RelationStruct> relationOneToOneStructList = new LinkedList<>();
+    /**
+     * 当前Service关联的主Model对象的所有一对多关联的结构列表，该字段在系统启动阶段一次性预加载，提升运行时效率。
+     */
+    private final List<RelationStruct> relationOneToManyStructList = new LinkedList<>();
     /**
      * 当前Service关联的主Model对象的所有多对多关联的结构列表，该字段在系统启动阶段一次性预加载，提升运行时效率。
      */
-    private List<RelationStruct> relationManyToManyStructList = new LinkedList<>();
+    private final List<RelationStruct> relationManyToManyStructList = new LinkedList<>();
     /**
      * 当前Service关联的主Model对象的所有一对多聚合关联的结构列表，该字段在系统启动阶段一次性预加载，提升运行时效率。
      */
-    private List<RelationStruct> relationOneToManyAggrStructList = new LinkedList<>();
+    private final List<RelationStruct> relationOneToManyAggrStructList = new LinkedList<>();
     /**
      * 当前Service关联的主Model对象的所有多对多聚合关联的结构列表，该字段在系统启动阶段一次性预加载，提升运行时效率。
      */
-    private List<RelationStruct> relationManyToManyAggrStructList = new LinkedList<>();
+    private final List<RelationStruct> relationManyToManyAggrStructList = new LinkedList<>();
 
     private static final String GROUPED_KEY = "groupedKey";
     private static final String AGGREGATED_VALUE = "aggregatedValue";
@@ -119,6 +127,7 @@ public abstract class BaseService<M, K> {
     @SuppressWarnings("unchecked")
     public BaseService() {
         modelClass = (Class<M>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
+        idFieldClass = (Class<K>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[1];
         this.tableName = modelClass.getAnnotation(Table.class).name();
         Field[] fields = ReflectUtil.getFields(modelClass);
         for (Field field : fields) {
@@ -129,9 +138,12 @@ public abstract class BaseService<M, K> {
     private void initializeField(Field field) {
         if (idFieldName == null && null != field.getAnnotation(Id.class)) {
             idFieldName = field.getName();
-            idField = field;
             Column c = field.getAnnotation(Column.class);
             idColumnName = c == null ? idFieldName : c.name();
+            setIdFieldMethod = ReflectUtil.getMethod(
+                    modelClass, "set" + StringUtils.capitalize(idFieldName), idFieldClass);
+            getIdFieldMethod = ReflectUtil.getMethod(
+                    modelClass, "get" + StringUtils.capitalize(idFieldName));
         }
         if (updateTimeFieldName == null && null != field.getAnnotation(JobUpdateTimeColumn.class)) {
             updateTimeFieldName = field.getName();
@@ -142,7 +154,6 @@ public abstract class BaseService<M, K> {
             deletedFlagFieldName = field.getName();
             Column c = field.getAnnotation(Column.class);
             deletedFlagColumnName = c == null ? deletedFlagFieldName : c.name();
-            deletedFlagField = field;
             setDeletedFlagMethod = ReflectUtil.getMethod(
                     modelClass, "set" + StringUtils.capitalize(deletedFlagFieldName), Integer.class);
         }
@@ -156,6 +167,29 @@ public abstract class BaseService<M, K> {
     protected abstract BaseDaoMapper<M> mapper();
 
     /**
+     * 基于主键Id删除数据。如果包含逻辑删除字段，则进行逻辑删除。
+     *
+     * @param id 主键Id值。
+     * @return true删除成功，false数据不存在。
+     */
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public boolean removeById(K id) {
+        if (this.deletedFlagFieldName == null) {
+            return mapper().deleteByPrimaryKey(id) == 1;
+        }
+        try {
+            M data = modelClass.newInstance();
+            setDeletedFlagMethod.invoke(data, GlobalDeletedFlag.DELETED);
+            setIdFieldMethod.invoke(data, id);
+            return mapper().updateByPrimaryKeySelective(data) == 1;
+        } catch (Exception ex) {
+            log.error("Failed to call reflection method in BaseService.removeById.", ex);
+            throw new MyRuntimeException(ex);
+        }
+    }
+
+    /**
      * 判断指定字段的数据是否存在，且仅仅存在一条记录。
      * 如果是基于主键的过滤，会直接调用existId过滤函数，提升性能。在有缓存的场景下，也可以利用缓存。
      *
@@ -164,6 +198,7 @@ public abstract class BaseService<M, K> {
      * @return 存在且仅存在一条返回true，否则false。
      */
     @SuppressWarnings("unchecked")
+    @Override
     public boolean existOne(String fieldName, Object fieldValue) {
         if (fieldName.equals(this.idFieldName)) {
             return this.existId((K) fieldValue);
@@ -179,6 +214,7 @@ public abstract class BaseService<M, K> {
      * @param id 主键Id。
      * @return 存在返回true，否则false。
      */
+    @Override
     public boolean existId(K id) {
         return getById(id) != null;
     }
@@ -189,6 +225,7 @@ public abstract class BaseService<M, K> {
      * @param id 主键Id。
      * @return 主键关联的数据，不存在返回null。
      */
+    @Override
     public M getById(K id) {
         if (deletedFlagFieldName == null) {
             return mapper().selectByPrimaryKey(id);
@@ -201,15 +238,37 @@ public abstract class BaseService<M, K> {
     }
 
     /**
+     * 返回符合 filterField = filterValue 条件的一条数据。
+     *
+     * @param filterField 过滤的Java字段。
+     * @param filterValue 过滤的Java字段值。
+     * @return 查询后的数据对象。
+     */
+    @SuppressWarnings("unchecked")
+    @Override
+    public M getOne(String filterField, Object filterValue) {
+        if (filterField.equals(idFieldName)) {
+            return this.getById((K) filterValue);
+        }
+        Example e = new Example(modelClass);
+        Example.Criteria c = e.createCriteria().andEqualTo(filterField, filterValue);
+        if (deletedFlagFieldName != null) {
+            c.andEqualTo(deletedFlagFieldName, GlobalDeletedFlag.NORMAL);
+        }
+        return mapper().selectOneByExample(e);
+    }
+
+    /**
      * 获取主表的查询结果，以及主表关联的字典数据和一对一从表数据，以及一对一从表的字典数据。
      *
      * @param id             主表主键Id。
      * @param relationParam  实体对象数据组装的参数构建器。
      * @return 查询结果对象。
      */
+    @Override
     public M getByIdWithRelation(K id, MyRelationParam relationParam) {
         M dataObject = this.getById(id);
-        this.buildRelationForData(dataObject, relationParam, buildAggregationAdditionalWhereCriteria());
+        this.buildRelationForData(dataObject, relationParam);
         return dataObject;
     }
 
@@ -218,6 +277,7 @@ public abstract class BaseService<M, K> {
      *
      * @return 返回所有数据。
      */
+    @Override
     public List<M> getAllList() {
         if (deletedFlagFieldName == null) {
             return mapper().selectAll();
@@ -228,23 +288,12 @@ public abstract class BaseService<M, K> {
     }
 
     /**
-     * 获取所有主数据，及其关联数据。
-     *
-     * @param relationParam  实体对象数据组装的参数构建器。
-     * @return 返回所有主数据，及其关联数据。
-     */
-    public List<M> getAllListWithRelation(MyRelationParam relationParam) {
-        List<M> resultList = getAllList();
-        this.buildRelationForDataList(resultList, relationParam, null);
-        return resultList;
-    }
-
-    /**
      * 获取排序后所有数据。
      *
      * @param orderByProperties 需要排序的字段属性，这里使用Java对象中的属性名，而不是数据库字段名。
      * @return 返回排序后所有数据。
      */
+    @Override
     public List<M> getAllListByOrder(String... orderByProperties) {
         Example e = new Example(modelClass);
         for (String orderByProperty : orderByProperties) {
@@ -262,6 +311,7 @@ public abstract class BaseService<M, K> {
      * @param idSet  待校验的主键集合。
      * @return 全部存在返回true，否则false。
      */
+    @Override
     public boolean existAllPrimaryKeys(Set<K> idSet) {
         if (CollectionUtils.isEmpty(idSet)) {
             return true;
@@ -276,28 +326,13 @@ public abstract class BaseService<M, K> {
      * @param inFilterValues 数据值列表。
      * @return 全部存在返回true，否则false。
      */
+    @Override
     public <T> boolean existUniqueKeyList(String inFilterField, Set<T> inFilterValues) {
         if (CollectionUtils.isEmpty(inFilterValues)) {
             return true;
         }
         Example e = this.makeDefaultInListExample(inFilterField, inFilterValues, null);
-        if (deletedFlagFieldName != null) {
-            e.and().andEqualTo(deletedFlagFieldName, GlobalDeletedFlag.NORMAL);
-        }
         return mapper().selectCountByExample(e) == inFilterValues.size();
-    }
-
-    /**
-     * 获取所有数据的指定字段的数据列表。
-     *
-     * @param getterFunc 指定字段的getter方法。
-     * @param <T>        指定字段的类型。
-     * @return 指定字段的列表。
-     */
-    public <T> List<T> getAllListWithField(Function<M, T> getterFunc) {
-        List<M> allList = this.getAllList();
-        // 即使没有符合filter条件的item存在，也会返回空列表对象，而不是null。
-        return allList.stream().filter(x -> getterFunc.apply(x) != null).map(getterFunc).collect(toList());
     }
 
     /**
@@ -306,21 +341,9 @@ public abstract class BaseService<M, K> {
      * @param idValues 主键值集合。
      * @return 检索后的数据列表。
      */
+    @Override
     public List<M> getInList(Set<K> idValues) {
-        return this.getInList(idFieldName, idValues, (String) null);
-    }
-
-    /**
-     * 通过getIdFunc函数，获取主对象列表masterList中的主键列表。在基于该Id列表作为主键查询的in list条件，获取数据。
-     *
-     * @param masterList 主对象列表，通过应用getIdFunc函数，获取查询条件中的主键in list条件。
-     * @param getIdFunc  获取主对象中符合查询条件主键的id值。
-     * @return 检索后的数据列表。
-     */
-    public <T> List<M> getInList(List<T> masterList, Function<T, K> getIdFunc) {
-        // 即使没有符合filter条件的item存在，也会返回空列表对象，而不是null。
-        return this.getInList(masterList.stream()
-                .filter(x -> getIdFunc.apply(x) != null).map(getIdFunc).collect(toSet()));
+        return this.getInList(idFieldName, idValues, null);
     }
 
     /**
@@ -330,8 +353,9 @@ public abstract class BaseService<M, K> {
      * @param inFilterValues 参与(In-list)过滤的Java字段值集合。
      * @return 检索后的数据列表。
      */
+    @Override
     public <T> List<M> getInList(String inFilterField, Set<T> inFilterValues) {
-        return this.getInList(inFilterField, inFilterValues, (String) null);
+        return this.getInList(inFilterField, inFilterValues, null);
     }
 
     /**
@@ -342,31 +366,13 @@ public abstract class BaseService<M, K> {
      * @param orderBy        排序字段。
      * @return 检索后的数据列表。
      */
+    @Override
     public <T> List<M> getInList(String inFilterField, Set<T> inFilterValues, String orderBy) {
         if (CollectionUtils.isEmpty(inFilterValues)) {
             return new LinkedList<>();
         }
         Example e = this.makeDefaultInListExample(inFilterField, inFilterValues, orderBy);
-        if (deletedFlagFieldName != null) {
-            e.and().andEqualTo(deletedFlagFieldName, GlobalDeletedFlag.NORMAL);
-        }
         return mapper().selectByExample(e);
-    }
-
-    /**
-     * 基于对象集合(masterList)，并通过masterIdFunction函数对象获取property字段的数据列表，
-     * inFilterField in (inFilterValues)的所有数据。
-     *
-     * @param inFilterField    参与(In-list)过滤的Java字段。
-     * @param masterList       主对象数据集合。
-     * @param masterIdFunction 获取主对象中，property字段数值的函数对象。
-     * @param <T>              主对象类型。
-     * @return 检索后的数据列表。
-     */
-    public <T> List<M> getInList(String inFilterField, Collection<T> masterList, Function<T, K> masterIdFunction) {
-        // 即使没有符合filter条件的item存在，也会返回空列表对象，而不是null。
-        return this.getInList(inFilterField, masterList.stream()
-                .filter(x -> masterIdFunction.apply(x) != null).map(masterIdFunction).collect(toSet()));
     }
 
     /**
@@ -375,6 +381,7 @@ public abstract class BaseService<M, K> {
      * @param filter 该方法基于mybatis 通用mapper，过滤对象中，只有被赋值的字段，才会成为where中的条件。
      * @return 返回过滤后的数据数量。
      */
+    @Override
     public int getCountByFilter(M filter) {
         if (deletedFlagFieldName == null) {
             return mapper().selectCount(filter);
@@ -383,7 +390,7 @@ public abstract class BaseService<M, K> {
             setDeletedFlagMethod.invoke(filter, GlobalDeletedFlag.NORMAL);
             return mapper().selectCount(filter);
         } catch (Exception e) {
-            log.error("Failed to call reflection code of BaseService.getCountByFilter.", e);
+            log.error("Failed to call reflection [setDeletedFlagMethod] in BaseService.getCountByFilter.", e);
             throw new MyRuntimeException(e);
         }
     }
@@ -394,6 +401,7 @@ public abstract class BaseService<M, K> {
      * @param filter 该方法基于mybatis 通用mapper，过滤对象中，只有被赋值的字段，才会成为where中的条件。
      * @return 存在返回true，否则false。
      */
+    @Override
     public boolean existByFilter(M filter) {
         return this.getCountByFilter(filter) > 0;
     }
@@ -404,7 +412,8 @@ public abstract class BaseService<M, K> {
      * @param filter 该方法基于mybatis的通用mapper。如果参数为null，则返回全部数据。
      * @return 返回过滤后的数据。
      */
-    private List<M> getListByFilter(M filter) {
+    @Override
+    public List<M> getListByFilter(M filter) {
         if (filter == null) {
             return this.getAllList();
         }
@@ -418,33 +427,6 @@ public abstract class BaseService<M, K> {
             log.error("Failed to call reflection code of BaseService.getListByFilter.", ex);
             throw new MyRuntimeException(ex);
         }
-    }
-
-    /**
-     * 用参数对象作为过滤条件，获取查询结果。
-     *
-     * @param filter  该方法基于mybatis的通用mapper。如果参数为null，则返回全部数据。
-     * @param orderBy SQL中ORDER BY从句。
-     * @return 返回过滤后的数据。
-     */
-    public List<M> getListByFilter(M filter, String orderBy) {
-        if (StringUtils.isBlank(orderBy)) {
-            return this.getListByFilter(filter);
-        }
-        Example e = new Example(modelClass);
-        if (StringUtils.isNotBlank(orderBy)) {
-            e.setOrderByClause(orderBy);
-        }
-        if (filter != null) {
-            Example.Criteria c = e.createCriteria();
-            Field[] fields = ReflectUtil.getFields(modelClass);
-            for (Field field : fields) {
-                if (field.getAnnotation(Transient.class) == null) {
-                    assembleCriteriaByFilter(filter, field, c);
-                }
-            }
-        }
-        return mapper().selectByExample(e);
     }
 
     private void assembleCriteriaByFilter(M filter, Field field, Example.Criteria c) {
@@ -471,27 +453,13 @@ public abstract class BaseService<M, K> {
     }
 
     /**
-     * 用参数对象作为过滤条件，获取查询结果。同时组装实体对象中基于RelationXXXX注解关联的数据。
-     *
-     * @param filter         该方法基于mybatis的通用mapper。如果参数为null，则返回全部数据。
-     * @param orderBy        SQL中ORDER BY从句。
-     * @param relationParam  实体对象数据组装的参数构建器。
-     * @return 返回过滤后的数据。
-     */
-    public List<M> getListWithRelationByFilter(M filter, String orderBy, MyRelationParam relationParam) {
-        List<M> resultList = this.getListByFilter(filter, orderBy);
-        Map<String, List<MyWhereCriteria>> criteriaMap = buildAggregationAdditionalWhereCriteria();
-        this.buildRelationForDataList(resultList, relationParam, criteriaMap);
-        return resultList;
-    }
-
-    /**
      * 获取父主键Id下的所有子数据列表。
      *
      * @param parentIdFieldName 父主键字段名字，如"courseId"。
      * @param parentId          父主键的值。
      * @return 父主键Id下的所有子数据列表。
      */
+    @Override
     public List<M> getListByParentId(String parentIdFieldName, K parentId) {
         Example e = new Example(modelClass);
         Example.Criteria c = e.createCriteria();
@@ -516,6 +484,7 @@ public abstract class BaseService<M, K> {
      * @param groupBy      SQL常量形式分组字段列表，逗号分隔。
      * @return 聚合计算后的数据结果集。
      */
+    @Override
     public List<Map<String, Object>> getGroupedListByCondition(
             String selectFields, String whereClause, String groupBy) {
         return mapper().getGroupedListByCondition(tableName, selectFields, whereClause, groupBy);
@@ -525,12 +494,15 @@ public abstract class BaseService<M, K> {
      * 根据指定的显示字段列表、过滤条件字符串和排序字符串，返回查询结果。(基本是内部框架使用，不建议外部接口直接使用)。
      *
      * @param selectList  选择的Java字段列表。如果为空表示返回全部字段。
+     * @param filter      过滤对象。
      * @param whereClause SQL常量形式的条件从句。
      * @param orderBy     SQL常量形式排序字段列表，逗号分隔。
      * @return 查询结果。
      */
-    public List<M> getListByCondition(List<String> selectList, String whereClause, String orderBy) {
+    @Override
+    public List<M> getListByCondition(List<String> selectList, M filter, String whereClause, String orderBy) {
         Example e = new Example(modelClass);
+        Example.Criteria c = null;
         if (CollectionUtils.isNotEmpty(selectList)) {
             String[] selectFields = new String[selectList.size()];
             selectList.toArray(selectFields);
@@ -539,8 +511,20 @@ public abstract class BaseService<M, K> {
         if (StringUtils.isNotBlank(orderBy)) {
             e.setOrderByClause(orderBy);
         }
+        if (filter != null) {
+            c = e.createCriteria();
+            Field[] fields = ReflectUtil.getFields(modelClass);
+            for (Field field : fields) {
+                if (field.getAnnotation(Transient.class) == null) {
+                    this.assembleCriteriaByFilter(filter, field, c);
+                }
+            }
+        }
         if (StringUtils.isNotBlank(whereClause)) {
-            e.createCriteria().andCondition(whereClause);
+            if (c == null) {
+                c = e.createCriteria();
+            }
+            c.andCondition(whereClause);
         }
         return mapper().selectByExample(e);
     }
@@ -551,6 +535,7 @@ public abstract class BaseService<M, K> {
      * @param whereClause SQL常量形式的条件从句。
      * @return 返回过滤后的数据数量。
      */
+    @Override
     public Integer getCountByCondition(String whereClause) {
         return mapper().getCountByCondition(this.tableName, whereClause);
     }
@@ -561,10 +546,9 @@ public abstract class BaseService<M, K> {
      *
      * @param resultList      主表实体对象列表。数据集成将直接作用于该对象列表。
      * @param relationParam   实体对象数据组装的参数构建器。
-     * @param criteriaListMap 仅仅用于一对多和多对多聚合计算的附加过滤条件。如果没有可以为NULL。
      */
-    public void buildRelationForDataList(
-            List<M> resultList, MyRelationParam relationParam, Map<String, List<MyWhereCriteria>> criteriaListMap) {
+    @Override
+    public void buildRelationForDataList(List<M> resultList, MyRelationParam relationParam) {
         if (relationParam == null || CollectionUtils.isEmpty(resultList)) {
             return;
         }
@@ -583,9 +567,9 @@ public abstract class BaseService<M, K> {
         // 组装本地聚合计算关联数据
         if (relationParam.isBuildRelationAggregation()) {
             // 处理多对多场景下，根据主表的结果，进行从表聚合数据的计算。
-            this.buildManyToManyAggregationForDataList(resultList, criteriaListMap);
+            this.buildManyToManyAggregationForDataList(resultList, buildAggregationAdditionalWhereCriteria());
             // 处理多一多场景下，根据主表的结果，进行从表聚合数据的计算。
-            this.buildOneToManyAggregationForDataList(resultList, criteriaListMap);
+            this.buildOneToManyAggregationForDataList(resultList, buildAggregationAdditionalWhereCriteria());
         }
     }
 
@@ -595,11 +579,10 @@ public abstract class BaseService<M, K> {
      *
      * @param dataObject      主表实体对象。数据集成将直接作用于该对象。
      * @param relationParam   实体对象数据组装的参数构建器。
-     * @param criteriaListMap 仅仅用于一对多和多对多聚合计算的附加过滤条件。如果没有可以为NULL。
      * @param <T>             实体对象类型。
      */
-    public <T extends M> void buildRelationForData(
-            T dataObject, MyRelationParam relationParam, Map<String, List<MyWhereCriteria>> criteriaListMap) {
+    @Override
+    public <T extends M> void buildRelationForData(T dataObject, MyRelationParam relationParam) {
         if (dataObject == null || relationParam == null) {
             return;
         }
@@ -617,12 +600,12 @@ public abstract class BaseService<M, K> {
         // 组装本地聚合计算关联数据
         if (relationParam.isBuildRelationAggregation()) {
             // 开始处理多对多场景。
-            buildManyToManyAggregationForData(dataObject, criteriaListMap);
+            buildManyToManyAggregationForData(dataObject, buildAggregationAdditionalWhereCriteria());
             // 构建一对多场景
-            buildOneToManyAggregationForData(dataObject, criteriaListMap);
+            buildOneToManyAggregationForData(dataObject, buildAggregationAdditionalWhereCriteria());
         }
         if (relationParam.isBuildRelationManyToMany()) {
-            this.buildManyToManyRelation(dataObject);
+            this.buildRelationManyToMany(dataObject);
         }
     }
 
@@ -631,7 +614,7 @@ public abstract class BaseService<M, K> {
      *
      * @param dataObject 关联后的主表数据对象。
      */
-    private <T extends M> void buildManyToManyRelation(T dataObject) {
+    private <T extends M> void buildRelationManyToMany(T dataObject) {
         if (dataObject == null || CollectionUtils.isEmpty(this.relationManyToManyStructList)) {
             return;
         }
@@ -650,8 +633,7 @@ public abstract class BaseService<M, K> {
      * @param resultList 主表数据列表。
      */
     private void buildConstDictForDataList(List<M> resultList) {
-        if (CollectionUtils.isEmpty(this.relationConstDictStructList)
-                || CollectionUtils.isEmpty(resultList)) {
+        if (CollectionUtils.isEmpty(this.relationConstDictStructList) || CollectionUtils.isEmpty(resultList)) {
             return;
         }
         for (RelationStruct relationStruct : this.relationConstDictStructList) {
@@ -701,8 +683,7 @@ public abstract class BaseService<M, K> {
      *                         不为空，则直接从已经完成一对一数据关联的从表对象中获取数据，减少一次数据库交互。
      */
     private void buildDictForDataList(List<M> resultList, boolean hasBuiltOneToOne) {
-        if (CollectionUtils.isEmpty(this.relationDictStructList)
-                || CollectionUtils.isEmpty(resultList)) {
+        if (CollectionUtils.isEmpty(this.relationDictStructList) || CollectionUtils.isEmpty(resultList)) {
             return;
         }
         for (RelationStruct relationStruct : this.relationDictStructList) {
@@ -745,7 +726,7 @@ public abstract class BaseService<M, K> {
             } else {
                 Object id = ReflectUtil.getFieldValue(dataObject, relationStruct.masterIdField);
                 if (id != null) {
-                    relationObject = relationStruct.service.getById(id);
+                    relationObject = relationStruct.service.getOne(relationStruct.relationDict.slaveIdField(), id);
                 }
             }
             MyModelUtil.makeDictRelation(
@@ -757,11 +738,10 @@ public abstract class BaseService<M, K> {
      * 为实体对象参数列表数据集成本地一对一关联数据。
      *
      * @param resultList 实体对象数据列表。
-     * @param withDict   关联从表数据后，是否把从表的字典数据也一起关联了。。
+     * @param withDict   关联从表数据后，是否把从表的字典数据也一起关联了。
      */
     private void buildOneToOneForDataList(List<M> resultList, boolean withDict) {
-        if (CollectionUtils.isEmpty(this.relationOneToOneStructList)
-                || CollectionUtils.isEmpty(resultList)) {
+        if (CollectionUtils.isEmpty(this.relationOneToOneStructList) || CollectionUtils.isEmpty(resultList)) {
             return;
         }
         for (RelationStruct relationStruct : this.relationOneToOneStructList) {
@@ -795,7 +775,7 @@ public abstract class BaseService<M, K> {
      * 为实体对象数据集成本地一对一关联数据。
      *
      * @param dataObject 实体对象。
-     * @param withDict   关联从表数据后，是否把从表的字典数据也一起关联了。。
+     * @param withDict   关联从表数据后，是否把从表的字典数据也一起关联了。
      */
     private void buildOneToOneForData(M dataObject, boolean withDict) {
         if (dataObject == null || CollectionUtils.isEmpty(this.relationOneToOneStructList)) {
@@ -805,7 +785,7 @@ public abstract class BaseService<M, K> {
             Object id = ReflectUtil.getFieldValue(dataObject, relationStruct.masterIdField);
             if (id != null) {
                 BaseService<Object, Object> relationService = relationStruct.service;
-                Object relationObject = relationService.getById(id);
+                Object relationObject = relationService.getOne(relationStruct.relationOneToOne.slaveIdField(), id);
                 ReflectUtil.setFieldValue(dataObject, relationStruct.relationField, relationObject);
                 // 仅仅当需要加载从表字典关联时，才去加载。
                 if (withDict && relationStruct.relationOneToOne.loadSlaveDict() && relationObject != null) {
@@ -822,6 +802,53 @@ public abstract class BaseService<M, K> {
     }
 
     /**
+     * 为实体对象参数列表数据集成本地一对多关联数据。
+     *
+     * @param resultList 实体对象数据列表。
+     */
+    private void buildOneToManyForDataList(List<M> resultList) {
+        if (CollectionUtils.isEmpty(this.relationOneToManyStructList) || CollectionUtils.isEmpty(resultList)) {
+            return;
+        }
+        for (RelationStruct relationStruct : this.relationOneToManyStructList) {
+            Set<Object> masterIdSet = resultList.stream()
+                    .map(obj -> ReflectUtil.getFieldValue(obj, relationStruct.masterIdField))
+                    .filter(Objects::nonNull)
+                    .collect(toSet());
+            // 从主表集合中，抽取主表关联字段的集合，再以in list形式去从表中查询。
+            if (CollectionUtils.isNotEmpty(masterIdSet)) {
+                BaseService<Object, Object> relationService = relationStruct.service;
+                List<Object> relationList =
+                        relationService.getInList(relationStruct.relationOneToMany.slaveIdField(), masterIdSet);
+                MyModelUtil.makeOneToManyRelation(
+                        modelClass, resultList, relationList, relationStruct.relationField.getName());
+            }
+        }
+    }
+
+    /**
+     * 为实体对象数据集成本地一对多关联数据。
+     *
+     * @param dataObject 实体对象。
+     */
+    private void buildOneToManyForData(M dataObject) {
+        if (dataObject == null || CollectionUtils.isEmpty(this.relationOneToManyStructList)) {
+            return;
+        }
+        for (RelationStruct relationStruct : this.relationOneToManyStructList) {
+            Object id = ReflectUtil.getFieldValue(dataObject, relationStruct.masterIdField);
+            if (id != null) {
+                BaseService<Object, Object> relationService = relationStruct.service;
+                Set<Object> masterIdSet = new HashSet<>(1);
+                masterIdSet.add(id);
+                List<Object> relationObject = relationService.getInList(
+                        relationStruct.relationOneToMany.slaveIdField(), masterIdSet);
+                ReflectUtil.setFieldValue(dataObject, relationStruct.relationField, relationObject);
+            }
+        }
+    }
+
+    /**
      * 根据实体对象参数列表和过滤条件，集成本地多对多关联聚合计算数据。
      *
      * @param resultList      实体对象数据列表。
@@ -829,8 +856,7 @@ public abstract class BaseService<M, K> {
      */
     private void buildManyToManyAggregationForDataList(
             List<M> resultList, Map<String, List<MyWhereCriteria>> criteriaListMap) {
-        if (CollectionUtils.isEmpty(this.relationManyToManyAggrStructList)
-                || CollectionUtils.isEmpty(resultList)) {
+        if (CollectionUtils.isEmpty(this.relationManyToManyAggrStructList) || CollectionUtils.isEmpty(resultList)) {
             return;
         }
         if (criteriaListMap == null) {
@@ -944,8 +970,7 @@ public abstract class BaseService<M, K> {
     private void buildOneToManyAggregationForDataList(
             List<M> resultList, Map<String, List<MyWhereCriteria>> criteriaListMap) {
         // 处理多一多场景下，根据主表的结果，进行从表聚合数据的计算。
-        if (CollectionUtils.isEmpty(this.relationOneToManyAggrStructList)
-                || CollectionUtils.isEmpty(resultList)) {
+        if (CollectionUtils.isEmpty(this.relationOneToManyAggrStructList) || CollectionUtils.isEmpty(resultList)) {
             return;
         }
         if (criteriaListMap == null) {
@@ -1038,6 +1063,7 @@ public abstract class BaseService<M, K> {
     /**
      * 仅仅在spring boot 启动后的监听器事件中调用，缓存所有service的关联关系，加速后续的数据绑定效率。
      */
+    @Override
     public void loadRelationStruct() {
         Field[] fields = ReflectUtil.getFields(modelClass);
         for (Field f : fields) {
@@ -1104,10 +1130,15 @@ public abstract class BaseService<M, K> {
             inFilterValueSet = new HashSet<>(inFilterValues.size());
             inFilterValueSet.addAll(inFilterValues);
         }
-        e.createCriteria().andIn(inFilterField, inFilterValueSet);
+        Example.Criteria c = e.createCriteria();
+        c.andIn(inFilterField, inFilterValueSet);
+        if (deletedFlagFieldName != null) {
+            c.andEqualTo(deletedFlagFieldName, GlobalDeletedFlag.NORMAL);
+        }
         return e;
     }
 
+    @SuppressWarnings("unchecked")
     private void initializeRelationStruct(Field f) {
         RelationOneToOne relationOneToOne = f.getAnnotation(RelationOneToOne.class);
         if (relationOneToOne != null) {
@@ -1115,9 +1146,30 @@ public abstract class BaseService<M, K> {
             relationStruct.relationField = f;
             relationStruct.masterIdField = ReflectUtil.getField(modelClass, relationOneToOne.masterIdField());
             relationStruct.relationOneToOne = relationOneToOne;
-            relationStruct.service = ApplicationContextHolder.getBean(
-                    StringUtils.uncapitalize(relationOneToOne.slaveServiceName()));
+            if (StringUtils.isNotBlank(relationOneToOne.slaveServiceName())) {
+                relationStruct.service = ApplicationContextHolder.getBean(
+                        StringUtils.uncapitalize(relationOneToOne.slaveServiceName()));
+            } else {
+                relationStruct.service = (BaseService<Object, Object>)
+                        ApplicationContextHolder.getBean(relationOneToOne.slaveServiceClass());
+            }
             relationOneToOneStructList.add(relationStruct);
+            return;
+        }
+        RelationOneToMany relationOneToMany = f.getAnnotation(RelationOneToMany.class);
+        if (relationOneToMany != null) {
+            RelationStruct relationStruct = new RelationStruct();
+            relationStruct.relationField = f;
+            relationStruct.masterIdField = ReflectUtil.getField(modelClass, relationOneToMany.masterIdField());
+            relationStruct.relationOneToMany = relationOneToMany;
+            if (StringUtils.isNotBlank(relationOneToMany.slaveServiceName())) {
+                relationStruct.service = ApplicationContextHolder.getBean(
+                        StringUtils.uncapitalize(relationOneToMany.slaveServiceName()));
+            } else {
+                relationStruct.service = (BaseService<Object, Object>)
+                        ApplicationContextHolder.getBean(relationOneToMany.slaveServiceClass());
+            }
+            relationOneToManyStructList.add(relationStruct);
             return;
         }
         RelationManyToMany relationManyToMany = f.getAnnotation(RelationManyToMany.class);
@@ -1132,6 +1184,7 @@ public abstract class BaseService<M, K> {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private void initializeRelationAggregationStruct(Field f) {
         RelationOneToManyAggregation relationOneToManyAggregation = f.getAnnotation(RelationOneToManyAggregation.class);
         if (relationOneToManyAggregation != null) {
@@ -1139,8 +1192,13 @@ public abstract class BaseService<M, K> {
             relationStruct.relationField = f;
             relationStruct.masterIdField = ReflectUtil.getField(modelClass, relationOneToManyAggregation.masterIdField());
             relationStruct.relationOneToManyAggregation = relationOneToManyAggregation;
-            relationStruct.service = ApplicationContextHolder.getBean(
-                    StringUtils.uncapitalize(relationOneToManyAggregation.slaveServiceName()));
+            if (StringUtils.isNotBlank(relationOneToManyAggregation.slaveServiceName())) {
+                relationStruct.service = ApplicationContextHolder.getBean(
+                        StringUtils.uncapitalize(relationOneToManyAggregation.slaveServiceName()));
+            } else {
+                relationStruct.service = (BaseService<Object, Object>)
+                        ApplicationContextHolder.getBean(relationOneToManyAggregation.slaveServiceClass());
+            }
             relationOneToManyAggrStructList.add(relationStruct);
             return;
         }
@@ -1150,8 +1208,13 @@ public abstract class BaseService<M, K> {
             relationStruct.relationField = f;
             relationStruct.masterIdField = ReflectUtil.getField(modelClass, relationManyToManyAggregation.masterIdField());
             relationStruct.relationManyToManyAggregation = relationManyToManyAggregation;
-            relationStruct.service = ApplicationContextHolder.getBean(
-                    StringUtils.uncapitalize(relationManyToManyAggregation.slaveServiceName()));
+            if (StringUtils.isNotBlank(relationManyToManyAggregation.slaveServiceName())) {
+                relationStruct.service = ApplicationContextHolder.getBean(
+                        StringUtils.uncapitalize(relationManyToManyAggregation.slaveServiceName()));
+            } else {
+                relationStruct.service = (BaseService<Object, Object>)
+                        ApplicationContextHolder.getBean(relationManyToManyAggregation.slaveServiceClass());
+            }
             relationManyToManyAggrStructList.add(relationStruct);
         }
     }
@@ -1178,8 +1241,13 @@ public abstract class BaseService<M, K> {
                 relationStruct.equalOneToOneRelationField =
                         ReflectUtil.getField(modelClass, relationDict.equalOneToOneRelationField());
             }
-            relationStruct.service = ApplicationContextHolder.getBean(
-                    StringUtils.uncapitalize(relationDict.slaveServiceName()));
+            if (StringUtils.isNotBlank(relationDict.slaveServiceName())) {
+                relationStruct.service = ApplicationContextHolder.getBean(
+                        StringUtils.uncapitalize(relationDict.slaveServiceName()));
+            } else {
+                relationStruct.service = (BaseService<Object, Object>)
+                        ApplicationContextHolder.getBean(relationDict.slaveServiceClass());
+            }
             relationDictStructList.add(relationStruct);
         }
     }
@@ -1379,6 +1447,7 @@ public abstract class BaseService<M, K> {
         private Map<Object, String> dictMap;
         private RelationDict relationDict;
         private RelationOneToOne relationOneToOne;
+        private RelationOneToMany relationOneToMany;
         private RelationManyToMany relationManyToMany;
         private RelationOneToManyAggregation relationOneToManyAggregation;
         private RelationManyToManyAggregation relationManyToManyAggregation;

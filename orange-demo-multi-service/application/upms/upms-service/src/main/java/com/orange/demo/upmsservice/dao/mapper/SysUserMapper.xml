@@ -11,7 +11,7 @@
         <result column="user_status" jdbcType="INTEGER" property="userStatus"/>
         <result column="deleted_flag" jdbcType="INTEGER" property="deletedFlag"/>
         <result column="create_user_id" jdbcType="BIGINT" property="createUserId"/>
-        <result column="create_username" jdbcType="VARCHAR" property="createUsername"/>
+        <result column="update_user_id" jdbcType="BIGINT" property="updateUserId"/>
         <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
         <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
     </resultMap>
@@ -42,7 +42,6 @@
                 AND zz_sys_user.create_time &lt;= #{sysUserFilter.createTimeEnd}
             </if>
         </if>
-        AND zz_sys_user.deleted_flag = ${@com.orange.demo.common.core.constant.GlobalDeletedFlag@NORMAL}
     </sql>
 
     <select id="getSysUserList" resultMap="BaseResultMap" parameterType="com.orange.demo.upmsservice.model.SysUser">
@@ -101,7 +100,7 @@
             ORDER BY ${orderBy}
         </if>
     </select>
-    
+
     <!-- 以下查询仅用于权限分配的问题定位，由于关联表较多，可能会给系统运行带来性能影响 -->
     <select id="getSysPermListWithDetail" resultType="map">
         SELECT

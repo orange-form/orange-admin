@@ -8,13 +8,11 @@ import com.orange.demo.application.common.constant.Subject;
 import com.orange.demo.common.core.annotation.RelationDict;
 import com.orange.demo.common.core.annotation.RelationConstDict;
 import com.orange.demo.common.core.base.mapper.BaseModelMapper;
-import com.orange.demo.common.core.validator.ConstDictRef;
 import com.orange.demo.statsinterface.vo.CourseTransStatsVo;
 import lombok.Data;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
 import javax.persistence.*;
-import javax.validation.constraints.*;
 
 import java.util.Date;
 import java.util.Map;
@@ -32,7 +30,6 @@ public class CourseTransStats {
     /**
      * 主键Id。
      */
-    @NotNull(message = "数据验证失败，主键Id不能为空！")
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "stats_id")
@@ -41,22 +38,18 @@ public class CourseTransStats {
     /**
      * 统计日期。
      */
-    @NotNull(message = "数据验证失败，统计日期不能为空！")
     @Column(name = "stats_date")
     private Date statsDate;
 
     /**
      * 科目Id。
      */
-    @NotNull(message = "数据验证失败，所属科目不能为空！")
-    @ConstDictRef(constDictClass = Subject.class, message = "数据验证失败，所属科目为无效值！")
     @Column(name = "subject_id")
     private Integer subjectId;
 
     /**
      * 年级Id。
      */
-    @NotNull(message = "数据验证失败，所属年级不能为空！")
     @Column(name = "grade_id")
     private Integer gradeId;
 
@@ -69,7 +62,6 @@ public class CourseTransStats {
     /**
      * 课程Id。
      */
-    @NotNull(message = "数据验证失败，课程ID不能为空！")
     @Column(name = "course_id")
     private Long courseId;
 
@@ -82,21 +74,18 @@ public class CourseTransStats {
     /**
      * 学生上课次数。
      */
-    @NotNull(message = "数据验证失败，上课次数不能为空！")
     @Column(name = "student_attend_count")
     private Integer studentAttendCount;
 
     /**
      * 学生献花数量。
      */
-    @NotNull(message = "数据验证失败，献花数量不能为空！")
     @Column(name = "student_flower_amount")
     private Integer studentFlowerAmount;
 
     /**
      * 学生献花次数。
      */
-    @NotNull(message = "数据验证失败，献花次数不能为空！")
     @Column(name = "student_flower_count")
     private Integer studentFlowerCount;
 

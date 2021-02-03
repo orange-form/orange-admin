@@ -9,7 +9,6 @@ import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import java.util.Date;
 
 /**
  * 权限字Dto。
@@ -62,10 +61,4 @@ public class SysPermCodeDto {
     @ApiModelProperty(value = "显示顺序", required = true)
     @NotNull(message = "权限字显示顺序不能为空！")
     private Integer showOrder;
-
-    /**
-     * 创建时间。
-     */
-    @ApiModelProperty(value = "创建时间")
-    private Date createTime;
 }

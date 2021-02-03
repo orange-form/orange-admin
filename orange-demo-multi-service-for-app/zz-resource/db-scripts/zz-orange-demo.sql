@@ -1,5 +1,5 @@
-CREATE DATABASE `zz-orange-demo` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_bin;
-USE `zz-orange-demo`;
+CREATE DATABASE `zzdemo-multi` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_bin;
+USE `zzdemo-multi`;
 
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
@@ -3799,7 +3799,7 @@ INSERT INTO `zz_course` VALUES (1016918360520921088, '小学五年级语文课�
 INSERT INTO `zz_course` VALUES (1016918605715738624, '小学六年级语文课程', 1288.00, '小学六年级语文课程', 2, 6, 0, 32, '[{\"name\":\"IMG_0006.JPG\",\"downloadUri\":\"/admin/coursepaper/course/download\",\"filename\":\"a0d0476fac9c46f08b7ebef597b8765a.JPG\"}]', 1093809448606765057, '2020-10-17 00:00:00', '2020-10-17 00:00:00');
 INSERT INTO `zz_course` VALUES (1016918836729614336, '天津小学一年级语文课程', 300.00, '天津小学一年级语文课程', 0, 1, 0, 20, '[{\"name\":\"IMG_0003.JPG\",\"downloadUri\":\"/admin/coursepaper/course/download\",\"filename\":\"7f64971a69944b0082f21a6036c31efd.JPG\"}]', 1093809448606765057, '2020-10-17 00:00:00', '2020-10-17 00:00:00');
 INSERT INTO `zz_course` VALUES (1016920152549888000, '天津小学二年级语文课程', 699.00, '天津小学二年级语文课程', 1, 2, 0, 20, '[{\"name\":\"IMG_0007.JPG\",\"downloadUri\":\"/admin/coursepaper/course/download\",\"filename\":\"4baf08c1da8741bb808caf09475e49a9.JPG\"}]', 1093809448606765057, '2020-10-17 00:00:00', '2020-10-17 00:00:00');
-INSERT INTO `zz_course` VALUES (1016920339255136256, '天津小学三年级语文课程', 998.00, '天津小学三年级语文课程', 1, 3, 0, 25, '[{\"name\":\"IMG_0009.JPG\",\"downloadUri\":\"/admin/coursepaper/course/download\",\"filename\":\"6bc1eaab831d49708e4b1e0a5d657d61.JPG\"}]', 1093809448606765057, '2020-10-17 00:00:00', '2020-10-29 11:59:09');
+INSERT INTO `zz_course` VALUES (1016920339255136256, '天津小学三年级语文课程', 998.00, '天津小学三年级语文课程', 1, 3, 0, 25, '[{\"name\":\"IMG_0009.JPG\",\"downloadUri\":\"/admin/coursepaper/course/download\",\"filename\":\"6bc1eaab831d49708e4b1e0a5d657d61.JPG\"}]', 1093809448606765057, '2020-10-17 00:00:00', '2020-10-17 21:22:54');
 INSERT INTO `zz_course` VALUES (1016920878164480000, '小学数学一年级课程', 388.00, '小学数学一年级课程', 0, 1, 1, 15, '[{\"name\":\"IMG_0010.JPG\",\"downloadUri\":\"/admin/coursepaper/course/download\",\"filename\":\"7e9583aba9594a98b1e0268837d2a5d0.JPG\"}]', 1093809448606765057, '2020-10-17 00:00:00', '2020-10-17 00:00:00');
 INSERT INTO `zz_course` VALUES (1016921053566078976, '小学数学二年级课程', 700.00, '小学数学二年级课程', 0, 2, 1, 20, '[{\"name\":\"shuxue2.jpg\",\"downloadUri\":\"/admin/app/course/download\",\"filename\":\"7a1fdc70976f4820aa019f91514de272.jpg\"}]', 1093809448606765057, '2020-10-17 00:00:00', '2020-10-17 00:00:00');
 INSERT INTO `zz_course` VALUES (1016921250996162560, '小学数学三年级课程', 700.00, '小学数学三年级课程', 1, 3, 1, 20, '[{\"name\":\"shuxue.jpg\",\"downloadUri\":\"/admin/app/course/download\",\"filename\":\"f14c0f101146453c80607230e842f1c9.jpg\"},{\"name\":\"shuxue2.jpg\",\"downloadUri\":\"/admin/app/course/download\",\"filename\":\"b8451e95fa314facaa8a3cd720888574.jpg\"}]', 1093809448606765057, '2020-10-17 00:00:00', '2020-10-17 00:00:00');
@@ -4307,7 +4307,7 @@ CREATE TABLE `zz_sys_user` (
 -- Records of zz_sys_user
 -- ----------------------------
 BEGIN;
-INSERT INTO `zz_sys_user` VALUES (1317453102294503425, 'admin', '$2a$10$AefTg5EMICNwr/prvCi8AOGlTnfy3PAjg8T2w2Dzrg1kIv2wNs2qe', '管理员', 0, 'CHANGE TO YOUR HEAD IMAGE URL!!!', 0, 1317453102294503425, '管理员', '2020-10-17 00:00:00', '2020-10-17 00:00:00', 1);
+INSERT INTO `zz_sys_user` VALUES (1317453102294503425, 'admin', '$2a$10$xBslnuRm.kzZ3aYbMB/HPe3cdYp1LWQFXGxXadbPkePg2TeVu.EWy', '管理员', 0, 'CHANGE TO YOUR HEAD IMAGE URL!!!', 0, 1317453102294503425, '管理员', '2020-10-17 00:00:00', '2020-10-17 00:00:00', 1);
 INSERT INTO `zz_sys_user` VALUES (1317455515172737024, '111', '$2a$10$oiJwJAALeSAsphcCmZYHcOuiq4fvcNZ3Av8JCSpmHWfYQESbQZeqe', '111', 2, NULL, 0, 1317453102294503425, '管理员', '2020-10-17 21:20:47', '2020-10-17 21:20:50', -1);
 COMMIT;
 

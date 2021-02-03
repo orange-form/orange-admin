@@ -71,7 +71,7 @@ public enum ErrorCodeEnum {
     /**
      * 错误信息。
      */
-    private String errorMessage;
+    private final String errorMessage;
 
     /**
      * 获取错误信息。

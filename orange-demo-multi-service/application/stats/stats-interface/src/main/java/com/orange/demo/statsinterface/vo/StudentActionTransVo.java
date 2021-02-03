@@ -110,24 +110,24 @@ public class StudentActionTransVo {
     /**
      * schoolId 字典关联数据。
      */
-    @ApiModelProperty(hidden = true)
+    @ApiModelProperty(value = "schoolId 字典关联数据")
     private Map<String, Object> schoolIdDictMap;
 
     /**
      * gradeId 字典关联数据。
      */
-    @ApiModelProperty(hidden = true)
+    @ApiModelProperty(value = "gradeId 字典关联数据")
     private Map<String, Object> gradeIdDictMap;
 
     /**
      * actionType 常量字典关联数据。
      */
-    @ApiModelProperty(hidden = true)
+    @ApiModelProperty(value = "actionType 常量字典关联数据")
     private Map<String, Object> actionTypeDictMap;
 
     /**
      * deviceType 常量字典关联数据。
      */
-    @ApiModelProperty(hidden = true)
+    @ApiModelProperty(value = "deviceType 常量字典关联数据")
     private Map<String, Object> deviceTypeDictMap;
 }

@@ -29,14 +29,14 @@ public class SysRoleVo {
     private Long createUserId;
 
     /**
-     * 创建者显示名称。
-     */
-    private String createUsername;
-
-    /**
      * 创建时间。
      */
     private Date createTime;
+
+    /**
+     * 更新者Id。
+     */
+    private Long updateUserId;
 
     /**
      * 更新时间。

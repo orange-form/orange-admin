@@ -53,10 +53,28 @@ public class SysPermCodeVo {
     private Integer showOrder;
 
     /**
+     * 创建者Id。
+     */
+    @ApiModelProperty(value = "创建者Id")
+    private Long createUserId;
+
+    /**
      * 创建时间。
      */
     @ApiModelProperty(value = "创建时间")
     private Date createTime;
+
+    /**
+     * 更新者Id。
+     */
+    @ApiModelProperty(value = "更新者Id")
+    private Long updateUserId;
+
+    /**
+     * 更新时间。
+     */
+    @ApiModelProperty(value = "更新时间")
+    private Date updateTime;
 
     /**
      * 权限字与权限资源关联对象列表。

@@ -45,10 +45,18 @@ public @interface RelationOneToOne {
 
     /**
      * 被关联的本地Service对象名称。
+     * 该参数的优先级高于 slaveService()，如果定义了该值，会优先使用加载service的bean对象。
      *
      * @return 被关联的本地Service对象名称。
      */
     String slaveServiceName() default "";
+
+    /**
+     * 被关联的本地Service对象CLass类型。
+     *
+     * @return 被关联的本地Service对象CLass类型。
+     */
+    Class<?> slaveServiceClass() default DummyClass.class;
 
     /**
      * 在一对一关联时，是否加载从表的字典关联。

@@ -14,7 +14,7 @@ import java.util.Map;
 @Component
 public class UpDownloaderFactory {
 
-    private Map<UploadStoreTypeEnum, BaseUpDownloader> upDownloaderMap = new HashMap<>();
+    private final Map<UploadStoreTypeEnum, BaseUpDownloader> upDownloaderMap = new HashMap<>();
 
     /**
      * 根据存储类型获取上传下载对象。

@@ -21,7 +21,7 @@ public interface SysPermMapper extends BaseDaoMapper<SysPerm> {
      * @param userId 用户Id。
      * @return 该用户的权限标识列表。
      */
-    List<SysPerm> getPermListByUserId(@Param("userId") Long userId);
+    List<String> getPermListByUserId(@Param("userId") Long userId);
 
     /**
      * 查询权限资源地址的用户列表。同时返回详细的分配路径。
@@ -51,5 +51,5 @@ public interface SysPermMapper extends BaseDaoMapper<SysPerm> {
      * @return 包含从权限资源到菜单的权限分配路径信息的查询结果列表。
      */
     List<Map<String, Object>> getSysMenuListWithDetail(
-            @Param("permId") Long permId, @Param("menuName") String menuName);      
+            @Param("permId") Long permId, @Param("menuName") String menuName);
 }

@@ -2,6 +2,7 @@ package com.orange.demo.app.controller;
 
 import com.github.pagehelper.page.PageMethod;
 import com.orange.demo.app.vo.*;
+import com.orange.demo.app.dto.*;
 import com.orange.demo.app.model.*;
 import com.orange.demo.app.service.*;
 import com.orange.demo.common.core.object.*;
@@ -33,15 +34,16 @@ public class StudentActionTransController {
     /**
      * 新增学生行为流水数据。
      *
-     * @param studentActionTrans 新增对象。
+     * @param studentActionTransDto 新增对象。
      * @return 应答结果对象，包含新增对象主键Id。
      */
     @PostMapping("/add")
-    public ResponseResult<Long> add(@MyRequestBody StudentActionTrans studentActionTrans) {
-        String errorMessage = MyCommonUtil.getModelValidationError(studentActionTrans);
+    public ResponseResult<Long> add(@MyRequestBody("studentActionTrans") StudentActionTransDto studentActionTransDto) {
+        String errorMessage = MyCommonUtil.getModelValidationError(studentActionTransDto);
         if (errorMessage != null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
+        StudentActionTrans studentActionTrans = MyModelUtil.copyTo(studentActionTransDto, StudentActionTrans.class);
         // 验证关联Id的数据合法性
         CallResult callResult = studentActionTransService.verifyRelatedData(studentActionTrans, null);
         if (!callResult.isSuccess()) {
@@ -55,16 +57,16 @@ public class StudentActionTransController {
     /**
      * 更新学生行为流水数据。
      *
-     * @param studentActionTrans 更新对象。
+     * @param studentActionTransDto 更新对象。
      * @return 应答结果对象。
      */
     @PostMapping("/update")
-    public ResponseResult<Void> update(@MyRequestBody StudentActionTrans studentActionTrans) {
-        String errorMessage = MyCommonUtil.getModelValidationError(studentActionTrans, Default.class, UpdateGroup.class);
+    public ResponseResult<Void> update(@MyRequestBody("studentActionTrans") StudentActionTransDto studentActionTransDto) {
+        String errorMessage = MyCommonUtil.getModelValidationError(studentActionTransDto, Default.class, UpdateGroup.class);
         if (errorMessage != null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
-        // 验证关联Id的数据合法性
+        StudentActionTrans studentActionTrans = MyModelUtil.copyTo(studentActionTransDto, StudentActionTrans.class);
         StudentActionTrans originalStudentActionTrans = studentActionTransService.getById(studentActionTrans.getTransId());
         if (originalStudentActionTrans == null) {
             // NOTE: 修改下面方括号中的话述
@@ -112,19 +114,20 @@ public class StudentActionTransController {
     /**
      * 列出符合过滤条件的学生行为流水列表。
      *
-     * @param studentActionTransFilter 过滤对象。
+     * @param studentActionTransDtoFilter 过滤对象。
      * @param orderParam 排序参数。
      * @param pageParam 分页参数。
      * @return 应答结果对象，包含查询结果集。
      */
     @PostMapping("/list")
     public ResponseResult<MyPageData<StudentActionTransVo>> list(
-            @MyRequestBody StudentActionTrans studentActionTransFilter,
+            @MyRequestBody("studentActionTransFilter") StudentActionTransDto studentActionTransDtoFilter,
             @MyRequestBody MyOrderParam orderParam,
             @MyRequestBody MyPageParam pageParam) {
         if (pageParam != null) {
             PageMethod.startPage(pageParam.getPageNum(), pageParam.getPageSize());
         }
+        StudentActionTrans studentActionTransFilter = MyModelUtil.copyTo(studentActionTransDtoFilter, StudentActionTrans.class);
         String orderBy = MyOrderParam.buildOrderBy(orderParam, StudentActionTrans.class);
         List<StudentActionTrans> studentActionTransList = studentActionTransService.getStudentActionTransListWithRelation(studentActionTransFilter, orderBy);
         return ResponseResult.success(MyPageUtil.makeResponseData(studentActionTransList, StudentActionTrans.INSTANCE));

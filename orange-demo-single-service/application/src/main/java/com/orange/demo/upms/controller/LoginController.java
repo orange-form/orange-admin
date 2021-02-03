@@ -15,7 +15,7 @@ import com.orange.demo.common.core.constant.ErrorCodeEnum;
 import com.orange.demo.common.core.object.ResponseResult;
 import com.orange.demo.common.core.object.TokenData;
 import com.orange.demo.common.core.util.*;
-import com.orange.demo.common.core.cache.SessionCacheHelper;
+import com.orange.demo.common.redis.cache.SessionCacheHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -92,18 +92,20 @@ public class LoginController {
         tokenData.setShowName(user.getShowName());
         tokenData.setIsAdmin(isAdmin);
         cacheHelper.putTokenData(sessionId, tokenData);
-        List<SysMenu> menuList;
+        Collection<SysMenu> menuList;
+        Collection<String> permCodeList;
         if (isAdmin) {
             menuList = sysMenuService.getAllMenuList();
+            permCodeList = sysPermCodeService.getAllPermCodeList();
         } else {
             menuList = sysMenuService.getMenuListByUserId(user.getUserId());
-            List<String> permCodeList = sysPermCodeService.getPermCodeListByUserId(user.getUserId());
-            jsonData.put("permCodeList", permCodeList);
+            permCodeList = sysPermCodeService.getPermCodeListByUserId(user.getUserId());
         }
         jsonData.put("menuList", menuList);
+        jsonData.put("permCodeList", permCodeList);
         if (user.getUserType() != SysUserType.TYPE_ADMIN) {
             // 缓存用户的权限资源
-            sysPermService.putUserSysPermCache(sessionId, user.getUserId(), isAdmin);
+            sysPermService.putUserSysPermCache(sessionId, user.getUserId());
         }
         return ResponseResult.success(jsonData);
     }
@@ -116,6 +118,7 @@ public class LoginController {
     @PostMapping("/doLogout")
     public ResponseResult<Void> doLogout() {
         TokenData tokenData = TokenData.takeFromRequest();
+        sysPermService.removeUserSysPermCache(tokenData.getSessionId());
         cacheHelper.removeAllSessionCache(tokenData.getSessionId());
         return ResponseResult.success();
     }
@@ -136,15 +139,17 @@ public class LoginController {
         JSONObject jsonData = new JSONObject();
         jsonData.put("showName", tokenData.getShowName());
         jsonData.put("isAdmin", tokenData.getIsAdmin());
-        List<SysMenu> menuList;
+        Collection<SysMenu> menuList;
+        Collection<String> permCodeList;
         if (tokenData.getIsAdmin()) {
             menuList = sysMenuService.getAllMenuList();
+            permCodeList = sysPermCodeService.getAllPermCodeList();
         } else {
             menuList = sysMenuService.getMenuListByUserId(tokenData.getUserId());
-            List<String> permCodeList = sysPermCodeService.getPermCodeListByUserId(tokenData.getUserId());
-            jsonData.put("permCodeList", permCodeList);
+            permCodeList = sysPermCodeService.getPermCodeListByUserId(tokenData.getUserId());
         }
         jsonData.put("menuList", menuList);
+        jsonData.put("permCodeList", permCodeList);
         return ResponseResult.success(jsonData);
     }
 

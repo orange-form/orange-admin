@@ -1,8 +1,9 @@
 package com.orange.demo.courseclassservice.controller;
 
+import io.swagger.annotations.Api;
 import cn.jimmyshi.beanquery.BeanQuery;
 import com.orange.demo.common.core.base.controller.BaseController;
-import com.orange.demo.common.core.base.service.BaseService;
+import com.orange.demo.common.core.base.service.IBaseDictService;
 import com.orange.demo.common.core.util.MyModelUtil;
 import com.orange.demo.common.core.object.*;
 import com.orange.demo.courseclassinterface.vo.AreaCodeVo;
@@ -20,6 +21,7 @@ import java.util.*;
  * @author Jerry
  * @date 2020-08-08
  */
+@Api(tags = "行政区划数据访问接口")
 @RestController
 @RequestMapping("/areaCode")
 public class AreaCodeController extends BaseController<AreaCode, AreaCodeVo, Long> {
@@ -28,7 +30,7 @@ public class AreaCodeController extends BaseController<AreaCode, AreaCodeVo, Lon
     private AreaCodeService areaCodeService;
 
     @Override
-    protected BaseService<AreaCode, Long> service() {
+    protected IBaseDictService<AreaCode, Long> service() {
         return areaCodeService;
     }
 

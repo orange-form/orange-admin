@@ -9,10 +9,9 @@ import com.orange.demo.common.core.object.*;
 import com.orange.demo.common.core.util.*;
 import com.orange.demo.common.core.constant.*;
 import com.orange.demo.common.core.base.controller.BaseController;
-import com.orange.demo.common.core.base.service.BaseService;
+import com.orange.demo.common.core.base.service.IBaseService;
 import com.orange.demo.common.core.annotation.MyRequestBody;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -35,7 +34,7 @@ public class StudentActionStatsController extends BaseController<StudentActionSt
     private StudentActionStatsService studentActionStatsService;
 
     @Override
-    protected BaseService<StudentActionStats, Long> service() {
+    protected IBaseService<StudentActionStats, Long> service() {
         return studentActionStatsService;
     }
 

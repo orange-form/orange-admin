@@ -16,9 +16,7 @@ import com.orange.demo.common.core.util.RsaUtil;
 import com.orange.demo.common.redis.cache.SessionCacheHelper;
 import com.orange.demo.upmsinterface.constant.SysUserStatus;
 import com.orange.demo.upmsinterface.constant.SysUserType;
-import com.orange.demo.upmsservice.config.ApplicationConfig;
 import com.orange.demo.upmsservice.model.SysMenu;
-import com.orange.demo.upmsservice.model.SysPermWhitelist;
 import com.orange.demo.upmsservice.model.SysUser;
 import com.orange.demo.upmsservice.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,11 +45,11 @@ public class LoginController {
     @Autowired
     private SysPermCodeService sysPermCodeService;
     @Autowired
+    private SysPermService sysPermService;
+    @Autowired
     private SysMenuService sysMenuService;
     @Autowired
     private SysPermWhitelistService sysPermWhitelistService;
-    @Autowired
-    private ApplicationConfig appConfig;
     @Autowired
     private SessionCacheHelper cacheHelper;
     @Autowired
@@ -77,11 +75,14 @@ public class LoginController {
             return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
         }
         SysUser user = sysUserService.getSysUserByLoginName(loginName);
+        if (user == null) {
+            return ResponseResult.error(ErrorCodeEnum.INVALID_USERNAME_PASSWORD);
+        }
         password = URLDecoder.decode(password, StandardCharsets.UTF_8.name());
         // NOTE: 第一次使用时，请务必阅读ApplicationConstant.PRIVATE_KEY的代码注释。
         // 执行RsaUtil工具类中的main函数，可以生成新的公钥和私钥。
         password = RsaUtil.decrypt(password, ApplicationConstant.PRIVATE_KEY);
-        if (user == null || !passwordEncoder.matches(password, user.getPassword())) {
+        if (!passwordEncoder.matches(password, user.getPassword())) {
             return ResponseResult.error(ErrorCodeEnum.INVALID_USERNAME_PASSWORD);
         }
         String errorMessage;
@@ -121,19 +122,17 @@ public class LoginController {
         JSONObject jsonData = new JSONObject();
         jsonData.put("showName", tokenData.getShowName());
         jsonData.put("isAdmin", tokenData.getIsAdmin());
-        List<SysMenu> menuList;
+        Collection<SysMenu> menuList;
+        Collection<String> permCodeList;
         if (tokenData.getIsAdmin()) {
             menuList = sysMenuService.getAllMenuList();
+            permCodeList = sysPermCodeService.getAllPermCodeList();
         } else {
             menuList = sysMenuService.getMenuListByUserId(tokenData.getUserId());
-            List<String> permCodeList = sysPermCodeService.getPermCodeListByUserId(tokenData.getUserId());
-            jsonData.put("permCodeList", permCodeList);
-            // 将白名单url列表合并到当前用户的权限资源列表中，便于网关一并处理。
-            Set<String> permSet = sysUserService.getSysPermSetByUserId(tokenData.getUserId());
-            permSet.addAll(sysPermWhitelistService.getAllListWithField(SysPermWhitelist::getPermUrl));
-            jsonData.put("permSet", permSet);
+            permCodeList = sysPermCodeService.getPermCodeListByUserId(tokenData.getUserId());
         }
         jsonData.put("menuList", menuList);
+        jsonData.put("permCodeList", permCodeList);
         return ResponseResult.success(jsonData);
     }
     /**
@@ -178,19 +177,21 @@ public class LoginController {
         jsonData.put(TokenData.REQUEST_ATTRIBUTE_NAME, tokenData);
         jsonData.put("showName", user.getShowName());
         jsonData.put("isAdmin", isAdmin);
-        List<SysMenu> menuList;
+        Collection<SysMenu> menuList;
+        Collection<String> permCodeList;
         if (isAdmin) {
             menuList = sysMenuService.getAllMenuList();
+            permCodeList = sysPermCodeService.getAllPermCodeList();
         } else {
-            menuList = sysMenuService.getMenuListByUserId(user.getUserId());
-            List<String> permCodeList = sysPermCodeService.getPermCodeListByUserId(user.getUserId());
-            jsonData.put("permCodeList", permCodeList);
+            menuList = sysMenuService.getMenuListByUserId(tokenData.getUserId());
+            permCodeList = sysPermCodeService.getPermCodeListByUserId(user.getUserId());
             // 将白名单url列表合并到当前用户的权限资源列表中，便于网关一并处理。
-            Set<String> permSet = sysUserService.getSysPermSetByUserId(user.getUserId());
-            permSet.addAll(sysPermWhitelistService.getAllListWithField(SysPermWhitelist::getPermUrl));
-            jsonData.put("permSet", permSet);
+            Collection<String> permList = sysPermService.getPermListByUserId(user.getUserId());
+            permList.addAll(sysPermWhitelistService.getWhitelistPermList());
+            jsonData.put("permSet", permList);
         }
         jsonData.put("menuList", menuList);
+        jsonData.put("permCodeList", permCodeList);
         return jsonData;
     }
 }

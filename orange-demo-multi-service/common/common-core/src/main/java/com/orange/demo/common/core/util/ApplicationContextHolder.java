@@ -56,7 +56,7 @@ public class ApplicationContextHolder implements ApplicationContextAware {
     /**
      * 根据Bean的ClassType，获取Bean对象。
      *
-     * @param beanType Bean的Class类型。。
+     * @param beanType Bean的Class类型。
      * @param <T>      返回的Bean类型。
      * @return Bean对象。
      */
@@ -68,7 +68,7 @@ public class ApplicationContextHolder implements ApplicationContextAware {
     /**
      * 根据Bean的ClassType，获取Bean对象列表。
      *
-     * @param beanType Bean的Class类型。。
+     * @param beanType Bean的Class类型。
      * @param <T>      返回的Bean类型。
      * @return Bean对象列表。
      */

@@ -10,15 +10,13 @@ import lombok.Data;
 
 import javax.validation.constraints.*;
 
-import java.util.Date;
-
 /**
  * StudentClassDto对象。
  *
  * @author Jerry
  * @date 2020-08-08
  */
-@ApiModel("StudentClassDto实体对象")
+@ApiModel("StudentClassDto对象")
 @Data
 public class StudentClassDto {
 
@@ -64,16 +62,4 @@ public class StudentClassDto {
     @NotNull(message = "数据验证失败，班级级别不能为空！")
     @ConstDictRef(constDictClass = ClassLevel.class, message = "数据验证失败，班级级别为无效值！")
     private Integer classLevel;
-
-    /**
-     * 创建用户。
-     */
-    @ApiModelProperty(value = "创建用户")
-    private Long createUserId;
-
-    /**
-     * 班级创建时间。
-     */
-    @ApiModelProperty(value = "班级创建时间")
-    private Date createTime;
 }

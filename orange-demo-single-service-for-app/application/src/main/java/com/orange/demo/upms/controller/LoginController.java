@@ -14,7 +14,7 @@ import com.orange.demo.common.core.constant.ErrorCodeEnum;
 import com.orange.demo.common.core.object.ResponseResult;
 import com.orange.demo.common.core.object.TokenData;
 import com.orange.demo.common.core.util.*;
-import com.orange.demo.common.core.cache.SessionCacheHelper;
+import com.orange.demo.common.redis.cache.SessionCacheHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;

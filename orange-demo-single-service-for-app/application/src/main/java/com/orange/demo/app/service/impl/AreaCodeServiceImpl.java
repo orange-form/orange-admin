@@ -1,0 +1,59 @@
+package com.orange.demo.app.service.impl;
+
+import com.orange.demo.app.service.AreaCodeService;
+import com.orange.demo.app.dao.AreaCodeMapper;
+import com.orange.demo.app.model.AreaCode;
+import com.orange.demo.common.core.cache.MapTreeDictionaryCache;
+import com.orange.demo.common.core.base.service.BaseDictService;
+import com.orange.demo.common.core.base.dao.BaseDaoMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import tk.mybatis.mapper.entity.Example;
+
+import java.util.Collection;
+import java.util.List;
+
+/**
+ * 行政区划的Service类。
+ *
+ * @author Jerry
+ * @date 2020-09-24
+ */
+@Service("areaCodeService")
+public class AreaCodeServiceImpl extends BaseDictService<AreaCode, Long> implements AreaCodeService {
+
+    @Autowired
+    private AreaCodeMapper areaCodeMapper;
+
+    public AreaCodeServiceImpl() {
+        super();
+        this.dictionaryCache = MapTreeDictionaryCache.create(AreaCode::getAreaId, AreaCode::getParentId);
+    }
+
+    @Override
+    protected BaseDaoMapper<AreaCode> mapper() {
+        return areaCodeMapper;
+    }
+
+    /**
+     * 加载数据库数据到内存缓存。
+     */
+    @Override
+    public void loadCachedData() {
+        Example e = new Example(AreaCode.class);
+        e.orderBy("areaLevel");
+        List<AreaCode> areaCodeList = areaCodeMapper.selectByExample(e);
+        dictionaryCache.putAll(areaCodeList);
+    }
+
+    /**
+     * 根据上级行政区划Id，获取其下级行政区划列表。
+     *
+     * @param parentId 上级行政区划Id。
+     * @return 下级行政区划列表。
+     */
+    @Override
+    public Collection<AreaCode> getListByParentId(Long parentId) {
+        return ((MapTreeDictionaryCache<Long, AreaCode>) dictionaryCache).getListByParentId(parentId);
+    }
+}

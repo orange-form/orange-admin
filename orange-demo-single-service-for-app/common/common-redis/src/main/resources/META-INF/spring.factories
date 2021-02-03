@@ -1,0 +1,3 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.orange.demo.common.redis.config.JedisConfig,\
+com.orange.demo.common.redis.config.RedissonConfig

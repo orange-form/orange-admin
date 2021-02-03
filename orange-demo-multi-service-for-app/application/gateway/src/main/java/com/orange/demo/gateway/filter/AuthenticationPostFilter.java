@@ -184,7 +184,7 @@ public class AuthenticationPostFilter implements GlobalFilter, Ordered {
         if (tokenData == null) {
             return ResponseResult.error(errorCode, "内部错误，用户登录令牌对象没有正确返回！");
         }
-        Integer userId = tokenData.getInteger("userId");
+        Long userId = tokenData.getLong("userId");
         if (MyCommonUtil.isBlankOrNull(userId)) {
             return ResponseResult.error(errorCode, "内部错误，用户Id没有正确返回！");
         }
@@ -204,10 +204,10 @@ public class AuthenticationPostFilter implements GlobalFilter, Ordered {
         Map<String, Object> claims = new HashMap<>(1);
         claims.put(GatewayConstant.SESSION_ID_KEY_NAME, sessionId);
         String token = JwtUtil.generateToken(claims, appConfig.getExpiration(), appConfig.getTokenSigningKey());
-        // 3. 更新缓存
-        // 3.1 sessionId -> userId 是hash结构的缓存
-        String sessionIdKey = RedisKeyUtil.makeSessionIdKeyForRedis(sessionId);
         try (Jedis jedis = jedisPool.getResource()) {
+            // 3. 更新缓存
+            // 3.1 sessionId -> userId 是hash结构的缓存
+            String sessionIdKey = RedisKeyUtil.makeSessionIdKeyForRedis(sessionId);
             Transaction t = jedis.multi();
             for (String tokenKey : tokenData.keySet()) {
                 t.hset(sessionIdKey, tokenKey, tokenData.getString(tokenKey));

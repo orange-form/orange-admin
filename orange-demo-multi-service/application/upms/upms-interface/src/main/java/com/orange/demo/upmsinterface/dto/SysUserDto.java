@@ -12,15 +12,13 @@ import lombok.Data;
 
 import javax.validation.constraints.*;
 
-import java.util.Date;
-
 /**
  * SysUserDto对象。
  *
  * @author Jerry
  * @date 2020-08-08
  */
-@ApiModel("SysUserDto实体对象")
+@ApiModel("SysUserDto对象")
 @Data
 public class SysUserDto {
 
@@ -73,30 +71,6 @@ public class SysUserDto {
     @NotNull(message = "数据验证失败，用户状态(0: 正常 1: 锁定)不能为空！")
     @ConstDictRef(constDictClass = SysUserStatus.class, message = "数据验证失败，用户状态(0: 正常 1: 锁定)为无效值！")
     private Integer userStatus;
-
-    /**
-     * 创建用户Id。
-     */
-    @ApiModelProperty(value = "创建用户Id")
-    private Long createUserId;
-
-    /**
-     * 创建用户名。
-     */
-    @ApiModelProperty(value = "创建用户名")
-    private String createUsername;
-
-    /**
-     * 创建时间。
-     */
-    @ApiModelProperty(value = "创建时间")
-    private Date createTime;
-
-    /**
-     * 更新时间。
-     */
-    @ApiModelProperty(value = "更新时间")
-    private Date updateTime;
 
     /**
      * createTime 范围过滤起始值(>=)。

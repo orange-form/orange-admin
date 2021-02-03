@@ -9,13 +9,16 @@
         <result column="form_router_name" jdbcType="VARCHAR" property="formRouterName"/>
         <result column="show_order" jdbcType="INTEGER" property="showOrder"/>
         <result column="icon" jdbcType="VARCHAR" property="icon"/>
+        <result column="create_user_id" jdbcType="BIGINT" property="createUserId"/>
         <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_user_id" jdbcType="BIGINT" property="updateUserId"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
         <result column="deleted_flag" jdbcType="INTEGER" property="deletedFlag"/>
     </resultMap>
 
     <select id="getMenuListByUserId" resultMap="BaseResultMap">
         SELECT
-            DISTINCT m.*
+            m.*
         FROM
             zz_sys_user_role ur,
             zz_sys_role_menu rm,
@@ -80,5 +83,5 @@
         </where>
         ORDER BY
             u.user_id, r.role_id
-    </select>    
+    </select>
 </mapper>

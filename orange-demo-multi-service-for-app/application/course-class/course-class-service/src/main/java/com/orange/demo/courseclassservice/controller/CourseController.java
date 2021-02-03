@@ -15,11 +15,13 @@ import com.orange.demo.common.core.object.*;
 import com.orange.demo.common.core.util.*;
 import com.orange.demo.common.core.constant.*;
 import com.orange.demo.common.core.base.controller.BaseController;
-import com.orange.demo.common.core.base.service.BaseService;
+import com.orange.demo.common.core.base.service.IBaseService;
 import com.orange.demo.common.core.annotation.MyRequestBody;
 import com.orange.demo.common.core.validator.UpdateGroup;
 import com.orange.demo.common.redis.cache.SessionCacheHelper;
 import com.orange.demo.courseclassservice.config.ApplicationConfig;
+import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
+import io.swagger.annotations.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -35,6 +37,7 @@ import java.util.*;
  * @author Jerry
  * @date 2020-08-08
  */
+@Api(tags = "课程数据管理接口")
 @Slf4j
 @RestController
 @RequestMapping("/course")
@@ -50,7 +53,7 @@ public class CourseController extends BaseController<Course, CourseVo, Long> {
     private UpDownloaderFactory upDownloaderFactory;
 
     @Override
-    protected BaseService<Course, Long> service() {
+    protected IBaseService<Course, Long> service() {
         return courseService;
     }
 
@@ -60,6 +63,14 @@ public class CourseController extends BaseController<Course, CourseVo, Long> {
      * @param courseDto 新增对象。
      * @return 应答结果对象，包含新增对象主键Id。
      */
+    @ApiOperationSupport(ignoreParameters = {
+            "course.courseId",
+            "course.priceStart",
+            "course.priceEnd",
+            "course.classHourStart",
+            "course.classHourEnd",
+            "course.updateTimeStart",
+            "course.updateTimeEnd"})
     @PostMapping("/add")
     public ResponseResult<Long> add(@MyRequestBody("course") CourseDto courseDto) {
         String errorMessage = MyCommonUtil.getModelValidationError(courseDto);
@@ -83,6 +94,13 @@ public class CourseController extends BaseController<Course, CourseVo, Long> {
      * @param courseDto 更新对象。
      * @return 应答结果对象。
      */
+    @ApiOperationSupport(ignoreParameters = {
+            "course.priceStart",
+            "course.priceEnd",
+            "course.classHourStart",
+            "course.classHourEnd",
+            "course.updateTimeStart",
+            "course.updateTimeEnd"})
     @PostMapping("/update")
     public ResponseResult<Void> update(@MyRequestBody("course") CourseDto courseDto) {
         String errorMessage = MyCommonUtil.getModelValidationError(courseDto, Default.class, UpdateGroup.class);
@@ -279,7 +297,7 @@ public class CourseController extends BaseController<Course, CourseVo, Long> {
      */
     @GetMapping("/listDict")
     public ResponseResult<List<Map<String, Object>>> listDict(Course filter) {
-        List<Course> resultList = courseService.getListByFilter(filter, null);
+        List<Course> resultList = courseService.getListByFilter(filter);
         return ResponseResult.success(
                 BeanQuery.select("courseId as id", "courseName as name").executeFrom(resultList));
     }
@@ -291,6 +309,7 @@ public class CourseController extends BaseController<Course, CourseVo, Long> {
      * @param withDict 是否包含字典关联。
      * @return 应答结果对象，包含主对象集合。
      */
+    @ApiOperation(hidden = true, value = "listByIds")
     @PostMapping("/listByIds")
     public ResponseResult<List<CourseVo>> listByIds(
             @RequestParam Set<Long> courseIds, @RequestParam Boolean withDict) {
@@ -304,6 +323,7 @@ public class CourseController extends BaseController<Course, CourseVo, Long> {
      * @param withDict 是否包含字典关联。
      * @return 应答结果对象，包含主对象数据。
      */
+    @ApiOperation(hidden = true, value = "getById")
     @PostMapping("/getById")
     public ResponseResult<CourseVo> getById(
             @RequestParam Long courseId, @RequestParam Boolean withDict) {
@@ -316,6 +336,7 @@ public class CourseController extends BaseController<Course, CourseVo, Long> {
      * @param courseIds 主键Id集合。
      * @return 应答结果对象，包含true全部存在，否则false。
      */
+    @ApiOperation(hidden = true, value = "existIds")
     @PostMapping("/existIds")
     public ResponseResult<Boolean> existIds(@RequestParam Set<Long> courseIds) {
         return super.baseExistIds(courseIds);
@@ -327,6 +348,7 @@ public class CourseController extends BaseController<Course, CourseVo, Long> {
      * @param courseId 主键Id。
      * @return 应答结果对象，包含true表示存在，否则false。
      */
+    @ApiOperation(hidden = true, value = "existId")
     @PostMapping("/existId")
     public ResponseResult<Boolean> existId(@RequestParam Long courseId) {
         return super.baseExistId(courseId);
@@ -338,6 +360,7 @@ public class CourseController extends BaseController<Course, CourseVo, Long> {
      * @param filter 过滤对象。
      * @return 删除数量。
      */
+    @ApiOperation(hidden = true, value = "deleteBy")
     @PostMapping("/deleteBy")
     public ResponseResult<Integer> deleteBy(@RequestBody CourseDto filter) throws Exception {
         return super.baseDeleteBy(MyModelUtil.copyTo(filter, Course.class));
@@ -349,6 +372,7 @@ public class CourseController extends BaseController<Course, CourseVo, Long> {
      * @param queryParam 查询参数。
      * @return 分页数据集合对象。如MyQueryParam参数的分页属性为空，则不会执行分页操作，只是基于MyPageData对象返回数据结果。
      */
+    @ApiOperation(hidden = true, value = "listBy")
     @PostMapping("/listBy")
     public ResponseResult<MyPageData<CourseVo>> listBy(@RequestBody MyQueryParam queryParam) {
         return super.baseListBy(queryParam, Course.INSTANCE);
@@ -360,6 +384,7 @@ public class CourseController extends BaseController<Course, CourseVo, Long> {
      * @param queryParam 查询参数。
      * @return 分页数据集合对象。如MyQueryParam参数的分页属性为空，则不会执行分页操作，只是基于MyPageData对象返回数据结果。
      */
+    @ApiOperation(hidden = true, value = "listMapBy")
     @PostMapping("/listMapBy")
     public ResponseResult<MyPageData<Map<String, Object>>> listMapBy(@RequestBody MyQueryParam queryParam) {
         return super.baseListMapBy(queryParam, Course.INSTANCE);
@@ -371,6 +396,7 @@ public class CourseController extends BaseController<Course, CourseVo, Long> {
      * @param queryParam 查询参数。
      * @return 应答结果对象，包含符合查询过滤条件的对象结果集。
      */
+    @ApiOperation(hidden = true, value = "getBy")
     @PostMapping("/getBy")
     public ResponseResult<CourseVo> getBy(@RequestBody MyQueryParam queryParam) {
         return super.baseGetBy(queryParam, Course.INSTANCE);
@@ -382,6 +408,7 @@ public class CourseController extends BaseController<Course, CourseVo, Long> {
      * @param queryParam 查询参数。
      * @return 应答结果对象，包含结果数量。
      */
+    @ApiOperation(hidden = true, value = "countBy")
     @PostMapping("/countBy")
     public ResponseResult<Integer> countBy(@RequestBody MyQueryParam queryParam) {
         return super.baseCountBy(queryParam);
@@ -393,6 +420,7 @@ public class CourseController extends BaseController<Course, CourseVo, Long> {
      * @param aggregationParam 聚合参数。
      * @return 应该结果对象，包含聚合计算后的分组Map列表。
      */
+    @ApiOperation(hidden = true, value = "aggregateBy")
     @PostMapping("/aggregateBy")
     public ResponseResult<List<Map<String, Object>>> aggregateBy(@RequestBody MyAggregationParam aggregationParam) {
         return super.baseAggregateBy(aggregationParam);

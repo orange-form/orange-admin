@@ -10,12 +10,11 @@ import com.orange.demo.common.core.object.*;
 import com.orange.demo.common.core.util.*;
 import com.orange.demo.common.core.constant.*;
 import com.orange.demo.common.core.base.controller.BaseController;
-import com.orange.demo.common.core.base.service.BaseService;
+import com.orange.demo.common.core.base.service.IBaseService;
 import com.orange.demo.common.core.annotation.MyRequestBody;
 import com.orange.demo.common.core.validator.UpdateGroup;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -39,7 +38,7 @@ public class StudentController extends BaseController<Student, StudentVo, Long> 
     private StudentService studentService;
 
     @Override
-    protected BaseService<Student, Long> service() {
+    protected IBaseService<Student, Long> service() {
         return studentService;
     }
 
@@ -188,7 +187,7 @@ public class StudentController extends BaseController<Student, StudentVo, Long> 
      */
     @GetMapping("/listDict")
     public ResponseResult<List<Map<String, Object>>> listDict(Student filter) {
-        List<Student> resultList = studentService.getListByFilter(filter, null);
+        List<Student> resultList = studentService.getListByFilter(filter);
         return ResponseResult.success(
                 BeanQuery.select("studentId as id", "studentName as name").executeFrom(resultList));
     }

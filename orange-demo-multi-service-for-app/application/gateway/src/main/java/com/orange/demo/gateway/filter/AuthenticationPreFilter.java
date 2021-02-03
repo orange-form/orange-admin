@@ -50,7 +50,7 @@ public class AuthenticationPreFilter implements GlobalFilter, Ordered {
     /**
      * Ant Pattern模式的白名单地址匹配器。
      */
-    private AntPathMatcher antMatcher = new AntPathMatcher();
+    private final AntPathMatcher antMatcher = new AntPathMatcher();
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
@@ -148,6 +148,10 @@ public class AuthenticationPreFilter implements GlobalFilter, Ordered {
      * @return 是返回true，否则false。
      */
     private boolean shouldNotFilter(String url) {
+        // 这里过滤和swagger相关的url
+        if (url.endsWith("/v2/api-docs") || url.endsWith("/v2/api-docs-ext")) {
+            return true;
+        }
         if (url.equals(GatewayConstant.ADMIN_LOGIN_URL)) {
             return true;
         }

@@ -8,6 +8,7 @@
     </option>
     <option name="ignoredFiles">
       <set>
+        <option value="$PROJECT_DIR$/common/common-datafilter/pom.xml" />
         <option value="$PROJECT_DIR$/framework/apidoc-tools/pom.xml" />
       </set>
     </option>

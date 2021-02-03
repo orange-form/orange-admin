@@ -26,5 +26,11 @@
             <artifactId>common-core</artifactId>
             <version>1.0.0</version>
         </dependency>
+        <!-- knife4j 接口文档框架 -->
+        <dependency>
+            <groupId>com.orange.demo</groupId>
+            <artifactId>common-swagger</artifactId>
+            <version>1.0.0</version>
+        </dependency>
     </dependencies>
 </project>

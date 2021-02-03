@@ -189,7 +189,7 @@ public class AuthenticationPostFilter implements GlobalFilter, Ordered {
         if (tokenData == null) {
             return ResponseResult.error(errorCode, "内部错误，用户登录令牌对象没有正确返回！");
         }
-        Integer userId = tokenData.getInteger("userId");
+        Long userId = tokenData.getLong("userId");
         if (MyCommonUtil.isBlankOrNull(userId)) {
             return ResponseResult.error(errorCode, "内部错误，用户Id没有正确返回！");
         }
@@ -209,23 +209,19 @@ public class AuthenticationPostFilter implements GlobalFilter, Ordered {
         Map<String, Object> claims = new HashMap<>(1);
         claims.put(GatewayConstant.SESSION_ID_KEY_NAME, sessionId);
         String token = JwtUtil.generateToken(claims, appConfig.getExpiration(), appConfig.getTokenSigningKey());
-        // 3. 更新缓存
-        // 3.1 sessionId -> userId 是hash结构的缓存
-        String sessionIdKey = RedisKeyUtil.makeSessionIdKeyForRedis(sessionId);
-        String sessionPermKey = null;
-        JSONArray permSet = null;
-        if (Boolean.FALSE.equals(isAdmin)) {
-            // 3.2 sessionId -> permList 是set结构的缓存
-            sessionPermKey = RedisKeyUtil.makeSessionPermIdKeyForRedis(sessionId);
-            permSet = loginData.getJSONArray("permSet");
-        }
         try (Jedis jedis = jedisPool.getResource()) {
+            // 3. 更新缓存
+            // 3.1 sessionId -> userId 是hash结构的缓存
+            String sessionIdKey = RedisKeyUtil.makeSessionIdKeyForRedis(sessionId);
             Transaction t = jedis.multi();
             for (String tokenKey : tokenData.keySet()) {
                 t.hset(sessionIdKey, tokenKey, tokenData.getString(tokenKey));
             }
             t.expire(sessionIdKey, appConfig.getSessionIdRedisExpiredSeconds());
+            // 3.2 sessionId -> permList 是set结构的缓存
+            JSONArray permSet = loginData.getJSONArray("permSet");
             if (permSet != null) {
+                String sessionPermKey = RedisKeyUtil.makeSessionPermIdKeyForRedis(sessionId);
                 for (int i = 0; i < permSet.size(); ++i) {
                     String perm = permSet.getString(i);
                     t.sadd(sessionPermKey, perm);
@@ -236,10 +232,8 @@ public class AuthenticationPostFilter implements GlobalFilter, Ordered {
         }
         // 4. 构造返回给用户的应答，将加密后的令牌返回给前端。
         loginData.put(TokenData.REQUEST_ATTRIBUTE_NAME, token);
-        // 如果是管理员，不用返回权限字列表。
-        if (Boolean.TRUE.equals(isAdmin)) {
-            loginData.remove("permCodeList");
-        }
+        // 5. 这里需要移除权限资源集合的数据，验证在后端进行，无需返回给前端。
+        loginData.remove("permSet");
         return ResponseResult.success(loginData);
     }
 }

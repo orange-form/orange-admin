@@ -10,12 +10,11 @@ import com.orange.demo.common.core.object.*;
 import com.orange.demo.common.core.util.*;
 import com.orange.demo.common.core.constant.*;
 import com.orange.demo.common.core.base.controller.BaseController;
-import com.orange.demo.common.core.base.service.BaseService;
+import com.orange.demo.common.core.base.service.IBaseService;
 import com.orange.demo.common.core.annotation.MyRequestBody;
 import com.orange.demo.common.core.validator.UpdateGroup;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -39,7 +38,7 @@ public class SchoolInfoController extends BaseController<SchoolInfo, SchoolInfoV
     private SchoolInfoService schoolInfoService;
 
     @Override
-    protected BaseService<SchoolInfo, Long> service() {
+    protected IBaseService<SchoolInfo, Long> service() {
         return schoolInfoService;
     }
 
@@ -49,7 +48,7 @@ public class SchoolInfoController extends BaseController<SchoolInfo, SchoolInfoV
      * @param schoolInfoDto 新增对象。
      * @return 应答结果对象，包含新增对象主键Id。
      */
-    @ApiOperationSupport(ignoreParameters = {"schoolInfo.userId"})
+    @ApiOperationSupport(ignoreParameters = {"schoolInfo.schoolId"})
     @PostMapping("/add")
     public ResponseResult<Long> add(@MyRequestBody("schoolInfo") SchoolInfoDto schoolInfoDto) {
         String errorMessage = MyCommonUtil.getModelValidationError(schoolInfoDto);
@@ -176,7 +175,7 @@ public class SchoolInfoController extends BaseController<SchoolInfo, SchoolInfoV
      */
     @GetMapping("/listDict")
     public ResponseResult<List<Map<String, Object>>> listDict(SchoolInfo filter) {
-        List<SchoolInfo> resultList = schoolInfoService.getListByFilter(filter, null);
+        List<SchoolInfo> resultList = schoolInfoService.getListByFilter(filter);
         return ResponseResult.success(
                 BeanQuery.select("schoolId as id", "schoolName as name").executeFrom(resultList));
     }

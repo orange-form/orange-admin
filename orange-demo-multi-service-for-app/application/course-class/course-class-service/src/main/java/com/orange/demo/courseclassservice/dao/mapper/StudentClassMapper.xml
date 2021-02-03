@@ -31,7 +31,6 @@
                 AND zz_class.class_level = #{studentClassFilter.classLevel}
             </if>
         </if>
-        AND zz_class.status = ${@com.orange.demo.common.core.constant.GlobalDeletedFlag@NORMAL}
     </sql>
 
     <select id="getStudentClassList" resultMap="BaseResultMap" parameterType="com.orange.demo.courseclassservice.model.StudentClass">

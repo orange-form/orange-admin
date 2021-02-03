@@ -28,7 +28,7 @@ public class MapTreeDictionaryCache<K, V> extends MapDictionaryCache<K, V> {
     /**
      * 获取字典父主键数据的函数对象。
      */
-    protected Function<V, K> parentIdGetter;
+    protected final Function<V, K> parentIdGetter;
 
     /**
      * 当前对象的构造器函数。
