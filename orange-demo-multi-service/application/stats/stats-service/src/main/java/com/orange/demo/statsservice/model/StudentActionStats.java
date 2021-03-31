@@ -1,12 +1,12 @@
 package com.orange.demo.statsservice.model;
 
-import com.orange.demo.courseclassinterface.vo.AreaCodeVo;
-import com.orange.demo.courseclassinterface.client.GradeClient;
-import com.orange.demo.courseclassinterface.client.AreaCodeClient;
-import com.orange.demo.courseclassinterface.vo.GradeVo;
+import com.orange.demo.statsapi.vo.StudentActionStatsVo;
+import com.orange.demo.courseclassapi.vo.AreaCodeVo;
+import com.orange.demo.courseclassapi.vo.GradeVo;
+import com.orange.demo.courseclassapi.client.AreaCodeClient;
+import com.orange.demo.courseclassapi.client.GradeClient;
 import com.orange.demo.common.core.annotation.RelationDict;
 import com.orange.demo.common.core.base.mapper.BaseModelMapper;
-import com.orange.demo.statsinterface.vo.StudentActionStatsVo;
 import lombok.Data;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;

@@ -154,6 +154,10 @@ body .layer-dialog .layui-layer-content {
     overflow: hidden;
   }
 
+  .table-check-box {
+    margin-right: 7px;
+  }
+
   /**
    * 左侧树状组件的样式，用户高级管理表单以及用户管理表单
    **/
@@ -419,20 +423,6 @@ body .layer-dialog .layui-layer-content {
     background: #00000000;
   }
 
-  ::-webkit-scrollbar {
-    width: 7px;
-    height: 7px;
-    background: none;
-  }
-
-  ::-webkit-scrollbar-thumb {
-    background: #DDDEE0;
-    border-radius: 7px;
-  }
-
-  ::-webkit-scrollbar-thumb:hover {
-    background: #A8A8A8;
-  }
   .tree-select {
     .el-tree-node__content {
       height: 34px;
@@ -533,6 +523,21 @@ body .layer-dialog .layui-layer-content {
     padding: 10px 0px;
     line-height: 28px;
   }
+}
+
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+  background: none;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #DDDEE0;
+  border-radius: 7px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #A8A8A8;
 }
 
 .ml20 {

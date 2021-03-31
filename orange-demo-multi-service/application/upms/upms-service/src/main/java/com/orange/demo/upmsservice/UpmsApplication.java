@@ -6,7 +6,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.ComponentScan;
 
 /**
- * upms服务启动类。
+ * Upms服务启动类。
  *
  * @author Jerry
  * @date 2020-08-08

@@ -3,8 +3,8 @@ package com.orange.demo.upmsservice.controller;
 import com.github.pagehelper.page.PageMethod;
 import com.orange.demo.upmsservice.model.*;
 import com.orange.demo.upmsservice.service.*;
-import com.orange.demo.upmsinterface.dto.*;
-import com.orange.demo.upmsinterface.vo.*;
+import com.orange.demo.upmsapi.dto.*;
+import com.orange.demo.upmsapi.vo.*;
 import com.orange.demo.common.core.object.*;
 import com.orange.demo.common.core.util.*;
 import com.orange.demo.common.core.constant.*;
@@ -290,6 +290,20 @@ public class SysUserController extends BaseController<SysUser, SysUserVo, Long> 
     @PostMapping("/existId")
     public ResponseResult<Boolean> existId(@RequestParam Long userId) {
         return super.baseExistId(userId);
+    }
+
+    /**
+     * 根据主键Id删除数据。
+     *
+     * @param userId 主键Id。
+     * @return 删除数量。
+     */
+    @ApiOperation(hidden = true, value = "deleteById")
+    @PostMapping("/deleteById")
+    public ResponseResult<Integer> deleteById(@RequestParam Long userId) throws Exception {
+        SysUser filter = new SysUser();
+        filter.setUserId(userId);
+        return super.baseDeleteBy(filter);
     }
 
     /**

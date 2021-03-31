@@ -117,7 +117,6 @@ export default {
   >>> .el-tag {
     padding: 0px 30px;
   }
-
 </style>
 
 <style lang="scss" scoped>

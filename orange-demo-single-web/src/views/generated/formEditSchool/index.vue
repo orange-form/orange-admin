@@ -79,11 +79,11 @@ export default {
         'SchoolInfo.schoolName': [
           {required: true, message: '请输入学校名称', trigger: 'blur'}
         ],
-        'SchoolInfo.provinceId': [
-          {required: true, message: '请输入所在省份', trigger: 'blur'}
-        ],
         'SchoolInfo.cityId': [
           {required: true, message: '请输入所在城市', trigger: 'blur'}
+        ],
+        'SchoolInfo.provinceId': [
+          {required: true, message: '请输入所在省份', trigger: 'blur'}
         ]
       },
       formEditSchool: {
@@ -252,7 +252,8 @@ export default {
   },
   computed: {
   },
-  created () {
+  mounted () {
+    // 初始化页面数据
     this.formInit();
   },
   watch: {

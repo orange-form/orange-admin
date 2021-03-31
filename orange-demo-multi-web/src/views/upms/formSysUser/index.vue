@@ -43,9 +43,21 @@
           </el-table-column>
           <el-table-column label="操作" fixed="right" width="220px">
             <template slot-scope="scope">
-              <el-button class="btn-table-edit" type="text" size="mini" @click="onEditRow(scope.row)" :disabled="isAdmin(scope.row) || !checkPermCodeExist('formSysUser:fragmentSysUser:update')" >编辑</el-button>
-              <el-button class="btn-table-delete" type="text" size="mini" @click="onDeleteRow(scope.row)" :disabled="isAdmin(scope.row) || !checkPermCodeExist('formSysUser:fragmentSysUser:delete')">删除</el-button>
-              <el-button class="btn-table-delete" type="text" size="mini" :disabled="!checkPermCodeExist('formSysUser:fragmentSysUser:resetPassword')" @click="onResetPassword(scope.row)">重置密码</el-button>
+              <el-button class="btn-table-edit" type="text" size="mini" @click="onEditRow(scope.row)"
+                :disabled="isAdmin(scope.row) || !checkPermCodeExist('formSysUser:fragmentSysUser:update')"
+              >
+                编辑
+              </el-button>
+              <el-button class="btn-table-delete" type="text" size="mini" @click="onDeleteRow(scope.row)"
+                :disabled="isAdmin(scope.row) || !checkPermCodeExist('formSysUser:fragmentSysUser:delete')"
+              >
+                删除
+              </el-button>
+              <el-button class="btn-table-delete" type="text" size="mini" @click="onResetPassword(scope.row)"
+                :disabled="!checkPermCodeExist('formSysUser:fragmentSysUser:resetPassword')"
+              >
+                重置密码
+              </el-button>
               <el-button class="btn-table-primary" type="text" size="mini"
                 v-if="checkPermCodeExist('formSysUser:fragmentSysUser:listSysUserPermDetail')"
                 @click="onSysUserPermClick(scope.row)">

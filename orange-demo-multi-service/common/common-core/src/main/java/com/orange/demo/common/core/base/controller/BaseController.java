@@ -168,6 +168,7 @@ public abstract class BaseController<M, V, K> {
      * @throws RemoteDataBuildException buildRelationForDataList会抛出此异常。
      */
     public ResponseResult<MyPageData<V>> baseListBy(MyQueryParam queryParam, BaseModelMapper<V, M> modelMapper) {
+        boolean dataFilterEnabled = GlobalThreadLocal.setDataFilter(queryParam.getUseDataFilter());
         if (CollectionUtils.isNotEmpty(queryParam.getSelectFieldList())) {
             for (String fieldName : queryParam.getSelectFieldList()) {
                 String columnName = MyModelUtil.mapToColumnName(fieldName, modelClass);
@@ -200,6 +201,7 @@ public abstract class BaseController<M, V, K> {
             service().buildRelationForDataList(resultList, MyRelationParam.dictOnly());
         }
         List<V> resultVoList = convertToVoList(resultList, modelMapper);
+        GlobalThreadLocal.setDataFilter(dataFilterEnabled);
         return ResponseResult.success(new MyPageData<>(resultVoList, totalCount));
     }
 
@@ -249,8 +251,10 @@ public abstract class BaseController<M, V, K> {
      * @return 应答结果对象，包含符合查询过滤条件的记录数量。
      */
     public ResponseResult<Integer> baseCountBy(MyQueryParam queryParam) {
+        boolean dataFilterEnabled = GlobalThreadLocal.setDataFilter(queryParam.getUseDataFilter());
         String whereClause = MyWhereCriteria.makeCriteriaString(queryParam.getCriteriaList(), modelClass);
         Integer count = service().getCountByCondition(whereClause);
+        GlobalThreadLocal.setDataFilter(dataFilterEnabled);
         return ResponseResult.success(count);
     }
 
@@ -261,6 +265,7 @@ public abstract class BaseController<M, V, K> {
      * @return 应该结果对象，包含聚合计算后的分组Map列表。
      */
     public ResponseResult<List<Map<String, Object>>> baseAggregateBy(MyAggregationParam param) {
+        boolean dataFilterEnabled = GlobalThreadLocal.setDataFilter(param.getUseDataFilter());
         // 完成一些共同性规则的验证。
         VerifyAggregationInfo verifyInfo = this.verifyAndParseAggregationParam(param);
         if (!verifyInfo.isSuccess) {
@@ -312,6 +317,7 @@ public abstract class BaseController<M, V, K> {
                 resultMapList.addAll(subResultMapList);
             }
         }
+        GlobalThreadLocal.setDataFilter(dataFilterEnabled);
         return ResponseResult.success(resultMapList);
     }
 
@@ -323,7 +329,7 @@ public abstract class BaseController<M, V, K> {
      * @param modelMapper 从实体对象到VO对象的映射对象。
      * @return 转换后的VO域对象列表。
      */
-    private List<V> convertToVoList(List<M> modelList, BaseModelMapper<V, M> modelMapper) {
+    protected List<V> convertToVoList(List<M> modelList, BaseModelMapper<V, M> modelMapper) {
         List<V> resultVoList;
         if (modelMapper != null) {
             resultVoList = modelMapper.fromModelList(modelList);
@@ -341,7 +347,7 @@ public abstract class BaseController<M, V, K> {
      * @param modelMapper 从实体对象到VO对象的映射对象。
      * @return 转换后的VO域对象。
      */
-    private V convertToVo(M model, BaseModelMapper<V, M> modelMapper) {
+    protected V convertToVo(M model, BaseModelMapper<V, M> modelMapper) {
         V resultVo;
         if (modelMapper != null) {
             resultVo = modelMapper.fromModel(model);

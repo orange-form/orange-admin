@@ -2,6 +2,8 @@ import projectConfig from '@/core/config';
 import { buildGetUrl } from '@/core/http/requestUrl.js';
 import { formatDate, parseDate } from 'element-ui/src/utils/date-util';
 import { mapMutations } from 'vuex';
+import { getToken } from '@/utils';
+
 /**
  * 上传文件组件相关方法
  */
@@ -77,7 +79,7 @@ const uploadMixin = {
         if (menuIdJsonStr != null) {
           currentMenuId = (JSON.parse(menuIdJsonStr) || {}).data;
         }
-        params.Authorization = window.sessionStorage.getItem('token');
+        params.Authorization = getToken();
         params.MenuId = currentMenuId;
         return buildGetUrl(item.downloadUri, params);
       }
@@ -107,7 +109,7 @@ const uploadMixin = {
   },
   computed: {
     getUploadHeaders () {
-      let token = window.sessionStorage.getItem('token');
+      let token = getToken();
       return {
         Authorization: token
       }
@@ -264,8 +266,8 @@ const cachePageMixin = {
   activated () {
     if (this.$route && this.$route.meta && this.$route.meta.refresh) {
       this.onResume();
-      this.$route.meta.refresh = false;
     }
+    this.$route.meta.refresh = true;
   }
 }
 /**

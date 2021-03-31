@@ -120,10 +120,13 @@ const fetchDownload = function (url, params, fileName) {
     });
   });
 }
+
+// url调用节流Set
+const ajaxThrottleSet = new Set();
 /**
  * 数据请求
  * @param {String} url 请求的url
- * @param {String} type 请求类型（get，post）
+ * @param {String} type 请求类型 (get，post)
  * @param {Object} params 请求参数
  * @param {Object} axiosOption axios设置
  * @param {Object} options 显示设置
@@ -132,45 +135,52 @@ const doUrl = function (url, type, params, axiosOption, options) {
   options = merge(globalConfig.httpOption, options);
   axiosOption = merge(globalConfig.axiosOption, axiosOption);
   if (type == null || type === '') type = 'post';
-
-  return new Promise((resolve, reject) => {
-    if (options.showMask) loadingManager.showMask();
-    let ajaxCall = null;
-    if (type.toLowerCase() === 'get') {
-      ajaxCall = fetchGet(url, params, axiosOption);
-    } else if (type.toLowerCase() === 'post') {
-      ajaxCall = fetchPost(url, params, axiosOption);
-    }
-
-    if (ajaxCall != null) {
-      ajaxCall.then(res => {
-        if (options.showMask) loadingManager.hideMask();
-        if (res.data && res.data.success) {
-          resolve(res.data);
-        } else {
+  if (ajaxThrottleSet.has(url)) {
+    return Promise.resolve();
+  } else {
+    ajaxThrottleSet.add(url);
+    setTimeout(() => {
+      ajaxThrottleSet.delete(url);
+    }, 50);
+    return new Promise((resolve, reject) => {
+      if (options.showMask) loadingManager.showMask();
+      let ajaxCall = null;
+      if (type.toLowerCase() === 'get') {
+        ajaxCall = fetchGet(url, params, axiosOption);
+      } else if (type.toLowerCase() === 'post') {
+        ajaxCall = fetchPost(url, params, axiosOption);
+      }
+  
+      if (ajaxCall != null) {
+        ajaxCall.then(res => {
+          if (options.showMask) loadingManager.hideMask();
+          if (res.data && res.data.success) {
+            resolve(res.data);
+          } else {
+            if (options.showError) {
+              Message.error({
+                showClose: true,
+                message: res.data.errorMessage ? res.data.errorMessage : '数据请求失败'
+              });
+            }
+            reject(res.data);
+          }
+        }).catch(e => {
+          if (options.showMask) loadingManager.hideMask();
           if (options.showError) {
             Message.error({
               showClose: true,
-              message: res.data.errorMessage ? res.data.errorMessage : '数据请求失败'
+              message: e.errorMessage ? e.errorMessage : '网络请求错误'
             });
           }
-          reject(res.data);
-        }
-      }).catch(e => {
+          reject(e);
+        });
+      } else {
         if (options.showMask) loadingManager.hideMask();
-        if (options.showError) {
-          Message.error({
-            showClose: true,
-            message: e.errorMessage ? e.errorMessage : '网络请求错误'
-          });
-        }
-        reject(e);
-      });
-    } else {
-      if (options.showMask) loadingManager.hideMask();
-      reject(new Error('错误的请求类型 - ' + type));
-    }
-  });
+        reject(new Error('错误的请求类型 - ' + type));
+      }
+    });
+  }
 };
 
 Vue.prototype.download = fetchDownload;

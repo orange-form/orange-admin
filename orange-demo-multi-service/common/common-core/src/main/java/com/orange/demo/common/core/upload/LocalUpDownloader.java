@@ -70,7 +70,7 @@ public class LocalUpDownloader extends BaseUpDownloader {
              BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file))) {
             int i = bis.read(buff);
             while (i != -1) {
-                os.write(buff, 0, buff.length);
+                os.write(buff, 0, i);
                 os.flush();
                 i = bis.read(buff);
             }

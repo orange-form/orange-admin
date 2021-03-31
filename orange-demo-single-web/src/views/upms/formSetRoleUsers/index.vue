@@ -38,11 +38,6 @@
               <el-tag :type="getUserStatusType(scope.row.userStatus)" size="mini">{{SysUserStatus.getValue(scope.row.userStatus)}}</el-tag>
             </template>
           </el-table-column>
-          <el-table-column label="创建时间">
-            <template slot-scope="scope">
-              <span>{{formatDateByStatsType(scope.row.createTime, 'day')}}</span>
-            </template>
-          </el-table-column>
         </el-table>
         <el-col :span="24">
           <el-row type="flex" justify="end" style="margin-top: 10px;">
@@ -94,7 +89,7 @@ export default {
           impl: new DropdownWidget(this.loadSysUserStatusDropdownList)
         },
         SysUser: {
-          impl: new TableWidget(this.loadSysUserData, this.loadSysUserVerify, true, false, 'createTime', 1)
+          impl: new TableWidget(this.loadSysUserData, this.loadSysUserVerify, true, false)
         },
         isInit: false
       },

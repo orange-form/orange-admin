@@ -28,6 +28,12 @@ public class MyAggregationParam {
     public static final String VALUE_NAME = "aggregatedValue";
 
     /**
+     * 聚合计算是否使用数据权限进行过滤。true表示数据过滤将产生作用，否则SQL中不会包含数据过滤。
+     * 目前数据过滤包括数据权限过滤和租户数据过滤。
+     */
+    private Boolean useDataFilter = true;
+
+    /**
      * 聚合分类，具体数值见AggregationKind。
      */
     private Integer aggregationKind;

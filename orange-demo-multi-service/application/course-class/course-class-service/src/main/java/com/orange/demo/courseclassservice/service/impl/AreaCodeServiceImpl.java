@@ -8,10 +8,9 @@ import com.orange.demo.common.core.base.service.BaseDictService;
 import com.orange.demo.common.core.base.dao.BaseDaoMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import tk.mybatis.mapper.entity.Example;
 
+import javax.annotation.PostConstruct;
 import java.util.Collection;
-import java.util.List;
 
 /**
  * 行政区划的Service类。
@@ -30,20 +29,14 @@ public class AreaCodeServiceImpl extends BaseDictService<AreaCode, Long> impleme
         this.dictionaryCache = MapTreeDictionaryCache.create(AreaCode::getAreaId, AreaCode::getParentId);
     }
 
+    @PostConstruct
+    public void init() {
+        this.reloadCachedData(true);
+    }
+
     @Override
     protected BaseDaoMapper<AreaCode> mapper() {
         return areaCodeMapper;
-    }
-
-    /**
-     * 加载数据库数据到内存缓存。
-     */
-    @Override
-    public void loadCachedData() {
-        Example e = new Example(AreaCode.class);
-        e.orderBy("areaLevel");
-        List<AreaCode> areaCodeList = areaCodeMapper.selectByExample(e);
-        dictionaryCache.putAll(areaCodeList);
     }
 
     /**

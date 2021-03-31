@@ -11,17 +11,6 @@ import java.util.List;
  * @date 2020-08-08
  */
 public interface IBaseDictService<M, K> extends IBaseService<M, K> {
-    /**
-     * 是否在服务启动的时候加载。子类可以重载该方法，并在需要的时候手工调用loadCachedData加载数据。
-     *
-     * @return true表示启动即可加载数据，false需要手动调用loadCachedData进行加载。
-     */
-    boolean loadOnStartup();
-
-    /**
-     * 在系统启动时，加载全部数据到内存，缓存的key只能为映射表的主键。
-     */
-    void loadCachedData();
 
     /**
      * 重新加载数据库中所有当前表数据到系统内存。
@@ -75,6 +64,13 @@ public interface IBaseDictService<M, K> extends IBaseService<M, K> {
      * @param id 字典主键。
      */
     void removeDictionaryCache(K id);
+
+    /**
+     * 根据字典对象将数据从缓存中删除。
+     *
+     * @param data 字典数据。
+     */
+    void removeDictionaryCacheByModel(M data);
 
     /**
      * 获取缓存中的数据数量。

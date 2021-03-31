@@ -23,7 +23,7 @@
           <el-form-item label="出生日期" prop="Student.birthday">
             <el-date-picker class="input-item" v-model="formData.Student.birthday" :clearable="true"
               placeholder="出生日期" type="date" align="left"
-              format="yyyy-MM-dd" value-format="yyyy-MM-dd hh:mm:ss" />
+              format="yyyy-MM-dd" value-format="yyyy-MM-dd 00:00:00" />
           </el-form-item>
         </el-col>
         <el-col :span="12">
@@ -147,36 +147,36 @@ export default {
         }
       },
       rules: {
-        'Student.studentName': [
-          {required: true, message: '请输入学生姓名', trigger: 'blur'}
+        'Student.provinceId': [
+          {required: true, message: '请输入所在省份', trigger: 'blur'}
         ],
-        'Student.gender': [
-          {required: true, message: '请输入学生性别', trigger: 'blur'}
-        ],
-        'Student.birthday': [
-          {required: true, message: '请输入出生日期', trigger: 'blur'}
+        'Student.gradeId': [
+          {required: true, message: '请输入所在年级', trigger: 'blur'}
         ],
         'Student.loginMobile': [
           {required: true, message: '请输入手机号码', trigger: 'blur'},
           {type: 'string', pattern: rules.pattern.mobie, message: '请输入正确的手机号码', trigger: 'blur'}
         ],
-        'Student.gradeId': [
-          {required: true, message: '请输入所在年级', trigger: 'blur'}
-        ],
         'Student.experienceLevel': [
           {required: true, message: '请输入经验等级', trigger: 'blur'}
-        ],
-        'Student.provinceId': [
-          {required: true, message: '请输入所在省份', trigger: 'blur'}
         ],
         'Student.cityId': [
           {required: true, message: '请输入所在城市', trigger: 'blur'}
         ],
-        'Student.districtId': [
-          {required: true, message: '请输入所在区县', trigger: 'blur'}
-        ],
         'Student.schoolId': [
           {required: true, message: '请输入所属校区', trigger: 'blur'}
+        ],
+        'Student.studentName': [
+          {required: true, message: '请输入学生姓名', trigger: 'blur'}
+        ],
+        'Student.birthday': [
+          {required: true, message: '请输入出生日期', trigger: 'blur'}
+        ],
+        'Student.gender': [
+          {required: true, message: '请输入学生性别', trigger: 'blur'}
+        ],
+        'Student.districtId': [
+          {required: true, message: '请输入所在区县', trigger: 'blur'}
         ]
       },
       formCreateStudent: {
@@ -462,7 +462,8 @@ export default {
   },
   computed: {
   },
-  created () {
+  mounted () {
+    // 初始化页面数据
     this.formInit();
   },
   watch: {

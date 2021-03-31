@@ -23,7 +23,7 @@
           <el-form-item label="出生日期" prop="Student.birthday">
             <el-date-picker class="input-item" v-model="formData.Student.birthday" :clearable="true"
               placeholder="出生日期" type="date" align="left"
-              format="yyyy-MM-dd" value-format="yyyy-MM-dd hh:mm:ss" />
+              format="yyyy-MM-dd" value-format="yyyy-MM-dd 00:00:00" />
           </el-form-item>
         </el-col>
         <el-col :span="12">
@@ -172,24 +172,24 @@ export default {
         }
       },
       rules: {
-        'Student.studentName': [
-          {required: true, message: '请输入姓名', trigger: 'blur'}
+        'Student.gradeId': [
+          {required: true, message: '请输入所在年级', trigger: 'blur'}
         ],
-        'Student.gender': [
-          {required: true, message: '请输入性别', trigger: 'blur'}
-        ],
-        'Student.birthday': [
-          {required: true, message: '请输入出生日期', trigger: 'blur'}
+        'Student.status': [
+          {required: true, message: '请输入学生状态 ', trigger: 'blur'}
         ],
         'Student.loginMobile': [
           {required: true, message: '请输入手机号码', trigger: 'blur'},
           {type: 'string', pattern: rules.pattern.mobie, message: '请输入正确的手机号码', trigger: 'blur'}
         ],
-        'Student.gradeId': [
-          {required: true, message: '请输入所在年级', trigger: 'blur'}
-        ],
         'Student.experienceLevel': [
           {required: true, message: '请输入经验等级', trigger: 'blur'}
+        ],
+        'Student.schoolId': [
+          {required: true, message: '请输入所属校区', trigger: 'blur'}
+        ],
+        'Student.gender': [
+          {required: true, message: '请输入性别', trigger: 'blur'}
         ],
         'Student.provinceId': [
           {required: true, message: '请输入所在省份', trigger: 'blur'}
@@ -197,11 +197,8 @@ export default {
         'Student.cityId': [
           {required: true, message: '请输入所在城市', trigger: 'blur'}
         ],
-        'Student.districtId': [
-          {required: true, message: '请输入所在区县', trigger: 'blur'}
-        ],
-        'Student.schoolId': [
-          {required: true, message: '请输入所属校区', trigger: 'blur'}
+        'Student.studentName': [
+          {required: true, message: '请输入姓名', trigger: 'blur'}
         ],
         'Student.totalCoin': [
           {required: true, message: '请输入充值学币', trigger: 'blur'},
@@ -213,8 +210,11 @@ export default {
           {type: 'integer', message: '剩余学币只允许输入整数', trigger: 'blur', transform: (value) => Number(value)},
           {type: 'number', min: 0, message: '剩余学币必须大于0', trigger: 'blur', transform: (value) => Number(value)}
         ],
-        'Student.status': [
-          {required: true, message: '请输入学生状态 ', trigger: 'blur'}
+        'Student.birthday': [
+          {required: true, message: '请输入出生日期', trigger: 'blur'}
+        ],
+        'Student.districtId': [
+          {required: true, message: '请输入所在区县', trigger: 'blur'}
         ]
       },
       formEditStudent: {
@@ -461,11 +461,8 @@ export default {
           this.formData.Student.gender == null ||
           this.formData.Student.birthday == null ||
           this.formData.Student.experienceLevel == null ||
-          this.formData.Student.totalCoin == null ||
-          this.formData.Student.leftCoin == null ||
           this.formData.Student.gradeId == null ||
-          this.formData.Student.schoolId == null ||
-          this.formData.Student.status == null
+          this.formData.Student.schoolId == null
         ) {
           this.$message.error('请求失败，发现必填参数为空！');
           return;
@@ -579,7 +576,8 @@ export default {
   },
   computed: {
   },
-  created () {
+  mounted () {
+    // 初始化页面数据
     this.formInit();
   },
   watch: {

@@ -1,15 +1,15 @@
 package com.orange.demo.statsservice.model;
 
-import com.orange.demo.courseclassinterface.client.GradeClient;
-import com.orange.demo.courseclassinterface.client.SchoolInfoClient;
-import com.orange.demo.courseclassinterface.vo.SchoolInfoVo;
-import com.orange.demo.courseclassinterface.vo.GradeVo;
+import com.orange.demo.statsapi.vo.StudentActionTransVo;
+import com.orange.demo.courseclassapi.client.SchoolInfoClient;
+import com.orange.demo.courseclassapi.vo.SchoolInfoVo;
+import com.orange.demo.courseclassapi.vo.GradeVo;
+import com.orange.demo.courseclassapi.client.GradeClient;
 import com.orange.demo.application.common.constant.StudentActionType;
 import com.orange.demo.application.common.constant.DeviceType;
 import com.orange.demo.common.core.annotation.RelationDict;
 import com.orange.demo.common.core.annotation.RelationConstDict;
 import com.orange.demo.common.core.base.mapper.BaseModelMapper;
-import com.orange.demo.statsinterface.vo.StudentActionTransVo;
 import lombok.Data;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;

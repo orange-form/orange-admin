@@ -11,6 +11,10 @@ export default class SystemController {
     return sender.doUrl('admin/upms/login/changePassword', 'post', params, axiosOption, httpOption);
   }
 
+  static getLoginInfo (sender, params, axiosOption, httpOption) {
+    return sender.doUrl('admin/upms/login/getLoginInfo', 'get', params, axiosOption, httpOption);
+  }
+
   static getDictList (sender, params, axiosOption, httpOption) {
     return sender.doUrl('admin/upms/sysDict/list', 'post', params, axiosOption, httpOption);
   }
@@ -61,17 +65,15 @@ export default class SystemController {
 
   // 菜单接口
   static getMenuPermList (sender, params, axiosOption, httpOption) {
-    return sender.doUrl('admin/upms/sysMenu/list', 'get', params, axiosOption, httpOption);
+    return sender.doUrl('admin/upms/sysMenu/list', 'post', params, axiosOption, httpOption);
   }
-
   static addMenu (sender, params, axiosOption, httpOption) {
     return sender.doUrl('admin/upms/sysMenu/add', 'post', params, axiosOption, httpOption);
   }
-
+  
   static updateMenu (sender, params, axiosOption, httpOption) {
     return sender.doUrl('admin/upms/sysMenu/update', 'post', params, axiosOption, httpOption);
   }
-
   static deleteMenu (sender, params, axiosOption, httpOption) {
     return sender.doUrl('admin/upms/sysMenu/delete', 'post', params, axiosOption, httpOption);
   }
@@ -79,7 +81,6 @@ export default class SystemController {
   static viewMenu (sender, params, axiosOption, httpOption) {
     return sender.doUrl('admin/upms/sysMenu/view', 'get', params, axiosOption, httpOption);
   }
-
   // 权限字接口
   static getPermCodeList (sender, params, axiosOption, httpOption) {
     return sender.doUrl('admin/upms/sysPermCode/list', 'post', params, axiosOption, httpOption);
@@ -103,11 +104,11 @@ export default class SystemController {
 
   // 权限资源接口
   static getAllPermList (sender, params, axiosOption, httpOption) {
-    return sender.doUrl('admin/upms/sysPermModule/listAll', 'get', params, axiosOption, httpOption);
+    return sender.doUrl('admin/upms/sysPermModule/listAll', 'post', params, axiosOption, httpOption);
   }
 
   static getPermGroupList (sender, params, axiosOption, httpOption) {
-    return sender.doUrl('admin/upms/sysPermModule/list', 'get', params, axiosOption, httpOption);
+    return sender.doUrl('admin/upms/sysPermModule/list', 'post', params, axiosOption, httpOption);
   }
 
   static addPermGroup (sender, params, axiosOption, httpOption) {
@@ -141,7 +142,6 @@ export default class SystemController {
   static deletePerm (sender, params, axiosOption, httpOption) {
     return sender.doUrl('admin/upms/sysPerm/delete', 'post', params, axiosOption, httpOption);
   }
-
   /**
    * @param params    {roleId, searchString}
    */
@@ -173,7 +173,6 @@ export default class SystemController {
   static queryRoleByPermCode (sender, params, axiosOption, httpOption) {
     return sender.doUrl('admin/upms/sysRole/listAllRolesByPermCode', 'post', params, axiosOption, httpOption);
   }
-
   // 权限查询
   static listSysPermWithDetail (sender, params, axiosOption, httpOption) {
     return sender.doUrl('admin/upms/sysUser/listSysPermWithDetail', 'get', params, axiosOption, httpOption);

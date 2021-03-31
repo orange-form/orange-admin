@@ -91,13 +91,13 @@ export default {
   },
   methods: {
     getMenuType (row) {
-      if (row.menuType === 0) {
+      if (row.menuType === this.SysMenuType.DIRECTORY) {
         return 'primary'
-      } else if (row.menuType === 1) {
+      } else if (row.menuType === this.SysMenuType.MENU) {
         return 'success';
-      } else if (row.menuType === 2) {
+      } else if (row.menuType === this.SysMenuType.FRAGMENT) {
         return 'danger';
-      } else if (row.menuType === 3) {
+      } else if (row.menuType === this.SysMenuType.BUTTON) {
         return 'warning';
       }
     },

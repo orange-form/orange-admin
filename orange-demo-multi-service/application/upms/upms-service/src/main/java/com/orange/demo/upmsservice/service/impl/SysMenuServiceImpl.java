@@ -7,7 +7,7 @@ import com.orange.demo.common.core.base.dao.BaseDaoMapper;
 import com.orange.demo.common.core.constant.GlobalDeletedFlag;
 import com.orange.demo.common.core.util.MyModelUtil;
 import com.orange.demo.common.core.object.CallResult;
-import com.orange.demo.upmsinterface.constant.SysMenuType;
+import com.orange.demo.upmsapi.constant.SysMenuType;
 import com.orange.demo.upmsservice.service.SysMenuService;
 import com.orange.demo.upmsservice.service.SysPermCodeService;
 import com.orange.demo.upmsservice.dao.SysMenuPermCodeMapper;

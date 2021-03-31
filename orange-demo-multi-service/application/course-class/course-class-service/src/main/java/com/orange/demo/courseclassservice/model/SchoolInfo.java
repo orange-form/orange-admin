@@ -1,8 +1,8 @@
 package com.orange.demo.courseclassservice.model;
 
+import com.orange.demo.courseclassapi.vo.SchoolInfoVo;
 import com.orange.demo.common.core.annotation.RelationDict;
 import com.orange.demo.common.core.base.mapper.BaseModelMapper;
-import com.orange.demo.courseclassinterface.vo.SchoolInfoVo;
 import lombok.Data;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;

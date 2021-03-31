@@ -1,11 +1,11 @@
 package com.orange.demo.courseclassservice.model;
 
-import com.orange.demo.courseclassinterface.constant.ClassLevel;
+import com.orange.demo.courseclassapi.vo.StudentClassVo;
+import com.orange.demo.courseclassapi.constant.ClassLevel;
 import com.orange.demo.common.core.annotation.RelationDict;
 import com.orange.demo.common.core.annotation.RelationConstDict;
 import com.orange.demo.common.core.base.mapper.BaseModelMapper;
 import com.orange.demo.common.core.annotation.DeletedFlagColumn;
-import com.orange.demo.courseclassinterface.vo.StudentClassVo;
 import lombok.Data;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;

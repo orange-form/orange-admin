@@ -11,6 +11,7 @@ import com.orange.demo.common.core.constant.GlobalDeletedFlag;
 import com.orange.demo.common.core.base.dao.BaseDaoMapper;
 import com.orange.demo.common.core.base.service.BaseService;
 import com.orange.demo.common.sequence.wrapper.IdGeneratorWrapper;
+import com.github.pagehelper.Page;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -151,7 +152,8 @@ public class StudentClassServiceImpl extends BaseService<StudentClass, Long> imp
     @Override
     public List<StudentClass> getStudentClassListWithRelation(StudentClass filter, String orderBy) {
         List<StudentClass> resultList = studentClassMapper.getStudentClassList(null, null, filter, orderBy);
-        this.buildRelationForDataList(resultList, MyRelationParam.normal());
+        int batchSize = resultList instanceof Page ? 0 : 1000;
+        this.buildRelationForDataList(resultList, MyRelationParam.normal(), batchSize);
         return resultList;
     }
 
@@ -171,7 +173,8 @@ public class StudentClassServiceImpl extends BaseService<StudentClass, Long> imp
             String inFilterField, Set<M> inFilterValues, StudentClass filter, String orderBy) {
         List<StudentClass> resultList =
                 studentClassMapper.getStudentClassList(inFilterField, inFilterValues, filter, orderBy);
-        this.buildRelationForDataList(resultList, MyRelationParam.dictOnly());
+        int batchSize = resultList instanceof Page ? 0 : 1000;
+        this.buildRelationForDataList(resultList, MyRelationParam.dictOnly(), batchSize);
         return resultList;
     }
 

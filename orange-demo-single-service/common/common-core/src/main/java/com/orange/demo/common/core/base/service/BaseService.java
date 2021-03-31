@@ -57,7 +57,7 @@ public abstract class BaseService<M, K> implements IBaseService<M, K> {
      */
     protected String idFieldName;
     /**
-     * 当前Service关联的主数据表中数据字段名称。
+     * 当前Service关联的主数据表中主键列名称。
      */
     protected String idColumnName;
     /**
@@ -68,6 +68,18 @@ public abstract class BaseService<M, K> implements IBaseService<M, K> {
      * 当前Service关联的主数据表中逻辑删除字段名称。
      */
     protected String deletedFlagColumnName;
+    /**
+     * 当前Service关联的主Model对象租户Id字段。
+     */
+    protected Field tenantIdField;
+    /**
+     * 当前Service关联的主Model对象租户Id字段名称。
+     */
+    protected String tenantIdFieldName;
+    /**
+     * 当前Service关联的主数据表中租户Id列名称。
+     */
+    protected String tenantIdColumnName;
     /**
      * 当前Job服务源主表Model对象最后更新时间字段名称。
      */
@@ -157,6 +169,12 @@ public abstract class BaseService<M, K> implements IBaseService<M, K> {
             setDeletedFlagMethod = ReflectUtil.getMethod(
                     modelClass, "set" + StringUtils.capitalize(deletedFlagFieldName), Integer.class);
         }
+        if (tenantIdFieldName == null && null != field.getAnnotation(TenantFilterColumn.class)) {
+            tenantIdField = field;
+            tenantIdFieldName = field.getName();
+            Column c = field.getAnnotation(Column.class);
+            tenantIdColumnName = c == null ? tenantIdFieldName : c.name();
+        }
     }
 
     /**
@@ -179,10 +197,12 @@ public abstract class BaseService<M, K> implements IBaseService<M, K> {
             return mapper().deleteByPrimaryKey(id) == 1;
         }
         try {
+            Example e = new Example(modelClass);
+            Example.Criteria c = e.createCriteria().andEqualTo(idFieldName, id);
+            c.andEqualTo(deletedFlagFieldName, GlobalDeletedFlag.NORMAL);
             M data = modelClass.newInstance();
             setDeletedFlagMethod.invoke(data, GlobalDeletedFlag.DELETED);
-            setIdFieldMethod.invoke(data, id);
-            return mapper().updateByPrimaryKeySelective(data) == 1;
+            return mapper().updateByExampleSelective(data, e) == 1;
         } catch (Exception ex) {
             log.error("Failed to call reflection method in BaseService.removeById.", ex);
             throw new MyRuntimeException(ex);
@@ -543,6 +563,7 @@ public abstract class BaseService<M, K> implements IBaseService<M, K> {
     /**
      * 集成所有与主表实体对象相关的关联数据列表。包括一对一、字典、一对多和多对多聚合运算等。
      * 也可以根据实际需求，单独调用该函数所包含的各个数据集成函数。
+     * NOTE: 该方法内执行的SQL将禁用数据权限过滤。
      *
      * @param resultList      主表实体对象列表。数据集成将直接作用于该对象列表。
      * @param relationParam   实体对象数据组装的参数构建器。
@@ -552,30 +573,76 @@ public abstract class BaseService<M, K> implements IBaseService<M, K> {
         if (relationParam == null || CollectionUtils.isEmpty(resultList)) {
             return;
         }
-        // 集成本地一对一和字段级别的数据关联。
-        boolean buildOneToOne = relationParam.isBuildOneToOne() || relationParam.isBuildOneToOneWithDict();
-        // 这里集成一对一关联。
-        if (buildOneToOne) {
-            this.buildOneToOneForDataList(resultList, relationParam.isBuildOneToOneWithDict());
+        boolean dataFilterValue = GlobalThreadLocal.setDataFilter(false);
+        try {
+            // 集成本地一对一和字段级别的数据关联。
+            boolean buildOneToOne = relationParam.isBuildOneToOne() || relationParam.isBuildOneToOneWithDict();
+            // 这里集成一对一关联。
+            if (buildOneToOne) {
+                this.buildOneToOneForDataList(resultList, relationParam.isBuildOneToOneWithDict());
+            }
+            // 集成一对多关联
+            if (relationParam.isBuildOneToMany()) {
+                this.buildOneToManyForDataList(resultList);
+            }
+            // 这里集成字典关联
+            if (relationParam.isBuildDict()) {
+                // 构建常量字典关联关系
+                this.buildConstDictForDataList(resultList);
+                this.buildDictForDataList(resultList, buildOneToOne);
+            }
+            // 组装本地聚合计算关联数据
+            if (relationParam.isBuildRelationAggregation()) {
+                // 处理多对多场景下，根据主表的结果，进行从表聚合数据的计算。
+                this.buildManyToManyAggregationForDataList(resultList, buildAggregationAdditionalWhereCriteria());
+                // 处理多一多场景下，根据主表的结果，进行从表聚合数据的计算。
+                this.buildOneToManyAggregationForDataList(resultList, buildAggregationAdditionalWhereCriteria());
+            }
+        } finally {
+            GlobalThreadLocal.setDataFilter(dataFilterValue);
         }
-        // 这里集成字典关联
-        if (relationParam.isBuildDict()) {
-            // 构建常量字典关联关系
-            this.buildConstDictForDataList(resultList);
-            this.buildDictForDataList(resultList, buildOneToOne);
+    }
+
+    /**
+     * 该函数主要用于对查询结果的批量导出。不同于支持分页的列表查询，批量导出没有分页机制，
+     * 因此在导出数据量较大的情况下，很容易给数据库的内存、CPU和IO带来较大的压力。而通过
+     * 我们的分批处理，可以极大的规避该问题的出现几率。调整batchSize的大小，也可以有效的
+     * 改善运行效率。
+     * 我们目前的处理机制是，先从主表取出所有符合条件的主表数据，这样可以避免分批处理时，
+     * 后面几批数据，因为skip过多而带来的效率问题。因为是单表过滤，不会给数据库带来过大的压力。
+     * 之后再在主表结果集数据上进行分批级联处理。
+     * 集成所有与主表实体对象相关的关联数据列表。包括一对一、字典、一对多和多对多聚合运算等。
+     * 也可以根据实际需求，单独调用该函数所包含的各个数据集成函数。
+     * NOTE: 该方法内执行的SQL将禁用数据权限过滤。
+     *
+     * @param resultList    主表实体对象列表。数据集成将直接作用于该对象列表。
+     * @param relationParam 实体对象数据组装的参数构建器。
+     * @param batchSize     每批集成的记录数量。小于等于时将不做分批处理。
+     */
+    @Override
+    public void buildRelationForDataList(List<M> resultList, MyRelationParam relationParam, int batchSize) {
+        if (CollectionUtils.isEmpty(resultList)) {
+            return;
         }
-        // 组装本地聚合计算关联数据
-        if (relationParam.isBuildRelationAggregation()) {
-            // 处理多对多场景下，根据主表的结果，进行从表聚合数据的计算。
-            this.buildManyToManyAggregationForDataList(resultList, buildAggregationAdditionalWhereCriteria());
-            // 处理多一多场景下，根据主表的结果，进行从表聚合数据的计算。
-            this.buildOneToManyAggregationForDataList(resultList, buildAggregationAdditionalWhereCriteria());
+        if (batchSize <= 0) {
+            this.buildRelationForDataList(resultList, relationParam);
+            return;
+        }
+        int totalCount = resultList.size();
+        int fromIndex = 0;
+        int toIndex = Math.min(batchSize, totalCount);
+        while (toIndex > fromIndex) {
+            List<M> subResultList = resultList.subList(fromIndex, toIndex);
+            this.buildRelationForDataList(subResultList, relationParam);
+            fromIndex = toIndex;
+            toIndex = Math.min(batchSize + fromIndex, totalCount);
         }
     }
 
     /**
      * 集成所有与主表实体对象相关的关联数据对象。包括一对一、字典、一对多和多对多聚合运算等。
      * 也可以根据实际需求，单独调用该函数所包含的各个数据集成函数。
+     * NOTE: 该方法内执行的SQL将禁用数据权限过滤。
      *
      * @param dataObject      主表实体对象。数据集成将直接作用于该对象。
      * @param relationParam   实体对象数据组装的参数构建器。
@@ -586,26 +653,35 @@ public abstract class BaseService<M, K> implements IBaseService<M, K> {
         if (dataObject == null || relationParam == null) {
             return;
         }
-        // 集成本地一对一和字段级别的数据关联。
-        boolean buildOneToOne = relationParam.isBuildOneToOne() || relationParam.isBuildOneToOneWithDict();
-        if (buildOneToOne) {
-            this.buildOneToOneForData(dataObject, relationParam.isBuildOneToOneWithDict());
-        }
-        if (relationParam.isBuildDict()) {
-            // 构建常量字典关联关系
-            this.buildConstDictForData(dataObject);
-            // 构建本地数据字典关联关系。
-            this.buildDictForData(dataObject, buildOneToOne);
-        }
-        // 组装本地聚合计算关联数据
-        if (relationParam.isBuildRelationAggregation()) {
-            // 开始处理多对多场景。
-            buildManyToManyAggregationForData(dataObject, buildAggregationAdditionalWhereCriteria());
-            // 构建一对多场景
-            buildOneToManyAggregationForData(dataObject, buildAggregationAdditionalWhereCriteria());
-        }
-        if (relationParam.isBuildRelationManyToMany()) {
-            this.buildRelationManyToMany(dataObject);
+        boolean dataFilterValue = GlobalThreadLocal.setDataFilter(false);
+        try {
+            // 集成本地一对一和字段级别的数据关联。
+            boolean buildOneToOne = relationParam.isBuildOneToOne() || relationParam.isBuildOneToOneWithDict();
+            if (buildOneToOne) {
+                this.buildOneToOneForData(dataObject, relationParam.isBuildOneToOneWithDict());
+            }
+            // 集成一对多关联
+            if (relationParam.isBuildOneToMany()) {
+                this.buildOneToManyForData(dataObject);
+            }
+            if (relationParam.isBuildDict()) {
+                // 构建常量字典关联关系
+                this.buildConstDictForData(dataObject);
+                // 构建本地数据字典关联关系。
+                this.buildDictForData(dataObject, buildOneToOne);
+            }
+            // 组装本地聚合计算关联数据
+            if (relationParam.isBuildRelationAggregation()) {
+                // 开始处理多对多场景。
+                buildManyToManyAggregationForData(dataObject, buildAggregationAdditionalWhereCriteria());
+                // 构建一对多场景
+                buildOneToManyAggregationForData(dataObject, buildAggregationAdditionalWhereCriteria());
+            }
+            if (relationParam.isBuildRelationManyToMany()) {
+                this.buildRelationManyToMany(dataObject);
+            }
+        } finally {
+            GlobalThreadLocal.setDataFilter(dataFilterValue);
         }
     }
 

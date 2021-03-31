@@ -81,7 +81,6 @@ export default {
           permName: undefined,
           url: undefined,
           showOrder: undefined,
-          createTime: undefined,
           deletedFlag: undefined
         }
       },

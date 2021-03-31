@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.orange.demo.webadmin.app.dao.StudentMapper">
+    <resultMap id="BaseResultMap" type="com.orange.demo.webadmin.app.model.Student">
+        <id column="student_id" jdbcType="BIGINT" property="studentId"/>
+        <result column="login_mobile" jdbcType="VARCHAR" property="loginMobile"/>
+        <result column="student_name" jdbcType="VARCHAR" property="studentName"/>
+        <result column="province_id" jdbcType="BIGINT" property="provinceId"/>
+        <result column="city_id" jdbcType="BIGINT" property="cityId"/>
+        <result column="district_id" jdbcType="BIGINT" property="districtId"/>
+        <result column="gender" jdbcType="INTEGER" property="gender"/>
+        <result column="birthday" jdbcType="DATE" property="birthday"/>
+        <result column="experience_level" jdbcType="TINYINT" property="experienceLevel"/>
+        <result column="total_coin" jdbcType="INTEGER" property="totalCoin"/>
+        <result column="left_coin" jdbcType="INTEGER" property="leftCoin"/>
+        <result column="grade_id" jdbcType="INTEGER" property="gradeId"/>
+        <result column="school_id" jdbcType="BIGINT" property="schoolId"/>
+        <result column="register_time" jdbcType="TIMESTAMP" property="registerTime"/>
+        <result column="status" jdbcType="TINYINT" property="status"/>
+    </resultMap>
+
+    <!-- 如果有逻辑删除字段过滤，请写到这里 -->
+    <sql id="filterRef">
+        <!-- 这里必须加上全包名，否则当filterRef被其他Mapper.xml包含引用的时候，就会调用Mapper.xml中的该SQL片段 -->
+        <include refid="com.orange.demo.webadmin.app.dao.StudentMapper.inputFilterRef"/>
+    </sql>
+
+    <!-- 这里仅包含调用接口输入的主表过滤条件 -->
+    <sql id="inputFilterRef">
+        <if test="studentFilter != null">
+            <if test="studentFilter.provinceId != null">
+                AND zz_student.province_id = #{studentFilter.provinceId}
+            </if>
+            <if test="studentFilter.cityId != null">
+                AND zz_student.city_id = #{studentFilter.cityId}
+            </if>
+            <if test="studentFilter.districtId != null">
+                AND zz_student.district_id = #{studentFilter.districtId}
+            </if>
+            <if test="studentFilter.birthdayStart != null and studentFilter.birthdayStart != ''">
+                AND zz_student.birthday &gt;= #{studentFilter.birthdayStart}
+            </if>
+            <if test="studentFilter.birthdayEnd != null and studentFilter.birthdayEnd != ''">
+                AND zz_student.birthday &lt;= #{studentFilter.birthdayEnd}
+            </if>
+            <if test="studentFilter.gradeId != null">
+                AND zz_student.grade_id = #{studentFilter.gradeId}
+            </if>
+            <if test="studentFilter.schoolId != null">
+                AND zz_student.school_id = #{studentFilter.schoolId}
+            </if>
+            <if test="studentFilter.registerTimeStart != null and studentFilter.registerTimeStart != ''">
+                AND zz_student.register_time &gt;= #{studentFilter.registerTimeStart}
+            </if>
+            <if test="studentFilter.registerTimeEnd != null and studentFilter.registerTimeEnd != ''">
+                AND zz_student.register_time &lt;= #{studentFilter.registerTimeEnd}
+            </if>
+            <if test="studentFilter.status != null">
+                AND zz_student.status = #{studentFilter.status}
+            </if>
+            <if test="studentFilter.searchString != null and studentFilter.searchString != ''">
+                <bind name = "safeSearchString" value = "'%' + studentFilter.searchString + '%'" />
+                AND CONCAT(IFNULL(zz_student.login_mobile,''), IFNULL(zz_student.student_name,'')) LIKE #{safeSearchString}
+            </if>
+        </if>
+    </sql>
+
+    <select id="getStudentList" resultMap="BaseResultMap" parameterType="com.orange.demo.webadmin.app.model.Student">
+        SELECT * FROM zz_student
+        <where>
+            <include refid="filterRef"/>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+
+    <select id="getStudentListByClassId" resultMap="BaseResultMap">
+        SELECT
+            zz_student.*
+        FROM
+            zz_student,
+            zz_class_student
+        <where>
+            AND zz_class_student.class_id = #{classId}
+            AND zz_class_student.student_id = zz_student.student_id
+            <include refid="filterRef"/>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+
+    <select id="getNotInStudentListByClassId" resultMap="BaseResultMap">
+        SELECT
+            zz_student.*
+        FROM
+            zz_student
+        <where>
+            AND NOT EXISTS (SELECT * FROM zz_class_student
+                WHERE zz_class_student.class_id = #{classId} AND zz_class_student.student_id = zz_student.student_id)
+            <include refid="filterRef"/>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+</mapper>

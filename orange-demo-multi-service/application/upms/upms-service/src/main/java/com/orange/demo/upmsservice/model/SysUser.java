@@ -1,13 +1,13 @@
 package com.orange.demo.upmsservice.model;
 
-import com.orange.demo.upmsinterface.constant.SysUserType;
-import com.orange.demo.upmsinterface.constant.SysUserStatus;
+import com.orange.demo.upmsapi.vo.SysUserVo;
+import com.orange.demo.upmsapi.constant.SysUserType;
+import com.orange.demo.upmsapi.constant.SysUserStatus;
 import com.orange.demo.common.core.annotation.RelationConstDict;
 import com.orange.demo.common.core.annotation.RelationManyToMany;
 import com.orange.demo.common.core.base.model.BaseModel;
 import com.orange.demo.common.core.base.mapper.BaseModelMapper;
 import com.orange.demo.common.core.annotation.DeletedFlagColumn;
-import com.orange.demo.upmsinterface.vo.SysUserVo;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.mapstruct.*;

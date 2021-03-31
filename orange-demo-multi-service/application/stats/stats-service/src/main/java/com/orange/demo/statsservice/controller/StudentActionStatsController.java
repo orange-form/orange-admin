@@ -3,8 +3,8 @@ package com.orange.demo.statsservice.controller;
 import com.github.pagehelper.page.PageMethod;
 import com.orange.demo.statsservice.model.*;
 import com.orange.demo.statsservice.service.*;
-import com.orange.demo.statsinterface.dto.*;
-import com.orange.demo.statsinterface.vo.*;
+import com.orange.demo.statsapi.dto.*;
+import com.orange.demo.statsapi.vo.*;
 import com.orange.demo.common.core.object.*;
 import com.orange.demo.common.core.util.*;
 import com.orange.demo.common.core.constant.*;
@@ -163,6 +163,20 @@ public class StudentActionStatsController extends BaseController<StudentActionSt
     @PostMapping("/existId")
     public ResponseResult<Boolean> existId(@RequestParam Long statsId) {
         return super.baseExistId(statsId);
+    }
+
+    /**
+     * 根据主键Id删除数据。
+     *
+     * @param statsId 主键Id。
+     * @return 删除数量。
+     */
+    @ApiOperation(hidden = true, value = "deleteById")
+    @PostMapping("/deleteById")
+    public ResponseResult<Integer> deleteById(@RequestParam Long statsId) throws Exception {
+        StudentActionStats filter = new StudentActionStats();
+        filter.setStatsId(statsId);
+        return super.baseDeleteBy(filter);
     }
 
     /**

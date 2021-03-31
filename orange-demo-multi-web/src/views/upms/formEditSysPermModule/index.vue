@@ -86,8 +86,7 @@ export default {
           moduleName: undefined,
           moduleType: undefined,
           level: undefined,
-          showOrder: undefined,
-          createTime: undefined
+          showOrder: undefined
         }
       },
       rules: {

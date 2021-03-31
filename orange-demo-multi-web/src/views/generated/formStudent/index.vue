@@ -28,7 +28,7 @@
             <el-form-item label="注册日期">
               <date-range class="filter-item" v-model="formStudent.formFilter.registerDate" :clearable="true" :allowTypes="['day']" align="left"
                 range-separator="-" start-placeholder="开始日期" end-placeholder="结束日期"
-                format="yyyy-MM-dd" value-format="yyyy-MM-dd hh:mm:ss" />
+                format="yyyy-MM-dd" value-format="yyyy-MM-dd HH:mm:ss" />
             </el-form-item>
             <el-form-item label="学生姓名">
               <el-input class="filter-item" v-model="formStudent.formFilter.searchString"
@@ -133,7 +133,7 @@ export default {
           impl: new DropdownWidget(this.loadGradeIdDropdownList)
         },
         Student: {
-          impl: new TableWidget(this.loadStudentData, this.loadStudentVerify, true, false, 'registerTime', 1)
+          impl: new TableWidget(this.loadStudentWidgetData, this.loadStudentVerify, true, false, 'registerTime', 1)
         },
         isInit: false
       }
@@ -143,7 +143,7 @@ export default {
     /**
      * 学生数据数据获取函数，返回Promise
      */
-    loadStudentData (params) {
+    loadStudentWidgetData (params) {
       if (params == null) params = {};
       params = {
         ...params,
@@ -295,7 +295,8 @@ export default {
   computed: {
     ...mapGetters(['getMainContextHeight'])
   },
-  created () {
+  mounted () {
+    // 初始化页面数据
     this.formInit();
   },
   watch: {

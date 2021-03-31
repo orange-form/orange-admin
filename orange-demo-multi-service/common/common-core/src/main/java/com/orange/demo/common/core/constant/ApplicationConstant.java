@@ -13,6 +13,10 @@ public final class ApplicationConstant {
      */
     public static final String DICT_CACHE_NAME_SUFFIX = "-DICT";
     /**
+     * 为树形字典表数据缓存时，缓存名称的固定后缀。
+     */
+    public static final String TREE_DICT_CACHE_NAME_SUFFIX = "-TREE-DICT";
+    /**
      * 图片文件上传的父目录。
      */
     public static final String UPLOAD_IMAGE_PARENT_PATH = "image";
@@ -44,6 +48,12 @@ public final class ApplicationConstant {
      * 请求头跟踪id名。
      */
     public static final String HTTP_HEADER_TRACE_ID = "traceId";
+    /**
+     * 操作日志的数据源类型。仅当前服务为多数据源时使用。
+     * 在common-log模块中，SysOperationLogServiceImpl的MyDataSource注解一定要使用该参数。
+     * 在多数据源的业务服务中，DataSourceType的常量一定要包含该值，多数据源的配置中，也一定要有与该值匹配的数据源Bean。
+     */
+    public static final int OPERATION_LOG_DATASOURCE_TYPE = 1000;
     /**
      * 重要说明：该值为项目生成后的缺省密钥，仅为使用户可以快速上手并跑通流程。
      * 在实际的应用中，一定要为不同的项目或服务，自行生成公钥和私钥，并将 PRIVATE_KEY 的引用改为服务的配置项。

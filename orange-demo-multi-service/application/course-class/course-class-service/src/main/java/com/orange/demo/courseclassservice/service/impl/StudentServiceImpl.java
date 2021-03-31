@@ -10,6 +10,7 @@ import com.orange.demo.common.core.object.CallResult;
 import com.orange.demo.common.core.base.dao.BaseDaoMapper;
 import com.orange.demo.common.core.base.service.BaseService;
 import com.orange.demo.common.sequence.wrapper.IdGeneratorWrapper;
+import com.github.pagehelper.Page;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -142,7 +143,8 @@ public class StudentServiceImpl extends BaseService<Student, Long> implements St
     @Override
     public List<Student> getStudentListWithRelation(Student filter, String orderBy) {
         List<Student> resultList = studentMapper.getStudentList(null, null, filter, orderBy);
-        this.buildRelationForDataList(resultList, MyRelationParam.normal());
+        int batchSize = resultList instanceof Page ? 0 : 1000;
+        this.buildRelationForDataList(resultList, MyRelationParam.normal(), batchSize);
         return resultList;
     }
 
@@ -162,7 +164,8 @@ public class StudentServiceImpl extends BaseService<Student, Long> implements St
             String inFilterField, Set<M> inFilterValues, Student filter, String orderBy) {
         List<Student> resultList =
                 studentMapper.getStudentList(inFilterField, inFilterValues, filter, orderBy);
-        this.buildRelationForDataList(resultList, MyRelationParam.dictOnly());
+        int batchSize = resultList instanceof Page ? 0 : 1000;
+        this.buildRelationForDataList(resultList, MyRelationParam.dictOnly(), batchSize);
         return resultList;
     }
 

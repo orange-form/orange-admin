@@ -55,7 +55,7 @@ public interface BaseClient<D, V, K> {
      * @param id 主键Id。
      * @return 应答结果对象。
      */
-     default ResponseResult<Void> delete(K id) {
+     default ResponseResult<Integer> deleteById(K id) {
          throw new UnsupportedOperationException();
      }
 

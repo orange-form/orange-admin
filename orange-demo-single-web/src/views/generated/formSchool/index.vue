@@ -106,7 +106,7 @@ export default {
           impl: new DropdownWidget(this.loadCityIdDropdownList)
         },
         SchoolInfo: {
-          impl: new TableWidget(this.loadSchoolInfoData, this.loadSchoolInfoVerify, true, false)
+          impl: new TableWidget(this.loadSchoolInfoWidgetData, this.loadSchoolInfoVerify, true, false)
         },
         isInit: false
       }
@@ -116,7 +116,7 @@ export default {
     /**
      * 校区数据数据获取函数，返回Promise
      */
-    loadSchoolInfoData (params) {
+    loadSchoolInfoWidgetData (params) {
       if (params == null) params = {};
       params = {
         ...params,
@@ -262,7 +262,8 @@ export default {
       this.refreshFormSchool();
     }
   },
-  created () {
+  mounted () {
+    // 初始化页面数据
     this.formInit();
   },
   watch: {

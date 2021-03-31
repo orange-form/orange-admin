@@ -17,7 +17,12 @@
         <!-- 业务组件依赖 -->
         <dependency>
             <groupId>com.orange.demo</groupId>
-            <artifactId>upms-interface</artifactId>
+            <artifactId>upms-api</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.orange.demo</groupId>
+            <artifactId>common-core</artifactId>
             <version>1.0.0</version>
         </dependency>
         <dependency>

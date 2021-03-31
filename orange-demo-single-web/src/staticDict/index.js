@@ -42,6 +42,10 @@ class DictionaryBase extends Map {
   }
 
   getValue (id, valueId = 'name') {
+    // 如果id为boolean类型，则自动转换为0和1
+    if (typeof id === 'boolean') {
+      id = id ? 1 : 0;
+    }
     return (this.get(id) || {})[valueId];
   }
 }

@@ -5,7 +5,7 @@
         <el-form-item label="统计日期">
           <date-range class="filter-item" v-model="formCourseStats.formFilter.statsDate" :clearable="true" :allowTypes="['day']" align="left"
             range-separator="-" start-placeholder="开始日期" end-placeholder="结束日期"
-            format="yyyy-MM-dd" value-format="yyyy-MM-dd hh:mm:ss" />
+            format="yyyy-MM-dd" value-format="yyyy-MM-dd HH:mm:ss" />
         </el-form-item>
         <el-button slot="operator" type="primary" :plain="true" size="mini" @click="refreshFormCourseStats(true)">查询</el-button>
       </filter-box>
@@ -114,7 +114,7 @@ export default {
           statsDate: []
         },
         courseStatsByGradeId: {
-          impl: new ChartWidget(this.loadCourseStatsByGradeIdData, this.loadCourseStatsByGradeIdVerify,
+          impl: new ChartWidget(this.loadCourseStatsByGradeIdWidgetData, this.loadCourseStatsByGradeIdVerify,
             ['gradeIdShowName', 'studentFlowerAmount']),
           chartOption: defaultPieChartOption,
           chartSetting: {
@@ -127,7 +127,7 @@ export default {
           }
         },
         courseStatsBySubject: {
-          impl: new ChartWidget(this.loadCourseStatsBySubjectData, this.loadCourseStatsBySubjectVerify,
+          impl: new ChartWidget(this.loadCourseStatsBySubjectWidgetData, this.loadCourseStatsBySubjectVerify,
             ['subjectIdShowName', 'studentFlowerAmount']),
           chartOption: defaultPieChartOption,
           chartSetting: {
@@ -140,7 +140,7 @@ export default {
           }
         },
         CourseTransStats: {
-          impl: new ChartWidget(this.loadCourseTransStatsData, this.loadCourseTransStatsVerify,
+          impl: new ChartWidget(this.loadCourseTransStatsWidgetData, this.loadCourseTransStatsVerify,
             ['statsDateShowName', 'studentAttendCount', 'studentFlowerAmount', 'studentFlowerCount']),
           chartOption: defaultBarChartOption,
           chartSetting: {
@@ -161,7 +161,7 @@ export default {
     /**
      * 课程统计（年级）数据获取函数，返回Promise
      */
-    loadCourseStatsByGradeIdData () {
+    loadCourseStatsByGradeIdWidgetData () {
       let params = {
         groupParam: [
           {
@@ -176,7 +176,7 @@ export default {
       return new Promise((resolve, reject) => {
         CourseTransStatsController.listWithGroup(this, params).then(res => {
           resolve({
-            dataList: res.data.dataList.map((item) => {
+            dataList: (res.data.dataList || []).map((item) => {
               return {...item, gradeIdShowName: item.gradeIdDictMap.name};
             }),
             totalCount: res.data.totalCount
@@ -203,7 +203,7 @@ export default {
     /**
      * 课程统计（学科）数据获取函数，返回Promise
      */
-    loadCourseStatsBySubjectData () {
+    loadCourseStatsBySubjectWidgetData () {
       let params = {
         groupParam: [
           {
@@ -218,7 +218,7 @@ export default {
       return new Promise((resolve, reject) => {
         CourseTransStatsController.listWithGroup(this, params).then(res => {
           resolve({
-            dataList: res.data.dataList.map((item) => {
+            dataList: (res.data.dataList || []).map((item) => {
               return {...item, subjectIdShowName: item.subjectIdDictMap.name};
             }),
             totalCount: res.data.totalCount
@@ -245,7 +245,7 @@ export default {
     /**
      * 课程流水统计数据获取函数，返回Promise
      */
-    loadCourseTransStatsData () {
+    loadCourseTransStatsWidgetData () {
       let params = {
         groupParam: [
           {
@@ -260,7 +260,7 @@ export default {
       return new Promise((resolve, reject) => {
         CourseTransStatsController.listWithGroup(this, params).then(res => {
           resolve({
-            dataList: res.data.dataList.map((item) => {
+            dataList: (res.data.dataList || []).map((item) => {
               return {...item, statsDateShowName: this.formatDateByStatsType(item.statsDate, this.formCourseStats.CourseTransStats.statsType)};
             }),
             totalCount: res.data.totalCount
@@ -327,7 +327,8 @@ export default {
   },
   computed: {
   },
-  created () {
+  mounted () {
+    // 初始化页面数据
     this.formInit();
   },
   watch: {

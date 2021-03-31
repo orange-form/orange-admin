@@ -8,16 +8,17 @@ import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import com.orange.demo.common.core.base.controller.BaseController;
 import com.orange.demo.common.core.base.service.IBaseDictService;
-import com.orange.demo.common.core.constant.ErrorCodeEnum;
 import com.orange.demo.common.core.object.*;
+import com.orange.demo.common.core.constant.ErrorCodeEnum;
 import com.orange.demo.common.core.util.MyModelUtil;
 import com.orange.demo.common.core.util.MyCommonUtil;
 import com.orange.demo.common.core.validator.UpdateGroup;
 import com.orange.demo.common.core.annotation.MyRequestBody;
-import com.orange.demo.courseclassinterface.dto.GradeDto;
-import com.orange.demo.courseclassinterface.vo.GradeVo;
+import com.orange.demo.courseclassapi.dto.GradeDto;
+import com.orange.demo.courseclassapi.vo.GradeVo;
 import com.orange.demo.courseclassservice.model.Grade;
 import com.orange.demo.courseclassservice.service.GradeService;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -130,6 +131,10 @@ public class GradeController extends BaseController<Grade, GradeVo, Integer> {
     @GetMapping("/listDict")
     public ResponseResult<List<Map<String, Object>>> listDict() {
         List<Grade> resultList = gradeService.getAllListFromCache();
+        if (CollectionUtils.isEmpty(resultList)) {
+            gradeService.reloadCachedData(true);
+            resultList = gradeService.getAllList();
+        }
         return ResponseResult.success(BeanQuery.select(
                 "gradeId as id", "gradeName as name").executeFrom(resultList));
     }
@@ -200,6 +205,20 @@ public class GradeController extends BaseController<Grade, GradeVo, Integer> {
     @PostMapping("/existId")
     public ResponseResult<Boolean> existId(@RequestParam Integer gradeId) {
         return super.baseExistId(gradeId);
+    }
+
+    /**
+     * 根据主键Id删除数据。
+     *
+     * @param gradeId 主键Id。
+     * @return 删除数量。
+     */
+    @ApiOperation(hidden = true, value = "deleteById")
+    @PostMapping("/deleteById")
+    public ResponseResult<Integer> deleteById(@RequestParam Integer gradeId) throws Exception {
+        Grade filter = new Grade();
+        filter.setGradeId(gradeId);
+        return super.baseDeleteBy(filter);
     }
 
     /**

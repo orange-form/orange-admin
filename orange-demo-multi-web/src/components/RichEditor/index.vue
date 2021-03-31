@@ -81,6 +81,11 @@ export default {
       editor: null
     }
   },
+  methods: {
+    getHtml () {
+      return this.editor ? this.editor.txt.html() : undefined;
+    }
+  },
   computed: {
     getConfigs () {
       return {...this.config, ...defaultConfigs};

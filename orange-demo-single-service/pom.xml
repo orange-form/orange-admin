@@ -39,7 +39,7 @@
     </properties>
 
     <modules>
-        <module>application</module>
+        <module>application-webadmin</module>
         <module>application-common</module>
         <module>common</module>
     </modules>

@@ -12,7 +12,7 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>stats-interface</module>
+        <module>stats-api</module>
         <module>stats-service</module>
     </modules>
 </project>

@@ -12,7 +12,7 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>course-class-interface</module>
+        <module>course-class-api</module>
         <module>course-class-service</module>
     </modules>
 </project>

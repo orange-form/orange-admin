@@ -234,20 +234,20 @@ export default {
           schoolId: undefined,
           className: undefined
         },
-        classCourseCard: {
-          isInit: false
-        },
         schoolId: {
           impl: new DropdownWidget(this.loadSchoolIdDropdownList)
         },
+        classCourseCard: {
+          isInit: false
+        },
         Student: {
-          impl: new TableWidget(this.loadStudentData, this.loadStudentVerify, true, false)
+          impl: new TableWidget(this.loadStudentWidgetData, this.loadStudentVerify, true, false)
         },
         StudentClass: {
-          impl: new TableWidget(this.loadStudentClassData, this.loadStudentClassVerify, true, true, 'createTime', 1)
+          impl: new TableWidget(this.loadStudentClassWidgetData, this.loadStudentClassVerify, true, true, 'createTime', 1)
         },
         Course: {
-          impl: new TableWidget(this.loadCourseData, this.loadCourseVerify, true, false, 'createTime', 1)
+          impl: new TableWidget(this.loadCourseWidgetData, this.loadCourseVerify, true, false, 'createTime', 1)
         },
         classStudentCard: {
           isInit: false
@@ -266,7 +266,7 @@ export default {
     /**
      * 班级学生数据获取函数，返回Promise
      */
-    loadStudentData (params) {
+    loadStudentWidgetData (params) {
       if (
         (this.formClass.StudentClass.impl.currentRow || {}).classId == null
       ) {
@@ -298,7 +298,7 @@ export default {
     /**
      * 班级数据数据获取函数，返回Promise
      */
-    loadStudentClassData (params) {
+    loadStudentClassWidgetData (params) {
       if (params == null) params = {};
       params = {
         ...params,
@@ -336,7 +336,7 @@ export default {
     /**
      * 班级课程数据获取函数，返回Promise
      */
-    loadCourseData (params) {
+    loadCourseWidgetData (params) {
       if (
         (this.formClass.StudentClass.impl.currentRow || {}).classId == null
       ) {
@@ -609,7 +609,8 @@ export default {
       return this.formClass.StudentClass.impl.currentRow != null;
     }
   },
-  created () {
+  mounted () {
+    // 初始化页面数据
     this.formInit();
   },
   watch: {

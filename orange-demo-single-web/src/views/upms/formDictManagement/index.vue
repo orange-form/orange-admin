@@ -1,11 +1,11 @@
 <template>
   <el-container>
     <el-aside width="300px">
-      <el-card class="base-card" shadow="never" title="字典列表" :body-style="{ padding: '0px' }">
+      <el-card class="base-card" shadow="never" :body-style="{ padding: '0px' }">
         <div slot="header" class="base-card-header">
           <span>字典列表</span>
         </div>
-        <el-scrollbar :style="{height: (getClientHeight - 184) + 'px'}" class="custom-scroll">
+        <el-scrollbar :style="{height: (getMainContextHeight - 94) + 'px'}" class="custom-scroll">
           <el-tree :data="dictList" :props="{label: 'name'}" node-key="variableName" :highlight-current="true"
             :current-node-key="(dictList[0] || {}).variableName" @node-click="onDictChange">
             <div class="module-node-item" slot-scope="{ data }">
@@ -16,8 +16,11 @@
       </el-card>
     </el-aside>
     <el-main style="padding-left: 15px;">
-      <el-form label-width="75px" size="mini" label-position="right" @submit.native.prevent>
+      <el-form label-width="120px" size="mini" label-position="left" @submit.native.prevent>
         <filter-box :item-width="350">
+          <el-form-item v-if="dirtyCount > 0" label="失效缓存数量：">
+            <span style="color: #F56C6C;">{{dirtyCount}}</span>
+          </el-form-item>
           <el-button slot="operator" type="primary" size="mini" :plain="true"
             :disabled="!checkPermCodeExist('formSysDict:fragmentSysDict:reloadCache') || currentDict == null"
             @click="onRefreshCacheData">
@@ -33,9 +36,18 @@
       <el-row>
         <el-col :span="24">
           <el-table :data="getCurrentDictData" size="mini" header-cell-class-name="table-header-gray"
-            :height="(getClientHeight - 178) + 'px'" row-key="id">
+            :row-style="tableRowStyle"
+            :height="(getMainContextHeight - 88) + 'px'" row-key="id">
             <el-table-column label="ID" prop="id" />
-            <el-table-column label="字典名称" prop="name" />
+            <el-table-column label="字典名称" prop="name">
+              <template slot-scope="scope">
+                <span>{{scope.row.name}}</span>
+                <el-tag v-if="scope.row.dirty" size="mini" effect="dark" type="warning"
+                  style="margin-left: 15px;">
+                  缓存失效
+                </el-tag>
+              </template>
+            </el-table-column>
             <el-table-column label="操作" width="150px">
               <template slot-scope="scope">
                 <el-button type="text" size="mini" :disabled="!checkPermCodeExist('formSysDict:fragmentSysDict:update')" @click="onUpdateDictDataClick(scope.row)">编辑</el-button>
@@ -57,7 +69,7 @@ import { DictionaryController } from '@/api';
 import editDict from '@/views/upms/formEditDict';
 
 export default {
-  name: 'systemDictManagement',
+  name: 'formDictManagement',
   data () {
     return {
       dictList: [
@@ -69,26 +81,51 @@ export default {
           deletedKey: 'gradeIds',
           parentKey: '',
           treeFlag: false,
-          listApi: DictionaryController.dictGrade,
+          listApi: DictionaryController.dictGradeAll,
           addApi: DictionaryController.dictAddGrade,
           deleteApi: DictionaryController.dictDeleteGrade,
-          batchDeleteApi: DictionaryController.dictBatchDeleteGrade,
           updateApi: DictionaryController.dictUpdateGrade,
           reloadCachedDataApi: DictionaryController.dictReloadGradeCachedData
         }
       ],
+      dirtyCount: 0,
       currentDict: undefined,
       currentDictDataList: []
     }
   },
   methods: {
+    tableRowStyle ({row, rowIndex}) {
+      console.log(row);
+      if (row.dirty) {
+        return {
+          background: '#FFE1E1'
+        }
+      }
+    },
     updateDictData () {
       this.currentDictDataList = [];
+      this.dirtyCount = 0;
       this.currentDict.listApi(this).then(res => {
+        let cachedMap = new Map();
+        if (Array.isArray(res.cachedResultList)) {
+          res.cachedResultList.forEach(item => {
+            cachedMap.set(item.id, item);
+          });
+        }
+        if (Array.isArray(res.fullResultList)) {
+          res.fullResultList.forEach(item => {
+            let cachedItem = cachedMap.get(item.id);
+            if (cachedItem == null || cachedItem.name !== item.name) {
+              item.dirty = true;
+              this.dirtyCount++;
+            }
+          });
+        }
+        cachedMap = null;
         if (this.currentDict.treeFlag) {
-          this.currentDictDataList = treeDataTranslate(res.getList(), 'id', 'parentId');
+          this.currentDictDataList = treeDataTranslate(res.fullResultList, 'id', 'parentId');
         } else {
-          this.currentDictDataList = res.getList();
+          this.currentDictDataList = res.fullResultList;
         }
       }).catch(e => {});
     },
@@ -104,9 +141,10 @@ export default {
     },
     onRefreshCacheData () {
       this.$confirm('是否同步缓存？').then(res => {
-        this.currentDict.reloadCachedDataApi(this).then(res => {
-          this.$message.success('同步成功');
-        }).catch(e => {});
+        return this.currentDict.reloadCachedDataApi(this);
+      }).then(res => {
+        this.$message.success('同步成功');
+        this.updateDictData();
       }).catch(e => {});
     },
     onAddDictData () {
@@ -145,7 +183,7 @@ export default {
     getCurrentDictData () {
       return this.currentDictDataList;
     },
-    ...mapGetters(['getClientHeight'])
+    ...mapGetters(['getMainContextHeight'])
   },
   mounted () {
     this.onDictChange(this.dictList[0]);

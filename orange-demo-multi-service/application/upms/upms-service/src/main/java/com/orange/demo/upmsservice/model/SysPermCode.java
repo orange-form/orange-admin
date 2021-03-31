@@ -4,7 +4,7 @@ import com.orange.demo.common.core.annotation.DeletedFlagColumn;
 import com.orange.demo.common.core.annotation.RelationManyToMany;
 import com.orange.demo.common.core.base.model.BaseModel;
 import com.orange.demo.common.core.base.mapper.BaseModelMapper;
-import com.orange.demo.upmsinterface.vo.SysPermCodeVo;
+import com.orange.demo.upmsapi.vo.SysPermCodeVo;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.mapstruct.Mapper;

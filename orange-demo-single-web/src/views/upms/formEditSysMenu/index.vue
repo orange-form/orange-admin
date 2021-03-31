@@ -28,7 +28,8 @@
       </el-col>
       <el-col :span="12">
         <el-form-item label="菜单路由">
-          <el-input v-model="formData.formRouterName" placeholder="菜单路由" :disabled="formData.menuType !== 1" />
+          <el-input v-model="formData.formRouterName" placeholder="菜单路由"
+            :disabled="formData.menuType !== 1" />
         </el-form-item>
       </el-col>
       <el-col :span="12">
@@ -62,6 +63,7 @@
 </template>
 
 <script>
+// eslint-disable-next-line no-unused-vars
 import { treeDataTranslate, findTreeNodePath, findTreeNode, findItemFromList } from '@/utils'
 import { SystemController } from '@/api'
 import IconSelect from '@/components/IconSelect/index.vue'
@@ -109,7 +111,6 @@ export default {
       parentMenuPath: [],
       menuTree: [],
       permCodeList: [],
-      selectPermCode: undefined,
       defaultExpandedKeys: [],
       rules: {
         menuName: [{required: true, message: '请输入菜单名称', trigger: 'blur'}],
@@ -163,13 +164,11 @@ export default {
             if (this.parentMenuPath.length > 0) {
               params.sysMenu.parentId = this.parentMenuPath[this.parentMenuPath.length - 1];
             }
-
             if ([this.SysMenuType.MENU, this.SysMenuType.BUTTON, this.SysMenuType.FRAGMENT].indexOf(params.sysMenu.menuType) !== -1) {
               let tempList = this.$refs.permCodeTree.getHalfCheckedKeys();
               tempList = tempList.concat(this.$refs.permCodeTree.getCheckedKeys());
               params.permCodeIdListString = tempList.join(',');
             }
-            
             if (this.isEdit) {
               SystemController.updateMenu(this, params).then(res => {
                 resolve(res);

@@ -128,7 +128,7 @@ export default {
           impl: new DropdownWidget(this.loadDifficultyDropdownList)
         },
         Course: {
-          impl: new TableWidget(this.loadCourseData, this.loadCourseVerify, true, false)
+          impl: new TableWidget(this.loadCourseWidgetData, this.loadCourseVerify, true, false)
         },
         isInit: false
       }
@@ -146,7 +146,7 @@ export default {
     /**
      * 班级课程数据获取函数，返回Promise
      */
-    loadCourseData (params) {
+    loadCourseWidgetData (params) {
       if (
         this.classId == null
       ) {
@@ -286,7 +286,8 @@ export default {
       this.refreshFormSetClassCourse();
     }
   },
-  created () {
+  mounted () {
+    // 初始化页面数据
     this.formInit();
   },
   watch: {

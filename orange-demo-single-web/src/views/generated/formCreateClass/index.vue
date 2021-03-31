@@ -103,22 +103,22 @@ export default {
         }
       },
       rules: {
-        'StudentClass.className': [
-          {required: true, message: '请输入班级名称', trigger: 'blur'}
-        ],
-        'StudentClass.classLevel': [
-          {required: true, message: '请输入班级级别', trigger: 'blur'}
-        ],
-        'StudentClass.schoolId': [
-          {required: true, message: '请输入所属校区', trigger: 'blur'}
-        ],
-        'StudentClass.leaderId': [
-          {required: true, message: '请输入学生班长', trigger: 'blur'}
-        ],
         'StudentClass.finishClassHour': [
           {required: true, message: '请输入已完成课时', trigger: 'blur'},
           {type: 'integer', message: '已完成课时只允许输入整数', trigger: 'blur', transform: (value) => Number(value)},
           {type: 'number', min: 0, max: 9999, message: '已完成课时必须在0 - 9999之间', trigger: 'blur', transform: (value) => Number(value)}
+        ],
+        'StudentClass.schoolId': [
+          {required: true, message: '请输入所属校区', trigger: 'blur'}
+        ],
+        'StudentClass.classLevel': [
+          {required: true, message: '请输入班级级别', trigger: 'blur'}
+        ],
+        'StudentClass.leaderId': [
+          {required: true, message: '请输入学生班长', trigger: 'blur'}
+        ],
+        'StudentClass.className': [
+          {required: true, message: '请输入班级名称', trigger: 'blur'}
         ]
       },
       formCreateClass: {
@@ -227,7 +227,6 @@ export default {
           this.formData.StudentClass.className == null ||
           this.formData.StudentClass.schoolId == null ||
           this.formData.StudentClass.leaderId == null ||
-          this.formData.StudentClass.finishClassHour == null ||
           this.formData.StudentClass.classLevel == null
         ) {
           this.$message.error('请求失败，发现必填参数为空！');
@@ -285,7 +284,8 @@ export default {
   },
   computed: {
   },
-  created () {
+  mounted () {
+    // 初始化页面数据
     this.formInit();
   },
   watch: {

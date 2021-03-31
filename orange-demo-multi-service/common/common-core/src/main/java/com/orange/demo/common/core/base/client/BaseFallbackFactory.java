@@ -42,7 +42,7 @@ public abstract class BaseFallbackFactory<D, V, K, T extends BaseClient<D, V, K>
     }
 
     @Override
-    public ResponseResult<Void> delete(K id) {
+    public ResponseResult<Integer> deleteById(K id) {
         return ResponseResult.error(ErrorCodeEnum.RPC_DATA_ACCESS_FAILED);
     }
 

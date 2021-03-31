@@ -18,7 +18,7 @@ import javax.sql.DataSource;
  */
 @Configuration
 @EnableTransactionManagement
-@MapperScan(value = {"com.orange.demo.*.dao"})
+@MapperScan(value = {"com.orange.demo.*.dao", "com.orange.demo.common.*.dao"})
 public class DataSourceConfig {
 
     @Bean(initMethod = "init", destroyMethod = "close")

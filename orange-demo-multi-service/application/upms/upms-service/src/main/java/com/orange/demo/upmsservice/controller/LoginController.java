@@ -11,11 +11,10 @@ import com.orange.demo.common.core.constant.ErrorCodeEnum;
 import com.orange.demo.common.core.constant.ApplicationConstant;
 import com.orange.demo.common.core.object.ResponseResult;
 import com.orange.demo.common.core.object.TokenData;
-import com.orange.demo.common.core.util.MyCommonUtil;
-import com.orange.demo.common.core.util.RsaUtil;
+import com.orange.demo.common.core.util.*;
 import com.orange.demo.common.redis.cache.SessionCacheHelper;
-import com.orange.demo.upmsinterface.constant.SysUserStatus;
-import com.orange.demo.upmsinterface.constant.SysUserType;
+import com.orange.demo.upmsapi.constant.SysUserStatus;
+import com.orange.demo.upmsapi.constant.SysUserType;
 import com.orange.demo.upmsservice.model.SysMenu;
 import com.orange.demo.upmsservice.model.SysUser;
 import com.orange.demo.upmsservice.service.*;
@@ -173,6 +172,8 @@ public class LoginController {
         tokenData.setIsAdmin(isAdmin);
         tokenData.setShowName(user.getShowName());
         tokenData.setSessionId(sessionId);
+        // 这里手动将TokenData存入request，便于OperationLogAspect统一处理操作日志。
+        TokenData.addToRequest(tokenData);
         JSONObject jsonData = new JSONObject();
         jsonData.put(TokenData.REQUEST_ATTRIBUTE_NAME, tokenData);
         jsonData.put("showName", user.getShowName());

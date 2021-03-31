@@ -2,6 +2,7 @@ import axios from 'axios';
 import router from '@/router';
 import dialog from '@/components/Dialog';
 import JSONbig from 'json-bigint';
+import { getToken, setToken } from '@/utils';
 
 // 创建axios实例
 const service = axios.create({
@@ -26,7 +27,7 @@ const service = axios.create({
 // request拦截器
 service.interceptors.request.use(
   config => {
-    let token = window.sessionStorage.getItem('token');
+    let token = getToken();
     let menuIdJsonStr = window.sessionStorage.getItem('currentMenuId');
     let currentMenuId;
     if (menuIdJsonStr != null) {
@@ -48,7 +49,7 @@ service.interceptors.response.use(
       router.push({ name: 'login' })
     } else {
       if (response.headers['refreshedtoken'] != null) {
-        window.sessionStorage.setItem('token', response.headers['refreshedtoken']);
+        setToken(response.headers['refreshedtoken']);
       }
     }
     return response

@@ -58,6 +58,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
 import { treeDataTranslate } from '@/utils';
 /* eslint-disable-next-line */
 import { DropdownWidget, TableWidget, UploadWidget, ChartWidget } from '@/utils/widget.js';
@@ -259,7 +260,8 @@ export default {
         console.log(e);
       }
       return [];
-    }
+    },
+    ...mapGetters(['getMainContextHeight'])
   },
   created () {
     this.formInit();

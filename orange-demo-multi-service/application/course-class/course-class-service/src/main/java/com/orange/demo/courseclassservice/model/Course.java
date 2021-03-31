@@ -1,13 +1,13 @@
 package com.orange.demo.courseclassservice.model;
 
-import com.orange.demo.courseclassinterface.constant.CourseDifficult;
+import com.orange.demo.courseclassapi.vo.CourseVo;
+import com.orange.demo.courseclassapi.constant.CourseDifficult;
 import com.orange.demo.application.common.constant.Subject;
 import com.orange.demo.common.core.upload.UploadStoreTypeEnum;
 import com.orange.demo.common.core.annotation.UploadFlagColumn;
 import com.orange.demo.common.core.annotation.RelationDict;
 import com.orange.demo.common.core.annotation.RelationConstDict;
 import com.orange.demo.common.core.base.mapper.BaseModelMapper;
-import com.orange.demo.courseclassinterface.vo.CourseVo;
 import lombok.Data;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;

@@ -23,7 +23,7 @@
         </property>
         <property name="LOG_PATTERN_EX">
             <!-- 下面注释中 %X{PtxId}, SpanId: %X{PspanId} 为PinPoint 中的traceid -->
-            [%-5p] [%d{YYYY-MM-dd HH:mm:ss}] 请求Id[%X{traceId}] [%t] ==> [TxId: %X{PtxId}, SpanId: %X{PspanId}] %msg%n
+            [%-5p] [%d{YYYY-MM-dd HH:mm:ss}] T:[%X{traceId}] S:[%X{sessionId}] U:[%X{userId}] [%t] ==> [TxId: %X{PtxId}, SpanId: %X{PspanId}] %msg%n
         </property>
         <!-- 日志保留天数 -->
         <property name="EVERY_FILE_COUNT">31</property>

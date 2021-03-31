@@ -9,6 +9,7 @@ import com.orange.demo.common.core.object.CallResult;
 import com.orange.demo.common.core.base.dao.BaseDaoMapper;
 import com.orange.demo.common.core.base.service.BaseService;
 import com.orange.demo.common.sequence.wrapper.IdGeneratorWrapper;
+import com.github.pagehelper.Page;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -125,7 +126,8 @@ public class SchoolInfoServiceImpl extends BaseService<SchoolInfo, Long> impleme
     @Override
     public List<SchoolInfo> getSchoolInfoListWithRelation(SchoolInfo filter, String orderBy) {
         List<SchoolInfo> resultList = schoolInfoMapper.getSchoolInfoList(null, null, filter, orderBy);
-        this.buildRelationForDataList(resultList, MyRelationParam.normal());
+        int batchSize = resultList instanceof Page ? 0 : 1000;
+        this.buildRelationForDataList(resultList, MyRelationParam.normal(), batchSize);
         return resultList;
     }
 
@@ -145,7 +147,8 @@ public class SchoolInfoServiceImpl extends BaseService<SchoolInfo, Long> impleme
             String inFilterField, Set<M> inFilterValues, SchoolInfo filter, String orderBy) {
         List<SchoolInfo> resultList =
                 schoolInfoMapper.getSchoolInfoList(inFilterField, inFilterValues, filter, orderBy);
-        this.buildRelationForDataList(resultList, MyRelationParam.dictOnly());
+        int batchSize = resultList instanceof Page ? 0 : 1000;
+        this.buildRelationForDataList(resultList, MyRelationParam.dictOnly(), batchSize);
         return resultList;
     }
 

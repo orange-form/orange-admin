@@ -680,9 +680,9 @@
   line-height: 1; }
 
 .el-range-editor.is-active {
-  border-color: #FFA424; }
+  border-color: #409EFF; }
   .el-range-editor.is-active:hover {
-    border-color: #FFA424; }
+    border-color: #409EFF; }
 
 .el-range-editor--medium.el-input__inner {
   height: 36px; }
@@ -1154,10 +1154,10 @@
     outline: none;
     cursor: pointer; }
     .el-picker-panel__shortcut:hover {
-      color: #FFA424; }
+      color: #409EFF; }
     .el-picker-panel__shortcut.active {
       background-color: #e6f1fe;
-      color: #FFA424; }
+      color: #409EFF; }
   .el-picker-panel__btn {
     border: 1px solid #dcdcdc;
     color: #333;
@@ -1180,7 +1180,7 @@
     outline: none;
     margin-top: 8px; }
     .el-picker-panel__icon-btn:hover {
-      color: #FFA424; }
+      color: #409EFF; }
     .el-picker-panel__icon-btn.is-disabled {
       color: #bbb; }
       .el-picker-panel__icon-btn.is-disabled:hover {
@@ -1249,9 +1249,9 @@
     cursor: pointer;
     color: #606266; }
     .el-date-picker__header-label:hover {
-      color: #FFA424; }
+      color: #409EFF; }
     .el-date-picker__header-label.active {
-      color: #FFA424; }
+      color: #409EFF; }
   .el-date-picker__prev-btn {
     float: left; }
   .el-date-picker__next-btn {
@@ -1905,7 +1905,7 @@
   line-height: 20px; }
 
 .time-select-item.selected:not(.disabled) {
-  color: #FFA424;
+  color: #409EFF;
   font-weight: bold; }
 
 .time-select-item.disabled {

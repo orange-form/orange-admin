@@ -3,7 +3,7 @@ package com.orange.demo.statsservice.service.impl;
 import com.orange.demo.statsservice.service.*;
 import com.orange.demo.statsservice.dao.*;
 import com.orange.demo.statsservice.model.*;
-import com.orange.demo.courseclassinterface.client.*;
+import com.orange.demo.courseclassapi.client.*;
 import com.orange.demo.common.core.util.*;
 import com.orange.demo.common.core.object.MyRelationParam;
 import com.orange.demo.common.core.object.ResponseResult;
@@ -11,6 +11,7 @@ import com.orange.demo.common.core.object.CallResult;
 import com.orange.demo.common.core.base.dao.BaseDaoMapper;
 import com.orange.demo.common.core.base.service.BaseService;
 import com.orange.demo.common.sequence.wrapper.IdGeneratorWrapper;
+import com.github.pagehelper.Page;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -131,7 +132,8 @@ public class StudentActionTransServiceImpl extends BaseService<StudentActionTran
     @Override
     public List<StudentActionTrans> getStudentActionTransListWithRelation(StudentActionTrans filter, String orderBy) {
         List<StudentActionTrans> resultList = studentActionTransMapper.getStudentActionTransList(null, null, filter, orderBy);
-        this.buildRelationForDataList(resultList, MyRelationParam.normal());
+        int batchSize = resultList instanceof Page ? 0 : 1000;
+        this.buildRelationForDataList(resultList, MyRelationParam.normal(), batchSize);
         return resultList;
     }
 
@@ -151,7 +153,8 @@ public class StudentActionTransServiceImpl extends BaseService<StudentActionTran
             String inFilterField, Set<M> inFilterValues, StudentActionTrans filter, String orderBy) {
         List<StudentActionTrans> resultList =
                 studentActionTransMapper.getStudentActionTransList(inFilterField, inFilterValues, filter, orderBy);
-        this.buildRelationForDataList(resultList, MyRelationParam.dictOnly());
+        int batchSize = resultList instanceof Page ? 0 : 1000;
+        this.buildRelationForDataList(resultList, MyRelationParam.dictOnly(), batchSize);
         return resultList;
     }
 

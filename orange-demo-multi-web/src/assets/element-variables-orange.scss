@@ -479,9 +479,9 @@ $--input-mini-height: 28px !default;
 /* Cascader
 -------------------------- */
 /// color||Color|0
-$--cascader-menu-font-color: $--color-white !default;
+$--cascader-menu-font-color: $--color-text-regular !default;
 /// color||Color|0
-$--cascader-menu-selected-font-color: $--color-white !default;
+$--cascader-menu-selected-font-color: $--color-primary !default;
 $--cascader-menu-fill: $--fill-base !default;
 $--cascader-menu-font-size: $--font-size-base !default;
 $--cascader-menu-radius: $--border-radius-base !default;

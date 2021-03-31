@@ -60,6 +60,45 @@ public class MapTreeDictionaryCache<K, V> extends MapDictionaryCache<K, V> {
         this.parentIdGetter = parentIdGetter;
     }
 
+
+    /**
+     * 重新加载，先清空原有数据，在执行putAll的操作。
+     *
+     * @param dataList 待缓存的数据列表。
+     * @param force    true则强制刷新，如果false，当缓存中存在数据时不刷新。
+     */
+    @Override
+    public void reload(List<V> dataList, boolean force) {
+        if (!force && this.getCount() > 0) {
+            return;
+        }
+        String exceptionMessage;
+        try {
+            if (lock.readLock().tryLock(TIMEOUT, TimeUnit.MILLISECONDS)) {
+                try {
+                    dataMap.clear();
+                    allTreeMap.clear();
+                    dataList.forEach(data -> {
+                        K id = idGetter.apply(data);
+                        dataMap.put(id, data);
+                        K parentId = parentIdGetter.apply(data);
+                        allTreeMap.put(parentId, data);
+                    });
+                } finally {
+                    lock.readLock().unlock();
+                }
+            } else {
+                throw new TimeoutException();
+            }
+        } catch (Exception e) {
+            exceptionMessage = String.format(
+                    "LOCK Operation of [MapDictionaryCache::getInList] encountered EXCEPTION [%s] for DICT.",
+                    e.getClass().getSimpleName());
+            log.warn(exceptionMessage);
+            throw new MapCacheAccessException(exceptionMessage, e);
+        }
+    }
+
     /**
      * 获取该父主键的子数据列表。
      *
@@ -103,8 +142,9 @@ public class MapTreeDictionaryCache<K, V> extends MapDictionaryCache<K, V> {
         try {
             if (lock.readLock().tryLock(TIMEOUT, TimeUnit.MILLISECONDS)) {
                 try {
-                    super.putAll(dataList);
                     dataList.forEach(data -> {
+                        K id = idGetter.apply(data);
+                        dataMap.put(id, data);
                         K parentId = parentIdGetter.apply(data);
                         allTreeMap.remove(parentId, data);
                         allTreeMap.put(parentId, data);
@@ -136,7 +176,7 @@ public class MapTreeDictionaryCache<K, V> extends MapDictionaryCache<K, V> {
         try {
             if (lock.readLock().tryLock(TIMEOUT, TimeUnit.MILLISECONDS)) {
                 try {
-                    super.put(id, data);
+                    dataMap.put(id, data);
                     K parentId = parentIdGetter.apply(data);
                     allTreeMap.remove(parentId, data);
                     allTreeMap.put(parentId, data);
@@ -168,7 +208,7 @@ public class MapTreeDictionaryCache<K, V> extends MapDictionaryCache<K, V> {
         try {
             if (lock.readLock().tryLock(TIMEOUT, TimeUnit.MILLISECONDS)) {
                 try {
-                    v = super.invalidate(id);
+                    v = dataMap.remove(id);
                     if (v != null) {
                         K parentId = parentIdGetter.apply(v);
                         allTreeMap.remove(parentId, v);
@@ -233,7 +273,7 @@ public class MapTreeDictionaryCache<K, V> extends MapDictionaryCache<K, V> {
         try {
             if (lock.readLock().tryLock(TIMEOUT, TimeUnit.MILLISECONDS)) {
                 try {
-                    super.invalidateAll();
+                    dataMap.clear();
                     allTreeMap.clear();
                 } finally {
                     lock.readLock().unlock();

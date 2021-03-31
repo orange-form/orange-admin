@@ -5,7 +5,7 @@
         <el-form-item label="统计日期">
           <date-range class="filter-item" v-model="formStudentActionStats.formFilter.statsDate" :clearable="true" :allowTypes="['day']" align="left"
             range-separator="-" start-placeholder="开始日期" end-placeholder="结束日期"
-            format="yyyy-MM-dd" value-format="yyyy-MM-dd hh:mm:ss" />
+            format="yyyy-MM-dd" value-format="yyyy-MM-dd HH:mm:ss" />
         </el-form-item>
         <el-form-item label="所属年级">
           <el-select class="filter-item" v-model="formStudentActionStats.formFilter.gradeId" :clearable="true" filterable
@@ -116,7 +116,7 @@ export default {
           impl: new DropdownWidget(this.loadGradeIdDropdownList)
         },
         StudentActionStats: {
-          impl: new TableWidget(this.loadStudentActionStatsData, this.loadStudentActionStatsVerify, true, false, 'statsDate', 1)
+          impl: new TableWidget(this.loadStudentActionStatsWidgetData, this.loadStudentActionStatsVerify, true, false, 'statsDate', 1)
         },
         isInit: false
       }
@@ -126,7 +126,7 @@ export default {
     /**
      * 学生行为统计数据获取函数，返回Promise
      */
-    loadStudentActionStatsData (params) {
+    loadStudentActionStatsWidgetData (params) {
       if (params == null) params = {};
       params = {
         ...params,
@@ -308,7 +308,8 @@ export default {
       this.refreshFormStudentActionStats();
     }
   },
-  created () {
+  mounted () {
+    // 初始化页面数据
     this.formInit();
   },
   watch: {

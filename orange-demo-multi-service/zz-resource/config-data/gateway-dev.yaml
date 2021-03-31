@@ -25,6 +25,16 @@ spring:
           enabled: false
           lower-case-service-id: true
       routes:
+      - id: upms
+        uri: lb://upms
+        predicates:
+        - Path=/admin/upms/**
+        filters:
+        - StripPrefix=2
+        - name: Hystrix
+          args:
+            name: default
+            fallbackUri: forward:/fallback
       - id: course-class
         uri: lb://course-class
         predicates:
@@ -39,16 +49,6 @@ spring:
         uri: lb://stats
         predicates:
         - Path=/admin/stats/**
-        filters:
-        - StripPrefix=2
-        - name: Hystrix
-          args:
-            name: default
-            fallbackUri: forward:/fallback
-      - id: upms
-        uri: lb://upms
-        predicates:
-        - Path=/admin/upms/**
         filters:
         - StripPrefix=2
         - name: Hystrix

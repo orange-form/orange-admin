@@ -23,6 +23,13 @@ public class MyQueryParam {
      * 用于数据过滤的DTO对象。
      */
     private Map<String, Object> filterMap;
+
+    /**
+     * 聚合计算是否使用数据权限进行过滤。true表示数据过滤将产生作用，否则SQL中不会包含数据过滤。
+     * 目前数据过滤包括数据权限过滤和租户数据过滤。
+     */
+    private Boolean useDataFilter = true;
+
     /**
      * (In-list) 实体对象中的过滤字段(而非数据表列名)，需和下面的inFilterValues字段一起使用。
      * NOTE: MyWhereCriteria中的IN类型过滤条件，完全可以替代该字段。之所以保留主要是为了保证更好的接口可读性。

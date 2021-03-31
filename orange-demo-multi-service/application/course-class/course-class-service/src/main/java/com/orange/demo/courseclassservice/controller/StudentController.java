@@ -4,8 +4,8 @@ import cn.jimmyshi.beanquery.BeanQuery;
 import com.github.pagehelper.page.PageMethod;
 import com.orange.demo.courseclassservice.model.*;
 import com.orange.demo.courseclassservice.service.*;
-import com.orange.demo.courseclassinterface.dto.*;
-import com.orange.demo.courseclassinterface.vo.*;
+import com.orange.demo.courseclassapi.dto.*;
+import com.orange.demo.courseclassapi.vo.*;
 import com.orange.demo.common.core.object.*;
 import com.orange.demo.common.core.util.*;
 import com.orange.demo.common.core.constant.*;
@@ -242,6 +242,20 @@ public class StudentController extends BaseController<Student, StudentVo, Long> 
     @PostMapping("/existId")
     public ResponseResult<Boolean> existId(@RequestParam Long studentId) {
         return super.baseExistId(studentId);
+    }
+
+    /**
+     * 根据主键Id删除数据。
+     *
+     * @param studentId 主键Id。
+     * @return 删除数量。
+     */
+    @ApiOperation(hidden = true, value = "deleteById")
+    @PostMapping("/deleteById")
+    public ResponseResult<Integer> deleteById(@RequestParam Long studentId) throws Exception {
+        Student filter = new Student();
+        filter.setStudentId(studentId);
+        return super.baseDeleteBy(filter);
     }
 
     /**

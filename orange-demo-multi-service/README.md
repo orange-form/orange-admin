@@ -71,7 +71,7 @@
   - 查看启动日志命令 docker-compose logs
 - docker-compose-full.yml (可选)
   - 包含全部服务的启动项，基础服务 + elk + gp。
-  - 启动方式为 docker-compose up -f docker-compose-full.yml -d
+  - 启动方式为 docker-compose -f docker-compose-full.yml up -d
   - 停止方式和数据错误处理方式，请参考上面docker-compose.yml的说明。
 - Pinpoint服务启动 (可选)
   - 进入zz-resource/pinpoint-docker-master目录。

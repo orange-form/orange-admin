@@ -9,8 +9,8 @@ import com.orange.demo.common.core.upload.UploadStoreInfo;
 import com.github.pagehelper.page.PageMethod;
 import com.orange.demo.courseclassservice.model.*;
 import com.orange.demo.courseclassservice.service.*;
-import com.orange.demo.courseclassinterface.dto.*;
-import com.orange.demo.courseclassinterface.vo.*;
+import com.orange.demo.courseclassapi.dto.*;
+import com.orange.demo.courseclassapi.vo.*;
 import com.orange.demo.common.core.object.*;
 import com.orange.demo.common.core.util.*;
 import com.orange.demo.common.core.constant.*;
@@ -277,7 +277,7 @@ public class CourseController extends BaseController<Course, CourseVo, Long> {
         }
         // 根据字段注解中的存储类型，通过工厂方法获取匹配的上传下载实现类，从而解耦。
         BaseUpDownloader upDownloader = upDownloaderFactory.get(storeInfo.getStoreType());
-        UploadResponseInfo responseInfo = upDownloader.doUpload(appConfig.getServiceContextPath(),
+        UploadResponseInfo responseInfo = upDownloader.doUpload(appConfig.getServiceContextPath(), 
                 appConfig.getUploadFileBaseDir(), Course.class.getSimpleName(), fieldName, asImage, uploadFile);
         if (responseInfo.getUploadFailed()) {
             ResponseResult.output(HttpServletResponse.SC_FORBIDDEN,
@@ -352,6 +352,20 @@ public class CourseController extends BaseController<Course, CourseVo, Long> {
     @PostMapping("/existId")
     public ResponseResult<Boolean> existId(@RequestParam Long courseId) {
         return super.baseExistId(courseId);
+    }
+
+    /**
+     * 根据主键Id删除数据。
+     *
+     * @param courseId 主键Id。
+     * @return 删除数量。
+     */
+    @ApiOperation(hidden = true, value = "deleteById")
+    @PostMapping("/deleteById")
+    public ResponseResult<Integer> deleteById(@RequestParam Long courseId) throws Exception {
+        Course filter = new Course();
+        filter.setCourseId(courseId);
+        return super.baseDeleteBy(filter);
     }
 
     /**

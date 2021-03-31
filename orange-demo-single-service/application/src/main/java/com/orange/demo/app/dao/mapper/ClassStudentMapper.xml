@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.orange.demo.app.dao.ClassStudentMapper">
-    <resultMap id="BaseResultMap" type="com.orange.demo.app.model.ClassStudent">
-        <id column="class_id" jdbcType="BIGINT" property="classId"/>
-        <id column="student_id" jdbcType="BIGINT" property="studentId"/>
-    </resultMap>
-</mapper>

@@ -96,7 +96,7 @@ export default {
           impl: new DropdownWidget(this.loadSchoolIdDropdownList)
         },
         Student: {
-          impl: new TableWidget(this.loadStudentData, this.loadStudentVerify, true, false)
+          impl: new TableWidget(this.loadStudentWidgetData, this.loadStudentVerify, true, false)
         },
         isInit: false
       }
@@ -114,7 +114,7 @@ export default {
     /**
      * 班级学生数据获取函数，返回Promise
      */
-    loadStudentData (params) {
+    loadStudentWidgetData (params) {
       if (
         this.classId == null
       ) {
@@ -212,7 +212,8 @@ export default {
       this.refreshFormSetClassStudent();
     }
   },
-  created () {
+  mounted () {
+    // 初始化页面数据
     this.formInit();
   },
   watch: {

@@ -249,15 +249,15 @@
 /* Break-point
 --------------------------*/
 .el-tag {
-  background-color: #fff6e9;
-  border-color: #ffedd3;
-  color: #ffa424;
+  background-color: #ecf5ff;
+  border-color: #d9ecff;
+  color: #409eff;
   display: inline-block;
   height: 32px;
   padding: 0 10px;
   line-height: 30px;
   font-size: 12px;
-  color: #FFA424;
+  color: #409EFF;
   border-width: 1px;
   border-style: solid;
   border-radius: 4px;
@@ -265,12 +265,12 @@
   box-sizing: border-box;
   white-space: nowrap; }
   .el-tag.is-hit {
-    border-color: #FFA424; }
+    border-color: #409EFF; }
   .el-tag .el-tag__close {
-    color: #ffa424; }
+    color: #409eff; }
     .el-tag .el-tag__close:hover {
       color: #FFFFFF;
-      background-color: #ffa424; }
+      background-color: #409eff; }
   .el-tag.el-tag--info {
     background-color: #f4f4f5;
     border-color: #e9e9eb;
@@ -330,16 +330,16 @@
     .el-tag .el-icon-close::before {
       display: block; }
   .el-tag--dark {
-    background-color: #ffa424;
-    border-color: #ffa424;
+    background-color: #409eff;
+    border-color: #409eff;
     color: white; }
     .el-tag--dark.is-hit {
-      border-color: #FFA424; }
+      border-color: #409EFF; }
     .el-tag--dark .el-tag__close {
       color: white; }
       .el-tag--dark .el-tag__close:hover {
         color: #FFFFFF;
-        background-color: #ffb650; }
+        background-color: #66b1ff; }
     .el-tag--dark.el-tag--info {
       background-color: #909399;
       border-color: #909399;
@@ -386,15 +386,15 @@
           background-color: #f78989; }
   .el-tag--plain {
     background-color: white;
-    border-color: #ffdba7;
-    color: #ffa424; }
+    border-color: #b3d8ff;
+    color: #409eff; }
     .el-tag--plain.is-hit {
-      border-color: #FFA424; }
+      border-color: #409EFF; }
     .el-tag--plain .el-tag__close {
-      color: #ffa424; }
+      color: #409eff; }
       .el-tag--plain .el-tag__close:hover {
         color: #FFFFFF;
-        background-color: #ffa424; }
+        background-color: #409eff; }
     .el-tag--plain.el-tag--info {
       background-color: white;
       border-color: #d3d4d6;

@@ -10,9 +10,10 @@ import com.orange.demo.common.core.constant.GlobalDeletedFlag;
 import com.orange.demo.common.core.base.dao.BaseDaoMapper;
 import com.orange.demo.common.core.base.service.BaseService;
 import com.orange.demo.common.sequence.wrapper.IdGeneratorWrapper;
-import com.orange.demo.upmsinterface.constant.SysUserStatus;
+import com.orange.demo.upmsapi.constant.SysUserStatus;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import com.github.pagehelper.Page;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -210,7 +211,8 @@ public class SysUserServiceImpl extends BaseService<SysUser, Long> implements Sy
     @Override
     public List<SysUser> getSysUserListWithRelation(SysUser filter, String orderBy) {
         List<SysUser> resultList = sysUserMapper.getSysUserList(null, null, filter, orderBy);
-        this.buildRelationForDataList(resultList, MyRelationParam.normal());
+        int batchSize = resultList instanceof Page ? 0 : 1000;
+        this.buildRelationForDataList(resultList, MyRelationParam.normal(), batchSize);
         return resultList;
     }
 
@@ -230,7 +232,8 @@ public class SysUserServiceImpl extends BaseService<SysUser, Long> implements Sy
             String inFilterField, Set<M> inFilterValues, SysUser filter, String orderBy) {
         List<SysUser> resultList =
                 sysUserMapper.getSysUserList(inFilterField, inFilterValues, filter, orderBy);
-        this.buildRelationForDataList(resultList, MyRelationParam.dictOnly());
+        int batchSize = resultList instanceof Page ? 0 : 1000;
+        this.buildRelationForDataList(resultList, MyRelationParam.dictOnly(), batchSize);
         return resultList;
     }
 

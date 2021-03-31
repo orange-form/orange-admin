@@ -1,5 +1,4 @@
 import SystemController from './Controller/SystemController'
-import SysDataPermController from './Controller/SysDataPermController'
 import DictionaryController from './Controller/DictionaryController'
 import CourseController from './Controller/CourseController.js'
 import SchoolInfoController from './Controller/SchoolInfoController.js'
@@ -12,7 +11,6 @@ import StudentActionTransController from './Controller/StudentActionTransControl
 
 export {
   SystemController,
-  SysDataPermController,
   DictionaryController,
   CourseController,
   SchoolInfoController,

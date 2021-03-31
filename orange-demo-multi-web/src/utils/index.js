@@ -1,4 +1,6 @@
 import JSEncrypt from 'jsencrypt';
+// eslint-disable-next-line no-unused-vars
+// import Cookies from 'js-cookie';
 
 /**
  * 列表数据转换树形数据
@@ -219,4 +221,218 @@ export function encrypt (value) {
   let encrypt = new JSEncrypt();
   encrypt.setPublicKey(publicKey);
   return encodeURIComponent(encrypt.encrypt(value));
+}
+
+export function getToken () {
+  return sessionStorage.getItem('token');
+  // return Cookies.get('token');
+}
+
+export function setToken (token) {
+  if (token == null || token === '') {
+    sessionStorage.removeItem('token');
+    // Cookies.remove('token');
+  } else {
+    sessionStorage.setItem('token', token);
+    // Cookies.set('token', token);
+  }
+}
+
+export function traversalTree (treeNode, callback, childrenKey = 'children') {
+  if (treeNode != null && Array.isArray(treeNode[childrenKey]) && treeNode[childrenKey].length > 0) {
+    treeNode[childrenKey].forEach(childNode => {
+      traversalTree(childNode, callback, childrenKey);
+    });
+  }
+  return typeof callback === 'function' ? callback(treeNode) : undefined;
+}
+
+export class TreeTableImpl {
+  constructor (dataList, options) {
+    this.options = {
+      idKey: options ? options.idKey : 'id',
+      nameKey: options ? options.nameKey : 'name',
+      parentIdKey: options ? options.parentIdKey : 'parentId',
+      isLefeCallback: options ? options.isLefeCallback : undefined,
+      checkStrictly: options ? options.checkStrictly : false
+    }
+
+    this.dataList = Array.isArray(dataList) ? dataList : [];
+    this.dataMap = new Map();
+    this.dataList.forEach(item => {
+      this.dataMap.set(item[this.options.idKey], item);
+    });
+    // 表格选中行
+    this.checkedRows = undefined;
+    this.onCheckedRowChange = this.onCheckedRowChange.bind(this);
+  }
+
+  /**
+   * 过滤表格数据
+   * @param {string} filterString 过滤条件字符串
+   * @param {boolean} onlyChecked 是否只显示选中节点
+   * @returns {array} 过滤后的表格数据列表
+   */
+  getFilterTableData (filterString, onlyChecked = false) {
+    let { idKey, nameKey, parentIdKey, isLefeCallback } = this.options;
+    let tempMap = new Map();
+    let parentIdList = [];
+    this.dataList.forEach(item => {
+      if ((filterString == null || filterString === '' || item[nameKey].indexOf(filterString) !== -1) &&
+        (!onlyChecked || (this.checkedRows != null && this.checkedRows.get(item[idKey])))) {
+        if (isLefeCallback == null || !isLefeCallback(item)) {
+          parentIdList.push(item[idKey]);
+        }
+        // 将命中节点以及它的父节点都设置为命中
+        let tempItem = item;
+        do {
+          tempMap.set(tempItem[idKey], tempItem);
+          tempItem = this.dataMap.get(tempItem[parentIdKey]);
+        } while (tempItem != null)
+      }
+    });
+
+    return this.dataList.map(item => {
+      let disabled = true;
+      
+      if (parentIdList.indexOf(item[parentIdKey]) !== -1 || tempMap.get(item[idKey]) != null) {
+        if (parentIdList.indexOf(item[parentIdKey]) !== -1 && (isLefeCallback == null || !isLefeCallback(item))) {
+          parentIdList.push(item[idKey]);
+        }
+        disabled = false;
+      }
+
+      return {
+        ...item,
+        __disabled: disabled
+      }
+    });
+  }
+
+  /**
+   * 获取表格树数据，计算选中状态
+   * @param {array} dataList 表格列表数据
+   */
+  getTableTreeData (dataList, checkedRows) {
+    let { idKey, parentIdKey, checkStrictly } = this.options;
+    let treeData = [];
+    function calcPermCodeTreeAttribute (treeNode, checkedRows) {
+      let checkedItem = checkedRows == null ? null : checkedRows.get(treeNode[idKey]);
+      treeNode.__checked = checkedItem != null;
+      // 是否所有子权限字都被选中
+      let allChildChecked = true;
+      // 是否任意子权限字被选中
+      let hasChildChecked = false;
+      // 如果存在子权限字
+      if (Array.isArray(treeNode.children) && treeNode.children.length > 0) {
+        treeNode.children.forEach(item => {
+          let isChecked = calcPermCodeTreeAttribute(item, checkedRows);
+          hasChildChecked = hasChildChecked || isChecked;
+          allChildChecked = allChildChecked && isChecked;
+        });
+      } else {
+        allChildChecked = false;
+      }
+      treeNode.__indeterminate = !checkStrictly && hasChildChecked && !allChildChecked;
+      treeNode.__checked = treeNode.__checked || (allChildChecked && !checkStrictly);
+      return treeNode.__checked || treeNode.__indeterminate;
+    }
+
+    if (Array.isArray(dataList)) {
+      treeData = treeDataTranslate(dataList.map(item => {
+        return {...item};
+      }), idKey, parentIdKey);
+      treeData.forEach(item => {
+        calcPermCodeTreeAttribute(item, checkedRows);
+      });
+    }
+    console.log(treeData, checkedRows);
+    return treeData;
+  }
+
+  /**
+   * 树表格行选中状态改变
+   * @param {object} row 选中状态改变行数据
+   */
+  onCheckedRowChange (row) {
+    if (this.checkedRows == null) {
+      this.checkedRows = new Map();
+    } else {
+      let temp = new Map();
+      this.checkedRows.forEach((item, key) => {
+        temp.set(key, item);
+      });
+      this.checkedRows = temp;
+    }
+    let { idKey } = this.options;
+    if (!row.__checked || row.__indeterminate) {
+      // 节点之前未被选中或者之前为半选状态，修改当前节点以及子节点为选中状态
+      this.checkedRows.set(row[idKey], row);
+      if (Array.isArray(row.children) && !this.options.checkStrictly) {
+        row.children.forEach(childNode => {
+          traversalTree(childNode, (node) => {
+            this.checkedRows.set(node[idKey], node);
+          });
+        });
+      }
+    } else {
+      // 节点之前为选中状态，修改节点以及子节点为未选中状态
+      this.checkedRows.delete(row[idKey]);
+      if (Array.isArray(row.children) && !this.options.checkStrictly) {
+        row.children.forEach(childNode => {
+          traversalTree(childNode, (node) => {
+            this.checkedRows.delete(node[idKey]);
+          });
+        });
+      }
+    }
+  }
+
+  /**
+   * 获取所有选中的权限字节点
+   * @param {array} treeData 树数据
+   * @param {boolean} includeHalfChecked 是否包含半选节点，默认为false
+   * @returns {array} 选中节点列表
+   */
+  getCheckedRows (treeData, includeHalfChecked = false) {
+    let checkedRows = [];
+
+    function traversalCallback (node) {
+      if (node == null) return;
+      if (node.__checked || (includeHalfChecked && node.__indeterminate)) {
+        checkedRows.push(node);
+      }
+    }
+
+    if (Array.isArray(treeData) && treeData.length > 0) {
+      treeData.forEach(permCode => {
+        traversalTree(permCode, traversalCallback, 'children');
+      });
+    }
+
+    return checkedRows;
+  }
+
+  /**
+   * 设置选中节点
+   * @param {array} checkedRows
+   */
+  setCheckedRows (checkedRows) {
+    this.checkedRows = new Map();
+    if (Array.isArray(checkedRows)) {
+      checkedRows.forEach(item => {
+        let node = this.dataMap.get(item[this.options.idKey]);
+        if (node != null) {
+          this.checkedRows.set(node[this.options.idKey], node);
+        }
+      });
+    }
+  }
+  /**
+   * 根据id获取表格行
+   * @param {*} id
+   */
+  getTableRow (id) {
+    return this.dataMap.get(id);
+  }
 }

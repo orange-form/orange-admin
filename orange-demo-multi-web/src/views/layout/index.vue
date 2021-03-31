@@ -13,7 +13,7 @@
         </div>
         <div class="header-menu" style="flex-grow: 1;">
           <el-dropdown class="user-dropdown" trigger="click" @command="handleCommand">
-            <span class="el-dropdown-link">{{getUserInfo.showName}}<i class="el-icon-arrow-down el-icon--right"></i>
+            <span class="el-dropdown-link">{{(getUserInfo || {}).showName}}<i class="el-icon-arrow-down el-icon--right"></i>
             </span>
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item class="user-dropdown-item" command="modifyPassword">修改密码</el-dropdown-item>
@@ -44,6 +44,7 @@ import Breadcrumb from './components/breadcrumb';
 import TagPanel from './components/tags/tagPanel.vue';
 import formModifyPassword from './components/formModifyPassword/index.vue';
 import { SystemController } from '@/api';
+import { getToken, setToken } from '@/utils';
 
 export default {
   data () {
@@ -87,13 +88,13 @@ export default {
         }).then(() => {
           let options = {
             headers: {
-              Authorization: window.sessionStorage.getItem('token')
+              Authorization: getToken()
             },
             showMask: false
           }
           SystemController.logout(this, {}, options).catch(e => {});
           this.clearAllTags();
-          window.sessionStorage.removeItem('token');
+          setToken();
           window.sessionStorage.removeItem('isUaaLogin');
           this.$router.replace({name: 'login'});
         }).catch(e => {});
@@ -103,7 +104,14 @@ export default {
         }, {}).catch(e => {});
       }
     },
-    ...mapMutations(['setClientHeight', 'setCurrentColumnId', 'clearCachePage', 'clearAllTags'])
+    ...mapMutations([
+      'setClientHeight',
+      'setCurrentColumnId',
+      'clearCachePage',
+      'clearAllTags',
+      'setUserInfo',
+      'setMenuList'
+    ])
   },
   computed: {
     getMainStyle () {
@@ -141,6 +149,15 @@ export default {
     
     window.onresize = () => {
       resetHeight();
+    }
+
+    // 重新获取登录信息
+    if (getToken() != null && getToken() !== '' && this.getUserInfo == null) {
+      SystemController.getLoginInfo(this, {}).then(data => {
+        this.setMenuList(data.data.menuList);
+        delete data.data.menuList;
+        this.setUserInfo(data.data);
+      }).catch(e => {});
     }
   },
   watch: {

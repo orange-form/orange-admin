@@ -57,11 +57,6 @@
             </el-table-column>
             <el-table-column label="关联URL" prop="url" min-width="250px">
             </el-table-column>
-            <el-table-column label="创建时间" width="100px">
-              <template slot-scope="scope">
-                <span>{{formatDateByStatsType(scope.row.createTime, 'day')}}</span>
-              </template>
-            </el-table-column>
             <el-table-column label="操作" fixed="right" width="150px">
               <template slot-scope="scope">
                 <el-button @click="onEditPermModuleClick(scope.row)" type="text" size="mini"

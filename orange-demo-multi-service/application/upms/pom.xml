@@ -12,7 +12,7 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>upms-interface</module>
+        <module>upms-api</module>
         <module>upms-service</module>
     </modules>
 </project>

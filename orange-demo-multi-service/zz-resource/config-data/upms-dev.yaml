@@ -28,8 +28,8 @@ sequence:
   zkPath: com/orange/demo
 
 mybatis:
-  mapperLocations: classpath:com/orange/demo/*/dao/mapper/*Mapper.xml,com/orange/demo/common/datasync/dao/mapper/*Mapper.xml
-  typeAliasesPackage: com.orange.demo.*.model,com.orange.demo.common.datasync.model
+  mapperLocations: classpath:com/orange/demo//*/dao/mapper/*Mapper.xml,com/orange/demo/common/datasync/dao/mapper/*Mapper.xml
+  typeAliasesPackage: com.orange.demo..*.model,com.orange.demo.common.datasync.model
 
 mapper:
   mappers: tk.mybatis.mapper.common.Mapper,tk.mybatis.mapper.additional.insert.InsertListMapper

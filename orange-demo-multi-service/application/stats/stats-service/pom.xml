@@ -17,12 +17,17 @@
         <!-- 业务组件依赖 -->
         <dependency>
             <groupId>com.orange.demo</groupId>
-            <artifactId>stats-interface</artifactId>
+            <artifactId>stats-api</artifactId>
             <version>1.0.0</version>
         </dependency>
         <dependency>
             <groupId>com.orange.demo</groupId>
-            <artifactId>course-class-interface</artifactId>
+            <artifactId>course-class-api</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.orange.demo</groupId>
+            <artifactId>common-core</artifactId>
             <version>1.0.0</version>
         </dependency>
         <dependency>

@@ -2,6 +2,7 @@ package com.orange.demo.common.redis.cache;
 
 import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
+import com.orange.demo.common.core.constant.ApplicationConstant;
 import com.orange.demo.common.core.exception.RedisCacheAccessException;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Multimap;
@@ -79,7 +80,8 @@ public class RedisTreeDictionaryCache<K, V> extends RedisDictionaryCache<K, V> {
             Function<V, K> idGetter,
             Function<V, K> parentIdGetter) {
         super(redissonClient, dictionaryName, valueClazz, idGetter);
-        this.allTreeMap = redissonClient.getListMultimap(dictionaryName + "-TREE-DICT");
+        this.allTreeMap = redissonClient.getListMultimap(
+                dictionaryName + ApplicationConstant.TREE_DICT_CACHE_NAME_SUFFIX);
         this.parentIdGetter = parentIdGetter;
     }
 

@@ -124,8 +124,14 @@ export default {
         }
       },
       rules: {
+        'Course.pictureUrl': [
+          {required: true, message: '请输入课程图片', trigger: 'blur'}
+        ],
         'Course.courseName': [
           {required: true, message: '请输入课程名称', trigger: 'blur'}
+        ],
+        'Course.gradeId': [
+          {required: true, message: '请输入所属年级', trigger: 'blur'}
         ],
         'Course.price': [
           {required: true, message: '请输入课程价格', trigger: 'blur'},
@@ -135,9 +141,6 @@ export default {
         'Course.difficulty': [
           {required: true, message: '请输入课程难度', trigger: 'blur'}
         ],
-        'Course.gradeId': [
-          {required: true, message: '请输入所属年级', trigger: 'blur'}
-        ],
         'Course.subjectId': [
           {required: true, message: '请输入所属学科', trigger: 'blur'}
         ],
@@ -145,9 +148,6 @@ export default {
           {required: true, message: '请输入课时数量', trigger: 'blur'},
           {type: 'integer', message: '课时数量只允许输入整数', trigger: 'blur', transform: (value) => Number(value)},
           {type: 'number', min: 1, message: '课时数量必须大于1', trigger: 'blur', transform: (value) => Number(value)}
-        ],
-        'Course.pictureUrl': [
-          {required: true, message: '请输入课程图片', trigger: 'blur'}
         ]
       },
       formCreateCourse: {
@@ -337,7 +337,8 @@ export default {
   },
   computed: {
   },
-  created () {
+  mounted () {
+    // 初始化页面数据
     this.formInit();
   },
   watch: {

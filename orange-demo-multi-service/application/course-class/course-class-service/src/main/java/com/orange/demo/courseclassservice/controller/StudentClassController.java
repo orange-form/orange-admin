@@ -3,8 +3,8 @@ package com.orange.demo.courseclassservice.controller;
 import com.github.pagehelper.page.PageMethod;
 import com.orange.demo.courseclassservice.model.*;
 import com.orange.demo.courseclassservice.service.*;
-import com.orange.demo.courseclassinterface.dto.*;
-import com.orange.demo.courseclassinterface.vo.*;
+import com.orange.demo.courseclassapi.dto.*;
+import com.orange.demo.courseclassapi.vo.*;
 import com.orange.demo.common.core.object.*;
 import com.orange.demo.common.core.util.*;
 import com.orange.demo.common.core.constant.*;
@@ -501,6 +501,20 @@ public class StudentClassController extends BaseController<StudentClass, Student
     @PostMapping("/existId")
     public ResponseResult<Boolean> existId(@RequestParam Long classId) {
         return super.baseExistId(classId);
+    }
+
+    /**
+     * 根据主键Id删除数据。
+     *
+     * @param classId 主键Id。
+     * @return 删除数量。
+     */
+    @ApiOperation(hidden = true, value = "deleteById")
+    @PostMapping("/deleteById")
+    public ResponseResult<Integer> deleteById(@RequestParam Long classId) throws Exception {
+        StudentClass filter = new StudentClass();
+        filter.setClassId(classId);
+        return super.baseDeleteBy(filter);
     }
 
     /**

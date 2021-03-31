@@ -7,6 +7,7 @@ import com.orange.demo.common.core.util.*;
 import com.orange.demo.common.core.object.MyRelationParam;
 import com.orange.demo.common.core.base.dao.BaseDaoMapper;
 import com.orange.demo.common.core.base.service.BaseService;
+import com.github.pagehelper.Page;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -77,7 +78,8 @@ public class CourseTransStatsServiceImpl extends BaseService<CourseTransStats, L
     @Override
     public List<CourseTransStats> getCourseTransStatsListWithRelation(CourseTransStats filter, String orderBy) {
         List<CourseTransStats> resultList = courseTransStatsMapper.getCourseTransStatsList(null, null, filter, orderBy);
-        this.buildRelationForDataList(resultList, MyRelationParam.normal());
+        int batchSize = resultList instanceof Page ? 0 : 1000;
+        this.buildRelationForDataList(resultList, MyRelationParam.normal(), batchSize);
         return resultList;
     }
 
@@ -97,7 +99,8 @@ public class CourseTransStatsServiceImpl extends BaseService<CourseTransStats, L
             String inFilterField, Set<M> inFilterValues, CourseTransStats filter, String orderBy) {
         List<CourseTransStats> resultList =
                 courseTransStatsMapper.getCourseTransStatsList(inFilterField, inFilterValues, filter, orderBy);
-        this.buildRelationForDataList(resultList, MyRelationParam.dictOnly());
+        int batchSize = resultList instanceof Page ? 0 : 1000;
+        this.buildRelationForDataList(resultList, MyRelationParam.dictOnly(), batchSize);
         return resultList;
     }
 
@@ -115,9 +118,10 @@ public class CourseTransStatsServiceImpl extends BaseService<CourseTransStats, L
             CourseTransStats filter, String groupSelect, String groupBy, String orderBy) {
         List<CourseTransStats> resultList =
                 courseTransStatsMapper.getGroupedCourseTransStatsList(filter, groupSelect, groupBy, orderBy);
+        int batchSize = resultList instanceof Page ? 0 : 1000;
         // NOTE: 这里只是包含了本地关联数据和远程关联数据，本地聚合计算数据和远程聚合计算数据没有包含。
         // 主要原因是，由于聚合字段通常被视为普通字段使用，不会在group by的从句中出现，语义上也不会在此关联。
-        this.buildRelationForDataList(resultList, MyRelationParam.normal());
+        this.buildRelationForDataList(resultList, MyRelationParam.normal(), batchSize);
         return resultList;
     }
 }

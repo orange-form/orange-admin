@@ -22,7 +22,7 @@ const globalMixin = {
      * @param {String} permCode  权限字
      */
     checkPermCodeExist (permCode) {
-      if (this.getUserInfo.permCodeSet != null) {
+      if ((this.getUserInfo || {}).permCodeSet != null) {
         return this.getUserInfo.permCodeSet.has(permCode);
       } else {
         return this.getUserInfo.isAdmin;

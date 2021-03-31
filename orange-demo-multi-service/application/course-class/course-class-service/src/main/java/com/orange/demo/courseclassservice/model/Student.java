@@ -1,5 +1,6 @@
 package com.orange.demo.courseclassservice.model;
 
+import com.orange.demo.courseclassapi.vo.StudentVo;
 import com.orange.demo.application.common.constant.Gender;
 import com.orange.demo.application.common.constant.ExpLevel;
 import com.orange.demo.application.common.constant.StudentStatus;
@@ -7,7 +8,6 @@ import com.orange.demo.common.core.annotation.RelationDict;
 import com.orange.demo.common.core.annotation.RelationConstDict;
 import com.orange.demo.common.core.base.mapper.BaseModelMapper;
 import com.orange.demo.common.core.util.MyCommonUtil;
-import com.orange.demo.courseclassinterface.vo.StudentVo;
 import lombok.Data;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;

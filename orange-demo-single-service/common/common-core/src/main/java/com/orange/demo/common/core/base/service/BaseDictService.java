@@ -4,6 +4,7 @@ import cn.hutool.core.util.ReflectUtil;
 import com.orange.demo.common.core.constant.GlobalDeletedFlag;
 import com.orange.demo.common.core.exception.MyRuntimeException;
 import com.orange.demo.common.core.cache.DictionaryCache;
+import com.orange.demo.common.core.object.TokenData;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,26 +34,6 @@ public abstract class BaseDictService<M, K> extends BaseService<M, K> implements
      */
     public BaseDictService() {
         super();
-    }
-
-    /**
-     * 是否在服务启动的时候加载。子类可以重载该方法，并在需要的时候手工调用loadCachedData加载数据。
-     *
-     * @return true表示启动即可加载数据，false需要手动调用loadCachedData进行加载。
-     */
-    @Override
-    public boolean loadOnStartup() {
-        return true;
-    }
-
-    /**
-     * 在系统启动时，加载全部数据到内存，缓存的key只能为映射表的主键。
-     */
-    @Override
-    public void loadCachedData() {
-        if (loadOnStartup()) {
-            reloadCachedData(false);
-        }
     }
 
     /**
@@ -88,6 +69,9 @@ public abstract class BaseDictService<M, K> extends BaseService<M, K> implements
                 throw new MyRuntimeException(e);
             }
         }
+        if (tenantIdField != null) {
+            ReflectUtil.setFieldValue(data, tenantIdField, TokenData.takeFromRequest().getTenantId());
+        }
         mapper().insert(data);
         return data;
     }
@@ -102,6 +86,9 @@ public abstract class BaseDictService<M, K> extends BaseService<M, K> implements
     @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean update(M data, M originalData) {
+        if (tenantIdField != null) {
+            ReflectUtil.setFieldValue(data, tenantIdField, TokenData.takeFromRequest().getTenantId());
+        }
         if (deletedFlagFieldName != null) {
             try {
                 setDeletedFlagMethod.invoke(data, GlobalDeletedFlag.NORMAL);
@@ -257,6 +244,18 @@ public abstract class BaseDictService<M, K> extends BaseService<M, K> implements
     @Override
     public void removeDictionaryCache(K id) {
         this.dictionaryCache.invalidate(id);
+    }
+
+    /**
+     * 根据字典对象将数据从缓存中删除。
+     *
+     * @param data 字典数据。
+     */
+    @SuppressWarnings("unchecked")
+    @Override
+    public void removeDictionaryCacheByModel(M data) {
+        K key = (K) ReflectUtil.getFieldValue(data, idFieldName);
+        this.dictionaryCache.invalidate(key);
     }
 
     /**

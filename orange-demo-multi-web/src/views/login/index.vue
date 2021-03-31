@@ -29,7 +29,7 @@
 import { SystemController } from '@/api';
 import { mapMutations } from 'vuex';
 import projectConfig from '@/core/config';
-import { encrypt } from '@/utils';
+import { encrypt, setToken } from '@/utils';
 
 export default {
   data () {
@@ -63,7 +63,7 @@ export default {
             delete data.data.menuList;
 
             this.setUserInfo(data.data);
-            window.sessionStorage.setItem('token', data.data.tokenData);
+            setToken(data.data.tokenData);
             this.setCurrentMenuId(null);
             this.$router.replace({ name: 'main' });
           }).catch(e => {});
@@ -75,7 +75,7 @@ export default {
   mounted () {
     this.setMenuList([]);
     this.setUserInfo({});
-    window.sessionStorage.removeItem('token');
+    setToken();
   }
 };
 </script>

@@ -6,7 +6,7 @@ import com.orange.demo.common.core.base.controller.BaseController;
 import com.orange.demo.common.core.base.service.IBaseDictService;
 import com.orange.demo.common.core.util.MyModelUtil;
 import com.orange.demo.common.core.object.*;
-import com.orange.demo.courseclassinterface.vo.AreaCodeVo;
+import com.orange.demo.courseclassapi.vo.AreaCodeVo;
 import com.orange.demo.courseclassservice.model.AreaCode;
 import com.orange.demo.courseclassservice.service.AreaCodeService;
 import org.apache.commons.collections4.CollectionUtils;
@@ -41,7 +41,7 @@ public class AreaCodeController extends BaseController<AreaCode, AreaCodeVo, Lon
      */
     @GetMapping("/listDict")
     public ResponseResult<List<Map<String, Object>>> listDict() {
-        List<AreaCode> resultList = areaCodeService.getAllList();
+        List<AreaCode> resultList = areaCodeService.getAllListFromCache();
         return ResponseResult.success(BeanQuery.select(
                 "parentId as parentId", "areaId as id", "areaName as name").executeFrom(resultList));
     }

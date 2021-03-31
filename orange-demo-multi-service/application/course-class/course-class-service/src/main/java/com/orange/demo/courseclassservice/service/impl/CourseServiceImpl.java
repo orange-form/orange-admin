@@ -10,6 +10,7 @@ import com.orange.demo.common.core.object.TokenData;
 import com.orange.demo.common.core.base.dao.BaseDaoMapper;
 import com.orange.demo.common.core.base.service.BaseService;
 import com.orange.demo.common.sequence.wrapper.IdGeneratorWrapper;
+import com.github.pagehelper.Page;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -143,7 +144,8 @@ public class CourseServiceImpl extends BaseService<Course, Long> implements Cour
     @Override
     public List<Course> getCourseListWithRelation(Course filter, String orderBy) {
         List<Course> resultList = courseMapper.getCourseList(null, null, filter, orderBy);
-        this.buildRelationForDataList(resultList, MyRelationParam.normal());
+        int batchSize = resultList instanceof Page ? 0 : 1000;
+        this.buildRelationForDataList(resultList, MyRelationParam.normal(), batchSize);
         return resultList;
     }
 
@@ -163,7 +165,8 @@ public class CourseServiceImpl extends BaseService<Course, Long> implements Cour
             String inFilterField, Set<M> inFilterValues, Course filter, String orderBy) {
         List<Course> resultList =
                 courseMapper.getCourseList(inFilterField, inFilterValues, filter, orderBy);
-        this.buildRelationForDataList(resultList, MyRelationParam.dictOnly());
+        int batchSize = resultList instanceof Page ? 0 : 1000;
+        this.buildRelationForDataList(resultList, MyRelationParam.dictOnly(), batchSize);
         return resultList;
     }
 
