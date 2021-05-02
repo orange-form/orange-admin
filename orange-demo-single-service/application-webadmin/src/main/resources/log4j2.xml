@@ -53,18 +53,22 @@
         <root level="${OUTPUT_LOG_LEVEL}">
             <AppenderRef ref="console"/>
         </root>
-        <Logger name="com.orange.demo" additivity="false" level="info">
+        <AsyncLogger name="com.orange.demo" additivity="false" level="info">
             <AppenderRef ref="console"/>
             <AppenderRef ref="file_log"/>
-        </Logger>
+        </AsyncLogger>
         <!-- 这里将dao的日志级别设置为DEBUG，是为了SQL语句的输出 -->
-        <Logger name="com.orange.demo.webadmin.app.dao" additivity="false" level="debug">
+        <AsyncLogger name="com.orange.demo.webadmin.app.dao" additivity="false" level="debug">
             <AppenderRef ref="console"/>
             <AppenderRef ref="file_log"/>
-        </Logger>
-        <Logger name="com.orange.demo.webadmin.upms.dao" additivity="false" level="debug">
+        </AsyncLogger>
+        <AsyncLogger name="com.orange.demo.webadmin.upms.dao" additivity="false" level="debug">
             <AppenderRef ref="console"/>
             <AppenderRef ref="file_log"/>
-        </Logger>
+        </AsyncLogger>
+        <AsyncLogger name="com.orange.demo.common.log.dao" additivity="false" level="debug">
+            <AppenderRef ref="console"/>
+            <AppenderRef ref="file_log"/>
+        </AsyncLogger>
     </Loggers>
 </configuration>

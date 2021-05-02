@@ -6,15 +6,14 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="upms-service" />
         <module name="application-common" />
         <module name="gateway" />
         <module name="stats-api" />
-        <module name="common-swagger" />
+        <module name="upms-service" />
         <module name="common-sequence" />
         <module name="upms-api" />
-        <module name="common-datafilter" />
         <module name="course-class-service" />
+        <module name="common-swagger" />
         <module name="common-core" />
         <module name="common-redis" />
         <module name="admin-monitor" />

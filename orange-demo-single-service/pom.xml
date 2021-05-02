@@ -28,12 +28,12 @@
         <bean.query.version>1.1.5</bean.query.version>
         <caffeine.version>2.8.1</caffeine.version>
         <mapstruct.version>1.3.1.Final</mapstruct.version>
+        <disruptor.version>3.4.2</disruptor.version>
         <!-- 数据库工具版本 -->
         <druid.version>1.1.22</druid.version>
         <mybatis-mapper.version>2.1.5</mybatis-mapper.version>
         <mybatis-generator.version>1.3.7</mybatis-generator.version>
         <pagehelper.version>1.3.0</pagehelper.version>
-        <jedis.version>3.2.0</jedis.version>
         <redisson.version>3.12.3</redisson.version>
         <qdox.version>2.0.0</qdox.version>
     </properties>
@@ -120,6 +120,12 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <scope>provided</scope>
+        </dependency>
+        <!-- log4j2 全异步所依赖的Disruptor框架 -->
+        <dependency>
+            <groupId>com.lmax</groupId>
+            <artifactId>disruptor</artifactId>
+            <version>${disruptor.version}</version>
         </dependency>
         <!--测试依赖-->
         <dependency>

@@ -31,8 +31,8 @@
     <sql id="inputFilterRef">
         <if test="courseFilter != null">
             <if test="courseFilter.courseName != null and courseFilter.courseName != ''">
-                <bind name = "safeCourseName" value = "'%' + courseFilter.courseName + '%'" />
-                AND zz_course.course_name LIKE #{safeCourseName}
+                <bind name = "safeCourseCourseName" value = "'%' + courseFilter.courseName + '%'" />
+                AND zz_course.course_name LIKE #{safeCourseCourseName}
             </if>
             <if test="courseFilter.priceStart != null">
                 AND zz_course.price &gt;= #{courseFilter.priceStart}

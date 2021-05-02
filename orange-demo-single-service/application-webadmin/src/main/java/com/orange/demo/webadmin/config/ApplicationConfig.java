@@ -47,5 +47,5 @@ public class ApplicationConfig {
      * Session的用户权限在Redis中的过期时间(秒)。
      * 缺省值是 one day
      */
-    private int permRedisExpiredSeconds = 86400;
+    private int sessionExpiredSeconds = 86400;
 }

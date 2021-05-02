@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.ToString;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Date;
 
 /**
  * 基于Jwt，用于前后端传递的令牌对象。
@@ -39,6 +40,10 @@ public class TokenData {
      */
     private Boolean isAdmin;
     /**
+     * 用户登录名。
+     */
+    private String loginName;
+    /**
      * 用户显示名称。
      */
     private String showName;
@@ -51,6 +56,14 @@ public class TokenData {
      * 仅当系统支持uaa时可用，否则可以直接忽略该字段。保留该字段是为了保持单体和微服务通用代码部分的兼容性。
      */
     private String uaaAccessToken;
+    /**
+     * 登录IP。
+     */
+    private String loginIp;
+    /**
+     * 登录时间。
+     */
+    private Date loginTime;
 
     /**
      * 将令牌对象添加到Http请求对象。

@@ -14,6 +14,8 @@ import io.jsonwebtoken.Claims;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.redisson.api.RBucket;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
@@ -26,13 +28,10 @@ import org.springframework.util.AntPathMatcher;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPool;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.Map;
 
 /**
  * 全局前处理过滤器。主要用于用户操作权限验证。
@@ -46,7 +45,7 @@ public class AuthenticationPreFilter implements GlobalFilter, Ordered {
     @Autowired
     private ApplicationConfig appConfig;
     @Autowired
-    private JedisPool jedisPool;
+    private RedissonClient redissonClient;
     /**
      * Ant Pattern模式的白名单地址匹配器。
      */
@@ -76,61 +75,58 @@ public class AuthenticationPreFilter implements GlobalFilter, Ordered {
             exchange.getAttributes().put(appConfig.getRefreshedTokenHeaderKey(),
                     JwtUtil.generateToken(c, appConfig.getExpiration(), appConfig.getTokenSigningKey()));
         }
-        try (Jedis jedis = jedisPool.getResource()) {
-            // 先基于sessionId获取userInfo
-            String sessionId = (String) c.get(GatewayConstant.SESSION_ID_KEY_NAME);
-            Map<String, String> userMap = jedis.hgetAll(RedisKeyUtil.makeSessionIdKeyForRedis(sessionId));
-            if (userMap == null) {
-                log.warn("UNAUTHORIZED request [{}] from REMOTE-IP [{}] because no sessionId exists in redis.",
-                        url, IpUtil.getRemoteIpAddress(request));
-                response.setStatusCode(HttpStatus.UNAUTHORIZED);
-                response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
-                byte[] responseBody = JSON.toJSONString(ResponseResult.error(ErrorCodeEnum.UNAUTHORIZED_LOGIN,
-                        "用户会话已失效，请重新登录！")).getBytes(StandardCharsets.UTF_8);
-                return response.writeWith(Flux.just(response.bufferFactory().wrap(responseBody)));
-            }
-            String userId = userMap.get("userId");
-            if (StringUtils.isBlank(userId)) {
-                log.warn("UNAUTHORIZED request [{}] from REMOTE-IP [{}] because userId is empty in redis.",
-                        url, IpUtil.getRemoteIpAddress(request));
-                response.setStatusCode(HttpStatus.UNAUTHORIZED);
-                response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
-                byte[] responseBody = JSON.toJSONString(ResponseResult.error(ErrorCodeEnum.UNAUTHORIZED_LOGIN,
-                        "用户登录验证信息已过期，请重新登录！")).getBytes(StandardCharsets.UTF_8);
-                return response.writeWith(Flux.just(response.bufferFactory().wrap(responseBody)));
-            }
-            boolean isAdmin = false;
-            String isAdminString = userMap.get("isAdmin");
-            if (Boolean.parseBoolean(isAdminString)) {
-                isAdmin = true;
-            }
-            String showName = userMap.get("showName");
-            // 因为http header中不支持中文传输，所以需要编码。
-            try {
-                showName = URLEncoder.encode(showName, StandardCharsets.UTF_8.name());
-                userMap.put("showName", showName);
-            } catch (UnsupportedEncodingException e) {
-                log.error("Failed to call AuthenticationPreFilter.filter.", e);
-            }
-            if (Boolean.FALSE.equals(isAdmin) && !this.hasPermission(jedis, sessionId, url)) {
-                log.warn("FORBIDDEN request [{}] from REMOTE-IP [{}] for USER [{} -- {}] no perm!",
-                        url, IpUtil.getRemoteIpAddress(request), userId, showName);
-                response.setStatusCode(HttpStatus.FORBIDDEN);
-                response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
-                byte[] responseBody = JSON.toJSONString(ResponseResult.error(ErrorCodeEnum.NO_OPERATION_PERMISSION,
-                        "用户对该URL没有访问权限，请核对！")).getBytes(StandardCharsets.UTF_8);
-                return response.writeWith(Flux.just(response.bufferFactory().wrap(responseBody)));
-            }
-            // 将session中关联的用户信息，添加到当前的Request中。转发后，业务服务可以根据需要自定读取。
-            JSONObject tokenData = new JSONObject();
-            tokenData.putAll(userMap);
-            tokenData.put("sessionId", sessionId);
-            exchange.getAttributes().put(GatewayConstant.SESSION_ID_KEY_NAME, sessionId);
-            ServerHttpRequest mutableReq = exchange.getRequest().mutate().header(
-                    TokenData.REQUEST_ATTRIBUTE_NAME, tokenData.toJSONString()).build();
-            ServerWebExchange mutableExchange = exchange.mutate().request(mutableReq).build();
-            return chain.filter(mutableExchange);
+        // 先基于sessionId获取userInfo
+        String sessionId = (String) c.get(GatewayConstant.SESSION_ID_KEY_NAME);
+        String sessionIdKey = RedisKeyUtil.makeSessionIdKeyForRedis(sessionId);
+        RBucket<String> sessionData = redissonClient.getBucket(sessionIdKey);
+        JSONObject tokenData = null;
+        if (sessionData.isExists()) {
+            tokenData = JSON.parseObject(sessionData.get());
         }
+        if (tokenData == null) {
+            log.warn("UNAUTHORIZED request [{}] from REMOTE-IP [{}] because no sessionId exists in redis.",
+                    url, IpUtil.getRemoteIpAddress(request));
+            response.setStatusCode(HttpStatus.UNAUTHORIZED);
+            response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
+            byte[] responseBody = JSON.toJSONString(ResponseResult.error(ErrorCodeEnum.UNAUTHORIZED_LOGIN,
+                    "用户会话已失效，请重新登录！")).getBytes(StandardCharsets.UTF_8);
+            return response.writeWith(Flux.just(response.bufferFactory().wrap(responseBody)));
+        }
+        String userId = tokenData.getString("userId");
+        if (StringUtils.isBlank(userId)) {
+            log.warn("UNAUTHORIZED request [{}] from REMOTE-IP [{}] because userId is empty in redis.",
+                    url, IpUtil.getRemoteIpAddress(request));
+            response.setStatusCode(HttpStatus.UNAUTHORIZED);
+            response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
+            byte[] responseBody = JSON.toJSONString(ResponseResult.error(ErrorCodeEnum.UNAUTHORIZED_LOGIN,
+                    "用户登录验证信息已过期，请重新登录！")).getBytes(StandardCharsets.UTF_8);
+            return response.writeWith(Flux.just(response.bufferFactory().wrap(responseBody)));
+        }
+        String showName = tokenData.getString("showName");
+        // 因为http header中不支持中文传输，所以需要编码。
+        try {
+            showName = URLEncoder.encode(showName, StandardCharsets.UTF_8.name());
+            tokenData.put("showName", showName);
+        } catch (UnsupportedEncodingException e) {
+            log.error("Failed to call AuthenticationPreFilter.filter.", e);
+        }
+        boolean isAdmin = tokenData.getBoolean("isAdmin");
+        if (Boolean.FALSE.equals(isAdmin) && !this.hasPermission(redissonClient, sessionId, url)) {
+            log.warn("FORBIDDEN request [{}] from REMOTE-IP [{}] for USER [{} -- {}] no perm!",
+                    url, IpUtil.getRemoteIpAddress(request), userId, showName);
+            response.setStatusCode(HttpStatus.FORBIDDEN);
+            response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
+            byte[] responseBody = JSON.toJSONString(ResponseResult.error(ErrorCodeEnum.NO_OPERATION_PERMISSION,
+                    "用户对该URL没有访问权限，请核对！")).getBytes(StandardCharsets.UTF_8);
+            return response.writeWith(Flux.just(response.bufferFactory().wrap(responseBody)));
+        }
+        // 将session中关联的用户信息，添加到当前的Request中。转发后，业务服务可以根据需要自定读取。
+        tokenData.put("sessionId", sessionId);
+        exchange.getAttributes().put(GatewayConstant.SESSION_ID_KEY_NAME, sessionId);
+        ServerHttpRequest mutableReq = exchange.getRequest().mutate().header(
+                TokenData.REQUEST_ATTRIBUTE_NAME, tokenData.toJSONString()).build();
+        ServerWebExchange mutableExchange = exchange.mutate().request(mutableReq).build();
+        return chain.filter(mutableExchange);
     }
 
     /**
@@ -151,10 +147,13 @@ public class AuthenticationPreFilter implements GlobalFilter, Ordered {
         return token;
     }
 
-    private boolean hasPermission(Jedis jedis, String sessionId, String url) {
+    private boolean hasPermission(RedissonClient redissonClient, String sessionId, String url) {
         // 对于退出登录操作，不需要进行权限验证，仅仅确认是已经登录的合法用户即可。
-        return url.equals(GatewayConstant.ADMIN_LOGOUT_URL)
-                || Boolean.TRUE.equals(jedis.sismember(RedisKeyUtil.makeSessionPermIdKeyForRedis(sessionId), url));
+        if (url.equals(GatewayConstant.ADMIN_LOGOUT_URL)) {
+            return true;
+        }
+        String permKey = RedisKeyUtil.makeSessionPermIdKeyForRedis(sessionId);
+        return redissonClient.getSet(permKey).contains(url);
     }
 
     /**

@@ -2,6 +2,7 @@ package com.orange.demo.common.core.util;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.ReflectUtil;
+import com.orange.demo.common.core.exception.InvalidDataFieldException;
 import com.orange.demo.common.core.annotation.*;
 import com.orange.demo.common.core.exception.MyRuntimeException;
 import com.orange.demo.common.core.object.TokenData;
@@ -139,6 +140,34 @@ public class MyModelUtil {
     public static String mapToColumnName(String fieldName, Class<?> modelClazz) {
         Tuple2<String, Integer> columnInfo = mapToColumnInfo(fieldName, modelClazz);
         return columnInfo == null ? null : columnInfo.getFirst();
+    }
+
+    /**
+     * 映射Model对象的字段反射对象，获取与该字段对应的数据库列名称。
+     * 如果没有匹配到ColumnName，则立刻抛出异常。
+     *
+     * @param field      字段反射对象。
+     * @param modelClazz Model对象的Class类。
+     * @return 该字段所对应的数据表列名称。
+     */
+    public static String safeMapToColumnName(Field field, Class<?> modelClazz) {
+        return safeMapToColumnName(field.getName(), modelClazz);
+    }
+
+    /**
+     * 映射Model对象的字段名称，获取与该字段对应的数据库列名称。
+     * 如果没有匹配到ColumnName，则立刻抛出异常。
+     *
+     * @param fieldName  字段名称。
+     * @param modelClazz Model对象的Class类。
+     * @return 该字段所对应的数据表列名称。
+     */
+    public static String safeMapToColumnName(String fieldName, Class<?> modelClazz) {
+        String columnName = mapToColumnName(fieldName, modelClazz);
+        if (columnName == null) {
+            throw new InvalidDataFieldException(modelClazz.getSimpleName(), fieldName);
+        }
+        return columnName;
     }
 
     /**

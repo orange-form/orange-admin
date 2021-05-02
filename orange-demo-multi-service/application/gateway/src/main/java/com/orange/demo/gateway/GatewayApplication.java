@@ -4,7 +4,6 @@ import com.orange.demo.common.core.util.ApplicationContextHolder;
 import com.orange.demo.gateway.filter.AuthenticationPostFilter;
 import com.orange.demo.gateway.filter.AuthenticationPreFilter;
 import com.orange.demo.gateway.filter.RequestLogFilter;
-import com.orange.demo.gateway.filter.ResponseLogFilter;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
@@ -46,11 +45,6 @@ public class GatewayApplication {
     @Bean
     public RequestLogFilter requestLogPreFilter() {
         return new RequestLogFilter();
-    }
-
-    @Bean
-    public ResponseLogFilter responseLogPostFilter() {
-        return new ResponseLogFilter();
     }
 
     @Bean

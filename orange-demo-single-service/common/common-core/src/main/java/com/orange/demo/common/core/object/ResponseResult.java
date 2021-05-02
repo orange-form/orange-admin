@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.orange.demo.common.core.constant.ErrorCodeEnum;
 import com.orange.demo.common.core.util.ContextUtil;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -15,6 +16,7 @@ import java.io.PrintWriter;
  * @author Jerry
  * @date 2020-09-24
  */
+@Slf4j
 @Data
 public class ResponseResult<T> {
 
@@ -160,6 +162,11 @@ public class ResponseResult<T> {
      * @throws IOException 异常错误。
      */
     public static <T> void output(int httpStatus, ResponseResult<T> responseResult) throws IOException {
+        if (httpStatus != HttpServletResponse.SC_OK) {
+            log.error(JSON.toJSONString(responseResult));
+        } else {
+            log.info(JSON.toJSONString(responseResult));
+        }
         HttpServletResponse response = ContextUtil.getHttpResponse();
         PrintWriter out = response.getWriter();
         response.setContentType("application/json; charset=utf-8");

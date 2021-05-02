@@ -86,7 +86,6 @@ public class StudentDto {
     /**
      * 可用学币数量。
      */
-    @NotNull(message = "数据验证失败，剩余学币不能为空！", groups = {UpdateGroup.class})
     private Integer leftCoin;
 
     /**

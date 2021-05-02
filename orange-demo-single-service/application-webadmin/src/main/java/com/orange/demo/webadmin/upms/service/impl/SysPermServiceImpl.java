@@ -17,15 +17,16 @@ import com.orange.demo.webadmin.upms.model.SysPerm;
 import com.orange.demo.webadmin.upms.model.SysPermCodePerm;
 import com.orange.demo.webadmin.upms.model.SysPermModule;
 import org.apache.commons.collections4.CollectionUtils;
+import org.redisson.api.RSet;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPool;
-import redis.clients.jedis.Transaction;
 import tk.mybatis.mapper.entity.Example;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * 权限资源数据服务类。
@@ -47,7 +48,7 @@ public class SysPermServiceImpl extends BaseService<SysPerm, Long> implements Sy
     @Autowired
     private IdGeneratorWrapper idGenerator;
     @Autowired
-    private JedisPool jedisPool;
+    private RedissonClient redissonClient;
     @Autowired
     private ApplicationConfig applicationConfig;
 
@@ -148,16 +149,9 @@ public class SysPermServiceImpl extends BaseService<SysPerm, Long> implements Sy
             return permList;
         }
         String sessionPermKey = RedisKeyUtil.makeSessionPermIdKeyForRedis(sessionId);
-        try (Jedis jedis = jedisPool.getResource()) {
-            Transaction t = jedis.multi();
-            if (permList != null) {
-                for (String perm : permList) {
-                    t.sadd(sessionPermKey, perm);
-                }
-                t.expire(sessionPermKey, applicationConfig.getPermRedisExpiredSeconds());
-            }
-            t.exec();
-        }
+        RSet<String> redisPermSet = redissonClient.getSet(sessionPermKey);
+        redisPermSet.addAll(permList.stream().map(Object::toString).collect(Collectors.toSet()));
+        redisPermSet.expire(applicationConfig.getSessionExpiredSeconds(), TimeUnit.SECONDS);
         return permList;
     }
 
@@ -168,10 +162,8 @@ public class SysPermServiceImpl extends BaseService<SysPerm, Long> implements Sy
      */
     @Override
     public void removeUserSysPermCache(String sessionId) {
-        try (Jedis jedis = jedisPool.getResource()) {
-            String sessionPermKey = RedisKeyUtil.makeSessionPermIdKeyForRedis(sessionId);
-            jedis.del(sessionPermKey);
-        }
+        String sessionPermKey = RedisKeyUtil.makeSessionPermIdKeyForRedis(sessionId);
+        redissonClient.getSet(sessionPermKey).deleteAsync();
     }
 
     /**

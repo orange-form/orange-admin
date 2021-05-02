@@ -1,5 +1,8 @@
 package com.orange.demo.common.redis.config;
 
+import cn.hutool.core.util.ArrayUtil;
+import cn.hutool.core.util.StrUtil;
+import com.orange.demo.common.core.exception.InvalidRedisModeException;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
 import org.redisson.config.Config;
@@ -9,8 +12,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * Redisson配置类。和Jedis一样都是Redis客户端，但是Redisson提供了更多的数据结构抽象。
- * 这里我们只是使用了Redisson的分布式锁，以及map等数据结构作为字典缓存使用。更多用法请参考其文档。
+ * Redisson配置类。
  *
  * @author Jerry
  * @date 2020-09-24
@@ -21,6 +23,15 @@ public class RedissonConfig {
 
     @Value("${redis.redisson.lockWatchdogTimeout}")
     private Integer lockWatchdogTimeout;
+
+    @Value("${redis.redisson.mode}")
+    private String mode;
+
+    /**
+     * 仅仅用于sentinel模式。
+     */
+    @Value("${redis.redisson.masterName:}")
+    private String masterName;
 
     @Value("${redis.redisson.address}")
     private String address;
@@ -37,14 +48,45 @@ public class RedissonConfig {
     @Bean
     public RedissonClient redissonClient() {
         Config config = new Config();
-        // 这里config还支持其他redis集群模式，可根据实际需求更换。
-        // 比如useClusterServers()/useMasterSlaveServers()等。
-        config.setLockWatchdogTimeout(lockWatchdogTimeout)
-                .useSingleServer()
-                .setAddress("redis://" + address)
-                .setConnectionPoolSize(poolSize)
-                .setConnectionMinimumIdleSize(minIdle)
-                .setConnectTimeout(timeout);
+        if ("single".equals(mode)) {
+            config.setLockWatchdogTimeout(lockWatchdogTimeout)
+                    .useSingleServer()
+                    .setAddress(address)
+                    .setConnectionPoolSize(poolSize)
+                    .setConnectionMinimumIdleSize(minIdle)
+                    .setConnectTimeout(timeout);
+        } else if ("cluster".equals(mode)) {
+            String[] clusterAddresses = StrUtil.splitToArray(address, ',');
+            config.setLockWatchdogTimeout(lockWatchdogTimeout)
+                    .useClusterServers()
+                    .addNodeAddress(clusterAddresses)
+                    .setConnectTimeout(timeout)
+                    .setMasterConnectionPoolSize(poolSize);
+        } else if ("sentinel".equals(mode)) {
+            String[] sentinelAddresses = StrUtil.splitToArray(address, ',');
+            config.setLockWatchdogTimeout(lockWatchdogTimeout)
+                    .useSentinelServers()
+                    .setMasterName(masterName)
+                    .addSentinelAddress(sentinelAddresses)
+                    .setConnectTimeout(timeout)
+                    .setMasterConnectionPoolSize(poolSize);
+        } else if ("master-slave".equals(mode)) {
+            String[] masterSlaveAddresses = StrUtil.splitToArray(address, ',');
+            if (masterSlaveAddresses.length == 1) {
+                throw new IllegalArgumentException(
+                        "redis.redisson.address MUST have multiple redis addresses for master-slave mode.");
+            }
+            String[] slaveAddresses = new String[masterSlaveAddresses.length - 1];
+            ArrayUtil.copy(masterSlaveAddresses, 1, slaveAddresses, 0, slaveAddresses.length);
+            config.setLockWatchdogTimeout(lockWatchdogTimeout)
+                    .useMasterSlaveServers()
+                    .setMasterAddress(masterSlaveAddresses[0])
+                    .addSlaveAddress(slaveAddresses)
+                    .setConnectTimeout(timeout)
+                    .setMasterConnectionPoolSize(poolSize);
+        } else {
+            throw new InvalidRedisModeException(mode);
+        }
         return Redisson.create(config);
     }
 }

@@ -27,12 +27,12 @@
     <sql id="inputFilterRef">
         <if test="sysUserFilter != null">
             <if test="sysUserFilter.loginName != null and sysUserFilter.loginName != ''">
-                <bind name = "safeLoginName" value = "'%' + sysUserFilter.loginName + '%'" />
-                AND zz_sys_user.login_name LIKE #{safeLoginName}
+                <bind name = "safeSysUserLoginName" value = "'%' + sysUserFilter.loginName + '%'" />
+                AND zz_sys_user.login_name LIKE #{safeSysUserLoginName}
             </if>
             <if test="sysUserFilter.showName != null and sysUserFilter.showName != ''">
-                <bind name = "safeShowName" value = "'%' + sysUserFilter.showName + '%'" />
-                AND zz_sys_user.show_name LIKE #{safeShowName}
+                <bind name = "safeSysUserShowName" value = "'%' + sysUserFilter.showName + '%'" />
+                AND zz_sys_user.show_name LIKE #{safeSysUserShowName}
             </if>
             <if test="sysUserFilter.userStatus != null">
                 AND zz_sys_user.user_status = #{sysUserFilter.userStatus}

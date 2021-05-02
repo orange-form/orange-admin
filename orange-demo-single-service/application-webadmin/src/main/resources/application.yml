@@ -40,8 +40,8 @@ spring:
 
 # mybatis的基本配置
 mybatis:
-  mapperLocations: classpath:com/orange/demo/webadmin/*/dao/mapper/*Mapper.xml
-  typeAliasesPackage: com.orange.demo.webadmin.*.model
+  mapperLocations: classpath:com/orange/demo/webadmin/*/dao/mapper/*Mapper.xml,com/orange/demo/common/log/dao/mapper/*Mapper.xml
+  typeAliasesPackage: com.orange.demo.webadmin.*.model,com.orange.demo.common.log.model
 
 # mybatis的通用mapper的配置
 mapper:
@@ -59,22 +59,24 @@ pagehelper:
 # 存储session数据的Redis，所有服务均需要，因此放到公共配置中。
 # 根据实际情况，该Redis也可以用于存储其他数据。
 redis:
-  jedis:
-    enabled: true
-    host: localhost
-    port: 6379
-    timeout: 60000
-    pool:
-      maxTotal: 20
-      maxIdle: 8
-      minIdle: 0
-      maxWait: 2000
   # redisson的配置。每个服务可以自己的配置文件中覆盖此选项。
   redisson:
     # 如果该值为false，系统将不会创建RedissionClient的bean。
     enabled: true
-    # redis地址，多个地址之间逗号分隔。如果是从主机制，第一个为master，其余为slave。
-    address: localhost:6379
+    # mode的可用值为，single/cluster/sentinel/master-slave
+    mode: single
+    # single: 单机模式
+    #   address: redis://localhost:6379
+    # cluster: 集群模式
+    #   每个节点逗号分隔，同时每个节点前必须以redis://开头。
+    #   address: redis://localhost:6379,redis://localhost:6378,...
+    # sentinel:
+    #   每个节点逗号分隔，同时每个节点前必须以redis://开头。
+    #   address: redis://localhost:6379,redis://localhost:6378,...
+    # master-slave:
+    #   每个节点逗号分隔，第一个为主节点，其余为从节点。同时每个节点前必须以redis://开头。
+    #   address: redis://localhost:6379,redis://localhost:6378,...
+    address: redis://localhost:6379
     # 链接超时，单位毫秒。
     timeout: 6000
     # 单位毫秒。分布式锁的超时检测时长。
@@ -161,7 +163,7 @@ application:
   # 跨域的IP白名单列表，多个IP之间逗号分隔(* 表示全部信任，空白表示禁用跨域信任)。
   credentialIpList: "*"
   # Session的用户和数据权限在Redis中的过期时间(秒)。
-  permRedisExpiredSeconds: 86400
+  sessionExpiredSeconds: 86400
 
 sequence:
   # Snowflake 分布式Id生成算法所需的WorkNode参数值。
@@ -220,7 +222,7 @@ application:
   # 跨域的IP白名单列表，多个IP之间逗号分隔(* 表示全部信任，空白表示禁用跨域信任)。
   credentialIpList: "*"
   # Session的用户和数据权限在Redis中的过期时间(秒)。
-  permRedisExpiredSeconds: 86400
+  sessionExpiredSeconds: 86400
 
 sequence:
   # Snowflake 分布式Id生成算法所需的WorkNode参数值。

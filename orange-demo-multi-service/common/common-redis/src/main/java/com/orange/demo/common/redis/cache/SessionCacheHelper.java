@@ -1,7 +1,5 @@
 package com.orange.demo.common.redis.cache;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.orange.demo.common.core.object.TokenData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
@@ -72,31 +70,5 @@ public class SessionCacheHelper {
         for (RedissonCacheConfig.CacheEnum c : RedissonCacheConfig.CacheEnum.values()) {
             cacheManager.getCache(c.name()).evict(sessionId);
         }
-    }
-
-    /**
-     * 存放session的Token数据。仅仅单体服务使用。
-     *
-     * @param sessionId 当前会话的SessionId。
-     * @param tokenData 当前会话的JWT Token对象。
-     */
-    public void putTokenData(String sessionId, TokenData tokenData) {
-        if (sessionId == null || tokenData == null) {
-            return;
-        }
-        Cache cache = cacheManager.getCache(RedissonCacheConfig.CacheEnum.GLOBAL_CACHE.name());
-        cache.put(sessionId, JSON.toJSONString(tokenData));
-    }
-
-    /**
-     * 获取session的JWT Token对象。
-     *
-     * @param sessionId 当前会话的SessionId。
-     * @return 当前会话的JWT Token对象。
-     */
-    public TokenData getTokenData(String sessionId) {
-        Cache cache = cacheManager.getCache(RedissonCacheConfig.CacheEnum.GLOBAL_CACHE.name());
-        String tokenString = cache.get(sessionId, String.class);
-        return JSONObject.parseObject(tokenString, TokenData.class);
     }
 }

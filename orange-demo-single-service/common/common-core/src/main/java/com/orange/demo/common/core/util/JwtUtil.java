@@ -17,7 +17,7 @@ import java.util.Map;
 @Slf4j
 public class JwtUtil {
 
-    private static final String TOKEN_PREFIX = "Bearer:";
+    private static final String TOKEN_PREFIX = "Bearer ";
     private static final String CLAIM_KEY_CREATEDTIME = "CreatedTime";
 
     /**
@@ -61,7 +61,7 @@ public class JwtUtil {
     /**
      * 获取token中的数据对象
      *
-     * @param token 令牌信息(需要包含令牌前缀，如"Bearer:")
+     * @param token 令牌信息(需要包含令牌前缀，如"Bearer ")
      * @return 令牌中的数据对象，解析视频返回null。
      */
     public static Claims parseToken(String token, String signingKey) {

@@ -120,7 +120,8 @@ public class StudentDto {
     /**
      * 注册时间。
      */
-    @ApiModelProperty(value = "注册时间")
+    @ApiModelProperty(value = "注册时间", required = true)
+    @NotNull(message = "数据验证失败，注册时间不能为空！")
     private Date registerTime;
 
     /**

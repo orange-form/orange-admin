@@ -59,8 +59,8 @@
                 AND zz_student.status = #{studentFilter.status}
             </if>
             <if test="studentFilter.searchString != null and studentFilter.searchString != ''">
-                <bind name = "safeSearchString" value = "'%' + studentFilter.searchString + '%'" />
-                AND CONCAT(IFNULL(zz_student.login_mobile,''), IFNULL(zz_student.student_name,'')) LIKE #{safeSearchString}
+                <bind name = "safeStudentSearchString" value = "'%' + studentFilter.searchString + '%'" />
+                AND CONCAT(IFNULL(zz_student.login_mobile,''), IFNULL(zz_student.student_name,'')) LIKE #{safeStudentSearchString}
             </if>
         </if>
     </sql>

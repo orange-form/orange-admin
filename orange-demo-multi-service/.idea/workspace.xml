@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="03a5281b-25b1-47eb-9d2b-a05e68843595" name="Default Changelist" comment="" />
+    <list default="true" id="7fe4264b-f60a-410c-b293-4e63b182af6c" name="Default Changelist" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -13,7 +13,7 @@
   <component name="ProjectCodeStyleSettingsMigration">
     <option name="version" value="1" />
   </component>
-  <component name="ProjectId" id="1qTqJ7jXIGQz6yKNsUD15pNs70Q" />
+  <component name="ProjectId" id="1ryDMZ7EdAVLRSzZcgcznSfWIqn" />
   <component name="ProjectViewState">
     <option name="abbreviatePackageNames" value="true" />
     <option name="autoscrollFromSource" value="true" />
@@ -27,16 +27,11 @@
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/zz-resource/db-scripts" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="nodejs_interpreter_path" value="/usr/local/bin/node" />
     <property name="settings.editor.selected.configurable" value="Errors" />
   </component>
-  <component name="RecentsManager">
-    <key name="CopyFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/zz-resource/db-scripts" />
-    </key>
-  </component>
-  <component name="RunManager" selected="Spring Boot.UpmsApplication">
+  <component name="RunManager" selected="Spring Boot.AdminMonitorApplication">
     <configuration name="AdminMonitorApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
       <module name="admin-monitor" />
       <option name="SPRING_BOOT_MAIN_CLASS" value="com.orange.demo.adminmonitor.AdminMonitorApplication" />
@@ -83,22 +78,16 @@
   </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="03a5281b-25b1-47eb-9d2b-a05e68843595" name="Default Changelist" comment="" />
-      <created>1617113852056</created>
+      <changelist id="7fe4264b-f60a-410c-b293-4e63b182af6c" name="Default Changelist" comment="" />
+      <created>1619939388590</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1617113852056</updated>
-      <workItem from="1617113855390" duration="234000" />
+      <updated>1619939388590</updated>
+      <workItem from="1619939390201" duration="314000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="1" />
-  </component>
-  <component name="WindowStateProjectService">
-    <state x="383" y="212" width="674" height="476" key="find.popup" timestamp="1617114016095">
-      <screen x="0" y="0" width="1440" height="900" />
-    </state>
-    <state x="383" y="212" width="674" height="476" key="find.popup/0.0.1440.900@0.0.1440.900" timestamp="1617114016095" />
   </component>
 </project>

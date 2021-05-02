@@ -75,5 +75,10 @@
             <AppenderRef ref="kafka_log"/>
             <AppenderRef ref="file_log"/>
         </AsyncLogger>
+        <AsyncLogger name="com.orange.demo.common.log.dao" additivity="false" level="debug">
+            <AppenderRef ref="console"/>
+            <AppenderRef ref="kafka_log"/>
+            <AppenderRef ref="file_log"/>
+        </AsyncLogger>
     </Loggers>
 </configuration>

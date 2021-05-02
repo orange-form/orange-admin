@@ -3,6 +3,7 @@ package com.orange.demo.gateway.filter;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.orange.demo.common.core.constant.ErrorCodeEnum;
 import com.orange.demo.common.core.object.ResponseResult;
 import com.orange.demo.common.core.object.TokenData;
@@ -14,6 +15,9 @@ import com.orange.demo.gateway.constant.GatewayConstant;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.reactivestreams.Publisher;
+import org.redisson.api.RBucket;
+import org.redisson.api.RSet;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
@@ -30,16 +34,13 @@ import org.springframework.lang.NonNull;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPool;
-import redis.clients.jedis.Pipeline;
-import redis.clients.jedis.Transaction;
 
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * 全局后处理过滤器。主要用于将用户的会话信息存到缓存服务器，以及在登出时清除缓存中的会话数据。
@@ -53,7 +54,7 @@ public class AuthenticationPostFilter implements GlobalFilter, Ordered {
     @Autowired
     private ApplicationConfig appConfig;
     @Autowired
-    private JedisPool jedisPool;
+    private RedissonClient redissonClient;
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
@@ -134,20 +135,19 @@ public class AuthenticationPostFilter implements GlobalFilter, Ordered {
     }
 
     private String readResponseBody(List<? extends DataBuffer> dataBuffers) {
-        List<String> list = new LinkedList<>();
         int dataCount = 0;
         for (DataBuffer dataBuffer : dataBuffers) {
             dataCount += dataBuffer.readableByteCount();
-            byte[] content = new byte[dataBuffer.readableByteCount()];
-            dataBuffer.read(content);
+        }
+        byte[] allBytes = new byte[dataCount];
+        int offset = 0;
+        for (DataBuffer dataBuffer : dataBuffers) {
+            int length = dataBuffer.readableByteCount();
+            dataBuffer.read(allBytes, offset, length);
             DataBufferUtils.release(dataBuffer);
-            list.add(new String(content, StandardCharsets.UTF_8));
+            offset += length;
         }
-        StringBuilder responseBuilder = new StringBuilder(dataCount + 1);
-        for (String data : list) {
-            responseBuilder.append(data);
-        }
-        return responseBuilder.toString();
+        return new String(allBytes, StandardCharsets.UTF_8);
     }
 
     @SuppressWarnings("unchecked")
@@ -162,14 +162,9 @@ public class AuthenticationPostFilter implements GlobalFilter, Ordered {
         if (originalRequest.getURI().getPath().equals(GatewayConstant.ADMIN_LOGOUT_URL)) {
             ResponseResult<Void> result = JSON.parseObject(responseBody, ResponseResult.class);
             if (result.isSuccess()) {
-                String sessionId =
-                        (String) exchange.getAttributes().get(GatewayConstant.SESSION_ID_KEY_NAME);
-                try (Jedis jedis = jedisPool.getResource()) {
-                    Pipeline pipeline = jedis.pipelined();
-                    pipeline.del(RedisKeyUtil.makeSessionIdKeyForRedis(sessionId));
-                    pipeline.del(RedisKeyUtil.makeSessionPermIdKeyForRedis(sessionId));
-                    pipeline.sync();
-                }
+                String sessionId = (String) exchange.getAttributes().get(GatewayConstant.SESSION_ID_KEY_NAME);
+                redissonClient.getBucket(RedisKeyUtil.makeSessionIdKeyForRedis(sessionId)).deleteAsync();
+                redissonClient.getSet(RedisKeyUtil.makeSessionPermIdKeyForRedis(sessionId)).deleteAsync();
             }
             return responseBody;
         }
@@ -201,6 +196,10 @@ public class AuthenticationPostFilter implements GlobalFilter, Ordered {
         if (StringUtils.isBlank(showName)) {
             return ResponseResult.error(errorCode, "内部错误，用户显示名没有正确返回！");
         }
+        String loginName = tokenData.getString("loginName");
+        if (StringUtils.isBlank(showName)) {
+            return ResponseResult.error(errorCode, "内部错误，用户登录名没有正确返回！");
+        }
         String sessionId = tokenData.getString("sessionId");
         if (StringUtils.isBlank(sessionId)) {
             return ResponseResult.error(errorCode, "内部错误，SESSION_ID没有正确返回！");
@@ -209,26 +208,19 @@ public class AuthenticationPostFilter implements GlobalFilter, Ordered {
         Map<String, Object> claims = new HashMap<>(1);
         claims.put(GatewayConstant.SESSION_ID_KEY_NAME, sessionId);
         String token = JwtUtil.generateToken(claims, appConfig.getExpiration(), appConfig.getTokenSigningKey());
-        try (Jedis jedis = jedisPool.getResource()) {
-            // 3. 更新缓存
-            // 3.1 sessionId -> userId 是hash结构的缓存
-            String sessionIdKey = RedisKeyUtil.makeSessionIdKeyForRedis(sessionId);
-            Transaction t = jedis.multi();
-            for (String tokenKey : tokenData.keySet()) {
-                t.hset(sessionIdKey, tokenKey, tokenData.getString(tokenKey));
-            }
-            t.expire(sessionIdKey, appConfig.getSessionIdRedisExpiredSeconds());
-            // 3.2 sessionId -> permList 是set结构的缓存
-            JSONArray permSet = loginData.getJSONArray("permSet");
-            if (permSet != null) {
-                String sessionPermKey = RedisKeyUtil.makeSessionPermIdKeyForRedis(sessionId);
-                for (int i = 0; i < permSet.size(); ++i) {
-                    String perm = permSet.getString(i);
-                    t.sadd(sessionPermKey, perm);
-                }
-                t.expire(sessionPermKey, appConfig.getPermRedisExpiredSeconds());
-            }
-            t.exec();
+        // 3. 更新缓存
+        String sessionIdKey = RedisKeyUtil.makeSessionIdKeyForRedis(sessionId);
+        String sessionData = JSON.toJSONString(tokenData, SerializerFeature.WriteNonStringValueAsString);
+        RBucket<String> bucket = redissonClient.getBucket(sessionIdKey);
+        bucket.set(sessionData);
+        bucket.expire(appConfig.getSessionExpiredSeconds(), TimeUnit.SECONDS);
+        // 3.2 sessionId -> permList 是set结构的缓存
+        JSONArray permSet = loginData.getJSONArray("permSet");
+        if (permSet != null) {
+            String sessionPermKey = RedisKeyUtil.makeSessionPermIdKeyForRedis(sessionId);
+            RSet<String> redisPermSet = redissonClient.getSet(sessionPermKey);
+            redisPermSet.addAll(permSet.stream().map(Object::toString).collect(Collectors.toSet()));
+            redisPermSet.expire(appConfig.getSessionExpiredSeconds(), TimeUnit.SECONDS);
         }
         // 4. 构造返回给用户的应答，将加密后的令牌返回给前端。
         loginData.put(TokenData.REQUEST_ATTRIBUTE_NAME, token);

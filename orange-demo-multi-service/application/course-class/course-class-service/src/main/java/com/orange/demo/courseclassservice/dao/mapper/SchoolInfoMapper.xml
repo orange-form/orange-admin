@@ -18,8 +18,8 @@
     <sql id="inputFilterRef">
         <if test="schoolInfoFilter != null">
             <if test="schoolInfoFilter.schoolName != null and schoolInfoFilter.schoolName != ''">
-                <bind name = "safeSchoolName" value = "'%' + schoolInfoFilter.schoolName + '%'" />
-                AND zz_school_info.school_name LIKE #{safeSchoolName}
+                <bind name = "safeSchoolInfoSchoolName" value = "'%' + schoolInfoFilter.schoolName + '%'" />
+                AND zz_school_info.school_name LIKE #{safeSchoolInfoSchoolName}
             </if>
             <if test="schoolInfoFilter.provinceId != null">
                 AND zz_school_info.province_id = #{schoolInfoFilter.provinceId}

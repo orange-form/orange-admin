@@ -8,7 +8,6 @@
       <module fileurl="file://$PROJECT_DIR$/application/application-common/application-common.iml" filepath="$PROJECT_DIR$/application/application-common/application-common.iml" />
       <module fileurl="file://$PROJECT_DIR$/common/common.iml" filepath="$PROJECT_DIR$/common/common.iml" />
       <module fileurl="file://$PROJECT_DIR$/common/common-core/common-core.iml" filepath="$PROJECT_DIR$/common/common-core/common-core.iml" />
-      <module fileurl="file://$PROJECT_DIR$/common/common-datafilter/common-datafilter.iml" filepath="$PROJECT_DIR$/common/common-datafilter/common-datafilter.iml" />
       <module fileurl="file://$PROJECT_DIR$/common/common-redis/common-redis.iml" filepath="$PROJECT_DIR$/common/common-redis/common-redis.iml" />
       <module fileurl="file://$PROJECT_DIR$/common/common-sequence/common-sequence.iml" filepath="$PROJECT_DIR$/common/common-sequence/common-sequence.iml" />
       <module fileurl="file://$PROJECT_DIR$/common/common-swagger/common-swagger.iml" filepath="$PROJECT_DIR$/common/common-swagger/common-swagger.iml" />

@@ -1,6 +1,8 @@
 package com.orange.demo.webadmin.upms.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import lombok.extern.slf4j.Slf4j;
 import com.orange.demo.webadmin.config.ApplicationConfig;
 import com.orange.demo.webadmin.upms.service.*;
@@ -12,10 +14,11 @@ import com.orange.demo.common.core.annotation.NoAuthInterface;
 import com.orange.demo.common.core.annotation.MyRequestBody;
 import com.orange.demo.common.core.constant.ApplicationConstant;
 import com.orange.demo.common.core.constant.ErrorCodeEnum;
-import com.orange.demo.common.core.object.ResponseResult;
-import com.orange.demo.common.core.object.TokenData;
+import com.orange.demo.common.core.object.*;
 import com.orange.demo.common.core.util.*;
 import com.orange.demo.common.redis.cache.SessionCacheHelper;
+import org.redisson.api.RBucket;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 登录接口控制器类。
@@ -45,6 +49,8 @@ public class LoginController {
     private SysPermService sysPermService;
     @Autowired
     private ApplicationConfig appConfig;
+    @Autowired
+    private RedissonClient redissonClient;
     @Autowired
     private SessionCacheHelper cacheHelper;
     @Autowired
@@ -77,38 +83,7 @@ public class LoginController {
             errorMessage = "登录失败，用户账号被锁定！";
             return ResponseResult.error(ErrorCodeEnum.INVALID_USER_STATUS, errorMessage);
         }
-        boolean isAdmin = user.getUserType() == SysUserType.TYPE_ADMIN;
-        Map<String, Object> claims = new HashMap<>(3);
-        String sessionId = MyCommonUtil.generateUuid();
-        claims.put("sessionId", sessionId);
-        String token = JwtUtil.generateToken(claims, appConfig.getExpiration(), appConfig.getTokenSigningKey());
-        JSONObject jsonData = new JSONObject();
-        jsonData.put(TokenData.REQUEST_ATTRIBUTE_NAME, token);
-        jsonData.put("showName", user.getShowName());
-        jsonData.put("isAdmin", isAdmin);
-        TokenData tokenData = new TokenData();
-        tokenData.setSessionId(sessionId);
-        tokenData.setUserId(user.getUserId());
-        tokenData.setShowName(user.getShowName());
-        tokenData.setIsAdmin(isAdmin);
-        cacheHelper.putTokenData(sessionId, tokenData);
-        // 这里手动将TokenData存入request，便于OperationLogAspect统一处理操作日志。
-        TokenData.addToRequest(tokenData);
-        Collection<SysMenu> menuList;
-        Collection<String> permCodeList;
-        if (isAdmin) {
-            menuList = sysMenuService.getAllMenuList();
-            permCodeList = sysPermCodeService.getAllPermCodeList();
-        } else {
-            menuList = sysMenuService.getMenuListByUserId(user.getUserId());
-            permCodeList = sysPermCodeService.getPermCodeListByUserId(user.getUserId());
-        }
-        jsonData.put("menuList", menuList);
-        jsonData.put("permCodeList", permCodeList);
-        if (user.getUserType() != SysUserType.TYPE_ADMIN) {
-            // 缓存用户的权限资源
-            sysPermService.putUserSysPermCache(sessionId, user.getUserId());
-        }
+        JSONObject jsonData = this.buildLoginData(user);
         return ResponseResult.success(jsonData);
     }
 
@@ -120,6 +95,8 @@ public class LoginController {
     @PostMapping("/doLogout")
     public ResponseResult<Void> doLogout() {
         TokenData tokenData = TokenData.takeFromRequest();
+        String sessionIdKey = RedisKeyUtil.makeSessionIdKeyForRedis(tokenData.getSessionId());
+        redissonClient.getBucket(sessionIdKey).delete();
         sysPermService.removeUserSysPermCache(tokenData.getSessionId());
         cacheHelper.removeAllSessionCache(tokenData.getSessionId());
         return ResponseResult.success();
@@ -183,5 +160,48 @@ public class LoginController {
             return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST);
         }
         return ResponseResult.success();
+    }
+
+    private JSONObject buildLoginData(SysUser user) {
+        boolean isAdmin = user.getUserType() == SysUserType.TYPE_ADMIN;
+        Map<String, Object> claims = new HashMap<>(3);
+        String sessionId = user.getLoginName() + "_" + MyCommonUtil.generateUuid();
+        claims.put("sessionId", sessionId);
+        String token = JwtUtil.generateToken(claims, appConfig.getExpiration(), appConfig.getTokenSigningKey());
+        JSONObject jsonData = new JSONObject();
+        jsonData.put(TokenData.REQUEST_ATTRIBUTE_NAME, token);
+        jsonData.put("showName", user.getShowName());
+        jsonData.put("isAdmin", isAdmin);
+        TokenData tokenData = new TokenData();
+        tokenData.setSessionId(sessionId);
+        tokenData.setUserId(user.getUserId());
+        tokenData.setLoginName(user.getLoginName());
+        tokenData.setShowName(user.getShowName());
+        tokenData.setIsAdmin(isAdmin);
+        tokenData.setLoginIp(IpUtil.getRemoteIpAddress(ContextUtil.getHttpRequest()));
+        tokenData.setLoginTime(new Date());
+        String sessionIdKey = RedisKeyUtil.makeSessionIdKeyForRedis(sessionId);
+        String sessionData = JSON.toJSONString(tokenData, SerializerFeature.WriteNonStringValueAsString);
+        RBucket<String> bucket = redissonClient.getBucket(sessionIdKey);
+        bucket.set(sessionData);
+        bucket.expire(appConfig.getSessionExpiredSeconds(), TimeUnit.SECONDS);
+        // 这里手动将TokenData存入request，便于OperationLogAspect统一处理操作日志。
+        TokenData.addToRequest(tokenData);
+        Collection<SysMenu> menuList;
+        Collection<String> permCodeList;
+        if (isAdmin) {
+            menuList = sysMenuService.getAllMenuList();
+            permCodeList = sysPermCodeService.getAllPermCodeList();
+        } else {
+            menuList = sysMenuService.getMenuListByUserId(user.getUserId());
+            permCodeList = sysPermCodeService.getPermCodeListByUserId(user.getUserId());
+        }
+        jsonData.put("menuList", menuList);
+        jsonData.put("permCodeList", permCodeList);
+        if (user.getUserType() != SysUserType.TYPE_ADMIN) {
+            // 缓存用户的权限资源
+            sysPermService.putUserSysPermCache(sessionId, user.getUserId());
+        }
+        return jsonData;
     }
 }

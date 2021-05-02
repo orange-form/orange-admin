@@ -12,15 +12,15 @@ import com.orange.demo.common.core.object.TokenData;
 import com.orange.demo.common.core.util.ApplicationContextHolder;
 import com.orange.demo.common.core.util.JwtUtil;
 import com.orange.demo.common.core.util.RedisKeyUtil;
-import com.orange.demo.common.redis.cache.SessionCacheHelper;
 import io.jsonwebtoken.Claims;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.redisson.api.RBucket;
+import org.redisson.api.RSet;
+import org.redisson.api.RedissonClient;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPool;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -42,10 +42,7 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
     private final ApplicationConfig appConfig =
             ApplicationContextHolder.getBean("applicationConfig");
 
-    private final JedisPool jedisPool = ApplicationContextHolder.getBean(JedisPool.class);
-
-    private final SessionCacheHelper cacheHelper =
-            ApplicationContextHolder.getBean("sessionCacheHelper");
+    private final RedissonClient redissonClient = ApplicationContextHolder.getBean(RedissonClient.class);
 
     private final SysPermService sysPermService =
             ApplicationContextHolder.getBean(SysPermService.class);
@@ -85,7 +82,12 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
             return false;
         }
         String sessionId = (String) c.get("sessionId");
-        TokenData tokenData = cacheHelper.getTokenData(sessionId);
+        String sessionIdKey = RedisKeyUtil.makeSessionIdKeyForRedis(sessionId);
+        RBucket<String> sessionData = redissonClient.getBucket(sessionIdKey);
+        TokenData tokenData = null;
+        if (sessionData.isExists()) {
+            tokenData = JSON.parseObject(sessionData.get(), TokenData.class);
+        }
         if (tokenData == null) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             this.outputResponseMessage(response,
@@ -95,13 +97,11 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
         TokenData.addToRequest(tokenData);
         // 如果url在权限资源白名单中，则不需要进行鉴权操作
         if (Boolean.FALSE.equals(tokenData.getIsAdmin()) && !whitelistPermSet.contains(url)) {
-            try (Jedis jedis = jedisPool.getResource()) {
-                if (!jedis.sismember(RedisKeyUtil.makeSessionPermIdKeyForRedis(tokenData.getSessionId()), url)) {
-                    response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                    this.outputResponseMessage(response,
-                            ResponseResult.error(ErrorCodeEnum.NO_OPERATION_PERMISSION));
-                    return false;
-                }
+            RSet<String> permSet = redissonClient.getSet(RedisKeyUtil.makeSessionPermIdKeyForRedis(sessionId));
+            if (!permSet.contains(url)) {
+                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                this.outputResponseMessage(response, ResponseResult.error(ErrorCodeEnum.NO_OPERATION_PERMISSION));
+                return false;
             }
         }
         if (JwtUtil.needToRefresh(c)) {

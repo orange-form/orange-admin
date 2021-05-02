@@ -40,15 +40,10 @@ public class ApplicationConfig {
      */
     private String credentialIpList;
     /**
-     * Session在Redis中的过期时间(秒)。
-     * 缺省值是 one day + 60s
-     */
-    private int sessionIdRedisExpiredSeconds = 86460;
-    /**
-     * Session的用户权限在Redis中的过期时间(秒)。
+     * Session会话和用户权限在Redis中的过期时间(秒)。
      * 缺省值是 one day
      */
-    private int permRedisExpiredSeconds = 86400;
+    private int sessionExpiredSeconds = 86400;
     /**
      * 基于完全等于(equals)判定规则的白名单地址集合，过滤效率高于whitelistUrlPattern。
      */

@@ -9,6 +9,22 @@ package com.orange.demo.common.core.constant;
 public final class ApplicationConstant {
 
     /**
+     * 数据同步使用的缺省消息队列主题名称。
+     */
+    public static final String DEFAULT_DATA_SYNC_TOPIC = "OrangeMultiDemo";
+    /**
+     * 全量数据同步中，新增数据对象的键名称。
+     */
+    public static final String DEFAULT_FULL_SYNC_DATA_KEY = "data";
+    /**
+     * 全量数据同步中，原有数据对象的键名称。
+     */
+    public static final String DEFAULT_FULL_SYNC_OLD_DATA_KEY = "oldData";
+    /**
+     * 全量数据同步中，数据对象主键的键名称。
+     */
+    public static final String DEFAULT_FULL_SYNC_ID_KEY = "id";
+    /**
      * 为字典表数据缓存时，缓存名称的固定后缀。
      */
     public static final String DICT_CACHE_NAME_SUFFIX = "-DICT";

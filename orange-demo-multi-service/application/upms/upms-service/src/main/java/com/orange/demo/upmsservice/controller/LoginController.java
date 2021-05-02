@@ -9,8 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import com.orange.demo.common.core.annotation.MyRequestBody;
 import com.orange.demo.common.core.constant.ErrorCodeEnum;
 import com.orange.demo.common.core.constant.ApplicationConstant;
-import com.orange.demo.common.core.object.ResponseResult;
-import com.orange.demo.common.core.object.TokenData;
+import com.orange.demo.common.core.object.*;
 import com.orange.demo.common.core.util.*;
 import com.orange.demo.common.redis.cache.SessionCacheHelper;
 import com.orange.demo.upmsapi.constant.SysUserStatus;
@@ -134,6 +133,7 @@ public class LoginController {
         jsonData.put("permCodeList", permCodeList);
         return ResponseResult.success(jsonData);
     }
+
     /**
      * 用户修改自己的密码。
      *
@@ -167,11 +167,14 @@ public class LoginController {
     private JSONObject buildLoginData(SysUser user) {
         boolean isAdmin = user.getUserType() == SysUserType.TYPE_ADMIN;
         TokenData tokenData = new TokenData();
-        String sessionId = MyCommonUtil.generateUuid();
+        String sessionId = user.getLoginName() + "_" + MyCommonUtil.generateUuid();
         tokenData.setUserId(user.getUserId());
         tokenData.setIsAdmin(isAdmin);
+        tokenData.setLoginName(user.getLoginName());
         tokenData.setShowName(user.getShowName());
         tokenData.setSessionId(sessionId);
+        tokenData.setLoginIp(IpUtil.getRemoteIpAddress(ContextUtil.getHttpRequest()));
+        tokenData.setLoginTime(new Date());
         // 这里手动将TokenData存入request，便于OperationLogAspect统一处理操作日志。
         TokenData.addToRequest(tokenData);
         JSONObject jsonData = new JSONObject();

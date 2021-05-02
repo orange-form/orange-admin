@@ -22,7 +22,7 @@
         </dependency>
         <dependency>
             <groupId>com.orange.demo</groupId>
-            <artifactId>common-core</artifactId>
+            <artifactId>common-log</artifactId>
             <version>1.0.0</version>
         </dependency>
         <dependency>
