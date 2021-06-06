@@ -4,11 +4,17 @@ logging:
     com.orange.demo: info
 
 server:
+  port: 8082
   tomcat:
     uri-encoding: UTF-8
-    max-threads: 100
-    min-spare-threads: 10
-  port: 8082
+    threads:
+      max: 100
+      min-spare: 10
+  servlet:
+    encoding:
+      force: true
+      charset: UTF-8
+      enabled: true
 
 # spring相关配置
 spring:
@@ -20,13 +26,9 @@ spring:
     multipart:
       max-file-size: 50MB
       max-request-size: 50MB
-  http:
+  mvc:
     converters:
       preferred-json-mapper: fastjson
-    encoding:
-      force: true
-      charset: UTF-8
-      enabled: true
   freemarker:
     template-loader-path: classpath:/template/
     cache: false
@@ -160,7 +162,7 @@ application:
   defaultUserPassword: 123456
   # 缺省的文件上传根目录。
   uploadFileBaseDir: ./zz-resource/upload-files/app
-  # 跨域的IP白名单列表，多个IP之间逗号分隔(* 表示全部信任，空白表示禁用跨域信任)。
+  # 跨域的IP(http://192.168.10.10:8086)白名单列表，多个IP之间逗号分隔(* 表示全部信任，空白表示禁用跨域信任)。
   credentialIpList: "*"
   # Session的用户和数据权限在Redis中的过期时间(秒)。
   sessionExpiredSeconds: 86400
@@ -219,7 +221,7 @@ application:
   defaultUserPassword: 123456
   # 缺省的文件上传根目录。
   uploadFileBaseDir: ./zz-resource/upload-files/app
-  # 跨域的IP白名单列表，多个IP之间逗号分隔(* 表示全部信任，空白表示禁用跨域信任)。
+  # 跨域的IP(http://192.168.10.10:8086)白名单列表，多个IP之间逗号分隔(* 表示全部信任，空白表示禁用跨域信任)。
   credentialIpList: "*"
   # Session的用户和数据权限在Redis中的过期时间(秒)。
   sessionExpiredSeconds: 86400

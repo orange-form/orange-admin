@@ -33,7 +33,7 @@ public class RedisKeyUtil {
      * @param sessionId 会话Id。
      * @return 会话存储于Redis中的键值。
      */
-    public static String makeSessionIdKeyForRedis(String sessionId) {
+    public static String makeSessionIdKey(String sessionId) {
         return "SESSIONID__" + sessionId;
     }
 
@@ -43,7 +43,7 @@ public class RedisKeyUtil {
      * @param sessionId 会话Id。
      * @return 会话关联的权限数据存储于Redis中的键值。
      */
-    public static String makeSessionPermIdKeyForRedis(String sessionId) {
+    public static String makeSessionPermIdKey(String sessionId) {
         return "PERM__" + sessionId;
     }
 
@@ -53,8 +53,18 @@ public class RedisKeyUtil {
      * @param sessionId 会话Id。
      * @return 会话关联的数据权限数据存储于Redis中的键值。
      */
-    public static String makeSessionDataPermIdKeyForRedis(String sessionId) {
+    public static String makeSessionDataPermIdKey(String sessionId) {
         return "DATA_PERM__" + sessionId;
+    }
+
+    /**
+     * 计算在线表对象缓存在Redis中的键值。
+     *
+     * @param tableId 在线表主键Id。
+     * @return 会话关联的数据权限数据存储于Redis中的键值。
+     */
+    public static String makeOnlineTableKey(Long tableId) {
+        return "ONLINE_TABLE_" + tableId;
     }
 
     /**

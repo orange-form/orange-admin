@@ -95,7 +95,7 @@ public class LoginController {
     @PostMapping("/doLogout")
     public ResponseResult<Void> doLogout() {
         TokenData tokenData = TokenData.takeFromRequest();
-        String sessionIdKey = RedisKeyUtil.makeSessionIdKeyForRedis(tokenData.getSessionId());
+        String sessionIdKey = RedisKeyUtil.makeSessionIdKey(tokenData.getSessionId());
         redissonClient.getBucket(sessionIdKey).delete();
         sysPermService.removeUserSysPermCache(tokenData.getSessionId());
         cacheHelper.removeAllSessionCache(tokenData.getSessionId());
@@ -180,7 +180,7 @@ public class LoginController {
         tokenData.setIsAdmin(isAdmin);
         tokenData.setLoginIp(IpUtil.getRemoteIpAddress(ContextUtil.getHttpRequest()));
         tokenData.setLoginTime(new Date());
-        String sessionIdKey = RedisKeyUtil.makeSessionIdKeyForRedis(sessionId);
+        String sessionIdKey = RedisKeyUtil.makeSessionIdKey(sessionId);
         String sessionData = JSON.toJSONString(tokenData, SerializerFeature.WriteNonStringValueAsString);
         RBucket<String> bucket = redissonClient.getBucket(sessionIdKey);
         bucket.set(sessionData);

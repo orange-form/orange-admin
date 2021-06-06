@@ -1,5 +1,6 @@
 package com.orange.demo.upmsservice.controller;
 
+import cn.hutool.core.util.ObjectUtil;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
@@ -11,6 +12,7 @@ import com.orange.demo.common.core.annotation.MyRequestBody;
 import com.orange.demo.common.core.validator.UpdateGroup;
 import com.orange.demo.upmsapi.dto.SysMenuDto;
 import com.orange.demo.upmsapi.vo.SysMenuVo;
+import com.orange.demo.upmsapi.constant.SysMenuType;
 import com.orange.demo.upmsservice.model.SysMenu;
 import com.orange.demo.upmsservice.service.SysMenuService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,15 +44,26 @@ public class SysMenuController {
      * @return 应答结果对象，包含新增菜单的主键Id。
      */
     @SuppressWarnings("unchecked")
-    @ApiOperationSupport(ignoreParameters = {"sysMenu.menuId"})
+    @ApiOperationSupport(ignoreParameters = {"sysMenuDto.menuId"})
     @PostMapping("/add")
     public ResponseResult<Long> add(
-            @MyRequestBody("sysMenu") SysMenuDto sysMenuDto, @MyRequestBody String permCodeIdListString) {
+            @MyRequestBody SysMenuDto sysMenuDto, @MyRequestBody String permCodeIdListString) {
         String errorMessage = MyCommonUtil.getModelValidationError(sysMenuDto);
         if (errorMessage != null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
         SysMenu sysMenu = MyModelUtil.copyTo(sysMenuDto, SysMenu.class);
+        if (sysMenu.getParentId() != null) {
+            SysMenu parentSysMenu = sysMenuService.getById(sysMenu.getParentId());
+            if (parentSysMenu == null) {
+                errorMessage = "数据验证失败，关联的父菜单不存在！";
+                return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
+            }
+            if (parentSysMenu.getOnlineFormId() != null) {
+                errorMessage = "数据验证失败，不能动态表单菜单添加父菜单！";
+                return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
+            }
+        }
         CallResult result = sysMenuService.verifyRelatedData(sysMenu, null, permCodeIdListString);
         if (!result.isSuccess()) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, result.getErrorMessage());
@@ -73,7 +86,7 @@ public class SysMenuController {
     @SuppressWarnings("unchecked")
     @PostMapping("/update")
     public ResponseResult<Void> update(
-            @MyRequestBody("sysMenu") SysMenuDto sysMenuDto, @MyRequestBody String permCodeIdListString) {
+            @MyRequestBody SysMenuDto sysMenuDto, @MyRequestBody String permCodeIdListString) {
         String errorMessage = MyCommonUtil.getModelValidationError(sysMenuDto, Default.class, UpdateGroup.class);
         if (errorMessage != null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
@@ -84,6 +97,21 @@ public class SysMenuController {
             return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST, errorMessage);
         }
         SysMenu sysMenu = MyModelUtil.copyTo(sysMenuDto, SysMenu.class);
+        if (ObjectUtil.notEqual(originalSysMenu.getOnlineFormId(), sysMenu.getOnlineFormId())) {
+            if (originalSysMenu.getOnlineFormId() == null) {
+                errorMessage = "数据验证失败，不能为当前菜单添加在线表单Id属性！";
+                return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
+            }
+            if (sysMenu.getOnlineFormId() == null) {
+                errorMessage = "数据验证失败，不能去掉当前菜单的在线表单Id属性！";
+                return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
+            }
+        }
+        if (originalSysMenu.getOnlineFormId() != null
+                && originalSysMenu.getMenuType().equals(SysMenuType.TYPE_BUTTON)) {
+            errorMessage = "数据验证失败，在线表单的内置菜单不能编辑！";
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
+        }
         CallResult result = sysMenuService.verifyRelatedData(sysMenu, originalSysMenu, permCodeIdListString);
         if (!result.isSuccess()) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, result.getErrorMessage());
@@ -111,11 +139,20 @@ public class SysMenuController {
             return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
         }
         String errorMessage;
-        if (sysMenuService.hasChildren(menuId)) {
+        SysMenu menu = sysMenuService.getById(menuId);
+        if (menu == null) {
+            return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST);
+        }
+        if (menu.getOnlineFormId() != null && menu.getMenuType().equals(SysMenuType.TYPE_BUTTON)) {
+            errorMessage = "数据验证失败，在线表单的内置菜单不能删除！";
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
+        }
+        // 对于在线表单，无需进行子菜单的验证，而是在删除的时候，连同子菜单一起删除。
+        if (menu.getOnlineFormId() == null && sysMenuService.hasChildren(menuId)) {
             errorMessage = "数据验证失败，当前菜单存在下级菜单！";
             return ResponseResult.error(ErrorCodeEnum.HAS_CHILDREN_DATA, errorMessage);
         }
-        if (!sysMenuService.remove(menuId)) {
+        if (!sysMenuService.remove(menu)) {
             errorMessage = "数据操作失败，菜单不存在，请刷新后重试！";
             return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST, errorMessage);
         }

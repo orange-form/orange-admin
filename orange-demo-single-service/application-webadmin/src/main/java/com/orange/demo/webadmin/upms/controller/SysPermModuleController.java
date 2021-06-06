@@ -42,7 +42,7 @@ public class SysPermModuleController {
      * @return 应答结果对象，包含新增权限资源模块的主键Id。
      */
     @PostMapping("/add")
-    public ResponseResult<Long> add(@MyRequestBody("sysPermModule") SysPermModuleDto sysPermModuleDto) {
+    public ResponseResult<Long> add(@MyRequestBody SysPermModuleDto sysPermModuleDto) {
         String errorMessage = MyCommonUtil.getModelValidationError(sysPermModuleDto);
         if (errorMessage != null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
@@ -64,7 +64,7 @@ public class SysPermModuleController {
      * @return 应答结果对象，包含新增权限资源模块的主键Id。
      */
     @PostMapping("/update")
-    public ResponseResult<Void> update(@MyRequestBody("sysPermModule") SysPermModuleDto sysPermModuleDto) {
+    public ResponseResult<Void> update(@MyRequestBody SysPermModuleDto sysPermModuleDto) {
         String errorMessage = MyCommonUtil.getModelValidationError(sysPermModuleDto, Default.class, UpdateGroup.class);
         if (errorMessage != null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);

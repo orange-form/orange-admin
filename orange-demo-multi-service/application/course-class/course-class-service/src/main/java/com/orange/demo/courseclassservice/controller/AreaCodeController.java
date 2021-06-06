@@ -4,6 +4,7 @@ import io.swagger.annotations.Api;
 import cn.jimmyshi.beanquery.BeanQuery;
 import com.orange.demo.common.core.base.controller.BaseController;
 import com.orange.demo.common.core.base.service.IBaseDictService;
+import com.orange.demo.common.core.annotation.MyRequestBody;
 import com.orange.demo.common.core.util.MyModelUtil;
 import com.orange.demo.common.core.object.*;
 import com.orange.demo.courseclassapi.vo.AreaCodeVo;
@@ -58,6 +59,20 @@ public class AreaCodeController extends BaseController<AreaCode, AreaCodeVo, Lon
         if (CollectionUtils.isEmpty(resultList)) {
             return ResponseResult.success(new LinkedList<>());
         }
+        return ResponseResult.success(BeanQuery.select(
+                "parentId as parentId", "areaId as id", "areaName as name").executeFrom(resultList));
+    }
+
+    /**
+     * 根据字典Id集合，获取查询后的字典数据。
+     *
+     * @param dictIds 字典Id集合。
+     * @return 字典形式的行政区划列表。
+     */
+    @PostMapping("/listDictByIds")
+    public ResponseResult<List<Map<String, Object>>> listDictByIds(
+            @MyRequestBody(elementType = Long.class) List<Long> dictIds) {
+        List<AreaCode> resultList = areaCodeService.getInList(new HashSet<>(dictIds));
         return ResponseResult.success(BeanQuery.select(
                 "parentId as parentId", "areaId as id", "areaName as name").executeFrom(resultList));
     }

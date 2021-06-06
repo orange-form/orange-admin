@@ -239,7 +239,8 @@ public class MyModelUtil {
                 continue;
             }
             Field dictMapField = ReflectUtil.getField(r.constantDictClass(), "DICT_MAP");
-            Map<Object, String> dictMap = (Map<Object, String>) ReflectUtil.getFieldValue(thisClazz, dictMapField);
+            Map<Object, String> dictMap =
+                    (Map<Object, String>) ReflectUtil.getFieldValue(r.constantDictClass(), dictMapField);
             Object id = ReflectUtil.getFieldValue(thisModel, r.masterIdField());
             if (id != null) {
                 String name = dictMap.get(id);
@@ -248,6 +249,48 @@ public class MyModelUtil {
                     m.put("id", id);
                     m.put("name", name);
                     ReflectUtil.setFieldValue(thisModel, thisTargetField, m);
+                }
+            }
+        }
+    }
+
+    /**
+     * 主Model类型中，遍历所有包含RelationConstDict注解的字段，并将关联的静态字典中的数据，
+     * 填充到thisModelList集合元素对象的被注解字段中。
+     *
+     * @param thisClazz     主对象的Class对象。
+     * @param thisModelList 主对象列表。
+     * @param <T>           主表对象类型。
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> void makeConstDictRelation(Class<T> thisClazz, List<T> thisModelList) {
+        if (CollectionUtils.isEmpty(thisModelList)) {
+            return;
+        }
+        Field[] fields = ReflectUtil.getFields(thisClazz);
+        for (Field field : fields) {
+            // 这里不做任何空值判断，从而让配置错误在调试期间即可抛出
+            Field thisTargetField = ReflectUtil.getField(thisClazz, field.getName());
+            RelationConstDict r = thisTargetField.getAnnotation(RelationConstDict.class);
+            if (r == null) {
+                continue;
+            }
+            Field dictMapField = ReflectUtil.getField(r.constantDictClass(), "DICT_MAP");
+            Map<Object, String> dictMap =
+                    (Map<Object, String>) ReflectUtil.getFieldValue(r.constantDictClass(), dictMapField);
+            for (T thisModel : thisModelList) {
+                if (thisModel == null) {
+                    continue;
+                }
+                Object id = ReflectUtil.getFieldValue(thisModel, r.masterIdField());
+                if (id != null) {
+                    String name = dictMap.get(id);
+                    if (name != null) {
+                        Map<String, Object> m = new HashMap<>(2);
+                        m.put("id", id);
+                        m.put("name", name);
+                        ReflectUtil.setFieldValue(thisModel, thisTargetField, m);
+                    }
                 }
             }
         }

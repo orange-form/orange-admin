@@ -41,7 +41,7 @@ public class SysPermCodeController {
     @SuppressWarnings("unchecked")
     @PostMapping("/add")
     public ResponseResult<Long> add(
-            @MyRequestBody("sysPermCode") SysPermCodeDto sysPermCodeDto, @MyRequestBody String permIdListString) {
+            @MyRequestBody SysPermCodeDto sysPermCodeDto, @MyRequestBody String permIdListString) {
         String errorMessage = MyCommonUtil.getModelValidationError(sysPermCodeDto);
         if (errorMessage != null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED);
@@ -69,7 +69,7 @@ public class SysPermCodeController {
     @SuppressWarnings("unchecked")
     @PostMapping("/update")
     public ResponseResult<Void> update(
-            @MyRequestBody("sysPermCode") SysPermCodeDto sysPermCodeDto, @MyRequestBody String permIdListString) {
+            @MyRequestBody SysPermCodeDto sysPermCodeDto, @MyRequestBody String permIdListString) {
         String errorMessage = MyCommonUtil.getModelValidationError(sysPermCodeDto, Default.class, UpdateGroup.class);
         if (errorMessage != null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);

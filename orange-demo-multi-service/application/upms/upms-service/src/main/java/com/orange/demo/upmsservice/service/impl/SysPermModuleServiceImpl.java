@@ -10,6 +10,7 @@ import com.orange.demo.upmsservice.model.SysPerm;
 import com.orange.demo.upmsservice.model.SysPermModule;
 import com.orange.demo.upmsservice.service.SysPermModuleService;
 import com.orange.demo.upmsservice.service.SysPermService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +23,7 @@ import java.util.List;
  * @author Jerry
  * @date 2020-08-08
  */
+@Slf4j
 @Service("sysPermModuleService")
 public class SysPermModuleServiceImpl extends BaseService<SysPermModule, Long> implements SysPermModuleService {
 

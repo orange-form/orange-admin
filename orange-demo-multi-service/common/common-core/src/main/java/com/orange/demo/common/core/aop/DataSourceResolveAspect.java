@@ -48,7 +48,7 @@ public class DataSourceResolveAspect {
             resolver = ApplicationContextHolder.getBean(resolverClass);
             resolverMap.put(resolverClass, resolver);
         }
-        int type = resolver.resolve(dsr.arg());
+        int type = resolver.resolve(dsr.arg(), point.getArgs());
         // 通过判断 DataSource 中的值来判断当前方法应用哪个数据源
         DataSourceContextHolder.setDataSourceType(type);
         log.debug("set datasource is " + type);

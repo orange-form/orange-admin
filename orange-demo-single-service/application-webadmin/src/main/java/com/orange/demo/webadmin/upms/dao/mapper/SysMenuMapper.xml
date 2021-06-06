@@ -7,6 +7,8 @@
         <result column="menu_name" jdbcType="VARCHAR" property="menuName"/>
         <result column="menu_type" jdbcType="INTEGER" property="menuType"/>
         <result column="form_router_name" jdbcType="VARCHAR" property="formRouterName"/>
+        <result column="online_form_id" jdbcType="BIGINT" property="onlineFormId"/>
+        <result column="online_menu_perm_type" jdbcType="INTEGER" property="onlineMenuPermType"/>
         <result column="show_order" jdbcType="INTEGER" property="showOrder"/>
         <result column="icon" jdbcType="VARCHAR" property="icon"/>
         <result column="create_user_id" jdbcType="BIGINT" property="createUserId"/>
@@ -28,6 +30,25 @@
             AND ur.role_id = rm.role_id
             AND rm.menu_id = m.menu_id
             AND m.menu_type &lt;= ${@com.orange.demo.webadmin.upms.model.constant.SysMenuType@TYPE_MENU}
+        </where>
+        ORDER BY m.show_order
+    </select>
+
+    <select id="getOnlineMenuListByUserId" resultMap="BaseResultMap">
+        SELECT
+            m.*
+        FROM
+            zz_sys_user_role ur,
+            zz_sys_role_menu rm,
+            zz_sys_menu m
+        <where>
+            AND ur.user_id = #{userId}
+            AND ur.role_id = rm.role_id
+            AND rm.menu_id = m.menu_id
+            AND m.online_form_id IS NOT NULL
+            <if test="menuType != null">
+                AND m.menu_type = #{menuType}
+            </if>
         </where>
         ORDER BY m.show_order
     </select>

@@ -30,10 +30,10 @@ public final class SysMenuType {
 
     private static final Map<Object, String> DICT_MAP = new HashMap<>(4);
     static {
-        DICT_MAP.put(0, "目录菜单");
-        DICT_MAP.put(1, "普通菜单");
-        DICT_MAP.put(2, "表单片段类型");
-        DICT_MAP.put(3, "按钮类型");
+        DICT_MAP.put(TYPE_DIRECTORY, "目录菜单");
+        DICT_MAP.put(TYPE_MENU, "普通菜单");
+        DICT_MAP.put(TYPE_UI_FRAGMENT, "表单片段类型");
+        DICT_MAP.put(TYPE_BUTTON, "按钮类型");
     }
 
     /**

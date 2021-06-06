@@ -22,8 +22,8 @@ public final class SysPermModuleType {
 
     private static final Map<Object, String> DICT_MAP = new HashMap<>(2);
     static {
-        DICT_MAP.put(0, "普通模块");
-        DICT_MAP.put(1, "controller接口模块");
+        DICT_MAP.put(TYPE_NORMAL, "普通模块");
+        DICT_MAP.put(TYPE_CONTROLLER, "controller接口模块");
     }
 
     /**

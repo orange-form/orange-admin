@@ -38,7 +38,7 @@ public class StudentActionTransController {
      * @return 应答结果对象，包含新增对象主键Id。
      */
     @PostMapping("/add")
-    public ResponseResult<Long> add(@MyRequestBody("studentActionTrans") StudentActionTransDto studentActionTransDto) {
+    public ResponseResult<Long> add(@MyRequestBody StudentActionTransDto studentActionTransDto) {
         String errorMessage = MyCommonUtil.getModelValidationError(studentActionTransDto);
         if (errorMessage != null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
@@ -61,7 +61,7 @@ public class StudentActionTransController {
      * @return 应答结果对象。
      */
     @PostMapping("/update")
-    public ResponseResult<Void> update(@MyRequestBody("studentActionTrans") StudentActionTransDto studentActionTransDto) {
+    public ResponseResult<Void> update(@MyRequestBody StudentActionTransDto studentActionTransDto) {
         String errorMessage = MyCommonUtil.getModelValidationError(studentActionTransDto, Default.class, UpdateGroup.class);
         if (errorMessage != null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
@@ -121,7 +121,7 @@ public class StudentActionTransController {
      */
     @PostMapping("/list")
     public ResponseResult<MyPageData<StudentActionTransVo>> list(
-            @MyRequestBody("studentActionTransFilter") StudentActionTransDto studentActionTransDtoFilter,
+            @MyRequestBody StudentActionTransDto studentActionTransDtoFilter,
             @MyRequestBody MyOrderParam orderParam,
             @MyRequestBody MyPageParam pageParam) {
         if (pageParam != null) {

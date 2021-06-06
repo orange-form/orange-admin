@@ -163,8 +163,8 @@ public class AuthenticationPostFilter implements GlobalFilter, Ordered {
             ResponseResult<Void> result = JSON.parseObject(responseBody, ResponseResult.class);
             if (result.isSuccess()) {
                 String sessionId = (String) exchange.getAttributes().get(GatewayConstant.SESSION_ID_KEY_NAME);
-                redissonClient.getBucket(RedisKeyUtil.makeSessionIdKeyForRedis(sessionId)).deleteAsync();
-                redissonClient.getSet(RedisKeyUtil.makeSessionPermIdKeyForRedis(sessionId)).deleteAsync();
+                redissonClient.getBucket(RedisKeyUtil.makeSessionIdKey(sessionId)).deleteAsync();
+                redissonClient.getSet(RedisKeyUtil.makeSessionPermIdKey(sessionId)).deleteAsync();
             }
             return responseBody;
         }
@@ -197,7 +197,7 @@ public class AuthenticationPostFilter implements GlobalFilter, Ordered {
             return ResponseResult.error(errorCode, "内部错误，用户显示名没有正确返回！");
         }
         String loginName = tokenData.getString("loginName");
-        if (StringUtils.isBlank(showName)) {
+        if (StringUtils.isBlank(loginName)) {
             return ResponseResult.error(errorCode, "内部错误，用户登录名没有正确返回！");
         }
         String sessionId = tokenData.getString("sessionId");
@@ -209,7 +209,7 @@ public class AuthenticationPostFilter implements GlobalFilter, Ordered {
         claims.put(GatewayConstant.SESSION_ID_KEY_NAME, sessionId);
         String token = JwtUtil.generateToken(claims, appConfig.getExpiration(), appConfig.getTokenSigningKey());
         // 3. 更新缓存
-        String sessionIdKey = RedisKeyUtil.makeSessionIdKeyForRedis(sessionId);
+        String sessionIdKey = RedisKeyUtil.makeSessionIdKey(sessionId);
         String sessionData = JSON.toJSONString(tokenData, SerializerFeature.WriteNonStringValueAsString);
         RBucket<String> bucket = redissonClient.getBucket(sessionIdKey);
         bucket.set(sessionData);
@@ -217,7 +217,7 @@ public class AuthenticationPostFilter implements GlobalFilter, Ordered {
         // 3.2 sessionId -> permList 是set结构的缓存
         JSONArray permSet = loginData.getJSONArray("permSet");
         if (permSet != null) {
-            String sessionPermKey = RedisKeyUtil.makeSessionPermIdKeyForRedis(sessionId);
+            String sessionPermKey = RedisKeyUtil.makeSessionPermIdKey(sessionId);
             RSet<String> redisPermSet = redissonClient.getSet(sessionPermKey);
             redisPermSet.addAll(permSet.stream().map(Object::toString).collect(Collectors.toSet()));
             redisPermSet.expire(appConfig.getSessionExpiredSeconds(), TimeUnit.SECONDS);

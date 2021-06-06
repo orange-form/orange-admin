@@ -10,6 +10,7 @@ import com.orange.demo.common.core.object.CallResult;
 import com.orange.demo.common.core.base.service.BaseService;
 import com.orange.demo.common.sequence.wrapper.IdGeneratorWrapper;
 import com.github.pagehelper.Page;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,7 @@ import java.util.*;
  * @author Jerry
  * @date 2020-09-24
  */
+@Slf4j
 @Service("courseService")
 public class CourseServiceImpl extends BaseService<Course, Long> implements CourseService {
 
@@ -125,6 +127,8 @@ public class CourseServiceImpl extends BaseService<Course, Long> implements Cour
     @Override
     public List<Course> getCourseListWithRelation(Course filter, String orderBy) {
         List<Course> resultList = courseMapper.getCourseList(filter, orderBy);
+        // 在缺省生成的代码中，如果查询结果resultList不是Page对象，说明没有分页，那么就很可能是数据导出接口调用了当前方法。
+        // 为了避免一次性的大量数据关联，规避因此而造成的系统运行性能冲击，这里手动进行了分批次读取，开发者可按需修改该值。
         int batchSize = resultList instanceof Page ? 0 : 1000;
         this.buildRelationForDataList(resultList, MyRelationParam.normal(), batchSize);
         return resultList;
@@ -139,8 +143,7 @@ public class CourseServiceImpl extends BaseService<Course, Long> implements Cour
      * @return 查询结果集。
      */
     @Override
-    public List<Course> getNotInCourseListByClassId(
-            Long classId, Course filter, String orderBy) {
+    public List<Course> getNotInCourseListByClassId(Long classId, Course filter, String orderBy) {
         List<Course> resultList =
                 courseMapper.getNotInCourseListByClassId(classId, filter, orderBy);
         this.buildRelationForDataList(resultList, MyRelationParam.dictOnly());
@@ -156,8 +159,7 @@ public class CourseServiceImpl extends BaseService<Course, Long> implements Cour
      * @return 查询结果集。
      */
     @Override
-    public List<Course> getCourseListByClassId(
-            Long classId, Course filter, String orderBy) {
+    public List<Course> getCourseListByClassId(Long classId, Course filter, String orderBy) {
         List<Course> resultList =
                 courseMapper.getCourseListByClassId(classId, filter, orderBy);
         this.buildRelationForDataList(resultList, MyRelationParam.dictOnly());

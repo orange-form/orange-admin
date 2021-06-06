@@ -10,12 +10,10 @@ application:
   refreshedTokenHeaderKey: RefreshedToken
   # Jwt令牌过期时间(毫秒)。
   expiration: 72000000
-  # 跨域的IP白名单列表，多个IP之间逗号分隔(* 表示全部信任，空白表示禁用跨域信任)。
+  # 跨域的IP(http://192.168.10.10:8086)白名单列表，多个IP之间逗号分隔(* 表示全部信任，空白表示禁用跨域信任)。
   credentialIpList: "*"
-  # Session在Redis中的过期时间(秒)。
-  sessionIdRedisExpiredSeconds: 86460
-  # Session的用户权限在Redis中的过期时间(秒)。
-  permRedisExpiredSeconds: 86400
+  # Session会话和用户权限在Redis中的过期时间(秒)。
+  sessionExpiredSeconds: 86400
 
 spring:
   cloud:

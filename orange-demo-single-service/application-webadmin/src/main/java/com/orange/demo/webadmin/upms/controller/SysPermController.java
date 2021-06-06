@@ -40,7 +40,7 @@ public class SysPermController {
      * @return 应答结果对象，包含新增权限资源的主键Id。
      */
     @PostMapping("/add")
-    public ResponseResult<Long> add(@MyRequestBody("sysPerm") SysPermDto sysPermDto) {
+    public ResponseResult<Long> add(@MyRequestBody SysPermDto sysPermDto) {
         String errorMessage = MyCommonUtil.getModelValidationError(sysPermDto);
         if (errorMessage != null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
@@ -61,7 +61,7 @@ public class SysPermController {
      * @return 应答结果对象，包含更新权限资源的主键Id。
      */
     @PostMapping("/update")
-    public ResponseResult<Void> update(@MyRequestBody("sysPerm") SysPermDto sysPermDto) {
+    public ResponseResult<Void> update(@MyRequestBody SysPermDto sysPermDto) {
         String errorMessage = MyCommonUtil.getModelValidationError(sysPermDto, Default.class, UpdateGroup.class);
         if (errorMessage != null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
@@ -120,17 +120,17 @@ public class SysPermController {
     /**
      * 查看权限资源列表。
      *
-     * @param sysPermDtoFiltter 过滤对象。
+     * @param sysPermDtoFilter 过滤对象。
      * @param pageParam         分页参数。
      * @return 应答结果对象，包含权限资源列表。
      */
     @PostMapping("/list")
     public ResponseResult<MyPageData<SysPermVo>> list(
-            @MyRequestBody("sysPermFilter") SysPermDto sysPermDtoFiltter, @MyRequestBody MyPageParam pageParam) {
+            @MyRequestBody SysPermDto sysPermDtoFilter, @MyRequestBody MyPageParam pageParam) {
         if (pageParam != null) {
             PageMethod.startPage(pageParam.getPageNum(), pageParam.getPageSize());
         }
-        SysPerm filter = MyModelUtil.copyTo(sysPermDtoFiltter, SysPerm.class);
+        SysPerm filter = MyModelUtil.copyTo(sysPermDtoFilter, SysPerm.class);
         List<SysPerm> permList = sysPermService.getPermListWithRelation(filter);
         List<SysPermVo> permVoList = MyModelUtil.copyCollectionTo(permList, SysPermVo.class);
         long totalCount = 0L;

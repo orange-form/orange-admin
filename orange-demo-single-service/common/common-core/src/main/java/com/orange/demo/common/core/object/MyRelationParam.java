@@ -71,7 +71,6 @@ public class MyRelationParam {
                 .buildDict(true)
                 .buildOneToOneWithDict(true)
                 .buildRelationAggregation(true)
-                .buildOneToMany(true)
                 .build();
     }
 

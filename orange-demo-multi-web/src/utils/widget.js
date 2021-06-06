@@ -256,7 +256,7 @@ export class UploadWidget {
         this.fileList = fileList;
       }
     } else {
-      this.fileList = [];
+      this.fileList = undefined;
     }
     return this.fileList;
   }

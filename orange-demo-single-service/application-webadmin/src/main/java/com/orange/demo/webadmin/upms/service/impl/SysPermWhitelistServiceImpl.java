@@ -5,6 +5,7 @@ import com.orange.demo.common.core.base.dao.BaseDaoMapper;
 import com.orange.demo.webadmin.upms.dao.SysPermWhitelistMapper;
 import com.orange.demo.webadmin.upms.model.SysPermWhitelist;
 import com.orange.demo.webadmin.upms.service.SysPermWhitelistService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +20,7 @@ import java.util.stream.Collectors;
  * @author Jerry
  * @date 2020-09-24
  */
+@Slf4j
 @Service("sysPermWhitelistService")
 public class SysPermWhitelistServiceImpl extends BaseService<SysPermWhitelist, String> implements SysPermWhitelistService {
 

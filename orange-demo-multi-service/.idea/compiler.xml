@@ -2,23 +2,29 @@
 <project version="4">
   <component name="CompilerConfiguration">
     <annotationProcessing>
-      <profile name="Maven default annotation processors profile" enabled="true">
+      <profile name="Annotation profile for OrangeMultiDemo" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="application-common" />
-        <module name="gateway" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.20/lombok-1.18.20.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok-mapstruct-binding/0.2.0/lombok-mapstruct-binding-0.2.0.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/mapstruct/mapstruct-processor/1.4.2.Final/mapstruct-processor-1.4.2.Final.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/mapstruct/mapstruct/1.4.2.Final/mapstruct-1.4.2.Final.jar" />
+        </processorPath>
+        <module name="common-sequence" />
         <module name="stats-api" />
         <module name="upms-service" />
-        <module name="common-sequence" />
+        <module name="stats-service" />
         <module name="upms-api" />
-        <module name="course-class-service" />
         <module name="common-swagger" />
-        <module name="common-core" />
-        <module name="common-redis" />
         <module name="admin-monitor" />
         <module name="course-class-api" />
-        <module name="stats-service" />
+        <module name="common-redis" />
+        <module name="common-core" />
+        <module name="application-common" />
+        <module name="course-class-service" />
+        <module name="gateway" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>

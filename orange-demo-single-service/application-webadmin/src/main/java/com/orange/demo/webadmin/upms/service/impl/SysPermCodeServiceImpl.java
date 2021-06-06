@@ -15,6 +15,7 @@ import com.orange.demo.webadmin.upms.model.SysPermCode;
 import com.orange.demo.webadmin.upms.model.SysPermCodePerm;
 import com.orange.demo.webadmin.upms.service.SysPermCodeService;
 import com.orange.demo.webadmin.upms.service.SysPermService;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,7 @@ import java.util.stream.Collectors;
  * @author Jerry
  * @date 2020-09-24
  */
+@Slf4j
 @Service("sysPermCodeService")
 public class SysPermCodeServiceImpl extends BaseService<SysPermCode, Long> implements SysPermCodeService {
 

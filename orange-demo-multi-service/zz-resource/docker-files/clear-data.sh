@@ -8,6 +8,7 @@
 rm -rf ./data/redis/*
 rm -rf ./data/elasticsearch/*
 rm -rf ./data/kafka/*
+rm -rf ./data/rocketmq/*
 rm -rf ./data/logstash/*
 rm -rf ./data/logstash/.lock
 rm -rf ./data/zookeeper/*
@@ -15,5 +16,6 @@ rm -rf ./data/zookeeper/*
 rm -rf ./logs/redis/*
 rm -rf ./logs/elasticsearch/*
 rm -rf ./logs/kafka/*
+rm -rf ./logs/rocketmq/*
 rm -rf ./logs/logstash/*
 rm -rf ./logs/zookeeper/*

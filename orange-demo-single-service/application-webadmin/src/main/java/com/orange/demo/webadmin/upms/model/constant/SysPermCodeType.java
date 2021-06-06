@@ -26,9 +26,9 @@ public final class SysPermCodeType {
 
     private static final Map<Object, String> DICT_MAP = new HashMap<>(3);
     static {
-        DICT_MAP.put(0, "表单权限字");
-        DICT_MAP.put(1, "表单片段布局权限字");
-        DICT_MAP.put(2, "操作权限字");
+        DICT_MAP.put(TYPE_FORM, "表单权限字");
+        DICT_MAP.put(TYPE_FRAGMENT, "表单片段布局权限字");
+        DICT_MAP.put(TYPE_OPERATION, "操作权限字");
     }
 
     /**

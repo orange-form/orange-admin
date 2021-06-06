@@ -82,7 +82,7 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
             return false;
         }
         String sessionId = (String) c.get("sessionId");
-        String sessionIdKey = RedisKeyUtil.makeSessionIdKeyForRedis(sessionId);
+        String sessionIdKey = RedisKeyUtil.makeSessionIdKey(sessionId);
         RBucket<String> sessionData = redissonClient.getBucket(sessionIdKey);
         TokenData tokenData = null;
         if (sessionData.isExists()) {
@@ -97,7 +97,7 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
         TokenData.addToRequest(tokenData);
         // 如果url在权限资源白名单中，则不需要进行鉴权操作
         if (Boolean.FALSE.equals(tokenData.getIsAdmin()) && !whitelistPermSet.contains(url)) {
-            RSet<String> permSet = redissonClient.getSet(RedisKeyUtil.makeSessionPermIdKeyForRedis(sessionId));
+            RSet<String> permSet = redissonClient.getSet(RedisKeyUtil.makeSessionPermIdKey(sessionId));
             if (!permSet.contains(url)) {
                 response.setStatus(HttpServletResponse.SC_FORBIDDEN);
                 this.outputResponseMessage(response, ResponseResult.error(ErrorCodeEnum.NO_OPERATION_PERMISSION));

@@ -39,7 +39,7 @@ public class StudentActionStatsController {
      */
     @PostMapping("/list")
     public ResponseResult<MyPageData<StudentActionStatsVo>> list(
-            @MyRequestBody("studentActionStatsFilter") StudentActionStatsDto studentActionStatsDtoFilter,
+            @MyRequestBody StudentActionStatsDto studentActionStatsDtoFilter,
             @MyRequestBody MyOrderParam orderParam,
             @MyRequestBody MyPageParam pageParam) {
         if (pageParam != null) {
@@ -62,7 +62,7 @@ public class StudentActionStatsController {
      */
     @PostMapping("/listWithGroup")
     public ResponseResult<MyPageData<StudentActionStatsVo>> listWithGroup(
-            @MyRequestBody("studentActionStatsFilter") StudentActionStatsDto studentActionStatsDtoFilter,
+            @MyRequestBody StudentActionStatsDto studentActionStatsDtoFilter,
             @MyRequestBody(required = true) MyGroupParam groupParam,
             @MyRequestBody MyOrderParam orderParam,
             @MyRequestBody MyPageParam pageParam) {

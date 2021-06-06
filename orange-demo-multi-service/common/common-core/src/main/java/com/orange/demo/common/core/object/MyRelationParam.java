@@ -99,7 +99,6 @@ public class MyRelationParam {
                 .buildRemoteOneToOneWithDict(true)
                 .buildAggregation(true)
                 .buildRemoteAggregation(true)
-                .buildOneToMany(true)
                 .build();
     }
 

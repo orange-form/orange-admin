@@ -53,10 +53,10 @@ public class SysRoleController {
      * @return 应答结果对象，包含新增角色的主键Id。
      */
     @SuppressWarnings("unchecked")
-    @ApiOperationSupport(ignoreParameters = {"sysRole.roleId", "sysRole.createTimeStart", "sysRole.createTimeEnd"})
+    @ApiOperationSupport(ignoreParameters = {"sysRoleDto.roleId", "sysRoleDto.createTimeStart", "sysRoleDto.createTimeEnd"})
     @PostMapping("/add")
     public ResponseResult<Long> add(
-            @MyRequestBody("sysRole") SysRoleDto sysRoleDto, @MyRequestBody String menuIdListString) {
+            @MyRequestBody SysRoleDto sysRoleDto, @MyRequestBody String menuIdListString) {
         String errorMessage = MyCommonUtil.getModelValidationError(sysRoleDto);
         if (errorMessage != null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
@@ -82,10 +82,10 @@ public class SysRoleController {
      * @return 应答结果对象。
      */
     @SuppressWarnings("unchecked")
-    @ApiOperationSupport(ignoreParameters = {"sysRole.createTimeStart", "sysRole.createTimeEnd"})
+    @ApiOperationSupport(ignoreParameters = {"sysRoleDto.createTimeStart", "sysRoleDto.createTimeEnd"})
     @PostMapping("/update")
     public ResponseResult<Void> update(
-            @MyRequestBody("sysRole") SysRoleDto sysRoleDto, @MyRequestBody String menuIdListString) {
+            @MyRequestBody SysRoleDto sysRoleDto, @MyRequestBody String menuIdListString) {
         String errorMessage = MyCommonUtil.getModelValidationError(sysRoleDto, Default.class, UpdateGroup.class);
         if (errorMessage != null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
@@ -139,7 +139,7 @@ public class SysRoleController {
      */
     @PostMapping("/list")
     public ResponseResult<MyPageData<SysRoleVo>> list(
-            @MyRequestBody("sysRoleFilter") SysRoleDto sysRoleDtoFilter,
+            @MyRequestBody SysRoleDto sysRoleDtoFilter,
             @MyRequestBody MyOrderParam orderParam,
             @MyRequestBody MyPageParam pageParam) {
         if (pageParam != null) {
@@ -188,7 +188,7 @@ public class SysRoleController {
     @PostMapping("/listNotInUserRole")
     public ResponseResult<MyPageData<SysUserVo>> listNotInUserRole(
             @MyRequestBody Long roleId,
-            @MyRequestBody("sysUserFilter") SysUserDto sysUserDtoFilter,
+            @MyRequestBody SysUserDto sysUserDtoFilter,
             @MyRequestBody MyOrderParam orderParam,
             @MyRequestBody MyPageParam pageParam) {
         ResponseResult<Void> verifyResult = this.doRoleUserVerify(roleId);
@@ -217,7 +217,7 @@ public class SysRoleController {
     @PostMapping("/listUserRole")
     public ResponseResult<MyPageData<SysUserVo>> listUserRole(
             @MyRequestBody Long roleId,
-            @MyRequestBody("sysUserFilter") SysUserDto sysUserDtoFilter,
+            @MyRequestBody SysUserDto sysUserDtoFilter,
             @MyRequestBody MyOrderParam orderParam,
             @MyRequestBody MyPageParam pageParam) {
         ResponseResult<Void> verifyResult = this.doRoleUserVerify(roleId);

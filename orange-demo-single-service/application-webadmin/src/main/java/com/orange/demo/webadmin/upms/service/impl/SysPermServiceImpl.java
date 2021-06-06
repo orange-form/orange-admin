@@ -16,6 +16,7 @@ import com.orange.demo.webadmin.upms.dao.SysPermMapper;
 import com.orange.demo.webadmin.upms.model.SysPerm;
 import com.orange.demo.webadmin.upms.model.SysPermCodePerm;
 import com.orange.demo.webadmin.upms.model.SysPermModule;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.redisson.api.RSet;
 import org.redisson.api.RedissonClient;
@@ -34,6 +35,7 @@ import java.util.stream.Collectors;
  * @author Jerry
  * @date 2020-09-24
  */
+@Slf4j
 @Service("sysPermService")
 public class SysPermServiceImpl extends BaseService<SysPerm, Long> implements SysPermService {
 
@@ -148,11 +150,23 @@ public class SysPermServiceImpl extends BaseService<SysPerm, Long> implements Sy
         if (CollectionUtils.isEmpty(permList)) {
             return permList;
         }
-        String sessionPermKey = RedisKeyUtil.makeSessionPermIdKeyForRedis(sessionId);
+        String sessionPermKey = RedisKeyUtil.makeSessionPermIdKey(sessionId);
         RSet<String> redisPermSet = redissonClient.getSet(sessionPermKey);
         redisPermSet.addAll(permList.stream().map(Object::toString).collect(Collectors.toSet()));
         redisPermSet.expire(applicationConfig.getSessionExpiredSeconds(), TimeUnit.SECONDS);
         return permList;
+    }
+
+    /**
+     * 把在线表单的权限URL集合，存放到权限URL的缓存中。
+     *
+     * @param sessionId  会话Id。
+     * @param permUrlSet URL集合。
+     */
+    @Override
+    public void putOnlinePermToCache(String sessionId, Set<String> permUrlSet) {
+        String sessionPermKey = RedisKeyUtil.makeSessionPermIdKey(sessionId);
+        redissonClient.getSet(sessionPermKey).addAll(permUrlSet);
     }
 
     /**
@@ -162,7 +176,7 @@ public class SysPermServiceImpl extends BaseService<SysPerm, Long> implements Sy
      */
     @Override
     public void removeUserSysPermCache(String sessionId) {
-        String sessionPermKey = RedisKeyUtil.makeSessionPermIdKeyForRedis(sessionId);
+        String sessionPermKey = RedisKeyUtil.makeSessionPermIdKey(sessionId);
         redissonClient.getSet(sessionPermKey).deleteAsync();
     }
 

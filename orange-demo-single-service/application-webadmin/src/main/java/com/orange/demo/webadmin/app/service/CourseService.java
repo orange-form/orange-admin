@@ -68,8 +68,7 @@ public interface CourseService extends IBaseService<Course, Long> {
      * @param orderBy 排序参数。
      * @return 查询结果集。
      */
-    List<Course> getNotInCourseListByClassId(
-            Long classId, Course filter, String orderBy);
+    List<Course> getNotInCourseListByClassId(Long classId, Course filter, String orderBy);
 
     /**
      * 在多对多关系中，当前Service的数据表为从表，返回与指定主表主键Id存在对多对关系的列表。
@@ -79,8 +78,7 @@ public interface CourseService extends IBaseService<Course, Long> {
      * @param orderBy 排序参数。
      * @return 查询结果集。
      */
-    List<Course> getCourseListByClassId(
-            Long classId, Course filter, String orderBy);
+    List<Course> getCourseListByClassId(Long classId, Course filter, String orderBy);
 
     /**
      * 根据最新对象和原有对象的数据对比，判断关联的字典数据和多对一主表数据是否都是合法数据。

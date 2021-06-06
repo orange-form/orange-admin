@@ -52,9 +52,9 @@ public class StudentClassController extends BaseController<StudentClass, Student
      * @param studentClassDto 新增对象。
      * @return 应答结果对象，包含新增对象主键Id。
      */
-    @ApiOperationSupport(ignoreParameters = {"studentClass.classId"})
+    @ApiOperationSupport(ignoreParameters = {"studentClassDto.classId"})
     @PostMapping("/add")
-    public ResponseResult<Long> add(@MyRequestBody("studentClass") StudentClassDto studentClassDto) {
+    public ResponseResult<Long> add(@MyRequestBody StudentClassDto studentClassDto) {
         String errorMessage = MyCommonUtil.getModelValidationError(studentClassDto);
         if (errorMessage != null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
@@ -77,7 +77,7 @@ public class StudentClassController extends BaseController<StudentClass, Student
      * @return 应答结果对象。
      */
     @PostMapping("/update")
-    public ResponseResult<Void> update(@MyRequestBody("studentClass") StudentClassDto studentClassDto) {
+    public ResponseResult<Void> update(@MyRequestBody StudentClassDto studentClassDto) {
         String errorMessage = MyCommonUtil.getModelValidationError(studentClassDto, Default.class, UpdateGroup.class);
         if (errorMessage != null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
@@ -137,7 +137,7 @@ public class StudentClassController extends BaseController<StudentClass, Student
      */
     @PostMapping("/list")
     public ResponseResult<MyPageData<StudentClassVo>> list(
-            @MyRequestBody("studentClassFilter") StudentClassDto studentClassDtoFilter,
+            @MyRequestBody StudentClassDto studentClassDtoFilter,
             @MyRequestBody MyOrderParam orderParam,
             @MyRequestBody MyPageParam pageParam) {
         if (pageParam != null) {
@@ -183,7 +183,7 @@ public class StudentClassController extends BaseController<StudentClass, Student
     @PostMapping("/listNotInClassCourse")
     public ResponseResult<MyPageData<CourseVo>> listNotInClassCourse(
             @MyRequestBody Long classId,
-            @MyRequestBody("courseFilter") CourseDto courseDtoFilter,
+            @MyRequestBody CourseDto courseDtoFilter,
             @MyRequestBody MyOrderParam orderParam,
             @MyRequestBody MyPageParam pageParam) {
         ResponseResult<Void> verifyResult = this.doClassCourseVerify(classId);
@@ -212,7 +212,7 @@ public class StudentClassController extends BaseController<StudentClass, Student
     @PostMapping("/listClassCourse")
     public ResponseResult<MyPageData<CourseVo>> listClassCourse(
             @MyRequestBody Long classId,
-            @MyRequestBody("courseFilter") CourseDto courseDtoFilter,
+            @MyRequestBody CourseDto courseDtoFilter,
             @MyRequestBody MyOrderParam orderParam,
             @MyRequestBody MyPageParam pageParam) {
         ResponseResult<Void> verifyResult = this.doClassCourseVerify(classId);
@@ -249,7 +249,7 @@ public class StudentClassController extends BaseController<StudentClass, Student
     @PostMapping("/addClassCourse")
     public ResponseResult<Void> addClassCourse(
             @MyRequestBody Long classId,
-            @MyRequestBody(value = "classCourseList", elementType = ClassCourseDto.class) List<ClassCourseDto> classCourseDtoList) {
+            @MyRequestBody(elementType = ClassCourseDto.class) List<ClassCourseDto> classCourseDtoList) {
         if (MyCommonUtil.existBlankArgument(classId, classCourseDtoList)) {
             return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
         }
@@ -279,7 +279,7 @@ public class StudentClassController extends BaseController<StudentClass, Student
      */
     @PostMapping("/updateClassCourse")
     public ResponseResult<Void> updateClassCourse(
-            @MyRequestBody("classCourse") ClassCourseDto classCourseDto) {
+            @MyRequestBody ClassCourseDto classCourseDto) {
         String errorMessage = MyCommonUtil.getModelValidationError(classCourseDto);
         if (errorMessage != null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
@@ -344,7 +344,7 @@ public class StudentClassController extends BaseController<StudentClass, Student
     @PostMapping("/listNotInClassStudent")
     public ResponseResult<MyPageData<StudentVo>> listNotInClassStudent(
             @MyRequestBody Long classId,
-            @MyRequestBody("studentFilter") StudentDto studentDtoFilter,
+            @MyRequestBody StudentDto studentDtoFilter,
             @MyRequestBody MyOrderParam orderParam,
             @MyRequestBody MyPageParam pageParam) {
         ResponseResult<Void> verifyResult = this.doClassStudentVerify(classId);
@@ -373,7 +373,7 @@ public class StudentClassController extends BaseController<StudentClass, Student
     @PostMapping("/listClassStudent")
     public ResponseResult<MyPageData<StudentVo>> listClassStudent(
             @MyRequestBody Long classId,
-            @MyRequestBody("studentFilter") StudentDto studentDtoFilter,
+            @MyRequestBody StudentDto studentDtoFilter,
             @MyRequestBody MyOrderParam orderParam,
             @MyRequestBody MyPageParam pageParam) {
         ResponseResult<Void> verifyResult = this.doClassStudentVerify(classId);
@@ -410,7 +410,7 @@ public class StudentClassController extends BaseController<StudentClass, Student
     @PostMapping("/addClassStudent")
     public ResponseResult<Void> addClassStudent(
             @MyRequestBody Long classId,
-            @MyRequestBody(value = "classStudentList", elementType = ClassStudentDto.class) List<ClassStudentDto> classStudentDtoList) {
+            @MyRequestBody(elementType = ClassStudentDto.class) List<ClassStudentDto> classStudentDtoList) {
         if (MyCommonUtil.existBlankArgument(classId, classStudentDtoList)) {
             return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
         }

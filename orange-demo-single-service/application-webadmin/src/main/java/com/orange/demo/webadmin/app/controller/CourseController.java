@@ -54,7 +54,7 @@ public class CourseController {
      * @return 应答结果对象，包含新增对象主键Id。
      */
     @PostMapping("/add")
-    public ResponseResult<Long> add(@MyRequestBody("course") CourseDto courseDto) {
+    public ResponseResult<Long> add(@MyRequestBody CourseDto courseDto) {
         String errorMessage = MyCommonUtil.getModelValidationError(courseDto);
         if (errorMessage != null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
@@ -77,7 +77,7 @@ public class CourseController {
      * @return 应答结果对象。
      */
     @PostMapping("/update")
-    public ResponseResult<Void> update(@MyRequestBody("course") CourseDto courseDto) {
+    public ResponseResult<Void> update(@MyRequestBody CourseDto courseDto) {
         String errorMessage = MyCommonUtil.getModelValidationError(courseDto, Default.class, UpdateGroup.class);
         if (errorMessage != null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
@@ -137,7 +137,7 @@ public class CourseController {
      */
     @PostMapping("/list")
     public ResponseResult<MyPageData<CourseVo>> list(
-            @MyRequestBody("courseFilter") CourseDto courseDtoFilter,
+            @MyRequestBody CourseDto courseDtoFilter,
             @MyRequestBody MyOrderParam orderParam,
             @MyRequestBody MyPageParam pageParam) {
         if (pageParam != null) {
@@ -271,6 +271,20 @@ public class CourseController {
     @GetMapping("/listDict")
     public ResponseResult<List<Map<String, Object>>> listDict(Course filter) {
         List<Course> resultList = courseService.getListByFilter(filter);
+        return ResponseResult.success(BeanQuery.select(
+                "courseId as id", "courseName as name").executeFrom(resultList));
+    }
+
+    /**
+     * 根据字典Id集合，获取查询后的字典数据。
+     *
+     * @param dictIds 字典Id集合。
+     * @return 应答结果对象，包含字典形式的数据集合。
+     */
+    @PostMapping("/listDictByIds")
+    public ResponseResult<List<Map<String, Object>>> listDictByIds(
+            @MyRequestBody(elementType = Long.class) List<Long> dictIds) {
+        List<Course> resultList = courseService.getInList(new HashSet<>(dictIds));
         return ResponseResult.success(BeanQuery.select(
                 "courseId as id", "courseName as name").executeFrom(resultList));
     }

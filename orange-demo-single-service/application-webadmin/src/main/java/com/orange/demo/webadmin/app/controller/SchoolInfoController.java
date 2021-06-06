@@ -39,7 +39,7 @@ public class SchoolInfoController {
      * @return 应答结果对象，包含新增对象主键Id。
      */
     @PostMapping("/add")
-    public ResponseResult<Long> add(@MyRequestBody("schoolInfo") SchoolInfoDto schoolInfoDto) {
+    public ResponseResult<Long> add(@MyRequestBody SchoolInfoDto schoolInfoDto) {
         String errorMessage = MyCommonUtil.getModelValidationError(schoolInfoDto);
         if (errorMessage != null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
@@ -62,7 +62,7 @@ public class SchoolInfoController {
      * @return 应答结果对象。
      */
     @PostMapping("/update")
-    public ResponseResult<Void> update(@MyRequestBody("schoolInfo") SchoolInfoDto schoolInfoDto) {
+    public ResponseResult<Void> update(@MyRequestBody SchoolInfoDto schoolInfoDto) {
         String errorMessage = MyCommonUtil.getModelValidationError(schoolInfoDto, Default.class, UpdateGroup.class);
         if (errorMessage != null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
@@ -122,7 +122,7 @@ public class SchoolInfoController {
      */
     @PostMapping("/list")
     public ResponseResult<MyPageData<SchoolInfoVo>> list(
-            @MyRequestBody("schoolInfoFilter") SchoolInfoDto schoolInfoDtoFilter,
+            @MyRequestBody SchoolInfoDto schoolInfoDtoFilter,
             @MyRequestBody MyOrderParam orderParam,
             @MyRequestBody MyPageParam pageParam) {
         if (pageParam != null) {
@@ -163,6 +163,20 @@ public class SchoolInfoController {
     @GetMapping("/listDict")
     public ResponseResult<List<Map<String, Object>>> listDict(SchoolInfo filter) {
         List<SchoolInfo> resultList = schoolInfoService.getListByFilter(filter);
+        return ResponseResult.success(BeanQuery.select(
+                "schoolId as id", "schoolName as name").executeFrom(resultList));
+    }
+
+    /**
+     * 根据字典Id集合，获取查询后的字典数据。
+     *
+     * @param dictIds 字典Id集合。
+     * @return 应答结果对象，包含字典形式的数据集合。
+     */
+    @PostMapping("/listDictByIds")
+    public ResponseResult<List<Map<String, Object>>> listDictByIds(
+            @MyRequestBody(elementType = Long.class) List<Long> dictIds) {
+        List<SchoolInfo> resultList = schoolInfoService.getInList(new HashSet<>(dictIds));
         return ResponseResult.success(BeanQuery.select(
                 "schoolId as id", "schoolName as name").executeFrom(resultList));
     }

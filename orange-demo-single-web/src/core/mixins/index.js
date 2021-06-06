@@ -263,6 +263,9 @@ const cachePageMixin = {
   created () {
     this.addCachePage(this.$options.name);
   },
+  mounted () {
+    this.$route.meta.refresh = false;
+  },
   activated () {
     if (this.$route && this.$route.meta && this.$route.meta.refresh) {
       this.onResume();

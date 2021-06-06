@@ -23,6 +23,16 @@ public interface SysMenuMapper extends BaseDaoMapper<SysMenu> {
     List<SysMenu> getMenuListByUserId(@Param("userId") Long userId);
 
     /**
+     * 获取当前用户有权访问的在线表单菜单，仅返回类型为BUTTON的菜单。
+     *
+     * @param userId   指定的用户。
+     * @param menuType 菜单类型，NULL则返回全部类型。
+     * @return 在线表单关联的菜单列表。
+     */
+    List<SysMenu> getOnlineMenuListByUserId(
+            @Param("userId") Long userId, @Param("menuType") Integer menuType);
+
+    /**
      * 查询菜单的权限资源地址列表。同时返回详细的分配路径。
      *
      * @param menuId 菜单Id。

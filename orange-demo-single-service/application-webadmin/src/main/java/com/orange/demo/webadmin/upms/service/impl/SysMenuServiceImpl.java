@@ -1,5 +1,6 @@
 package com.orange.demo.webadmin.upms.service.impl;
 
+import cn.hutool.core.util.ObjectUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.orange.demo.common.core.base.service.BaseService;
 import com.orange.demo.common.sequence.wrapper.IdGeneratorWrapper;
@@ -14,8 +15,10 @@ import com.orange.demo.webadmin.upms.model.SysMenu;
 import com.orange.demo.webadmin.upms.model.SysMenuPermCode;
 import com.orange.demo.webadmin.upms.model.SysRoleMenu;
 import com.orange.demo.webadmin.upms.model.constant.SysMenuType;
+import com.orange.demo.webadmin.upms.model.constant.SysOnlineMenuPermType;
 import com.orange.demo.webadmin.upms.service.SysMenuService;
 import com.orange.demo.webadmin.upms.service.SysPermCodeService;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -31,6 +34,7 @@ import java.util.stream.Collectors;
  * @author Jerry
  * @date 2020-09-24
  */
+@Slf4j
 @Service("sysMenuService")
 public class SysMenuServiceImpl extends BaseService<SysMenu, Long> implements SysMenuService {
 
@@ -79,6 +83,29 @@ public class SysMenuServiceImpl extends BaseService<SysMenu, Long> implements Sy
             }
             sysMenuPermCodeMapper.insertList(sysMenuPermCodeList);
         }
+        // 判断当前菜单是否为指向在线表单的菜单，并将根据约定，动态插入两个子菜单。
+        if (sysMenu.getOnlineFormId() != null) {
+            SysMenu viewSubMenu = new SysMenu();
+            viewSubMenu.setMenuId(idGenerator.nextLongId());
+            viewSubMenu.setParentId(sysMenu.getMenuId());
+            viewSubMenu.setMenuType(SysMenuType.TYPE_BUTTON);
+            viewSubMenu.setMenuName("查看");
+            viewSubMenu.setShowOrder(0);
+            viewSubMenu.setOnlineFormId(sysMenu.getOnlineFormId());
+            viewSubMenu.setOnlineMenuPermType(SysOnlineMenuPermType.TYPE_VIEW);
+            MyModelUtil.fillCommonsForInsert(viewSubMenu);
+            sysMenuMapper.insert(viewSubMenu);
+            SysMenu editSubMenu = new SysMenu();
+            editSubMenu.setMenuId(idGenerator.nextLongId());
+            editSubMenu.setParentId(sysMenu.getMenuId());
+            editSubMenu.setMenuType(SysMenuType.TYPE_BUTTON);
+            editSubMenu.setMenuName("编辑");
+            editSubMenu.setShowOrder(1);
+            editSubMenu.setOnlineFormId(sysMenu.getOnlineFormId());
+            editSubMenu.setOnlineMenuPermType(SysOnlineMenuPermType.TYPE_EDIT);
+            MyModelUtil.fillCommonsForInsert(editSubMenu);
+            sysMenuMapper.insert(editSubMenu);
+        }
         return sysMenu;
     }
 
@@ -112,18 +139,27 @@ public class SysMenuServiceImpl extends BaseService<SysMenu, Long> implements Sy
             }
             sysMenuPermCodeMapper.insertList(sysMenuPermCodeList);
         }
+        // 如果当前菜单的在线表单Id变化了，就需要同步更新他的内置子菜单也同步更新。
+        if (ObjectUtil.notEqual(originalSysMenu.getOnlineFormId(), sysMenu.getOnlineFormId())) {
+            SysMenu onlineSubMenu = new SysMenu();
+            onlineSubMenu.setOnlineFormId(sysMenu.getOnlineFormId());
+            Example e = new Example(SysMenu.class);
+            e.createCriteria().andEqualTo("parentId", sysMenu.getMenuId());
+            sysMenuMapper.updateByExampleSelective(onlineSubMenu, e);
+        }
         return true;
     }
 
     /**
      * 删除指定的菜单。
      *
-     * @param menuId 菜单主键Id。
+     * @param menu 菜单对象。
      * @return 删除成功返回true，否则false。
      */
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public boolean remove(Long menuId) {
+    public boolean remove(SysMenu menu) {
+        Long menuId = menu.getMenuId();
         if (!this.removeById(menuId)) {
             return false;
         }
@@ -133,6 +169,12 @@ public class SysMenuServiceImpl extends BaseService<SysMenu, Long> implements Sy
         SysMenuPermCode menuPermCode = new SysMenuPermCode();
         menuPermCode.setMenuId(menuId);
         sysMenuPermCodeMapper.delete(menuPermCode);
+        // 如果为指向在线表单的菜单，则连同删除子菜单
+        if (menu.getOnlineFormId() != null) {
+            Example e = new Example(SysMenu.class);
+            e.createCriteria().andEqualTo("parentId", menuId);
+            sysMenuMapper.deleteByExample(e);
+        }
         return true;
     }
 
@@ -237,6 +279,34 @@ public class SysMenuServiceImpl extends BaseService<SysMenu, Long> implements Sy
     @Override
     public List<Map<String, Object>> getSysUserListWithDetail(Long menuId, String loginName) {
         return sysMenuMapper.getSysUserListWithDetail(menuId, loginName);
+    }
+
+    /**
+     * 获取指定类型的所有在线表单的菜单。
+     *
+     * @param menuType 菜单类型，NULL则返回全部类型。
+     * @return 在线表单关联的菜单列表。
+     */
+    @Override
+    public List<SysMenu> getAllOnlineMenuList(Integer menuType) {
+        Example e = new Example(SysMenu.class);
+        Example.Criteria c = e.createCriteria().andIsNotNull("onlineFormId");
+        if (menuType != null) {
+            c.andEqualTo("menuType", menuType);
+        }
+        return sysMenuMapper.selectByExample(e);
+    }
+
+    /**
+     * 获取当前用户有权访问的在线表单菜单，仅返回类型为BUTTON的菜单。
+     *
+     * @param userId   指定的用户。
+     * @param menuType 菜单类型，NULL则返回全部类型。
+     * @return 在线表单关联的菜单列表。
+     */
+    @Override
+    public List<SysMenu> getOnlineMenuListByUserId(Long userId, Integer menuType) {
+        return sysMenuMapper.getOnlineMenuListByUserId(userId, menuType);
     }
 
     private String checkErrorOfNonDirectoryMenu(SysMenu sysMenu) {

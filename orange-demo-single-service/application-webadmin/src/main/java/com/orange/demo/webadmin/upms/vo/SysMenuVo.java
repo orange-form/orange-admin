@@ -39,6 +39,16 @@ public class SysMenuVo {
     private String formRouterName;
 
     /**
+     * 在线表单主键Id，仅用于在线表单绑定的菜单。
+     */
+    private Long onlineFormId;
+
+    /**
+     * 在线表单菜单的权限控制类型，具体值可参考SysOnlineMenuPermType常量对象。
+     */
+    private Integer onlineMenuPermType;
+
+    /**
      * 菜单显示顺序 (值越小，排序越靠前)。
      */
     private Integer showOrder;

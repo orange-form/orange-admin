@@ -6,8 +6,8 @@ import com.orange.demo.webadmin.app.model.*;
 import com.orange.demo.common.core.base.dao.BaseDaoMapper;
 import com.orange.demo.common.core.object.MyRelationParam;
 import com.orange.demo.common.core.base.service.BaseService;
-import com.orange.demo.common.core.util.MyModelUtil;
 import com.github.pagehelper.Page;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +19,7 @@ import java.util.*;
  * @author Jerry
  * @date 2020-09-24
  */
+@Slf4j
 @Service("studentActionStatsService")
 public class StudentActionStatsServiceImpl extends BaseService<StudentActionStats, Long> implements StudentActionStatsService {
 
@@ -64,6 +65,8 @@ public class StudentActionStatsServiceImpl extends BaseService<StudentActionStat
     @Override
     public List<StudentActionStats> getStudentActionStatsListWithRelation(StudentActionStats filter, String orderBy) {
         List<StudentActionStats> resultList = studentActionStatsMapper.getStudentActionStatsList(filter, orderBy);
+        // 在缺省生成的代码中，如果查询结果resultList不是Page对象，说明没有分页，那么就很可能是数据导出接口调用了当前方法。
+        // 为了避免一次性的大量数据关联，规避因此而造成的系统运行性能冲击，这里手动进行了分批次读取，开发者可按需修改该值。
         int batchSize = resultList instanceof Page ? 0 : 1000;
         this.buildRelationForDataList(resultList, MyRelationParam.normal(), batchSize);
         return resultList;
@@ -83,6 +86,8 @@ public class StudentActionStatsServiceImpl extends BaseService<StudentActionStat
             StudentActionStats filter, String groupSelect, String groupBy, String orderBy) {
         List<StudentActionStats> resultList =
                 studentActionStatsMapper.getGroupedStudentActionStatsList(filter, groupSelect, groupBy, orderBy);
+        // 在缺省生成的代码中，如果查询结果resultList不是Page对象，说明没有分页，那么就很可能是数据导出接口调用了当前方法。
+        // 为了避免一次性的大量数据关联，规避因此而造成的系统运行性能冲击，这里手动进行了分批次读取，开发者可按需修改该值。
         int batchSize = resultList instanceof Page ? 0 : 1000;
         // NOTE: 这里只是包含了关联数据，聚合计算数据没有包含。
         // 主要原因是，由于聚合字段通常被视为普通字段使用，不会在group by的从句中出现，语义上也不会在此关联。

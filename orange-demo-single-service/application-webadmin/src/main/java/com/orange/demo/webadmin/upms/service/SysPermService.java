@@ -57,6 +57,14 @@ public interface SysPermService extends IBaseService<SysPerm, Long> {
     Collection<String> putUserSysPermCache(String sessionId, Long userId);
 
     /**
+     * 把在线表单的权限URL集合，存放到权限URL的缓存中。
+     *
+     * @param sessionId  会话Id。
+     * @param permUrlSet URL集合。
+     */
+    void putOnlinePermToCache(String sessionId, Set<String> permUrlSet);
+
+    /**
      * 将指定会话的权限集合从缓存中移除。
      *
      * @param sessionId 会话Id。

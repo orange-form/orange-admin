@@ -64,15 +64,15 @@ public class CourseController extends BaseController<Course, CourseVo, Long> {
      * @return 应答结果对象，包含新增对象主键Id。
      */
     @ApiOperationSupport(ignoreParameters = {
-            "course.courseId",
-            "course.priceStart",
-            "course.priceEnd",
-            "course.classHourStart",
-            "course.classHourEnd",
-            "course.updateTimeStart",
-            "course.updateTimeEnd"})
+            "courseDto.courseId",
+            "courseDto.priceStart",
+            "courseDto.priceEnd",
+            "courseDto.classHourStart",
+            "courseDto.classHourEnd",
+            "courseDto.updateTimeStart",
+            "courseDto.updateTimeEnd"})
     @PostMapping("/add")
-    public ResponseResult<Long> add(@MyRequestBody("course") CourseDto courseDto) {
+    public ResponseResult<Long> add(@MyRequestBody CourseDto courseDto) {
         String errorMessage = MyCommonUtil.getModelValidationError(courseDto);
         if (errorMessage != null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
@@ -95,14 +95,14 @@ public class CourseController extends BaseController<Course, CourseVo, Long> {
      * @return 应答结果对象。
      */
     @ApiOperationSupport(ignoreParameters = {
-            "course.priceStart",
-            "course.priceEnd",
-            "course.classHourStart",
-            "course.classHourEnd",
-            "course.updateTimeStart",
-            "course.updateTimeEnd"})
+            "CourseDto.priceStart",
+            "CourseDto.priceEnd",
+            "CourseDto.classHourStart",
+            "CourseDto.classHourEnd",
+            "CourseDto.updateTimeStart",
+            "CourseDto.updateTimeEnd"})
     @PostMapping("/update")
-    public ResponseResult<Void> update(@MyRequestBody("course") CourseDto courseDto) {
+    public ResponseResult<Void> update(@MyRequestBody CourseDto courseDto) {
         String errorMessage = MyCommonUtil.getModelValidationError(courseDto, Default.class, UpdateGroup.class);
         if (errorMessage != null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
@@ -162,7 +162,7 @@ public class CourseController extends BaseController<Course, CourseVo, Long> {
      */
     @PostMapping("/list")
     public ResponseResult<MyPageData<CourseVo>> list(
-            @MyRequestBody("courseFilter") CourseDto courseDtoFilter,
+            @MyRequestBody CourseDto courseDtoFilter,
             @MyRequestBody MyOrderParam orderParam,
             @MyRequestBody MyPageParam pageParam) {
         if (pageParam != null) {
@@ -298,6 +298,20 @@ public class CourseController extends BaseController<Course, CourseVo, Long> {
     @GetMapping("/listDict")
     public ResponseResult<List<Map<String, Object>>> listDict(Course filter) {
         List<Course> resultList = courseService.getListByFilter(filter);
+        return ResponseResult.success(
+                BeanQuery.select("courseId as id", "courseName as name").executeFrom(resultList));
+    }
+
+    /**
+     * 根据字典Id集合，获取查询后的字典数据。
+     *
+     * @param dictIds 字典Id集合。
+     * @return 应答结果对象，包含字典形式的数据集合。
+     */
+    @PostMapping("/listDictByIds")
+    public ResponseResult<List<Map<String, Object>>> listDictByIds(
+            @MyRequestBody(elementType = Long.class) List<Long> dictIds) {
+        List<Course> resultList = courseService.getInList(new HashSet<>(dictIds));
         return ResponseResult.success(
                 BeanQuery.select("courseId as id", "courseName as name").executeFrom(resultList));
     }

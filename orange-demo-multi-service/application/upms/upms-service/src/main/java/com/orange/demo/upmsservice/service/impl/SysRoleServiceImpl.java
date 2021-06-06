@@ -15,6 +15,7 @@ import com.orange.demo.upmsservice.model.SysRoleMenu;
 import com.orange.demo.upmsservice.model.SysUserRole;
 import com.orange.demo.upmsservice.service.SysMenuService;
 import com.orange.demo.upmsservice.service.SysRoleService;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,7 @@ import java.util.stream.Collectors;
  * @author Jerry
  * @date 2020-08-08
  */
+@Slf4j
 @Service("sysRoleService")
 public class SysRoleServiceImpl extends BaseService<SysRole, Long> implements SysRoleService {
 

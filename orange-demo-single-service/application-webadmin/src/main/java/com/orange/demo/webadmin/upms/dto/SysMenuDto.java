@@ -47,6 +47,11 @@ public class SysMenuDto {
     private String formRouterName;
 
     /**
+     * 在线表单主键Id，仅用于在线表单绑定的菜单。
+     */
+    private Long onlineFormId;
+
+    /**
      * 菜单显示顺序 (值越小，排序越靠前)。
      */
     @NotNull(message = "菜单显示顺序不能为空！")

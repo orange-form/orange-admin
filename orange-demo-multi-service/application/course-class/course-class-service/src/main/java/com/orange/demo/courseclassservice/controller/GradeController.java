@@ -9,11 +9,11 @@ import lombok.extern.slf4j.Slf4j;
 import com.orange.demo.common.core.base.controller.BaseController;
 import com.orange.demo.common.core.base.service.IBaseDictService;
 import com.orange.demo.common.core.object.*;
+import com.orange.demo.common.core.annotation.MyRequestBody;
 import com.orange.demo.common.core.constant.ErrorCodeEnum;
 import com.orange.demo.common.core.util.MyModelUtil;
 import com.orange.demo.common.core.util.MyCommonUtil;
 import com.orange.demo.common.core.validator.UpdateGroup;
-import com.orange.demo.common.core.annotation.MyRequestBody;
 import com.orange.demo.courseclassapi.dto.GradeDto;
 import com.orange.demo.courseclassapi.vo.GradeVo;
 import com.orange.demo.courseclassservice.model.Grade;
@@ -51,9 +51,9 @@ public class GradeController extends BaseController<Grade, GradeVo, Integer> {
      * @param gradeDto 新增对象。
      * @return 应答结果对象，包含新增对象主键Id。
      */
-    @ApiOperationSupport(ignoreParameters = {"grade.gradeId"})
+    @ApiOperationSupport(ignoreParameters = {"gradeDto.gradeId"})
     @PostMapping("/add")
-    public ResponseResult<Integer> add(@MyRequestBody("grade") GradeDto gradeDto) {
+    public ResponseResult<Integer> add(@MyRequestBody GradeDto gradeDto) {
         String errorMessage = MyCommonUtil.getModelValidationError(gradeDto);
         if (errorMessage != null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
@@ -70,7 +70,7 @@ public class GradeController extends BaseController<Grade, GradeVo, Integer> {
      * @return 应答结果对象。
      */
     @PostMapping("/update")
-    public ResponseResult<Void> update(@MyRequestBody("grade") GradeDto gradeDto) {
+    public ResponseResult<Void> update(@MyRequestBody GradeDto gradeDto) {
         String errorMessage = MyCommonUtil.getModelValidationError(gradeDto, Default.class, UpdateGroup.class);
         if (errorMessage != null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
@@ -153,6 +153,20 @@ public class GradeController extends BaseController<Grade, GradeVo, Integer> {
         jsonObject.put("cachedResultList", BeanQuery.select(
                 "gradeId as id", "gradeName as name").executeFrom(gradeService.getAllListFromCache()));
         return ResponseResult.success(jsonObject);
+    }
+
+    /**
+     * 根据字典Id集合，获取查询后的字典数据。
+     *
+     * @param dictIds 字典Id集合。
+     * @return 应答结果对象，包含字典形式的数据集合。
+     */
+    @PostMapping("/listDictByIds")
+    public ResponseResult<List<Map<String, Object>>> listDictByIds(
+            @MyRequestBody(elementType = Integer.class) List<Integer> dictIds) {
+        List<Grade> resultList = gradeService.getInList(new HashSet<>(dictIds));
+        return ResponseResult.success(BeanQuery.select(
+                "gradeId as id", "gradeName as name").executeFrom(resultList));
     }
 
     /**

@@ -6,6 +6,7 @@ import com.orange.demo.common.redis.cache.RedisDictionaryCache;
 import com.orange.demo.webadmin.app.service.GradeService;
 import com.orange.demo.webadmin.app.dao.GradeMapper;
 import com.orange.demo.webadmin.app.model.Grade;
+import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,7 @@ import javax.annotation.PostConstruct;
  * @author Jerry
  * @date 2020-09-24
  */
+@Slf4j
 @Service("gradeService")
 public class GradeServiceImpl extends BaseDictService<Grade, Integer> implements GradeService {
 

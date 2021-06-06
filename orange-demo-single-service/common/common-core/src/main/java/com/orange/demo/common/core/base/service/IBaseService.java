@@ -200,6 +200,17 @@ public interface IBaseService<M, K> {
     void buildRelationForDataList(List<M> resultList, MyRelationParam relationParam);
 
     /**
+     * 集成所有与主表实体对象相关的关联数据列表。包括本地和远程服务的一对一、字典、一对多和多对多聚合运算等。
+     * 也可以根据实际需求，单独调用该函数所包含的各个数据集成函数。
+     * NOTE: 该方法内执行的SQL将禁用数据权限过滤。
+     *
+     * @param resultList    主表实体对象列表。数据集成将直接作用于该对象列表。
+     * @param relationParam 实体对象数据组装的参数构建器。
+     * @param ignoreFields  该集合中的字段，即便包含注解也不会在当前调用中进行数据组装。
+     */
+    void buildRelationForDataList(List<M> resultList, MyRelationParam relationParam, Set<String> ignoreFields);
+
+    /**
      * 该函数主要用于对查询结果的批量导出。不同于支持分页的列表查询，批量导出没有分页机制，
      * 因此在导出数据量较大的情况下，很容易给数据库的内存、CPU和IO带来较大的压力。而通过
      * 我们的分批处理，可以极大的规避该问题的出现几率。调整batchSize的大小，也可以有效的
@@ -218,6 +229,26 @@ public interface IBaseService<M, K> {
     void buildRelationForDataList(List<M> resultList, MyRelationParam relationParam, int batchSize);
 
     /**
+     * 该函数主要用于对查询结果的批量导出。不同于支持分页的列表查询，批量导出没有分页机制，
+     * 因此在导出数据量较大的情况下，很容易给数据库的内存、CPU和IO带来较大的压力。而通过
+     * 我们的分批处理，可以极大的规避该问题的出现几率。调整batchSize的大小，也可以有效的
+     * 改善运行效率。
+     * 我们目前的处理机制是，先从主表取出所有符合条件的主表数据，这样可以避免分批处理时，
+     * 后面几批数据，因为skip过多而带来的效率问题。因为是单表过滤，不会给数据库带来过大的压力。
+     * 之后再在主表结果集数据上进行分批级联处理。
+     * 集成所有与主表实体对象相关的关联数据列表。包括一对一、字典、一对多和多对多聚合运算等。
+     * 也可以根据实际需求，单独调用该函数所包含的各个数据集成函数。
+     * NOTE: 该方法内执行的SQL将禁用数据权限过滤。
+     *
+     * @param resultList    主表实体对象列表。数据集成将直接作用于该对象列表。
+     * @param relationParam 实体对象数据组装的参数构建器。
+     * @param batchSize     每批集成的记录数量。小于等于时将不做分批处理。
+     * @param ignoreFields  该集合中的字段，即便包含注解也不会在当前调用中进行数据组装。
+     */
+    void buildRelationForDataList(
+            List<M> resultList, MyRelationParam relationParam, int batchSize, Set<String> ignoreFields);
+
+    /**
      * 集成所有与主表实体对象相关的关联数据对象。包括一对一、字典、一对多和多对多聚合运算等。
      * 也可以根据实际需求，单独调用该函数所包含的各个数据集成函数。
      * NOTE: 该方法内执行的SQL将禁用数据权限过滤。
@@ -227,6 +258,18 @@ public interface IBaseService<M, K> {
      * @param <T>             实体对象类型。
      */
     <T extends M> void buildRelationForData(T dataObject, MyRelationParam relationParam);
+
+    /**
+     * 集成所有与主表实体对象相关的关联数据对象。包括本地和远程服务的一对一、字典、一对多和多对多聚合运算等。
+     * 也可以根据实际需求，单独调用该函数所包含的各个数据集成函数。
+     * NOTE: 该方法内执行的SQL将禁用数据权限过滤。
+     *
+     * @param dataObject    主表实体对象。数据集成将直接作用于该对象。
+     * @param relationParam 实体对象数据组装的参数构建器。
+     * @param ignoreFields  该集合中的字段，即便包含注解也不会在当前调用中进行数据组装。
+     * @param <T>           实体对象类型。
+     */
+    <T extends M> void buildRelationForData(T dataObject, MyRelationParam relationParam, Set<String> ignoreFields);
 
     /**
      * 仅仅在spring boot 启动后的监听器事件中调用，缓存所有service的关联关系，加速后续的数据绑定效率。

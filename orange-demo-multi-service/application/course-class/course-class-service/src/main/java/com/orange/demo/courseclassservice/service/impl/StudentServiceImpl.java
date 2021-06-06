@@ -10,6 +10,7 @@ import com.orange.demo.common.core.object.CallResult;
 import com.orange.demo.common.core.base.dao.BaseDaoMapper;
 import com.orange.demo.common.core.base.service.BaseService;
 import com.orange.demo.common.sequence.wrapper.IdGeneratorWrapper;
+import lombok.extern.slf4j.Slf4j;
 import com.github.pagehelper.Page;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,7 @@ import java.util.*;
  * @author Jerry
  * @date 2020-08-08
  */
+@Slf4j
 @Service("studentService")
 public class StudentServiceImpl extends BaseService<Student, Long> implements StudentService {
 
@@ -143,6 +145,8 @@ public class StudentServiceImpl extends BaseService<Student, Long> implements St
     @Override
     public List<Student> getStudentListWithRelation(Student filter, String orderBy) {
         List<Student> resultList = studentMapper.getStudentList(null, null, filter, orderBy);
+        // 在缺省生成的代码中，如果查询结果resultList不是Page对象，说明没有分页，那么就很可能是数据导出接口调用了当前方法。
+        // 为了避免一次性的大量数据关联，规避因此而造成的系统运行性能冲击，这里手动进行了分批次读取，开发者可按需修改该值。
         int batchSize = resultList instanceof Page ? 0 : 1000;
         this.buildRelationForDataList(resultList, MyRelationParam.normal(), batchSize);
         return resultList;
@@ -164,6 +168,8 @@ public class StudentServiceImpl extends BaseService<Student, Long> implements St
             String inFilterField, Set<M> inFilterValues, Student filter, String orderBy) {
         List<Student> resultList =
                 studentMapper.getStudentList(inFilterField, inFilterValues, filter, orderBy);
+        // 在缺省生成的代码中，如果查询结果resultList不是Page对象，说明没有分页，那么就很可能是数据导出接口调用了当前方法。
+        // 为了避免一次性的大量数据关联，规避因此而造成的系统运行性能冲击，这里手动进行了分批次读取，开发者可按需修改该值。
         int batchSize = resultList instanceof Page ? 0 : 1000;
         this.buildRelationForDataList(resultList, MyRelationParam.dictOnly(), batchSize);
         return resultList;
@@ -178,8 +184,7 @@ public class StudentServiceImpl extends BaseService<Student, Long> implements St
      * @return 查询结果集。
      */
     @Override
-    public List<Student> getNotInStudentListByClassId(
-            Long classId, Student filter, String orderBy) {
+    public List<Student> getNotInStudentListByClassId(Long classId, Student filter, String orderBy) {
         List<Student> resultList =
                 studentMapper.getNotInStudentListByClassId(classId, filter, orderBy);
         this.buildRelationForDataList(resultList, MyRelationParam.dictOnly());
@@ -195,8 +200,7 @@ public class StudentServiceImpl extends BaseService<Student, Long> implements St
      * @return 查询结果集。
      */
     @Override
-    public List<Student> getStudentListByClassId(
-            Long classId, Student filter, String orderBy) {
+    public List<Student> getStudentListByClassId(Long classId, Student filter, String orderBy) {
         List<Student> resultList =
                 studentMapper.getStudentListByClassId(classId, filter, orderBy);
         this.buildRelationForDataList(resultList, MyRelationParam.dictOnly());

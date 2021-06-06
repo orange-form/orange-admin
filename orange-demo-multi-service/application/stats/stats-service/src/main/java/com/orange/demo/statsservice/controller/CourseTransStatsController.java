@@ -48,7 +48,7 @@ public class CourseTransStatsController extends BaseController<CourseTransStats,
      */
     @PostMapping("/list")
     public ResponseResult<MyPageData<CourseTransStatsVo>> list(
-            @MyRequestBody("courseTransStatsFilter") CourseTransStatsDto courseTransStatsDtoFilter,
+            @MyRequestBody CourseTransStatsDto courseTransStatsDtoFilter,
             @MyRequestBody MyOrderParam orderParam,
             @MyRequestBody MyPageParam pageParam) {
         if (pageParam != null) {
@@ -72,7 +72,7 @@ public class CourseTransStatsController extends BaseController<CourseTransStats,
      */
     @PostMapping("/listWithGroup")
     public ResponseResult<MyPageData<CourseTransStatsVo>> listWithGroup(
-            @MyRequestBody("courseTransStatsFilter") CourseTransStatsDto courseTransStatsDtoFilter,
+            @MyRequestBody CourseTransStatsDto courseTransStatsDtoFilter,
             @MyRequestBody(required = true) MyGroupParam groupParam,
             @MyRequestBody MyOrderParam orderParam,
             @MyRequestBody MyPageParam pageParam) {

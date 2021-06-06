@@ -49,14 +49,14 @@ public class StudentController extends BaseController<Student, StudentVo, Long> 
      * @return 应答结果对象，包含新增对象主键Id。
      */
     @ApiOperationSupport(ignoreParameters = {
-            "student.studentId",
-            "student.searchString",
-            "student.birthdayStart",
-            "student.birthdayEnd",
-            "student.registerTimeStart",
-            "student.registerTimeEnd"})
+            "studentDto.studentId",
+            "studentDto.searchString",
+            "studentDto.birthdayStart",
+            "studentDto.birthdayEnd",
+            "studentDto.registerTimeStart",
+            "studentDto.registerTimeEnd"})
     @PostMapping("/add")
-    public ResponseResult<Long> add(@MyRequestBody("student") StudentDto studentDto) {
+    public ResponseResult<Long> add(@MyRequestBody StudentDto studentDto) {
         String errorMessage = MyCommonUtil.getModelValidationError(studentDto);
         if (errorMessage != null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
@@ -79,13 +79,13 @@ public class StudentController extends BaseController<Student, StudentVo, Long> 
      * @return 应答结果对象。
      */
     @ApiOperationSupport(ignoreParameters = {
-            "student.searchString",
-            "student.birthdayStart",
-            "student.birthdayEnd",
-            "student.registerTimeStart",
-            "student.registerTimeEnd"})
+            "StudentDto.searchString",
+            "StudentDto.birthdayStart",
+            "StudentDto.birthdayEnd",
+            "StudentDto.registerTimeStart",
+            "StudentDto.registerTimeEnd"})
     @PostMapping("/update")
-    public ResponseResult<Void> update(@MyRequestBody("student") StudentDto studentDto) {
+    public ResponseResult<Void> update(@MyRequestBody StudentDto studentDto) {
         String errorMessage = MyCommonUtil.getModelValidationError(studentDto, Default.class, UpdateGroup.class);
         if (errorMessage != null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
@@ -145,7 +145,7 @@ public class StudentController extends BaseController<Student, StudentVo, Long> 
      */
     @PostMapping("/list")
     public ResponseResult<MyPageData<StudentVo>> list(
-            @MyRequestBody("studentFilter") StudentDto studentDtoFilter,
+            @MyRequestBody StudentDto studentDtoFilter,
             @MyRequestBody MyOrderParam orderParam,
             @MyRequestBody MyPageParam pageParam) {
         if (pageParam != null) {
@@ -188,6 +188,20 @@ public class StudentController extends BaseController<Student, StudentVo, Long> 
     @GetMapping("/listDict")
     public ResponseResult<List<Map<String, Object>>> listDict(Student filter) {
         List<Student> resultList = studentService.getListByFilter(filter);
+        return ResponseResult.success(
+                BeanQuery.select("studentId as id", "studentName as name").executeFrom(resultList));
+    }
+
+    /**
+     * 根据字典Id集合，获取查询后的字典数据。
+     *
+     * @param dictIds 字典Id集合。
+     * @return 应答结果对象，包含字典形式的数据集合。
+     */
+    @PostMapping("/listDictByIds")
+    public ResponseResult<List<Map<String, Object>>> listDictByIds(
+            @MyRequestBody(elementType = Long.class) List<Long> dictIds) {
+        List<Student> resultList = studentService.getInList(new HashSet<>(dictIds));
         return ResponseResult.success(
                 BeanQuery.select("studentId as id", "studentName as name").executeFrom(resultList));
     }

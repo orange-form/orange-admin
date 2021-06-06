@@ -54,12 +54,12 @@ public class SysUserController extends BaseController<SysUser, SysUserVo, Long> 
      */
     @SuppressWarnings("unchecked")
     @ApiOperationSupport(ignoreParameters = {
-            "sysUser.userId",
-            "sysUser.createTimeStart",
-            "sysUser.createTimeEnd"})
+            "sysUserDto.userId",
+            "sysUserDto.createTimeStart",
+            "sysUserDto.createTimeEnd"})
     @PostMapping("/add")
     public ResponseResult<Long> add(
-            @MyRequestBody("sysUser") SysUserDto sysUserDto, @MyRequestBody String roleIdListString) {
+            @MyRequestBody SysUserDto sysUserDto, @MyRequestBody String roleIdListString) {
         String errorMessage = MyCommonUtil.getModelValidationError(sysUserDto, Default.class, AddGroup.class);
         if (errorMessage != null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
@@ -83,11 +83,11 @@ public class SysUserController extends BaseController<SysUser, SysUserVo, Long> 
      */
     @SuppressWarnings("unchecked")
     @ApiOperationSupport(ignoreParameters = {
-            "sysUser.createTimeStart",
-            "sysUser.createTimeEnd"})
+            "sysUserDto.createTimeStart",
+            "sysUserDto.createTimeEnd"})
     @PostMapping("/update")
     public ResponseResult<Void> update(
-            @MyRequestBody("sysUser") SysUserDto sysUserDto, @MyRequestBody String roleIdListString) {
+            @MyRequestBody SysUserDto sysUserDto, @MyRequestBody String roleIdListString) {
         String errorMessage = MyCommonUtil.getModelValidationError(sysUserDto, Default.class, UpdateGroup.class);
         if (errorMessage != null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
@@ -161,7 +161,7 @@ public class SysUserController extends BaseController<SysUser, SysUserVo, Long> 
      */
     @PostMapping("/list")
     public ResponseResult<MyPageData<SysUserVo>> list(
-            @MyRequestBody("sysUserFilter") SysUserDto sysUserDtoFilter,
+            @MyRequestBody SysUserDto sysUserDtoFilter,
             @MyRequestBody MyOrderParam orderParam,
             @MyRequestBody MyPageParam pageParam) {
         if (pageParam != null) {

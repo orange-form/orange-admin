@@ -77,7 +77,7 @@ public class AuthenticationPreFilter implements GlobalFilter, Ordered {
         }
         // 先基于sessionId获取userInfo
         String sessionId = (String) c.get(GatewayConstant.SESSION_ID_KEY_NAME);
-        String sessionIdKey = RedisKeyUtil.makeSessionIdKeyForRedis(sessionId);
+        String sessionIdKey = RedisKeyUtil.makeSessionIdKey(sessionId);
         RBucket<String> sessionData = redissonClient.getBucket(sessionIdKey);
         JSONObject tokenData = null;
         if (sessionData.isExists()) {
@@ -152,7 +152,7 @@ public class AuthenticationPreFilter implements GlobalFilter, Ordered {
         if (url.equals(GatewayConstant.ADMIN_LOGOUT_URL)) {
             return true;
         }
-        String permKey = RedisKeyUtil.makeSessionPermIdKeyForRedis(sessionId);
+        String permKey = RedisKeyUtil.makeSessionPermIdKey(sessionId);
         return redissonClient.getSet(permKey).contains(url);
     }
 

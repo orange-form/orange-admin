@@ -36,10 +36,10 @@ public interface SysMenuService extends IBaseService<SysMenu, Long> {
     /**
      * 删除指定的菜单。
      *
-     * @param menuId 菜单主键Id。
+     * @param menu 菜单对象。
      * @return 删除成功返回true，否则false。
      */
-    boolean remove(Long menuId);
+    boolean remove(SysMenu menu);
 
     /**
      * 获取全部菜单列表。
@@ -91,4 +91,21 @@ public interface SysMenuService extends IBaseService<SysMenu, Long> {
      * @return 包含从菜单到用户的完整权限分配路径信息的查询结果列表。
      */
     List<Map<String, Object>> getSysUserListWithDetail(Long menuId, String loginName);
+
+    /**
+     * 获取指定类型的所有在线表单的菜单。
+     *
+     * @param menuType 菜单类型，NULL则返回全部类型。
+     * @return 在线表单关联的菜单列表。
+     */
+    List<SysMenu> getAllOnlineMenuList(Integer menuType);
+
+    /**
+     * 获取当前用户有权访问的在线表单菜单，仅返回类型为BUTTON的菜单。
+     *
+     * @param userId   指定的用户。
+     * @param menuType 菜单类型，NULL则返回全部类型。
+     * @return 在线表单关联的菜单列表。
+     */
+    List<SysMenu> getOnlineMenuListByUserId(Long userId, Integer menuType);
 }

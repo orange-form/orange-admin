@@ -6,6 +6,7 @@ import com.orange.demo.common.core.base.dao.BaseDaoMapper;
 import com.orange.demo.courseclassservice.service.GradeService;
 import com.orange.demo.courseclassservice.dao.GradeMapper;
 import com.orange.demo.courseclassservice.model.Grade;
+import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,7 @@ import javax.annotation.PostConstruct;
  * @author Jerry
  * @date 2020-08-08
  */
+@Slf4j
 @Service("gradeService")
 public class GradeServiceImpl extends BaseDictService<Grade, Integer> implements GradeService {
 
