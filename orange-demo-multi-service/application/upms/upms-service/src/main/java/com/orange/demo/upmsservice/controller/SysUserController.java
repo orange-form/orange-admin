@@ -1,5 +1,6 @@
 package com.orange.demo.upmsservice.controller;
 
+import com.alibaba.fastjson.TypeReference;
 import com.github.pagehelper.page.PageMethod;
 import com.orange.demo.upmsservice.model.*;
 import com.orange.demo.upmsservice.service.*;
@@ -52,7 +53,6 @@ public class SysUserController extends BaseController<SysUser, SysUserVo, Long> 
      * @param roleIdListString 逗号分隔的角色Id列表。
      * @return 应答结果对象，包含新增用户的主键Id。
      */
-    @SuppressWarnings("unchecked")
     @ApiOperationSupport(ignoreParameters = {
             "sysUserDto.userId",
             "sysUserDto.createTimeStart",
@@ -65,11 +65,12 @@ public class SysUserController extends BaseController<SysUser, SysUserVo, Long> 
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
         SysUser sysUser = MyModelUtil.copyTo(sysUserDto, SysUser.class);
-        CallResult result = sysUserService.verifyRelatedData(sysUser, null, roleIdListString);
+        CallResult result = sysUserService.verifyRelatedData(
+                sysUser, null, roleIdListString);
         if (!result.isSuccess()) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, result.getErrorMessage());
         }
-        Set<Long> roleIdSet = (Set<Long>) result.getData().get("roleIdSet");
+        Set<Long> roleIdSet = result.getData().getObject("roleIdSet", new TypeReference<Set<Long>>() {});
         sysUserService.saveNew(sysUser, roleIdSet);
         return ResponseResult.success(sysUser.getUserId());
     }
@@ -81,7 +82,6 @@ public class SysUserController extends BaseController<SysUser, SysUserVo, Long> 
      * @param roleIdListString 逗号分隔的角色Id列表。
      * @return 应答结果对象。
      */
-    @SuppressWarnings("unchecked")
     @ApiOperationSupport(ignoreParameters = {
             "sysUserDto.createTimeStart",
             "sysUserDto.createTimeEnd"})
@@ -97,11 +97,12 @@ public class SysUserController extends BaseController<SysUser, SysUserVo, Long> 
             return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST);
         }
         SysUser sysUser = MyModelUtil.copyTo(sysUserDto, SysUser.class);
-        CallResult result = sysUserService.verifyRelatedData(sysUser, originalUser, roleIdListString);
+        CallResult result = sysUserService.verifyRelatedData(
+                sysUser, originalUser, roleIdListString);
         if (!result.isSuccess()) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, result.getErrorMessage());
         }
-        Set<Long> roleIdSet = (Set<Long>) result.getData().get("roleIdSet");
+        Set<Long> roleIdSet = result.getData().getObject("roleIdSet", new TypeReference<Set<Long>>() {});
         if (!sysUserService.update(sysUser, originalUser, roleIdSet)) {
             return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST);
         }

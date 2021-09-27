@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.flow.demo.common.online.dao.OnlinePageMapper">
+    <resultMap id="BaseResultMap" type="com.flow.demo.common.online.model.OnlinePage">
+        <id column="page_id" jdbcType="BIGINT" property="pageId"/>
+        <result column="page_code" jdbcType="VARCHAR" property="pageCode"/>
+        <result column="page_name" jdbcType="VARCHAR" property="pageName"/>
+        <result column="page_type" jdbcType="INTEGER" property="pageType"/>
+        <result column="status" jdbcType="INTEGER" property="status"/>
+        <result column="published" jdbcType="BIT" property="published"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+    </resultMap>
+
+    <!-- 如果有逻辑删除字段过滤，请写到这里 -->
+    <sql id="filterRef">
+        <!-- 这里必须加上全包名，否则当filterRef被其他Mapper.xml包含引用的时候，就会调用Mapper.xml中的该SQL片段 -->
+        <include refid="com.flow.demo.common.online.dao.OnlinePageMapper.inputFilterRef"/>
+    </sql>
+
+    <!-- 这里仅包含调用接口输入的主表过滤条件 -->
+    <sql id="inputFilterRef">
+        <if test="onlinePageFilter != null">
+            <if test="onlinePageFilter.pageCode != null and onlinePageFilter.pageCode != ''">
+                AND zz_online_page.page_code = #{onlinePageFilter.pageCode}
+            </if>
+            <if test="onlinePageFilter.pageName != null and onlinePageFilter.pageName != ''">
+                AND zz_online_page.page_name = #{onlinePageFilter.pageName}
+            </if>
+            <if test="onlinePageFilter.pageType != null">
+                AND zz_online_page.page_type = #{onlinePageFilter.pageType}
+            </if>
+        </if>
+    </sql>
+
+    <select id="getOnlinePageList" resultMap="BaseResultMap" parameterType="com.flow.demo.common.online.model.OnlinePage">
+        SELECT * FROM zz_online_page
+        <where>
+            <include refid="filterRef"/>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+
+    <select id="getOnlinePageListByDatasourceId" resultMap="BaseResultMap">
+        SELECT a.* FROM zz_online_page a, zz_online_page_datasource b
+        WHERE b.datasource_id = #{datasourceI} AND b.page_id = a.page_id
+    </select>
+</mapper>

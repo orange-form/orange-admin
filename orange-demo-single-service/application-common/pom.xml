@@ -13,12 +13,4 @@
     <version>1.0.0</version>
     <name>application-common</name>
     <packaging>jar</packaging>
-
-    <dependencies>
-        <dependency>
-            <groupId>com.orange.demo</groupId>
-            <artifactId>common-core</artifactId>
-            <version>1.0.0</version>
-        </dependency>
-    </dependencies>
 </project>

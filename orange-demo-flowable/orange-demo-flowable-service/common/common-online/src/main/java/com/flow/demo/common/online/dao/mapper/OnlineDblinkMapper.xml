@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.flow.demo.common.online.dao.OnlineDblinkMapper">
+    <resultMap id="BaseResultMap" type="com.flow.demo.common.online.model.OnlineDblink">
+        <id column="dblink_id" jdbcType="BIGINT" property="dblinkId"/>
+        <result column="dblink_name" jdbcType="VARCHAR" property="dblinkName"/>
+        <result column="variable_name" jdbcType="VARCHAR" property="variableName"/>
+        <result column="dblink_desc" jdbcType="VARCHAR" property="dblinkDesc"/>
+        <result column="dblink_config_constant" jdbcType="INTEGER" property="dblinkConfigConstant"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+    </resultMap>
+
+    <!-- 如果有逻辑删除字段过滤，请写到这里 -->
+    <sql id="filterRef">
+        <!-- 这里必须加上全包名，否则当filterRef被其他Mapper.xml包含引用的时候，就会调用Mapper.xml中的该SQL片段 -->
+        <include refid="com.flow.demo.common.online.dao.OnlineDblinkMapper.inputFilterRef"/>
+    </sql>
+
+    <!-- 这里仅包含调用接口输入的主表过滤条件 -->
+    <sql id="inputFilterRef">
+        <if test="onlineDblinkFilter != null">
+        </if>
+    </sql>
+
+    <select id="getOnlineDblinkList" resultMap="BaseResultMap" parameterType="com.flow.demo.common.online.model.OnlineDblink">
+        SELECT * FROM zz_online_dblink
+        <where>
+            <include refid="filterRef"/>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+</mapper>

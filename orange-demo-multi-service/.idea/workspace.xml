@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="d28775da-807b-4be4-b3fb-7626d9bb6dce" name="Default Changelist" comment="" />
+    <list default="true" id="a0b6f27a-b36a-441c-af92-f7eb47b4b3ce" name="Default Changelist" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -13,7 +13,7 @@
   <component name="ProjectCodeStyleSettingsMigration">
     <option name="version" value="1" />
   </component>
-  <component name="ProjectId" id="1tZuAGX7mvjZvXvQ1rbZBKty5Ln" />
+  <component name="ProjectId" id="1xX0EnUm7ILYI1um57oGVrdwMUq" />
   <component name="ProjectViewState">
     <option name="abbreviatePackageNames" value="true" />
     <option name="autoscrollFromSource" value="true" />
@@ -31,7 +31,7 @@
     <property name="nodejs_interpreter_path" value="/usr/local/bin/node" />
     <property name="settings.editor.selected.configurable" value="Errors" />
   </component>
-  <component name="RunManager" selected="Spring Boot.AdminMonitorApplication">
+  <component name="RunManager" selected="Spring Boot.StatsApplication">
     <configuration name="AdminMonitorApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
       <module name="admin-monitor" />
       <option name="SPRING_BOOT_MAIN_CLASS" value="com.orange.demo.adminmonitor.AdminMonitorApplication" />
@@ -78,22 +78,16 @@
   </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="d28775da-807b-4be4-b3fb-7626d9bb6dce" name="Default Changelist" comment="" />
-      <created>1622988787059</created>
+      <changelist id="a0b6f27a-b36a-441c-af92-f7eb47b4b3ce" name="Default Changelist" comment="" />
+      <created>1630486016377</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1622988787059</updated>
-      <workItem from="1622988788767" duration="1292000" />
+      <updated>1630486016377</updated>
+      <workItem from="1630486018005" duration="271000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="1" />
-  </component>
-  <component name="WindowStateProjectService">
-    <state x="383" y="212" width="833" height="476" key="find.popup" timestamp="1622990014452">
-      <screen x="0" y="0" width="1440" height="900" />
-    </state>
-    <state x="383" y="212" width="833" height="476" key="find.popup/0.0.1440.900@0.0.1440.900" timestamp="1622990014452" />
   </component>
 </project>

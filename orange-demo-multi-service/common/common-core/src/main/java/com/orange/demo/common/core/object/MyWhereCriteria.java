@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -21,7 +22,6 @@ import java.util.List;
 @Slf4j
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 public class MyWhereCriteria {
 
     /**
@@ -81,9 +81,24 @@ public class MyWhereCriteria {
     private Class<?> modelClazz;
 
     /**
+     * 数据库表名。
+     */
+    private String tableName;
+
+    /**
      * Java属性名称。
      */
     private String fieldName;
+
+    /**
+     * 数据表字段名。
+     */
+    private String columnName;
+
+    /**
+     * 数据表字段类型。
+     */
+    private Integer columnType;
 
     /**
      * 操作符类型，取值范围见上面的常量值。
@@ -94,6 +109,13 @@ public class MyWhereCriteria {
      * 条件数据值。
      */
     private Object value;
+
+    public MyWhereCriteria(Class<?> modelClazz, String fieldName, Integer operatorType, Object value) {
+        this.modelClazz = modelClazz;
+        this.fieldName = fieldName;
+        this.operatorType = operatorType;
+        this.value = value;
+    }
 
     /**
      * 设置条件值。
@@ -125,6 +147,29 @@ public class MyWhereCriteria {
         this.fieldName = fieldName;
         this.value = value;
         return doVerify();
+    }
+
+    /**
+     * 设置条件值，通过该构造方法设置时，通常是直接将表名、字段名、字段类型等赋值，无需在通过modelClazz进行推演。
+     *
+     * @param tableName    数据表名。
+     * @param columnName   数据字段名。
+     * @param columnType   数据字段类型。
+     * @param operatorType 操作类型。具体值可参考当前对象的静态变量。
+     * @param value        条件过滤值。
+     */
+    public void setCriteria(
+            String tableName, String columnName, String columnType, Integer operatorType, Object value) {
+        this.tableName = tableName;
+        this.columnName = columnName;
+        this.columnType = MyModelUtil.NUMERIC_FIELD_TYPE;
+        if (String.class.getSimpleName().equals(columnType)) {
+            this.columnType = MyModelUtil.STRING_FIELD_TYPE;
+        } else if (Date.class.getSimpleName().equals(columnType)) {
+            this.columnType = MyModelUtil.DATE_FIELD_TYPE;
+        }
+        this.operatorType = operatorType;
+        this.value = value;
     }
 
     /**
@@ -182,13 +227,13 @@ public class MyWhereCriteria {
             case OPERATOR_NOT_EQUAL:
                 return " != ";
             case OPERATOR_GE:
-                return " &gt;= ";
+                return " >= ";
             case OPERATOR_GT:
-                return " &gt; ";
+                return " > ";
             case OPERATOR_LE:
-                return " &lt;= ";
+                return " <= ";
             case OPERATOR_LT:
-                return " &lt; ";
+                return " < ";
             case OPERATOR_LIKE:
                 return " LIKE ";
             case OPERATOR_NOT_NULL:
@@ -222,18 +267,26 @@ public class MyWhereCriteria {
      * @return 组装后的SQL条件从句。
      */
     public String makeCriteriaString(Class<?> modelClazz) {
-        if (modelClazz == null) {
-            throw new IllegalArgumentException("ModelClazz argument can't be NULL.");
+        String tableName;
+        String columnName;
+        Integer columnType;
+        if (modelClazz != null) {
+            Tuple2<String, Integer> fieldInfo = MyModelUtil.mapToColumnInfo(fieldName, modelClazz);
+            if (fieldInfo == null) {
+                throw new InvalidDataFieldException(modelClazz.getSimpleName(), fieldName);
+            }
+            columnName = fieldInfo.getFirst();
+            columnType = fieldInfo.getSecond();
+            tableName = MyModelUtil.mapToTableName(modelClazz);
+            if (tableName == null) {
+                throw new InvalidDataModelException(modelClazz.getSimpleName());
+            }
+        } else {
+            tableName = this.tableName;
+            columnName = this.columnName;
+            columnType = this.columnType;
         }
-        Tuple2<String, Integer> fieldInfo = MyModelUtil.mapToColumnInfo(fieldName, modelClazz);
-        if (fieldInfo == null) {
-            throw new InvalidDataFieldException(modelClazz.getSimpleName(), fieldName);
-        }
-        String tableName = MyModelUtil.mapToTableName(modelClazz);
-        if (tableName == null) {
-            throw new InvalidDataModelException(modelClazz.getSimpleName());
-        }
-        return this.buildClauseString(tableName, fieldInfo.getFirst(), fieldInfo.getSecond());
+        return this.buildClauseString(tableName, columnName, columnType);
     }
 
     /**

@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- 本项目全部使用log4j2性能上有很大提升 -->
+
+<!--monitorInterval="60" 自动检测配置文件更改时间 单位为秒 最小值为5 -->
+<!--Configuration后面的status，这个用于设置log4j2自身内部的信息输出，可以不设置，当设置成trace时，你会看到log4j2内部各种详细输出。 -->
+<configuration monitorInterval="20" status="OFF">
+    <!--日志变量  -->
+    <properties>
+        <!-- 日志主目录 ，需要保存到文件时请自己配置-->
+        <property name="LOG_HOME">./zzlogs/application-webadmin</property>
+        <!-- 日志备份目录 -->
+        <property name="BACKUP_HOME">./zzlogs/application-webadmin/backup</property>
+        <!-- 日志输出级别 -->
+        <property name="OUTPUT_LOG_LEVEL">info</property>
+        <!-- 日志输出格式 -->
+        <property name="LOG_PATTERN">
+            <!-- 输出格式%d{HH:mm:ss}时间24小时制  -->
+            <!-- %-5p日志级别 5位左对齐 [%t]线程名 [%c]类名 -->
+            <!--%l：输出日志事件的发生位置，相当于%c.%M(%F:%L)的组合，包括类全名、方法、文件名以及在代码中的行数。例如：test.TestLog4j.main(TestLog4j.java:10)。  -->
+            <!-- 另一种输出风格<PatternLayout pattern="级别%-5p [%d{YYYY-MM-dd HH:mm:ss}] [%t] 位置[%l] - 信息:%msg%n" /> -->
+            <!-- [%-5p][%d{yy-MM-dd HH:mm:ss}][%t]==>%m==>%c==>%L%n -->
+            [%-5p] [%d{YYYY-MM-dd HH:mm:ss}] [%t] ==> %msg%n
+        </property>
+        <property name="LOG_PATTERN_EX">
+            [%-5p] [%d{YYYY-MM-dd HH:mm:ss}] T:[%X{traceId}] S:[%X{sessionId}] U:[%X{userId}] [%t] ==> %msg%n
+        </property>
+        <!-- 日志保留天数 -->
+        <property name="EVERY_FILE_COUNT">31</property>
+        <!-- 日志切割的最小单位 -->
+        <property name="EVERY_FILE_SIZE">20M</property>
+    </properties>
+
+    <appenders>
+        <!--控制台输出  -->
+        <console name="console" target="SYSTEM_OUT">
+            <PatternLayout pattern="${LOG_PATTERN}"/>
+        </console>
+        <!-- console_log级别日志文件 -->
+        <!--每次大小超过size，则这size大小的日志会自动进行压缩，作为存档 -->
+        <rollingFile name="file_log" fileName="${LOG_HOME}/application-webadmin.log"
+                     filePattern="${LOG_HOME}/application-webadmin-%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout charset="UTF-8" pattern="${LOG_PATTERN_EX}"/>
+            <!-- 日志切割的最小单位 -->
+            <SizeBasedTriggeringPolicy size="${EVERY_FILE_SIZE}"/>
+            <!-- 默认的日志文件数量 -->
+            <DefaultRolloverStrategy max="${EVERY_FILE_COUNT}"/>
+        </rollingFile>
+    </appenders>
+
+    <!-- 然后定义logger，只有定义了logger并引入的appender，appender才会生效 -->
+    <!-- 这里我们把输出到控制台appender的日志级别设置为DEBUG，便于调试。但是输出文件我们缺省为INFO，两者均可随时修改。-->
+    <Loggers>
+        <root level="${OUTPUT_LOG_LEVEL}">
+            <AppenderRef ref="console"/>
+        </root>
+        <AsyncLogger name="com.flow.demo" additivity="false" level="info">
+            <AppenderRef ref="console"/>
+            <AppenderRef ref="file_log"/>
+        </AsyncLogger>
+        <!-- 这里将dao的日志级别设置为DEBUG，是为了SQL语句的输出 -->
+        <AsyncLogger name="com.flow.demo.webadmin.app.dao" additivity="false" level="debug">
+            <AppenderRef ref="console"/>
+            <AppenderRef ref="file_log"/>
+        </AsyncLogger>
+        <AsyncLogger name="com.flow.demo.webadmin.upms.dao" additivity="false" level="debug">
+            <AppenderRef ref="console"/>
+            <AppenderRef ref="file_log"/>
+        </AsyncLogger>
+        <AsyncLogger name="com.flow.demo.common.log.dao" additivity="false" level="debug">
+            <AppenderRef ref="console"/>
+            <AppenderRef ref="file_log"/>
+        </AsyncLogger>
+        <AsyncLogger name="com.flow.demo.common.online.dao" additivity="false" level="debug">
+            <AppenderRef ref="console"/>
+            <AppenderRef ref="file_log"/>
+        </AsyncLogger>
+        <AsyncLogger name="com.flow.demo.common.flow.dao" additivity="false" level="debug">
+            <AppenderRef ref="console"/>
+            <AppenderRef ref="file_log"/>
+        </AsyncLogger>
+        <AsyncLogger name="org.activiti" additivity="false" level="info">
+            <AppenderRef ref="console"/>
+            <AppenderRef ref="file_log"/>
+        </AsyncLogger>
+    </Loggers>
+</configuration>

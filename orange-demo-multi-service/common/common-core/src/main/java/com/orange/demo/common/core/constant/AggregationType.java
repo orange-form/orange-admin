@@ -34,11 +34,11 @@ public final class AggregationType {
 
     private static final Map<Object, String> DICT_MAP = new HashMap<>(5);
     static {
-        DICT_MAP.put(0, "累计总和");
-        DICT_MAP.put(1, "数量总和");
-        DICT_MAP.put(2, "平均值");
-        DICT_MAP.put(3, "最小值");
-        DICT_MAP.put(4, "最大值");
+        DICT_MAP.put(SUM, "累计总和");
+        DICT_MAP.put(COUNT, "数量总和");
+        DICT_MAP.put(AVG, "平均值");
+        DICT_MAP.put(MIN, "最小值");
+        DICT_MAP.put(MAX, "最大值");
     }
 
     /**

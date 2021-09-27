@@ -188,7 +188,7 @@ public abstract class BaseDictService<M, K> extends BaseService<M, K> implements
     }
 
     /**
-     * 返回符合 inFilterField in (inFilterValues) 条件的所有数据。蜀国property是主键，则从缓存中读取。
+     * 返回符合 inFilterField in (inFilterValues) 条件的所有数据。属性property是主键，则从缓存中读取。
      *
      * @param inFilterField  参与(In-list)过滤的Java字段。
      * @param inFilterValues 参与(In-list)过滤的Java字段值集合。
@@ -200,7 +200,7 @@ public abstract class BaseDictService<M, K> extends BaseService<M, K> implements
         if (inFilterField.equals(this.idFieldName)) {
             return this.getInList((Set<K>) inFilterValues);
         }
-        return this.getInList(inFilterField, inFilterValues);
+        return super.getInList(inFilterField, inFilterValues);
     }
 
     /**

@@ -175,8 +175,9 @@ public class StudentClassServiceImpl extends BaseService<StudentClass, Long> imp
     @Override
     public <M> List<StudentClass> getStudentClassListWithRelation(
             String inFilterField, Set<M> inFilterValues, StudentClass filter, String orderBy) {
+        String inFilterColumn = MyModelUtil.mapToColumnName(inFilterField, StudentClass.class);
         List<StudentClass> resultList =
-                studentClassMapper.getStudentClassList(inFilterField, inFilterValues, filter, orderBy);
+                studentClassMapper.getStudentClassList(inFilterColumn, inFilterValues, filter, orderBy);
         // 在缺省生成的代码中，如果查询结果resultList不是Page对象，说明没有分页，那么就很可能是数据导出接口调用了当前方法。
         // 为了避免一次性的大量数据关联，规避因此而造成的系统运行性能冲击，这里手动进行了分批次读取，开发者可按需修改该值。
         int batchSize = resultList instanceof Page ? 0 : 1000;

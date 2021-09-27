@@ -36,13 +36,13 @@ public class DataSourceAspect {
         Class<?> clazz = point.getTarget().getClass();
         MyDataSource ds = clazz.getAnnotation(MyDataSource.class);
         // 通过判断 DataSource 中的值来判断当前方法应用哪个数据源
-        DataSourceContextHolder.setDataSourceType(ds.value());
+        Integer originalType = DataSourceContextHolder.setDataSourceType(ds.value());
         log.debug("set datasource is " + ds.value());
         try {
             return point.proceed();
         } finally {
-            DataSourceContextHolder.clear();
-            log.debug("clean datasource");
+            DataSourceContextHolder.unset(originalType);
+            log.debug("unset datasource is " + originalType);
         }
     }
 }

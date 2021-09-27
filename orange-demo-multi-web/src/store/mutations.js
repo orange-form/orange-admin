@@ -54,7 +54,7 @@ export default {
     if (menuObject != null) {
       state.tagList = [...state.tagList, menuObject];
       if (Array.isArray(state.cachePages) && (menuObject.onlineFormId == null || menuObject.onlineFormId === '') &&
-		state.cachePages.indexOf(menuObject.formRouterName) === -1) {
+        state.cachePages.indexOf(menuObject.formRouterName) === -1) {
         state.cachePages = [...state.cachePages, menuObject.formRouterName];
       }
     }

@@ -11,6 +11,8 @@ import com.orange.demo.common.core.util.MyCommonUtil;
 import com.orange.demo.common.core.object.ResponseResult;
 import com.orange.demo.common.core.annotation.MyRequestBody;
 import com.orange.demo.common.core.validator.UpdateGroup;
+import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
+import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +27,7 @@ import java.util.*;
  * @author Jerry
  * @date 2020-09-24
  */
+@Api(tags = "年级管理接口")
 @Slf4j
 @RestController
 @RequestMapping("/admin/app/grade")
@@ -39,6 +42,7 @@ public class GradeController {
      * @param gradeDto 新增对象。
      * @return 应答结果对象，包含新增对象主键Id。
      */
+    @ApiOperationSupport(ignoreParameters = {"gradeDto.gradeId"})
     @PostMapping("/add")
     public ResponseResult<Integer> add(@MyRequestBody GradeDto gradeDto) {
         String errorMessage = MyCommonUtil.getModelValidationError(gradeDto);

@@ -11,15 +11,20 @@ public class DataSourceContextHolder {
     private static final ThreadLocal<Integer> CONTEXT_HOLDER = new ThreadLocal<>();
 
     /**
-     * 设置数据源类型
+     * 设置数据源类型。
+     *
      * @param type 数据源类型
+     * @return 原有数据源类型，如果第一次设置则返回null。
      */
-    public static void setDataSourceType(Integer type) {
+    public static Integer setDataSourceType(Integer type) {
+        Integer datasourceType = CONTEXT_HOLDER.get();
         CONTEXT_HOLDER.set(type);
+        return datasourceType;
     }
 
     /**
      * 获取当前数据库操作执行线程的数据源类型，同时由动态数据源的路由函数调用。
+     *
      * @return 数据源类型。
      */
     public static Integer getDataSourceType() {
@@ -27,10 +32,16 @@ public class DataSourceContextHolder {
     }
 
     /**
-     * 清除线程本地变量，以免内存泄漏
+     * 清除线程本地变量，以免内存泄漏。
+
+     * @param originalType 原有的数据源类型，如果该值为null，则情况本地化变量。
      */
-    public static void clear() {
-        CONTEXT_HOLDER.remove();
+    public static void unset(Integer originalType) {
+        if (originalType == null) {
+            CONTEXT_HOLDER.remove();
+        } else {
+            CONTEXT_HOLDER.set(originalType);
+        }
     }
 
     /**

@@ -93,6 +93,7 @@ public class SysMenuServiceImpl extends BaseService<SysMenu, Long> implements Sy
             viewSubMenu.setShowOrder(0);
             viewSubMenu.setOnlineFormId(sysMenu.getOnlineFormId());
             viewSubMenu.setOnlineMenuPermType(SysOnlineMenuPermType.TYPE_VIEW);
+            viewSubMenu.setDeletedFlag(GlobalDeletedFlag.NORMAL);
             MyModelUtil.fillCommonsForInsert(viewSubMenu);
             sysMenuMapper.insert(viewSubMenu);
             SysMenu editSubMenu = new SysMenu();
@@ -103,6 +104,7 @@ public class SysMenuServiceImpl extends BaseService<SysMenu, Long> implements Sy
             editSubMenu.setShowOrder(1);
             editSubMenu.setOnlineFormId(sysMenu.getOnlineFormId());
             editSubMenu.setOnlineMenuPermType(SysOnlineMenuPermType.TYPE_EDIT);
+            editSubMenu.setDeletedFlag(GlobalDeletedFlag.NORMAL);
             MyModelUtil.fillCommonsForInsert(editSubMenu);
             sysMenuMapper.insert(editSubMenu);
         }
@@ -172,8 +174,11 @@ public class SysMenuServiceImpl extends BaseService<SysMenu, Long> implements Sy
         // 如果为指向在线表单的菜单，则连同删除子菜单
         if (menu.getOnlineFormId() != null) {
             Example e = new Example(SysMenu.class);
-            e.createCriteria().andEqualTo("parentId", menuId);
-            sysMenuMapper.deleteByExample(e);
+            Example.Criteria c = e.createCriteria().andEqualTo("parentId", menuId);
+            c.andEqualTo("deletedFlag", GlobalDeletedFlag.NORMAL);
+            SysMenu deletedSubMenu = new SysMenu();
+            deletedSubMenu.setDeletedFlag(GlobalDeletedFlag.DELETED);
+            sysMenuMapper.updateByExampleSelective(deletedSubMenu, e);
         }
         return true;
     }

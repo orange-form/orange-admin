@@ -42,7 +42,6 @@ public class LoginUserController {
     @PostMapping("/list")
     public ResponseResult<MyPageData<LoginUserInfo>> list(
             @MyRequestBody String loginName, @MyRequestBody MyPageParam pageParam) {
-        List<LoginUserInfo> loginUserInfoList = new LinkedList<>();
         int queryCount = pageParam.getPageNum() * pageParam.getPageSize();
         int skipCount = (pageParam.getPageNum() - 1) * pageParam.getPageSize();
         String patternKey;
@@ -51,17 +50,15 @@ public class LoginUserController {
         } else {
             patternKey = RedisKeyUtil.getSessionIdPrefix(loginName) + "*";
         }
-        long totalCount = 0L;
-        int pos = 0;
+        List<LoginUserInfo> loginUserInfoList = new LinkedList<>();
         Iterable<String> keys = redissonClient.getKeys().getKeysByPattern(patternKey);
         for (String key : keys) {
-            totalCount++;
-            if (pos++ < skipCount) {
-                continue;
-            }
             loginUserInfoList.add(this.buildTokenDataByRedisKey(key));
         }
-        return ResponseResult.success(new MyPageData<>(loginUserInfoList, totalCount));
+        loginUserInfoList.sort((o1, o2) -> (int) (o2.getLoginTime().getTime() - o1.getLoginTime().getTime()));
+        int toIndex = Math.min(skipCount + pageParam.getPageSize(), loginUserInfoList.size());
+        List<LoginUserInfo> resultList = loginUserInfoList.subList(skipCount, toIndex);
+        return ResponseResult.success(new MyPageData<>(resultList, (long) loginUserInfoList.size()));
     }
 
     /**

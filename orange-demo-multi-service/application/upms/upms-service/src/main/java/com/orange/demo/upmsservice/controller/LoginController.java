@@ -14,8 +14,7 @@ import com.orange.demo.common.core.util.*;
 import com.orange.demo.common.redis.cache.SessionCacheHelper;
 import com.orange.demo.upmsapi.constant.SysUserStatus;
 import com.orange.demo.upmsapi.constant.SysUserType;
-import com.orange.demo.upmsservice.model.SysMenu;
-import com.orange.demo.upmsservice.model.SysUser;
+import com.orange.demo.upmsservice.model.*;
 import com.orange.demo.upmsservice.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -165,9 +164,10 @@ public class LoginController {
     }
 
     private JSONObject buildLoginData(SysUser user) {
+        int deviceType = MyCommonUtil.getDeviceType();
         boolean isAdmin = user.getUserType() == SysUserType.TYPE_ADMIN;
         TokenData tokenData = new TokenData();
-        String sessionId = user.getLoginName() + "_" + MyCommonUtil.generateUuid();
+        String sessionId = user.getLoginName() + "_" + deviceType + "_" + MyCommonUtil.generateUuid();
         tokenData.setUserId(user.getUserId());
         tokenData.setIsAdmin(isAdmin);
         tokenData.setLoginName(user.getLoginName());
@@ -175,6 +175,7 @@ public class LoginController {
         tokenData.setSessionId(sessionId);
         tokenData.setLoginIp(IpUtil.getRemoteIpAddress(ContextUtil.getHttpRequest()));
         tokenData.setLoginTime(new Date());
+        tokenData.setDeviceType(deviceType);
         // 这里手动将TokenData存入request，便于OperationLogAspect统一处理操作日志。
         TokenData.addToRequest(tokenData);
         JSONObject jsonData = new JSONObject();

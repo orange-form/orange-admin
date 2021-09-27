@@ -1,6 +1,8 @@
 package com.orange.demo.webadmin.upms.controller;
 
 import cn.hutool.core.util.ObjectUtil;
+import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
+import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
 import com.orange.demo.webadmin.upms.dto.SysMenuDto;
 import com.orange.demo.webadmin.upms.vo.SysMenuVo;
@@ -24,6 +26,7 @@ import java.util.*;
  * @author Jerry
  * @date 2020-09-24
  */
+@Api(tags = "菜单管理接口")
 @Slf4j
 @RestController
 @RequestMapping("/admin/upms/sysMenu")
@@ -40,6 +43,7 @@ public class SysMenuController {
      * @return 应答结果对象，包含新增菜单的主键Id。
      */
     @SuppressWarnings("unchecked")
+    @ApiOperationSupport(ignoreParameters = {"sysMenuDto.menuId"})
     @PostMapping("/add")
     public ResponseResult<Long> add(
             @MyRequestBody SysMenuDto sysMenuDto, @MyRequestBody String permCodeIdListString) {

@@ -67,6 +67,24 @@ public class MyModelUtil {
     private static final Map<String, Tuple2<String, Integer>> CACHED_COLUMNINFO_MAP = new ConcurrentHashMap<>();
 
     /**
+     * 将bean的数据列表转换为Map列表。
+     *
+     * @param dataList bean数据列表。
+     * @param <T>      bean对象类型。
+     * @return 转换后的Map列表。
+     */
+    public static <T> List<Map<String, Object>> beanToMapList(List<T> dataList) {
+        if (CollectionUtils.isEmpty(dataList)) {
+            return null;
+        }
+        List<Map<String, Object>> resultList = new LinkedList<>();
+        for (T data : dataList) {
+            resultList.add(BeanUtil.beanToMap(data));
+        }
+        return resultList;
+    }
+
+    /**
      * 拷贝源类型的集合数据到目标类型的集合中，其中源类型和目标类型中的对象字段类型完全相同。
      * NOTE: 该函数主要应用于框架中，Dto和Model之间的copy，特别针对一对一关联的深度copy。
      * 在Dto中，一对一对象可以使用Map来表示，而不需要使用从表对象的Dto。

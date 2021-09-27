@@ -39,6 +39,9 @@ public class RedissonConfig {
     @Value("${redis.redisson.timeout}")
     private Integer timeout;
 
+    @Value("${redis.redisson.password:}")
+    private String password;
+
     @Value("${redis.redisson.pool.poolSize}")
     private Integer poolSize;
 
@@ -47,10 +50,14 @@ public class RedissonConfig {
 
     @Bean
     public RedissonClient redissonClient() {
+        if (StrUtil.isBlank(password)) {
+            password = null;
+        }
         Config config = new Config();
         if ("single".equals(mode)) {
             config.setLockWatchdogTimeout(lockWatchdogTimeout)
                     .useSingleServer()
+                    .setPassword(password)
                     .setAddress(address)
                     .setConnectionPoolSize(poolSize)
                     .setConnectionMinimumIdleSize(minIdle)
@@ -59,6 +66,7 @@ public class RedissonConfig {
             String[] clusterAddresses = StrUtil.splitToArray(address, ',');
             config.setLockWatchdogTimeout(lockWatchdogTimeout)
                     .useClusterServers()
+                    .setPassword(password)
                     .addNodeAddress(clusterAddresses)
                     .setConnectTimeout(timeout)
                     .setMasterConnectionPoolSize(poolSize);
@@ -66,6 +74,7 @@ public class RedissonConfig {
             String[] sentinelAddresses = StrUtil.splitToArray(address, ',');
             config.setLockWatchdogTimeout(lockWatchdogTimeout)
                     .useSentinelServers()
+                    .setPassword(password)
                     .setMasterName(masterName)
                     .addSentinelAddress(sentinelAddresses)
                     .setConnectTimeout(timeout)
@@ -80,6 +89,7 @@ public class RedissonConfig {
             ArrayUtil.copy(masterSlaveAddresses, 1, slaveAddresses, 0, slaveAddresses.length);
             config.setLockWatchdogTimeout(lockWatchdogTimeout)
                     .useMasterSlaveServers()
+                    .setPassword(password)
                     .setMasterAddress(masterSlaveAddresses[0])
                     .addSlaveAddress(slaveAddresses)
                     .setConnectTimeout(timeout)

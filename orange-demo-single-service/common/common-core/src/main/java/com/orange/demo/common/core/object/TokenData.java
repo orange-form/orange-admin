@@ -31,6 +31,10 @@ public class TokenData {
      */
     private Long deptId;
     /**
+     * 用户的部门岗位Id。多个岗位之间逗号分隔。仅当系统支持岗位时有值。
+     */
+    private String deptPostIds;
+    /**
      * 租户Id。
      * 仅当系统支持uaa时可用，否则可以直接忽略该字段。保留该字段是为了保持单体和微服务通用代码部分的兼容性。
      */
@@ -48,6 +52,10 @@ public class TokenData {
      */
     private String showName;
     /**
+     * 设备类型。参考 AppDeviceType。
+     */
+    private Integer deviceType;
+    /**
      * 标识不同登录的会话Id。
      */
     private String sessionId;
@@ -56,6 +64,10 @@ public class TokenData {
      * 仅当系统支持uaa时可用，否则可以直接忽略该字段。保留该字段是为了保持单体和微服务通用代码部分的兼容性。
      */
     private String uaaAccessToken;
+    /**
+     * 数据库路由键(仅当水平分库时使用)。
+     */
+    private Integer datasourceRouteKey;
     /**
      * 登录IP。
      */

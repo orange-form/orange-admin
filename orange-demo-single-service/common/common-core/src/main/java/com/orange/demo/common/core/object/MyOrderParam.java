@@ -6,8 +6,10 @@ import com.orange.demo.common.core.exception.InvalidClassFieldException;
 import com.orange.demo.common.core.exception.InvalidDataFieldException;
 import com.orange.demo.common.core.exception.InvalidDataModelException;
 import com.orange.demo.common.core.util.MyModelUtil;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -227,6 +229,8 @@ public class MyOrderParam extends ArrayList<MyOrderParam.OrderInfo> {
     /**
      * 排序信息对象。
      */
+    @AllArgsConstructor
+    @NoArgsConstructor
     @Data
     public static class OrderInfo {
         /**

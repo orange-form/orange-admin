@@ -1,5 +1,7 @@
 package com.orange.demo.webadmin.upms.controller;
 
+import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
+import io.swagger.annotations.Api;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.page.PageMethod;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +27,7 @@ import java.util.Map;
  * @author Jerry
  * @date 2020-09-24
  */
+@Api(tags = "权限资源管理接口")
 @Slf4j
 @RestController
 @RequestMapping("/admin/upms/sysPerm")
@@ -39,6 +42,7 @@ public class SysPermController {
      * @param sysPermDto 新增权限资源对象。
      * @return 应答结果对象，包含新增权限资源的主键Id。
      */
+    @ApiOperationSupport(ignoreParameters = {"sysPermDto.permId"})
     @PostMapping("/add")
     public ResponseResult<Long> add(@MyRequestBody SysPermDto sysPermDto) {
         String errorMessage = MyCommonUtil.getModelValidationError(sysPermDto);

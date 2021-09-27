@@ -268,19 +268,19 @@ public class SysUserServiceImpl extends BaseService<SysUser, Long> implements Sy
     /**
      * 验证用户对象关联的数据是否都合法。
      *
-     * @param sysUser          当前操作的对象。
-     * @param originalSysUser  原有对象。
-     * @param roleIdListString 逗号分隔的角色Id列表字符串。
+     * @param sysUser         当前操作的对象。
+     * @param originalSysUser 原有对象。
+     * @param roleIds         逗号分隔的角色Id列表字符串。
      * @return 验证结果。
      */
     @Override
-    public CallResult verifyRelatedData(SysUser sysUser, SysUser originalSysUser, String roleIdListString) {
+    public CallResult verifyRelatedData(SysUser sysUser, SysUser originalSysUser, String roleIds) {
         JSONObject jsonObject = new JSONObject();
-        if (StringUtils.isBlank(roleIdListString)) {
+        if (StringUtils.isBlank(roleIds)) {
             return CallResult.error("数据验证失败，用户的角色数据不能为空！");
         }
         Set<Long> roleIdSet = Arrays.stream(
-                roleIdListString.split(",")).map(Long::valueOf).collect(Collectors.toSet());
+                roleIds.split(",")).map(Long::valueOf).collect(Collectors.toSet());
         if (!sysRoleService.existAllPrimaryKeys(roleIdSet)) {
             return CallResult.error("数据验证失败，存在不合法的用户角色，请刷新后重试！");
         }

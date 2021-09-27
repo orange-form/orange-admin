@@ -234,8 +234,9 @@ public class SysUserServiceImpl extends BaseService<SysUser, Long> implements Sy
     @Override
     public <M> List<SysUser> getSysUserListWithRelation(
             String inFilterField, Set<M> inFilterValues, SysUser filter, String orderBy) {
+        String inFilterColumn = MyModelUtil.mapToColumnName(inFilterField, SysUser.class);
         List<SysUser> resultList =
-                sysUserMapper.getSysUserList(inFilterField, inFilterValues, filter, orderBy);
+                sysUserMapper.getSysUserList(inFilterColumn, inFilterValues, filter, orderBy);
         // 在缺省生成的代码中，如果查询结果resultList不是Page对象，说明没有分页，那么就很可能是数据导出接口调用了当前方法。
         // 为了避免一次性的大量数据关联，规避因此而造成的系统运行性能冲击，这里手动进行了分批次读取，开发者可按需修改该值。
         int batchSize = resultList instanceof Page ? 0 : 1000;
@@ -308,19 +309,19 @@ public class SysUserServiceImpl extends BaseService<SysUser, Long> implements Sy
     /**
      * 验证用户对象关联的数据是否都合法。
      *
-     * @param sysUser          当前操作的对象。
-     * @param originalSysUser  原有对象。
-     * @param roleIdListString 逗号分隔的角色Id列表字符串。
+     * @param sysUser         当前操作的对象。
+     * @param originalSysUser 原有对象。
+     * @param roleIds         逗号分隔的角色Id列表字符串。
      * @return 验证结果。
      */
     @Override
-    public CallResult verifyRelatedData(SysUser sysUser, SysUser originalSysUser, String roleIdListString) {
+    public CallResult verifyRelatedData(SysUser sysUser, SysUser originalSysUser, String roleIds) {
         JSONObject jsonObject = new JSONObject();
-        if (StringUtils.isBlank(roleIdListString)) {
+        if (StringUtils.isBlank(roleIds)) {
             return CallResult.error("数据验证失败，用户的角色数据不能为空！");
         }
         Set<Long> roleIdSet = Arrays.stream(
-                roleIdListString.split(",")).map(Long::valueOf).collect(Collectors.toSet());
+                roleIds.split(",")).map(Long::valueOf).collect(Collectors.toSet());
         if (!sysRoleService.existAllPrimaryKeys(roleIdSet)) {
             return CallResult.error("数据验证失败，存在不合法的用户角色，请刷新后重试！");
         }

@@ -128,10 +128,10 @@ public interface SysUserService extends IBaseService<SysUser, Long> {
     /**
      * 验证用户对象关联的数据是否都合法。
      *
-     * @param sysUser          当前操作的对象。
-     * @param originalSysUser  原有对象。
-     * @param roleIdListString 逗号分隔的角色Id列表字符串。
+     * @param sysUser         当前操作的对象。
+     * @param originalSysUser 原有对象。
+     * @param roleIds         逗号分隔的角色Id列表字符串。
      * @return 验证结果。
      */
-    CallResult verifyRelatedData(SysUser sysUser, SysUser originalSysUser, String roleIdListString);
+    CallResult verifyRelatedData(SysUser sysUser, SysUser originalSysUser, String roleIds);
 }

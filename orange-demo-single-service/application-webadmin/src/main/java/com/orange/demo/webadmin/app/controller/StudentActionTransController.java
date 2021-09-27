@@ -10,6 +10,8 @@ import com.orange.demo.common.core.util.*;
 import com.orange.demo.common.core.constant.*;
 import com.orange.demo.common.core.annotation.MyRequestBody;
 import com.orange.demo.common.core.validator.UpdateGroup;
+import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
+import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +25,7 @@ import javax.validation.groups.Default;
  * @author Jerry
  * @date 2020-09-24
  */
+@Api(tags = "学生行为流水管理接口")
 @Slf4j
 @RestController
 @RequestMapping("/admin/app/studentActionTrans")
@@ -37,6 +40,10 @@ public class StudentActionTransController {
      * @param studentActionTransDto 新增对象。
      * @return 应答结果对象，包含新增对象主键Id。
      */
+    @ApiOperationSupport(ignoreParameters = {
+            "studentActionTransDto.transId",
+            "studentActionTransDto.createTimeStart",
+            "studentActionTransDto.createTimeEnd"})
     @PostMapping("/add")
     public ResponseResult<Long> add(@MyRequestBody StudentActionTransDto studentActionTransDto) {
         String errorMessage = MyCommonUtil.getModelValidationError(studentActionTransDto);
@@ -60,6 +67,9 @@ public class StudentActionTransController {
      * @param studentActionTransDto 更新对象。
      * @return 应答结果对象。
      */
+    @ApiOperationSupport(ignoreParameters = {
+            "studentActionTransDto.createTimeStart",
+            "studentActionTransDto.createTimeEnd"})
     @PostMapping("/update")
     public ResponseResult<Void> update(@MyRequestBody StudentActionTransDto studentActionTransDto) {
         String errorMessage = MyCommonUtil.getModelValidationError(studentActionTransDto, Default.class, UpdateGroup.class);

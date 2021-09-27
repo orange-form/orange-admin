@@ -47,7 +47,7 @@ public class DynamicBodyModelPlugin implements OperationModelsProviderPlugin {
         }
         String groupName = CaseFormat.LOWER_HYPHEN.to(CaseFormat.UPPER_CAMEL, context.getGroupName());
         String clazzName = groupName + StringUtils.capitalize(context.getName());
-        Class<?> clazz = ByteBodyUtils.createDynamicModelClass(clazzName, bodyParameter);
+        Class<?> clazz = ByteBuddyUtil.createDynamicModelClass(clazzName, bodyParameter);
         if (clazz != null) {
             context.operationModelsBuilder().addInputParam(typeResolver.resolve(clazz));
         }

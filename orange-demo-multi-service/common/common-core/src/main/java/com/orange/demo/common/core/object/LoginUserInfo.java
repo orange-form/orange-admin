@@ -55,4 +55,8 @@ public class LoginUserInfo {
      * 登录时间。
      */
     private Date loginTime;
+    /**
+     * 登录设备类型。
+     */
+    private Integer deviceType;
 }

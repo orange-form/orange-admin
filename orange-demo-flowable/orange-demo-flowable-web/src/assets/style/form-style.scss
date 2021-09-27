@@ -1,0 +1,117 @@
+.form-advanced-manager {
+  .advance-filter-box {
+    position: absolute;
+    top: 100%;
+    left: 0px;
+    background-color: white;
+    width: 100%;
+    padding: 10px $box-padding-size 15px $box-padding-size;
+  }
+  
+  .title-box {
+    border-bottom: 1px solid $border-color;
+    padding: 0px 20px;
+    z-index: 20;
+    background-color: white;
+    height: $advanced-title-height;
+
+    .title {
+      line-height: $advanced-title-height;
+      color: #606266;
+    }
+
+    .menu-box {
+      position: absolute;
+      top: 0px;
+      right: 10px;
+      height: $advanced-title-height;
+
+      .el-row {
+        margin: 10px 0px;
+        height: $advanced-title-height - 20;
+      }
+    }
+  }
+
+  .advanced-right-box {
+    padding: 0px;
+    .gutter-box {
+      margin: (($advanced-title-height - 16)/2) 0px;
+      height: 16px;
+      width: 3px;
+      background-color: $--color-primary;
+      float: left
+    }
+  }
+}
+
+.form-dict-manager {
+  .dict-title {
+    height: 50px;
+    line-height: 50px;
+    color: $--color-text-primary;
+    border-bottom: 1px solid $--border-color-base;
+    font-size: 14px;
+
+    span {
+      margin-left: 20px;
+    }
+  }
+
+  .dict-item {
+    width: 100%;
+    height: 40px;
+    line-height: 40px;
+    color: #606266;
+    cursor: pointer;
+    padding-left: 20px;
+
+    &:hover {
+      background-color: $--color-primary-light-9;
+    }
+  }
+
+  .active-dict-item {
+    border-left: 3px solid $--color-primary;
+    color: $--color-primary;
+    background-color: $--color-primary-light-9 !important;
+  }
+  
+  .el-scrollbar__bar.is-horizontal {
+    display: none!important;
+  }
+}
+
+
+.form-table-manager {
+  .advance-filter-box {
+    position: absolute;
+    padding: 20px;
+    top: 100%;
+    left: 0px;
+    background-color: white;
+    width: 100%;
+    padding: 10px $box-padding-size 15px $box-padding-size;
+  }
+}
+
+.form-table-multi-select {
+  //
+}
+
+.form-config {
+  padding: $box-padding-size;
+}
+
+.form-multi-fragment {
+  //
+}
+
+.form-single-fragment {
+  //
+}
+
+.advance-query-form {
+  padding: 0px!important;
+  background-color: transparent!important;;
+}

@@ -18,6 +18,8 @@ import com.orange.demo.common.core.annotation.MyRequestBody;
 import com.orange.demo.common.core.validator.UpdateGroup;
 import com.orange.demo.common.redis.cache.SessionCacheHelper;
 import com.orange.demo.webadmin.config.ApplicationConfig;
+import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
+import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -33,6 +35,7 @@ import javax.validation.groups.Default;
  * @author Jerry
  * @date 2020-09-24
  */
+@Api(tags = "课程数据管理接口")
 @Slf4j
 @RestController
 @RequestMapping("/admin/app/course")
@@ -53,6 +56,14 @@ public class CourseController {
      * @param courseDto 新增对象。
      * @return 应答结果对象，包含新增对象主键Id。
      */
+    @ApiOperationSupport(ignoreParameters = {
+            "courseDto.courseId",
+            "courseDto.priceStart",
+            "courseDto.priceEnd",
+            "courseDto.classHourStart",
+            "courseDto.classHourEnd",
+            "courseDto.createTimeStart",
+            "courseDto.createTimeEnd"})
     @PostMapping("/add")
     public ResponseResult<Long> add(@MyRequestBody CourseDto courseDto) {
         String errorMessage = MyCommonUtil.getModelValidationError(courseDto);
@@ -76,6 +87,13 @@ public class CourseController {
      * @param courseDto 更新对象。
      * @return 应答结果对象。
      */
+    @ApiOperationSupport(ignoreParameters = {
+            "courseDto.priceStart",
+            "courseDto.priceEnd",
+            "courseDto.classHourStart",
+            "courseDto.classHourEnd",
+            "courseDto.createTimeStart",
+            "courseDto.createTimeEnd"})
     @PostMapping("/update")
     public ResponseResult<Void> update(@MyRequestBody CourseDto courseDto) {
         String errorMessage = MyCommonUtil.getModelValidationError(courseDto, Default.class, UpdateGroup.class);

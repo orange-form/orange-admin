@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.flow.demo.webadmin.upms.dao.SysRoleMapper">
+    <resultMap id="BaseResultMap" type="com.flow.demo.webadmin.upms.model.SysRole">
+        <id column="role_id" jdbcType="BIGINT" property="roleId"/>
+        <result column="role_name" jdbcType="VARCHAR" property="roleName"/>
+        <result column="create_user_id" jdbcType="BIGINT" property="createUserId"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_user_id" jdbcType="BIGINT" property="updateUserId"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="deleted_flag" jdbcType="INTEGER" property="deletedFlag"/>
+    </resultMap>
+
+    <sql id="filterRef">
+        <if test="sysRoleFilter != null">
+            <if test="sysRoleFilter.roleName != null and sysRoleFilter.roleName != ''">
+                <bind name= "safeRoleName" value= "'%' + sysRoleFilter.roleName + '%'"/>
+                AND role_name LIKE #{safeRoleName}
+            </if>
+        </if>
+        AND deleted_flag = ${@com.flow.demo.common.core.constant.GlobalDeletedFlag@NORMAL}
+    </sql>
+
+    <select id="getSysRoleList" resultMap="BaseResultMap" parameterType="com.flow.demo.webadmin.upms.model.SysRole">
+        SELECT * FROM zz_sys_role
+        <where>
+            <include refid="filterRef"/>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+
+    <!-- 以下查询仅用于权限分配的问题定位，由于关联表较多，可能会给系统运行带来性能影响 -->
+    <select id="getSysPermListWithDetail" resultType="map">
+        SELECT
+            m.menu_id menuId,
+            m.menu_name menuName,
+            m.menu_type menuType,
+            pc.perm_code_id permCodeId,
+            pc.perm_code permCode,
+            pc.perm_code_type permCodeType,
+            p.url
+        FROM
+            zz_sys_role_menu rm,
+            zz_sys_menu m,
+            zz_sys_menu_perm_code mpc,
+            zz_sys_perm_code pc,
+            zz_sys_perm_code_perm pcp,
+            zz_sys_perm p
+        <where>
+            AND rm.role_id = #{roleId}
+            AND rm.menu_id = m.menu_id
+            AND rm.menu_id = mpc.menu_id
+            AND mpc.perm_code_id = pc.perm_code_id
+            AND mpc.perm_code_id = pcp.perm_code_id
+            AND pcp.perm_id = p.perm_id
+            <if test="url != null and url != ''">
+                AND p.url = #{url}
+            </if>
+        </where>
+        ORDER BY
+            m.menu_id, pc.perm_code_id, p.url
+    </select>
+
+    <select id="getSysPermCodeListWithDetail" resultType="map">
+        SELECT
+            m.menu_id menuId,
+            m.menu_name menuName,
+            m.menu_type menuType,
+            pc.perm_code_id permCodeId,
+            pc.perm_code permCode,
+            pc.perm_code_type permCodeType
+        FROM
+            zz_sys_role_menu rm,
+            zz_sys_menu m,
+            zz_sys_menu_perm_code mpc,
+            zz_sys_perm_code pc
+        <where>
+            AND rm.role_id = #{roleId}
+            AND rm.menu_id = m.menu_id
+            AND rm.menu_id = mpc.menu_id
+            AND mpc.perm_code_id = pc.perm_code_id
+            <if test="permCode != null and permCode != ''">
+                AND pc.perm_code = #{permCode}
+            </if>
+        </where>
+        ORDER BY
+            m.menu_id, pc.perm_code_id
+    </select>
+</mapper>

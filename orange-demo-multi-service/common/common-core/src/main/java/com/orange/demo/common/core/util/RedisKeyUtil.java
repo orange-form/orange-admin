@@ -28,6 +28,17 @@ public class RedisKeyUtil {
     }
 
     /**
+     * 获取指定用户Id和登录设备类型的session缓存的键前缀。
+     *
+     * @param loginName  指定的用户登录名。
+     * @param deviceType 设备类型。
+     * @return session缓存的键前缀。
+     */
+    public static String getSessionIdPrefix(String loginName, int deviceType) {
+        return "SESSIONID__" + loginName + "_" + deviceType + "_";
+    }
+
+    /**
      * 计算SessionId返回存储于Redis中的键。
      *
      * @param sessionId 会话Id。

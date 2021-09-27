@@ -1,8 +1,46 @@
-### 橙单简介
-橙单中台化低代码生成工具由知视科技团队研发，团队经过多年大型企业中台化改造项目的历练，不断总结经验教训，不断努力提升产能，不断积极应对微服务改造过程中出现的分分合合。在历经无数日夜的持续迭代和优化后，终于可以实现生成 70% 的适用于微服务架构的高质量范式化工程级代码。此后，我们就很少加班，热爱工作，并与领导成为了战友，与客户成为了朋友。
+### 重要声明
+ **橙单正式开源基于 flowable 6.6 和在线表单的的工作流功能，前后台代码全部开放，无任何代码混淆。** 欢迎加入我们的QQ群(788581363)，或添加作者个人QQ(3510245832) 拉你入群。
 
-> 春节活动期间，购买【橙单微服务教学版(299元)】工程，赠【橙单微服务多租户教学版(329元)】工程！   
-> 同时赠送多租户企业版10元购优惠券以及微服务企业版10元购优惠券，通过优惠券您可以只花10元创建属于您的企业版项目。
+#### 工作流支持
+-  **前后端代码无一丝混淆，完全交付，且代码质量超高** ，极易学习和二次开发，同时支持单体和微服务架构。
+- 同时集成 Activiti 7.x 和 Flowable 6.6 作为工作流引擎，配置工程时可自行二选一。
+- 集成工作流和在线表单，无需写一行代码即可配置出相对复杂的工作流业务。
+- 支持同一流程的多版本发布，同时支持版本切换。
+- 支持完整的工作流工单管理，稍作修改即可支持分布式操作。(下个版本会支持相关的代码生成)
+- 支持部门岗位和用户岗位，配置工程时可自行选择是否支持。
+- 支持基于部门、岗位、本部门领导岗位、上级部门领导岗位等候选组。
+- 开箱即用的支持，工单撤销和终止、会签加签、待办已办转办、历史任务、审批详情列表、附件上传下载等。
+- 工作流前端已集成美观的流程编辑器，同时支持流程图高亮及任务跟踪。
+- 严格且合理的数据安全校验，流程敏感数据 (如合同信息) 不会被越权访问和下载。
+- 已去除 Spring Security 的缺省依赖，并与现有权限系统完美整合。
+- 工作流与在线表单演示环境，全部代码由橙单生成器直接生成，未经任何修改。 [http://demo.orangeforms.com/flow](http://demo.orangeforms.com/flow)。
+- 橙单生成后工程(除工作流外)演示环境，全部代码由橙单生成器直接生成，未经任何修改。 [http://demo.orangeforms.com](http://demo.orangeforms.com)。
+
+<table>
+<tr>
+  <td><img src="https://images.gitee.com/uploads/images/2021/0901/103633_3feebae3_7431510.png"/></td>
+  <td><img src="https://images.gitee.com/uploads/images/2021/0810/081545_e58f667b_7431510.png"/></td>
+  <td><img src="https://images.gitee.com/uploads/images/2021/0810/080341_3e05e0a5_7431510.png"/></td>
+  <td><img src="https://images.gitee.com/uploads/images/2021/0810/080449_26e040ee_7431510.png"/></td>
+</tr>
+<tr>
+  <td><img src="https://images.gitee.com/uploads/images/2021/0810/075956_5afda298_7431510.png"/></td>
+  <td><img src="https://images.gitee.com/uploads/images/2021/0810/080302_09a26dfd_7431510.png"/></td>
+  <td><img src="https://images.gitee.com/uploads/images/2021/0822/143220_ef7fe017_7431510.png"/></td>
+  <td><img src="https://images.gitee.com/uploads/images/2021/0901/201141_d6a804cb_7431510.png"/></td>
+</tr>
+</table>
+
+### 选择橙单
+- 如果您不想东拼西凑的去找各种代码案例和小技巧，也不想自己趟坑，而是分分钟就想得到成熟稳定的自定义技术栈架构，请考虑橙单** 。
+- 有助于中台化平台架构梳理，支持微服务池共享，可生成 70% 以上相对复杂的中台化业务代码。
+- 标准化服务调用接口，无论是单体向微服务过渡，还是微服务之间的分分合合，都极为平滑且非常 Easy。
+- 纯手工打造、合理驾驭模式、教科书般的 5A 级代码质量。
+- 前沿高效的设计、成熟的套路和策略，在提升前期开发效率的同时，也将极大的降低后期维护成本。
+- 支持多种微服务间数据实时同步策略，高可用、高可靠、高性能、幂等性和重放式顺序性等特征均已支持。
+- 专业、完善、详尽、暗黑护眼、完全免费开放且同步更新的近 18 万字在线文档。
+- 技术问题的反馈、咨询和交流，我们都会及时回复，经常在开车等灯时答疑。
+- 生成后工程无任何 License 限制，可进行任意修改，并用于任意数量的商用项目。
 
 ### 橙单生成器
 如果说基础框架是技术轮子，那么我们就是生产线。不仅可以造出各种尺寸的轮子，通过我们的在线配置工具，还能生成您的更多业务所需。为了使轮子更为贴近项目的架构需求，我们目前已支持多种类型的工程结构模板，如多应用、多租户、多渠道等。架构师们通过选择最为适合的项目类型，可最大程度的降低对生成后工程进行裁剪和改造的工作量。
@@ -10,25 +48,36 @@
 
 <table>
 <tr>
+  <td><img src="https://images.gitee.com/uploads/images/2021/0331/172847_2ae71c82_7431510.png"/></td>
+  <td><img src="https://images.gitee.com/uploads/images/2021/0331/172732_8395559c_7431510.png"/></td>
+  <td><img src="https://images.gitee.com/uploads/images/2021/0331/172816_afc87037_7431510.png"/></td>
   <td><img src="https://images.gitee.com/uploads/images/2020/1124/152615_5125dfbb_7431510.png"/></td>
 </tr>
 </table>
 
-#### 选择我们
-- 技术问题的反馈、咨询和沟通交流，我们都会及时的回复，经常在开车等灯时答疑。
-- 专业、完善、详尽、暗黑护眼、完全免费开放，且同步更新的近 18 万字在线文档。
-- 精耕细作、通顺易懂、极为优质的 5A 级代码质量，顺利通过 SonarQube 和 Alibaba Code Guide 的最严格扫描。
-- 真正的中台化低代码生成工具，而非单纯的敏捷脚手架，可生成 70% 以上相对复杂的中台化业务代码。
-- 宽松、合理、透明、全网超低价的教学版和企业版商业授权。(请我们撸一次串的价格)
-- 生成后工程没有任何 License 限制，您可以进行任意修改，并用于任意数量的商用项目，亦可改造后用于企业内部的基础组件库。
-
 #### 在线资源
 - 网站首页。[http://www.orangeforms.com](http://www.orangeforms.com)
 - 教学视频。[https://www.bilibili.com/video/bv1Wg4y1i7vP](https://www.bilibili.com/video/bv1Wg4y1i7vP)
+- 教学版演示配置。[http://config.orangeforms.com](http://config.orangeforms.com)
 - 生成器操作指南。[http://www.orangeforms.com/orange-doc/](http://www.orangeforms.com/orange-doc/)
 - 后端代码文档。[http://www.orangeforms.com/development-doc/](http://www.orangeforms.com/development-doc/)
 - 前端代码文档。[http://www.orangeforms.com/development-vue/](http://www.orangeforms.com/development-vue/)
-- 更完整的演示项目。[http://demo.orangeforms.com](http://demo.orangeforms.com)
+- 演示项目。[http://demo.orangeforms.com](http://demo.orangeforms.com)
+- 工作流演示项目。[http://demo.orangeforms.com/flow](http://demo.orangeforms.com/flow)
+
+#### 在线表单支持
+- 前后端代码完全交付，甚至可配置为自己的项目包名。
+- 前后端代码无一丝混淆，且代码质量超高，极易学习和二次开发，同时支持单体和微服务架构。
+- 可视化的拖拉拽编辑器，目前已经支持大部分常用组件，后续版本会支持图表。
+- 支持主从表联动。
+- 支持富文本、多图、多附件的上传和下载。
+- 可视化接口配置编辑器，支持多数据库、数据表、一对一表关联、一对多表关联和多种数据字典等。
+- 支持字典过滤、主表字段过滤、一对一从表字段过滤，同时支持范围、模糊和等于查询方式。
+- 支持一对多的聚合字段计算，在主表列表中可动态计算并显示从表的聚合计算结果。
+- 支持主表字段排序、一对一从表字段排序。
+- 完美支持数据权限过滤和操作权限控制。
+- 接口参数均为数据源 ID，不暴露任何后台数据表细节，从机制上彻底消除了 SQL 注入的风险。
+- 运行时效率极高，动态表单关键数据结构均缓存 Redis，从而有效提升数据接口的应答效率。
 
 #### 多应用支持
 - 生成器支持多应用功能，应用和服务之间保持多对多关系，服务池功能已基本支持，后续版本会持续优化。
@@ -60,8 +109,8 @@
 #### 技术选型
 - 前端: Element (Vue) / Ant Design (React) + ECharts / AntV + Axios + Webpack。
 - 后端: Spring Boot / Spring Cloud / Spring Cloud Alibaba + Spring Security OAuth2 + Mybatis + Jwt。
-- 工具库: Hutool + Guava + Caffeine + Lombok + MapStruct + Mybatis Plus + tk mapper + Knife4j + qdox。
-- 服务组件: Redis + Zookeeper + Consul + Apollo + XXL-Job + Quartz + Seata + Minio + Canal + RocketMQ + Kafka + Nacos + Sentinel + Nepxion Discovery。
+- 工具库: Activiti + Flowable + Hutool + Guava + Caffeine + Lombok + MapStruct + Mybatis Plus + tk mapper + Knife4j + qdox。
+- 服务组件: Redis + Zookeeper + Consul + Apollo + XXL-Job + Quartz + Seata + Minio + Canal + RocketMQ + Kafka + Nacos + Sentinel。
 - 系统监控: ELK + PinPoint / SkyWalking + Grafana + Prometheus。
 
 #### 基础功能
@@ -69,6 +118,8 @@
 - 前端能力：列表编辑、统计图表、多表联动、明细数据下钻、上传下载、数据导出、自定义打印样式模板、富文本等。
 - 页面布局：支持基于 Fragment 和 Block 的灵活布局方式，通过配置即可生成多样化的表单页面，并可预览。
 - 接口规范：微服务和单体服务的接口命名和参数定义规范完全一致，便于日后的平滑升级。
+- 在线表单：支持可视化拖来拽编辑器，表单、后台接口和数据字典均可动态配置，完美集成数据权限过滤和操作权限控制，即配即得。
+- 流程管理：支持美观的流程编辑器、流程图高亮跟踪、多版本发布、工单管理、待办已办转办、会签加签、撤销和提前终止等实用功能。并可基于在线表单生成复杂的工作流业务。
 - 后台架构：分布式锁、分布式 Id、分布式缓存、分布式事务、分布式限流和灰度发布等，按需集成。
 - 用户管理：支持基于 OAuth2 的单点登录。
 - 操作权限：前端控制可精确到按钮级的操作和标签级的显示，同时提供了多维度的权限分配路径查询能力。
@@ -182,28 +233,20 @@ docker-compose stop
 
 ### 主要截图
 
-#### 橙单生成器
+#### 多租户演示
 
 <table>
 <tr>
-  <td><img src="https://images.gitee.com/uploads/images/2020/0411/165025_1a5dab88_7431510.png"/></td>
-  <td><img src="https://images.gitee.com/uploads/images/2020/0411/165127_aa86f874_7431510.png"/></td>
+  <td><img src="https://images.gitee.com/uploads/images/2021/0331/194609_2e859a10_7431510.png"/></td>
+  <td><img src="https://images.gitee.com/uploads/images/2021/0331/194939_75032e28_7431510.png"/></td>
 </tr>
 <tr>
-  <td><img src="https://images.gitee.com/uploads/images/2020/0411/165235_333782ce_7431510.png"/></td>
-  <td><img src="https://images.gitee.com/uploads/images/2020/0411/165330_3b22761a_7431510.png"/></td>
-</tr>
-<tr>
-  <td><img src="https://images.gitee.com/uploads/images/2020/0411/165440_faecc3ab_7431510.png"/></td>
-  <td><img src="https://images.gitee.com/uploads/images/2020/0411/165518_e381e2f7_7431510.png"/></td>
-</tr>
-<tr>
-  <td><img src="https://images.gitee.com/uploads/images/2020/0411/181606_265790ac_7431510.png"/></td>
-  <td><img src="https://images.gitee.com/uploads/images/2020/0411/165837_de1fef48_7431510.png"/></td>
+  <td><img src="https://images.gitee.com/uploads/images/2021/0331/195351_1b0f66c4_7431510.png"/></td>
+  <td><img src="https://images.gitee.com/uploads/images/2021/0331/195650_b31cd2db_7431510.png"/></td>
 </tr>
 </table>
 
-#### 演示工程
+#### 微服务演示
 <table>
 <tr>
   <td><img src="https://images.gitee.com/uploads/images/2020/1029/193003_4d88919b_7431510.png"/></td>

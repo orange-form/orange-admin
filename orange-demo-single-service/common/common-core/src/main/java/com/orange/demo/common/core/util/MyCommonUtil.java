@@ -4,6 +4,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.digest.DigestUtil;
+import com.orange.demo.common.core.constant.AppDeviceType;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
@@ -166,6 +167,24 @@ public class MyCommonUtil {
             return fieldNameList.toArray(new String[]{});
         }
         return new String[]{};
+    }
+
+    /**
+     * 获取请求头中的设备信息。
+     *
+     * @return 设备类型，具体值可参考AppDeviceType常量类。
+     */
+    public static int getDeviceType() {
+        // 缺省都按照Web登录方式设置，如果前端header中的值为不合法值，这里也不会报错，而是使用Web缺省方式。
+        int deviceType = AppDeviceType.WEB;
+        String deviceTypeString = ContextUtil.getHttpRequest().getHeader("deviceType");
+        if (StrUtil.isNotBlank(deviceTypeString)) {
+            Integer type = Integer.valueOf(deviceTypeString);
+            if (AppDeviceType.isValid(type)) {
+                deviceType = type;
+            }
+        }
+        return deviceType;
     }
 
     /**

@@ -33,6 +33,8 @@ import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.util.*;
 import java.util.function.Function;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import static java.util.stream.Collectors.*;
 
@@ -715,7 +717,7 @@ public abstract class BaseService<M, K> implements IBaseService<M, K> {
      *
      * @param resultList    主表实体对象列表。数据集成将直接作用于该对象列表。
      * @param relationParam 实体对象数据组装的参数构建器。
-     * @param batchSize     每批集成的记录数量。小于等于时将不做分批处理。
+     * @param batchSize     每批集成的记录数量。小于等于0时将不做分批处理。
      */
     @Override
     public void buildRelationForDataList(List<M> resultList, MyRelationParam relationParam, int batchSize) {
@@ -736,7 +738,7 @@ public abstract class BaseService<M, K> implements IBaseService<M, K> {
      *
      * @param resultList    主表实体对象列表。数据集成将直接作用于该对象列表。
      * @param relationParam 实体对象数据组装的参数构建器。
-     * @param batchSize     每批集成的记录数量。小于等于时将不做分批处理。
+     * @param batchSize     每批集成的记录数量。小于等于0时将不做分批处理。
      * @param ignoreFields  该集合中的字段，即便包含注解也不会在当前调用中进行数据组装。
      */
     @Override
@@ -1730,6 +1732,23 @@ public abstract class BaseService<M, K> implements IBaseService<M, K> {
             initializeLocalRelationDictStruct(f);
             initializeLocalRelationStruct(f);
             initializeLocalRelationAggregationStruct(f);
+        }
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public void saveInternal(List<M> dataList, Supplier<K> idGenerator, Consumer<List<M>> batchInserter) {
+        if (CollectionUtils.isEmpty(dataList)) {
+            return;
+        }
+        dataList.stream().filter(c -> ReflectUtil.getFieldValue(c, idFieldName) == null)
+                .forEach(o -> ReflectUtil.setFieldValue(o, idFieldName, idGenerator.get()));
+        if (batchInserter != null) {
+            batchInserter.accept(dataList);
+        } else {
+            for (M data : dataList) {
+                mapper().insert(data);
+            }
         }
     }
 

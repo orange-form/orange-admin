@@ -14,12 +14,12 @@
         </processorPath>
         <module name="common-sequence" />
         <module name="stats-api" />
-        <module name="upms-service" />
+        <module name="course-class-api" />
         <module name="stats-service" />
         <module name="upms-api" />
         <module name="common-swagger" />
         <module name="admin-monitor" />
-        <module name="course-class-api" />
+        <module name="upms-service" />
         <module name="common-redis" />
         <module name="common-core" />
         <module name="application-common" />

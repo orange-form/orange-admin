@@ -3,6 +3,8 @@ package com.orange.demo.common.core.base.service;
 import com.orange.demo.common.core.object.MyRelationParam;
 
 import java.util.*;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * 所有Service的接口。
@@ -232,7 +234,7 @@ public interface IBaseService<M, K> {
      *
      * @param resultList    主表实体对象列表。数据集成将直接作用于该对象列表。
      * @param relationParam 实体对象数据组装的参数构建器。
-     * @param batchSize     每批集成的记录数量。小于等于时将不做分批处理。
+     * @param batchSize     每批集成的记录数量。小于等于0时将不做分批处理。
      */
     void buildRelationForDataList(List<M> resultList, MyRelationParam relationParam, int batchSize);
 
@@ -250,7 +252,7 @@ public interface IBaseService<M, K> {
      *
      * @param resultList    主表实体对象列表。数据集成将直接作用于该对象列表。
      * @param relationParam 实体对象数据组装的参数构建器。
-     * @param batchSize     每批集成的记录数量。小于等于时将不做分批处理。
+     * @param batchSize     每批集成的记录数量。小于等于0时将不做分批处理。
      * @param ignoreFields  该集合中的字段，即便包含注解也不会在当前调用中进行数据组装。
      */
     void buildRelationForDataList(
@@ -288,4 +290,16 @@ public interface IBaseService<M, K> {
      * 仅仅在spring boot 启动后的监听器事件中调用，缓存所有service的关联关系，加速后续的数据绑定效率。
      */
     void loadLocalRelationStruct();
+
+    /**
+     * 内部使用的批量保存方法。在使用前要确保清楚该方法的实现功能。
+     * 该方法通常用于从表数据的批量更新，为了保证已有数据的主键不变，我们通常会在执行该方法前，根据主表的关联数据，
+     * 删除从表中的数据。之后在迭代参数dataList，并将没有主键值的对象视为新对象，该方法将为这些新对象生成主键值。
+     * 其他包含主键值的对象，为已有对象，不做任何修改。填充主键后，将dataList集合中的数据批量插入到数据表。
+     *
+     * @param dataList      待操作的数据列表。
+     * @param idGenerator   主键值生成器方法。
+     * @param batchInserter 批量插入方法。
+     */
+    void saveInternal(List<M> dataList, Supplier<K> idGenerator, Consumer<List<M>> batchInserter);
 }

@@ -29,6 +29,9 @@ public class FeignConfig implements RequestInterceptor {
             requestTemplate.header(TokenData.REQUEST_ATTRIBUTE_NAME, tokenData);
         }
         String traceId = ContextUtil.getHttpRequest().getHeader(ApplicationConstant.HTTP_HEADER_TRACE_ID);
+        if (StringUtils.isBlank(traceId)) {
+            traceId = (String) ContextUtil.getHttpRequest().getAttribute(ApplicationConstant.HTTP_HEADER_TRACE_ID);
+        }
         if (StringUtils.isNotBlank(traceId)) {
             requestTemplate.header(ApplicationConstant.HTTP_HEADER_TRACE_ID, traceId);
         }

@@ -27,7 +27,7 @@ import java.util.Map;
 @Slf4j
 public class DataSourceResolveAspect {
 
-    private Map<Class<? extends DataSourceResolver>, DataSourceResolver> resolverMap = new HashMap<>();
+    private final Map<Class<? extends DataSourceResolver>, DataSourceResolver> resolverMap = new HashMap<>();
 
     /**
      * 所有配置 MyDataSource 注解的Service。
@@ -50,13 +50,13 @@ public class DataSourceResolveAspect {
         }
         int type = resolver.resolve(dsr.arg(), point.getArgs());
         // 通过判断 DataSource 中的值来判断当前方法应用哪个数据源
-        DataSourceContextHolder.setDataSourceType(type);
+        Integer originalType = DataSourceContextHolder.setDataSourceType(type);
         log.debug("set datasource is " + type);
         try {
             return point.proceed();
         } finally {
-            DataSourceContextHolder.clear();
-            log.debug("clean datasource");
+            DataSourceContextHolder.unset(originalType);
+            log.debug("unset datasource is " + originalType);
         }
     }
 }

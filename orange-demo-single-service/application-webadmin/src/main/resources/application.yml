@@ -84,11 +84,22 @@ redis:
     # 单位毫秒。分布式锁的超时检测时长。
     # 如果一次锁内操作超该毫秒数，或在释放锁之前异常退出，Redis会在该时长之后主动删除该锁使用的key。
     lockWatchdogTimeout: 60000
+    # redis 密码，空可以不填。
+    password:
     pool:
       # 连接池数量。
       poolSize: 20
       # 连接池中最小空闲数量。
       minIdle: 5
+
+swagger:
+  # 当enabled为false的时候，则可禁用swagger。
+  enabled: true
+  # 工程的基础包名。
+  basePackage: com.orange.demo.webadmin
+  title: 橙单单体服务工程
+  description: 橙单单体服务工程详情
+  version: 1.0
 
 # 暴露监控端点
 management:
