@@ -99,7 +99,6 @@ export default {
       return content;
     }
     this.editor.customConfig.linkImgCallback = (url) => {
-      console.log(url) // url 即插入图片的地址
     }
     this.editor.customConfig.linkCheck = (text, link) => {
       return true // 返回 true 表示校验成功
@@ -112,7 +111,6 @@ export default {
     }
     // 失去焦点后更新数据
     this.editor.customConfig.onblur = (html) => {
-      console.log(html)
       this.$emit('input', html);
     }
 

@@ -1,10 +1,10 @@
 <template>
   <el-container :style="getMainStyle">
-    <el-aside width='200px' class="sidebar">
+    <el-aside width='250px' class="sidebar">
       <side-bar style="overflow: hidden"></side-bar>
     </el-aside>
     <el-container style="background-color: #F5F8F9">
-      <el-header class="header">
+      <el-header class="header" style="box-shadow: 0px 2px 4px 0px rgba(206, 206, 206, 0.5);">
         <breadcrumb class="breadcrumb-container" />
         <div class="menu-column" v-if="getMultiColumn" style="margin-left: 20px;">
           <el-menu mode="horizontal" :default-active="getCurrentColumnId" @select="onColumnChange">
@@ -24,7 +24,7 @@
         </div>
       </el-header>
       <el-main :style="{'padding-bottom': '15px', 'padding-top': (getMultiTags ? '0px' : '15px')}">
-        <tag-panel v-if="getMultiTags" :tagList="getTagList" style="margin-bottom: 10px;" />
+        <tag-panel v-if="getMultiTags" :tagList="getTagList" style="margin: 0px 20px;" />
         <el-scrollbar :style="getContextStyle" wrap-class="scrollbar_dropdown__wrap">
           <transition name="fade" mode="out-in">
             <keep-alive :include="getCachePages">
@@ -75,7 +75,9 @@ export default {
         clearTimeout(timerID);
         timerID = setTimeout(() => {
           var h = document.documentElement['clientHeight'];
+          var w = document.documentElement['clientWidth'];
           _this.setClientHeight(h);
+          _this.setClientWidth(w);
         }, 50);
       }
     },
@@ -106,6 +108,7 @@ export default {
     },
     ...mapMutations([
       'setClientHeight',
+      'setClientWidth',
       'setCurrentColumnId',
       'clearCachePage',
       'clearAllTags',

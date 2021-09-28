@@ -10,6 +10,10 @@ export default {
   supportTags: false,
   // 浏览器客户区高度
   documentClientHeight: 100,
+  // 浏览器客户区宽度
+  documentClientWidth: undefined,
+  // 在线表单查询页面缓存
+  onlineFormCache: {},
   // 用户登录信息
   userInfo: initUserInfo(),
   // 缓存页面

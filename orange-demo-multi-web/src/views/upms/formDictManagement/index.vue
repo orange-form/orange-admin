@@ -1,11 +1,11 @@
 <template>
-  <el-container>
+  <el-container class="advance-query-form">
     <el-aside width="300px">
-      <el-card class="base-card" shadow="never" :body-style="{ padding: '0px' }">
+      <el-card class="base-card" shadow="never" :body-style="{ padding: '0px' }" style="border: none;">
         <div slot="header" class="base-card-header">
           <span>字典列表</span>
         </div>
-        <el-scrollbar :style="{height: (getMainContextHeight - 94) + 'px'}" class="custom-scroll">
+        <el-scrollbar :style="{'height': (getMainContextHeight - 51) + 'px'}" class="custom-scroll">
           <el-tree :data="dictList" :props="{label: 'name'}" node-key="variableName" :highlight-current="true"
             :current-node-key="(dictList[0] || {}).variableName" @node-click="onDictChange">
             <div class="module-node-item" slot-scope="{ data }">
@@ -15,7 +15,7 @@
         </el-scrollbar>
       </el-card>
     </el-aside>
-    <el-main style="padding-left: 15px;">
+    <el-main style="margin-left: 15px; background-color: white; padding: 20px;">
       <el-form label-width="120px" size="mini" label-position="left" @submit.native.prevent>
         <filter-box :item-width="350">
           <el-form-item v-if="dirtyCount > 0" label="失效缓存数量：">
@@ -37,7 +37,7 @@
         <el-col :span="24">
           <el-table :data="getCurrentDictData" size="mini" header-cell-class-name="table-header-gray"
             :row-style="tableRowStyle"
-            :height="(getMainContextHeight - 88) + 'px'" row-key="id">
+            :height="(getMainContextHeight - 90) + 'px'" row-key="id">
             <el-table-column label="ID" prop="id" />
             <el-table-column label="字典名称" prop="name">
               <template slot-scope="scope">
@@ -95,7 +95,6 @@ export default {
   },
   methods: {
     tableRowStyle ({row, rowIndex}) {
-      console.log(row);
       if (row.dirty) {
         return {
           background: '#FFE1E1'

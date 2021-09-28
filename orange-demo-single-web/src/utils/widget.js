@@ -133,7 +133,6 @@ export class TableWidget {
       this.oldPage = this.currentPage;
       this.oldPageSize = this.pageSize;
     }).catch(e => {
-      console.log(e);
       this.currentPage = this.oldPage;
       this.pageSize = this.oldPageSize;
     });
@@ -161,7 +160,6 @@ export class TableWidget {
    * @param {Object} oldRow 老的选中行
    */
   currentRowChange (currentRow, oldRow) {
-    console.log(currentRow, oldRow);
     this.currentRow = currentRow;
   }
   clearTable () {

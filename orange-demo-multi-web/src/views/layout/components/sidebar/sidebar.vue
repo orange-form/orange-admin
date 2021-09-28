@@ -1,10 +1,10 @@
 <template>
   <div style="height: 100%; position: relative;" class="sidebar-bg">
     <div class="sidebar-title">
-      <img :src="logoImage" style="width: 40px; height: 40px; border-radius: 50%;" />
+      <img :src="logoImage" style="width: 32px; height: 32px; border-radius: 50%;" />
       <p class="sidebar-title-text">{{getProjectName()}}</p>
     </div>
-    <div style="height: 100%; padding-bottom: 60px;">
+    <div class="left-menu" style="height: 100%; padding-bottom: 60px;">
       <el-scrollbar wrap-class="scrollbar_dropdown__wrap" style="height: 100%;">
         <el-menu ref="menu" mode="vertical" :default-active="getCurrentMenuId" :unique-opened="true" @select="selectMenu"
           :active-text-color="activeTextColor" :collapse="getCollapse" >
@@ -28,7 +28,7 @@ export default {
       isCollapse: false,
       collapseLeft: '200px',
       showCollapseBtn: true,
-      logoImage: require('../../../../assets/img/logo.jpg')
+      logoImage: require('../../../../assets/img/logo.png')
     }
   },
   components: {
@@ -73,3 +73,10 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+  .sidebar-title-text {
+    font-size: 18px;
+    font-weight: bold;
+  }
+</style>

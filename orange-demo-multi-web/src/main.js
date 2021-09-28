@@ -1,4 +1,5 @@
 import '@/core/http';
+import JSONbig from 'json-bigint';
 import '@/components/Dialog';
 import Vue from 'vue';
 import ElementUI from 'element-ui';
@@ -15,6 +16,8 @@ import DateRange from '@/components/DateRange';
 import FilterBox from '@/components/FilterBox';
 import TableProgressColumn from '@/components/TableProgressColumn';
 import VCharts from 'v-charts';
+
+window.JSON = new JSONbig({storeAsString: true});
 
 Vue.component('tree-select', TreeSelect);
 Vue.component('rich-editor', RichEditor);

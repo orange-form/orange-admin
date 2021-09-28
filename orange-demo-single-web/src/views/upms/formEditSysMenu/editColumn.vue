@@ -68,7 +68,7 @@ export default {
         this.$refs['form'].validate((valid) => {
           if (valid) {
             let params = {};
-            params.sysMenu = {...this.formData};
+            params.sysMenuDto = {...this.formData};
             
             if (this.isEdit) {
               SystemController.updateMenu(this, params).then(res => {

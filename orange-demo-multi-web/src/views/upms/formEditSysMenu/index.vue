@@ -4,7 +4,7 @@
       <el-col :span="12">
         <el-form-item label="上级菜单">
           <el-cascader :options="menuTree" v-model="parentMenuPath" :props="menuProps" placeholder="选择父菜单"
-            :disabled="!canEditParent" :clearable="true" :change-on-select="true" size="mini"
+            :disabled="!canEditParent || isEdit" :clearable="true" :change-on-select="true" size="mini"
             @change="onParentMenuChange" />
         </el-form-item>
       </el-col>
@@ -44,7 +44,8 @@
             <el-input size="mini" v-model="permCodeNameFilter" placeholder="输入权限字名称过滤" style="width: 250px;" clearable suffix-icon="el-icon-search" />
           </div>
           <el-scrollbar style="height: 210px;" wrap-class="scrollbar_dropdown__wrap">
-            <el-tree ref="permCodeTree" v-show="formData.menuType" :check-strictly="true"
+            <el-tree ref="permCodeTree" :check-strictly="true"
+              v-show="formData.menuType"
               :props="treeProps" node-key="permCodeId" :default-expanded-keys="defaultExpandedKeys"
               show-checkbox :data="getPermCodeTree" :filter-node-method="filterPermCodeNode"></el-tree>
           </el-scrollbar>
@@ -64,9 +65,9 @@
 
 <script>
 // eslint-disable-next-line no-unused-vars
-import { treeDataTranslate, findTreeNodePath, findTreeNode, findItemFromList } from '@/utils'
-import { SystemController } from '@/api'
-import IconSelect from '@/components/IconSelect/index.vue'
+import { treeDataTranslate, findTreeNodePath, findTreeNode, findItemFromList } from '@/utils';
+import { SystemController } from '@/api';
+import IconSelect from '@/components/IconSelect/index.vue';
 
 export default {
   props: {
@@ -159,12 +160,11 @@ export default {
         this.$refs['form'].validate((valid) => {
           if (valid) {
             let params = {};
-            params.sysMenu = {...this.formData};
-
+            params.sysMenuDto = {...this.formData};
             if (this.parentMenuPath.length > 0) {
-              params.sysMenu.parentId = this.parentMenuPath[this.parentMenuPath.length - 1];
+              params.sysMenuDto.parentId = this.parentMenuPath[this.parentMenuPath.length - 1];
             }
-            if ([this.SysMenuType.MENU, this.SysMenuType.BUTTON, this.SysMenuType.FRAGMENT].indexOf(params.sysMenu.menuType) !== -1) {
+            if ([this.SysMenuType.MENU, this.SysMenuType.BUTTON, this.SysMenuType.FRAGMENT].indexOf(params.sysMenuDto.menuType) !== -1) {
               let tempList = this.$refs.permCodeTree.getHalfCheckedKeys();
               tempList = tempList.concat(this.$refs.permCodeTree.getCheckedKeys());
               params.permCodeIdListString = tempList.join(',');

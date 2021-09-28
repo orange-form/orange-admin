@@ -14,7 +14,7 @@
     </div>
     <div v-show="visible" @click.stop="onMenuMaskClick" @contextmenu="openMaskMenu"
       style="z-index: 99999; position: fixed; background: rgba(0, 0, 0, 0.01); width: 100vw; height: 100vh; top: 0px; left: 0px">
-      <ul class="contextmenu" style="z-index: 99999;" :style="{left: left + 'px', top: top + 'px'}">
+      <ul class="contextmenu" style="z-index: 99999; background: white;" :style="{left: left + 'px', top: top + 'px'}">
         <li @click="closeSelectTag">关闭</li>
         <li @click="closeOthersTags">关闭其他</li>
       </ul>
@@ -123,7 +123,6 @@ export default {
       let width = 0;
       let childList = this.$children;
       for (let i = this.beginPos; i < childList.length; i++) {
-        console.log(childList[i], childList[i].$el.offsetWidth);
         width += childList[i].$el.offsetWidth;
         // 间隔距离
         width += 5;
@@ -158,9 +157,6 @@ export default {
 <style lang="scss" scoped>
   @import '@/assets/style/element-variables.scss';
   .tags-panel {
-    background: white;
-    box-shadow: 0px 1px 4px rgba(0,21,41,.08);
-    border-top: 1px solid $--border-color-extra-light;
   }
   .main-panel {
     margin: 0px 30px;
@@ -182,7 +178,6 @@ export default {
     font-size: 14px;
     cursor: pointer;
     z-index: 100;
-    background: white;
     box-sizing: border-box;
   }
   .arrow.left {
@@ -194,7 +189,6 @@ export default {
 
   .contextmenu {
     margin: 0px;
-    background: #FFF;
     z-index: 2;
     position: fixed;
     list-style-type: none;

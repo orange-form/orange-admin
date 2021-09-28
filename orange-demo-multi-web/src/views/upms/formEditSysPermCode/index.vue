@@ -145,14 +145,14 @@ export default {
           if (valid) {
             let selectedPermList = this.getTreeLeafKeys();
             let params = {};
-            params.sysPermCode = {...this.formData};
-            delete params.sysPermCode.children;
-            params.sysPermCode.permCodeType = (this.permCodeType == null) ? this.SysPermCodeType.FORM : this.permCodeType;
+            params.sysPermCodeDto = {...this.formData};
+            delete params.sysPermCodeDto.children;
+            params.sysPermCodeDto.permCodeType = (this.permCodeType == null) ? this.SysPermCodeType.FORM : this.permCodeType;
             if (this.parentPermCodePath.length > 0) {
-              params.sysPermCode.parentId = this.parentPermCodePath[this.parentPermCodePath.length - 1];
+              params.sysPermCodeDto.parentId = this.parentPermCodePath[this.parentPermCodePath.length - 1];
             }
             params.permIdListString = selectedPermList.join(',');
-            if (params.sysPermCode.permCodeId != null) {
+            if (params.sysPermCodeDto.permCodeId != null) {
               SystemController.updatePermCode(this, params).then(res => {
                 resolve(res);
                 this.$message.success('编辑成功');

@@ -11,7 +11,7 @@ module.exports = {
     parser: 'babel-eslint'
   },
   rules: {
-    'no-console': process.env.NODE_ENV === 'production' ? 'error' : 'off',
+    'no-console': 'off',
     'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
     'semi': ['off', 'always'],
     'prefer-promise-reject-errors': ['error', { 'allowEmptyReject': true }],
@@ -23,8 +23,7 @@ module.exports = {
     'lines-between-class-members': ['off'],
     // 'no-undef': ['off', 'always'],
     // 'no-unused-vars': ['off', 'always'],
-    'no-new-func': ['off', 'always'],
-    'no-console': ['off']
+    'no-new-func': ['off', 'always']
   },
   overrides: [
     {

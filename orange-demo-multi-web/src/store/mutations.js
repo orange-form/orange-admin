@@ -8,6 +8,18 @@ export default {
   setClientHeight: (state, height) => {
     state.documentClientHeight = height;
   },
+  setClientWidth: (state, width) => {
+    state.documentClienWidth = width;
+  },
+  addOnlineFormCache: (state, data) => {
+    state.onlineFormCache[data.key] = data.value;
+  },
+  removeOnlineFormCache: (state, key) => {
+    delete state.onlineFormCache[key];
+  },
+  clearOnlineFormCache: (state) => {
+    state.onlineFormCache = {};
+  },
   setUserInfo: (state, info) => {
     setObjectToSessionStorage('userInfo', info);
     state.userInfo = initUserInfo(info);
@@ -97,7 +109,8 @@ export default {
     }
 
     let menuObject = state.tagList[0];
-    if (menuObject && menuObject.formRouterName && menuObject.formRouterName !== '') {
+    if (menuObject && (menuObject.onlineFormId == null || menuObject.onlineFormId === '') &&
+      menuObject.formRouterName && menuObject.formRouterName !== '') {
       state.cachePages = [menuObject.formRouterName];
       if (setObjectToSessionStorage('currentMenuId', menuObject.menuId)) state.currentMenuId = menuObject.menuId;
     }
@@ -131,7 +144,9 @@ export default {
           }
           // 添加新缓存
           if (Array.isArray(state.cachePages) && state.cachePages.indexOf(menuItem.formRouterName) === -1) {
-            state.cachePages = [...state.cachePages, menuItem.formRouterName];
+            if (menuItem.onlineFormId == null || menuItem.onlineFormId === '') {
+              state.cachePages = [...state.cachePages, menuItem.formRouterName];
+            }
             setObjectToSessionStorage('cachePages', state.cachePages);
           }
           break;

@@ -10,7 +10,8 @@ const service = axios.create({
   withCredentials: true,
   headers: {
     // 'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8'
-    'Content-Type': 'application/json; charset=utf-8'
+    'Content-Type': 'application/json; charset=utf-8',
+    'deviceType': '4'
   },
   transformResponse: [
     function (data) {

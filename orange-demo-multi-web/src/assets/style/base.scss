@@ -51,8 +51,25 @@ body .layer-dialog {
 body .layer-dialog .layui-layer-content {
   padding: $box-padding-size;
 }
+/**
+ * 左树右表弹窗样式
+ */
+body .layer-advance-dialog {
+  border-radius: 4px;
+  border:1px solid #01000000;
+  background-color: #F8F8F8;
+}
 
-.demo-project {
+body .layer-advance-dialog .layui-layer-title{
+  border-radius: 4px 4px 0px 0px;
+  border:1px solid #01000000;
+}
+
+body .layer-advance-dialog .layui-layer-content {
+  padding: 5px 15px;
+}
+
+.orange-project {
   .el-main {
     padding: 0px;
   }
@@ -98,18 +115,18 @@ body .layer-dialog .layui-layer-content {
 
   .page-close-box {
     position: absolute;
-    background: #13ce66;
+    background: #0092FF;
     transform: rotate(45deg);
-    height: 60px;
-    width: 60px;
-    right: -30px;
-    top:-30px;
+    height: 50px;
+    width: 50px;
+    right: -25px;
+    top:-25px;
     text-align: center;
 
     .el-button {
       transform: rotate(-45deg);
       color: white;
-      margin-top: 30px;
+      margin-top: 20px;
     }
   }
 
@@ -264,6 +281,12 @@ body .layer-dialog .layui-layer-content {
       }
     }
   }
+
+  @if global-variable-exists(--color-submenu-background) {
+    .left-menu .el-submenu .el-menu {
+      background-color: $--color-submenu-background;
+    }
+  }
   
   /**
    * 多tab页表单，tab样式
@@ -276,6 +299,45 @@ body .layer-dialog .layui-layer-content {
    **/
   .table-header-gray, .has-gutter .gutter {
     background-color: $tab-header-background-color;
+  }
+
+  /**
+   * 操作按钮颜色
+   **/
+  .table-btn.delete {
+    color: #F56C6C;
+  }
+
+  .table-btn.delete:hover {
+    color: #F78989;
+  }
+
+  .table-btn.delete:disabled {
+    color: #DCDFE6;
+  }
+
+  .table-btn.success {
+    color: #67C23A;
+  }
+
+  .table-btn.success:hover {
+    color: #85CE61;
+  }
+
+  .table-btn.success:disabled {
+    color: #DCDFE6;
+  }
+
+  .table-btn.warning {
+    color: #E6A23C;
+  }
+
+  .table-btn.warning:hover {
+    color: #EBB563;
+  }
+
+  .table-btn.success:disabled {
+    color: #DCDFE6;
   }
   
   /**

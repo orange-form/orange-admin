@@ -225,4 +225,12 @@ export default class SystemController {
   static listSysMenuByPermIdWithDetail (sender, params, axiosOption, httpOption) {
     return sender.doUrl('admin/upms/sysPerm/listSysMenuWithDetail', 'get', params, axiosOption, httpOption);
   }
+  // 在线用户
+  static listSysLoginUser (sender, params, axiosOption, httpOption) {
+    return sender.doUrl('admin/upms/loginUser/list', 'post', params, axiosOption, httpOption);
+  }
+
+  static deleteSysLoginUser (sender, params, axiosOption, httpOption) {
+    return sender.doUrl('admin/upms/loginUser/delete', 'post', params, axiosOption, httpOption);
+  }
 }

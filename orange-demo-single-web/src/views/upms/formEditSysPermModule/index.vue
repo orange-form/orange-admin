@@ -128,7 +128,7 @@ export default {
       this.$refs.formCreatePermModule.validate((valid) => {
         if (!valid) return;
         let params = {
-          sysPermModule: {
+          sysPermModuleDto: {
             moduleId: this.moduleId,
             moduleName: this.formData.SysPermModule.moduleName,
             showOrder: this.formData.SysPermModule.showOrder,

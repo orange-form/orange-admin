@@ -70,9 +70,9 @@ export default {
       this.$refs.form.validate((valid) => {
         if (valid) {
           let params = {};
-          params[this.dictInfo.variableName] = {};
-          params[this.dictInfo.variableName][this.dictInfo.nameKey] = this.formData.name;
-          params[this.dictInfo.variableName][this.dictInfo.parentKey] = this.formData.parentId;
+          params[this.dictInfo.variableName + 'Dto'] = {};
+          params[this.dictInfo.variableName + 'Dto'][this.dictInfo.nameKey] = this.formData.name;
+          params[this.dictInfo.variableName + 'Dto'][this.dictInfo.parentKey] = this.formData.parentId;
 
           if (this.formData.id == null) {
             this.dictInfo.addApi(this, params).then(res => {
@@ -82,7 +82,7 @@ export default {
 
             });
           } else {
-            params[this.dictInfo.variableName][this.dictInfo.idKey] = this.formData.id;
+            params[this.dictInfo.variableName + 'Dto'][this.dictInfo.idKey] = this.formData.id;
             this.dictInfo.updateApi(this, params).then(res => {
               this.$message.success('操作成功');
               this.onCancel(true);

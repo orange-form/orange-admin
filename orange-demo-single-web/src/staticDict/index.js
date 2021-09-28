@@ -4,8 +4,9 @@
 import Vue from 'vue';
 
 class DictionaryBase extends Map {
-  constructor (dataList, keyId = 'id', symbolId = 'symbol') {
+  constructor (name, dataList, keyId = 'id', symbolId = 'symbol') {
     super();
+    this.showName = name;
     this.setList(dataList, keyId, symbolId);
   }
 
@@ -50,7 +51,7 @@ class DictionaryBase extends Map {
   }
 }
 
-const SysUserStatus = new DictionaryBase([
+const SysUserStatus = new DictionaryBase('用户状态', [
   {
     id: 0,
     name: '正常状态',
@@ -64,7 +65,7 @@ const SysUserStatus = new DictionaryBase([
 ]);
 Vue.prototype.SysUserStatus = SysUserStatus;
 
-const SysUserType = new DictionaryBase([
+const SysUserType = new DictionaryBase('用户类型', [
   {
     id: 0,
     name: '管理员',
@@ -83,7 +84,7 @@ const SysUserType = new DictionaryBase([
 ]);
 Vue.prototype.SysUserType = SysUserType;
 
-const Subject = new DictionaryBase([
+const Subject = new DictionaryBase('学科', [
   {
     id: 0,
     name: '语文',
@@ -102,7 +103,7 @@ const Subject = new DictionaryBase([
 ]);
 Vue.prototype.Subject = Subject;
 
-const StudentActionType = new DictionaryBase([
+const StudentActionType = new DictionaryBase('学生行为', [
   {
     id: 0,
     name: '充值',
@@ -161,7 +162,7 @@ const StudentActionType = new DictionaryBase([
 ]);
 Vue.prototype.StudentActionType = StudentActionType;
 
-const DeviceType = new DictionaryBase([
+const DeviceType = new DictionaryBase('设备类型', [
   {
     id: 0,
     name: 'iOS',
@@ -180,7 +181,7 @@ const DeviceType = new DictionaryBase([
 ]);
 Vue.prototype.DeviceType = DeviceType;
 
-const Gender = new DictionaryBase([
+const Gender = new DictionaryBase('性别', [
   {
     id: 1,
     name: '男',
@@ -194,7 +195,7 @@ const Gender = new DictionaryBase([
 ]);
 Vue.prototype.Gender = Gender;
 
-const ExpLevel = new DictionaryBase([
+const ExpLevel = new DictionaryBase('经验等级', [
   {
     id: 0,
     name: '初级学员',
@@ -213,7 +214,7 @@ const ExpLevel = new DictionaryBase([
 ]);
 Vue.prototype.ExpLevel = ExpLevel;
 
-const StudentStatus = new DictionaryBase([
+const StudentStatus = new DictionaryBase('学生状态', [
   {
     id: 0,
     name: '正常',
@@ -232,7 +233,7 @@ const StudentStatus = new DictionaryBase([
 ]);
 Vue.prototype.StudentStatus = StudentStatus;
 
-const ClassStatus = new DictionaryBase([
+const ClassStatus = new DictionaryBase('班级状态', [
   {
     id: 1,
     name: '正常',
@@ -246,7 +247,7 @@ const ClassStatus = new DictionaryBase([
 ]);
 Vue.prototype.ClassStatus = ClassStatus;
 
-const ClassLevel = new DictionaryBase([
+const ClassLevel = new DictionaryBase('班级级别', [
   {
     id: 0,
     name: '初级班',
@@ -265,7 +266,7 @@ const ClassLevel = new DictionaryBase([
 ]);
 Vue.prototype.ClassLevel = ClassLevel;
 
-const CourseDifficult = new DictionaryBase([
+const CourseDifficult = new DictionaryBase('课程难度', [
   {
     id: 0,
     name: '容易',
@@ -284,7 +285,7 @@ const CourseDifficult = new DictionaryBase([
 ]);
 Vue.prototype.CourseDifficult = CourseDifficult;
 
-const SysPermModuleType = new DictionaryBase([
+const SysPermModuleType = new DictionaryBase('权限分组类型', [
   {
     id: 0,
     name: '分组模块',
@@ -297,7 +298,7 @@ const SysPermModuleType = new DictionaryBase([
 ]);
 Vue.prototype.SysPermModuleType = SysPermModuleType;
 
-const SysPermCodeType = new DictionaryBase([{
+const SysPermCodeType = new DictionaryBase('权限字类型', [{
   id: 0,
   name: '表单',
   symbol: 'FORM'
@@ -312,7 +313,7 @@ const SysPermCodeType = new DictionaryBase([{
 }]);
 Vue.prototype.SysPermCodeType = SysPermCodeType;
 
-const SysMenuType = new DictionaryBase([
+const SysMenuType = new DictionaryBase('菜单类型', [
   {
     id: 0,
     name: '目录',
@@ -335,7 +336,6 @@ const SysMenuType = new DictionaryBase([
   }
 ]);
 Vue.prototype.SysMenuType = SysMenuType;
-
 export {
   DictionaryBase,
   SysUserStatus,

@@ -46,10 +46,10 @@ class Dialog {
       }
 
       let observer = {
-        cancel: function (isSuccess = false) {
+        cancel: function (isSuccess = false, data = undefined) {
           layer.close(this.index);
           if (isSuccess) {
-            resolve();
+            resolve(data);
           } else {
             reject();
           }

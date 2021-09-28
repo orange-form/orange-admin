@@ -148,7 +148,7 @@ export default {
     },
     loadSysUserData (params) {
       params.roleId = this.roleId;
-      params.sysUserFilter = {
+      params.sysUserDtoFilter = {
         loginName: this.formSysUser.formFilterCopy.sysUserLoginName,
         userStatus: this.formSysUser.formFilterCopy.sysUserStatus
       }

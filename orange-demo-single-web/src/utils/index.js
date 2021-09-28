@@ -346,7 +346,7 @@ export class TreeTableImpl {
         calcPermCodeTreeAttribute(item, checkedRows);
       });
     }
-    console.log(treeData, checkedRows);
+    
     return treeData;
   }
 

@@ -16,7 +16,7 @@ $--color-transition-base: color .2s cubic-bezier(.645,.045,.355,1) !default;
 /* Color
 -------------------------- */
 /// color|1|Brand Color|0
-$--color-primary: #FFA424 !default;
+$--color-primary: #FCA834 !default;
 /// color|1|Background Color|4
 $--color-white: #FFFFFF !default;
 /// color|1|Background Color|4
@@ -31,7 +31,7 @@ $--color-primary-light-7: mix($--color-white, $--color-primary, 70%) !default; /
 $--color-primary-light-8: mix($--color-white, $--color-primary, 80%) !default; /* d9ecff */
 $--color-primary-light-9: mix($--color-white, $--color-primary, 90%) !default; /* ecf5ff */
 /// color|1|Functional Color|1
-$--color-success: #67C23A !default;
+$--color-success: #6DC741 !default;
 /// color|1|Functional Color|1
 $--color-warning: #E6A23C !default;
 /// color|1|Functional Color|1
@@ -72,11 +72,10 @@ $--background-color-base: #F5F7FA !default;
 // color for left sidebar title
 $--color-sidebar-title-text: #FFFFFF;
 // color for left sidebar background
-$--color-menu-background: #FF7746;
+$--color-menu-background: #042345;
 $--color-menu-item-active-text-color: #FFFFFF;
-$--color-menu-item-active-background: rgba(255, 255, 255, 0.01);
-$--color-menu-item-active-background-to: rgba(255, 255, 255, 0.3);
-
+$--color-menu-item-active-background: $--color-primary;
+$--color-submenu-background: #021F3B;
 /* Link
 -------------------------- */
 $--link-color: $--color-primary-light-2 !default;
@@ -738,7 +737,7 @@ $--tree-expand-icon-color: $--color-text-placeholder !default;
 /* Dropdown
 -------------------------- */
 $--dropdown-menu-box-shadow: $--box-shadow-light !default;
-$--dropdown-menuItem-hover-fill: $--color-menu-background !default;
+$--dropdown-menuItem-hover-fill: $--color-primary !default;
 $--dropdown-menuItem-hover-color: $--color-white !default;
 
 /* Badge

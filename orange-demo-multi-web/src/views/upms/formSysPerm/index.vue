@@ -1,16 +1,16 @@
 <template>
-  <el-container>
+  <el-container class="advance-query-form">
     <el-aside width="300px">
-      <el-card class="base-card" shadow="never" :body-style="{ padding: '0px' }">
+      <el-card class="base-card" shadow="never" :body-style="{ padding: '0px' }" style="border: none;">
         <div slot="header" class="base-card-header">
-          <span>权限模块</span>
+          <span style="font-size: 16px; font-weight: 500; color: #282828;">权限模块</span>
           <div class="base-card-operation">
             <el-button type="text"
               :disabled="!checkPermCodeExist('formSysPerm:fragmentSysPerm:addPermModule')"
               icon="el-icon-circle-plus-outline" @click="onCreatePermModuleClick()" />
           </div>
         </div>
-        <el-scrollbar :style="{height: (getMainContextHeight - 94) + 'px'}" class="custom-scroll">
+        <el-scrollbar :style="{height: (getMainContextHeight - 56) + 'px'}" class="custom-scroll">
           <el-tree ref="moduleTree" :data="getModuleTreeData" :props="{label: 'moduleName'}"
             node-key="moduleId" @node-click="onModuleNodeClick" :default-expanded-keys="formPerm.expandedModule"
             :highlight-current="true" @node-expand="onModuleNodeExpand" @node-collapse="onModuleNodeCollapse">
@@ -32,7 +32,7 @@
         </el-scrollbar>
       </el-card>
     </el-aside>
-    <el-main style="padding-left: 15px;">
+    <el-main style="margin-left: 15px; background-color: white; padding: 20px;">
       <el-form label-width="75px" size="mini" label-position="right" @submit.native.prevent>
         <filter-box :item-width="350">
           <el-form-item label="关联URL">
@@ -139,7 +139,7 @@ export default {
      * 权限数据获取函数，返回Primise
      */
     loadSysPermData (params) {
-      params.sysPermFilter = {
+      params.sysPermDtoFilter = {
         url: this.formPerm.formFilterCopy.url === '' ? undefined : this.formPerm.formFilterCopy.url,
         moduleId: this.formPerm.formFilterCopy.permModuleId === '' ? undefined : this.formPerm.formFilterCopy.permModuleId
       }

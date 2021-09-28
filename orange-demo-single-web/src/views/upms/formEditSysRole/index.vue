@@ -97,7 +97,7 @@ export default {
             return;
           }
           let params = {
-            sysRole: {...this.formData}
+            sysRoleDto: {...this.formData}
           }
           params.menuIdListString = selectMenu.join(',');
           if (this.isEdit) {

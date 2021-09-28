@@ -126,7 +126,7 @@ export default {
       this.$refs.formCreatePerm.validate((valid) => {
         if (!valid) return;
         let params = {
-          sysPerm: {
+          sysPermDto: {
             permId: this.permId,
             showOrder: this.formData.SysPerm.showOrder,
             moduleId: Array.isArray(this.formData.SysPerm.moduleId) ? this.formData.SysPerm.moduleId[this.formData.SysPerm.moduleId.length - 1] : undefined,

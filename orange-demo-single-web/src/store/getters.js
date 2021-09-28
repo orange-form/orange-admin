@@ -11,8 +11,14 @@ export default {
   getClientHeight: (state) => {
     return state.documentClientHeight;
   },
+  getClientWidth: (state) => {
+    return state.documentClienWidth;
+  },
   getMainContextHeight: (state) => {
-    return state.documentClientHeight - (state.supportTags ? 140 : 100);
+    return state.documentClientHeight - (state.supportTags ? 130 : 90);
+  },
+  getOnlineFormCache: (state) => {
+    return state.onlineFormCache;
   },
   getUserInfo: (state) => {
     return state.userInfo;

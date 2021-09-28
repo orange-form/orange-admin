@@ -187,7 +187,7 @@ export default {
      * 用户角色数据获取函数，返回Primise
      */
     loadSysRoleData (params) {
-      params.sysRoleFilter = {
+      params.sysRoleDtoFilter = {
         roleName: this.fragmentSysRole.formFilterCopy.sysRoleName
       }
       return new Promise((resolve, reject) => {
@@ -382,7 +382,7 @@ export default {
           return;
         }
         params.roleId = this.fragmentSysRoleUser.formFilter.sysRoleId;
-        params.sysUserFilter = {
+        params.sysUserDtoFilter = {
           loginName: this.fragmentSysRoleUser.formFilter.sysUserLoginName
         }
         SystemController.listRoleUser(this, params).then(res => {

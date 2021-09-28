@@ -135,13 +135,15 @@ const doUrl = function (url, type, params, axiosOption, options) {
   options = merge(globalConfig.httpOption, options);
   axiosOption = merge(globalConfig.axiosOption, axiosOption);
   if (type == null || type === '') type = 'post';
-  if (ajaxThrottleSet.has(url)) {
+  if (ajaxThrottleSet.has(url) && options.throttleFlag) {
     return Promise.resolve();
   } else {
-    ajaxThrottleSet.add(url);
-    setTimeout(() => {
-      ajaxThrottleSet.delete(url);
-    }, 50);
+    if (options.throttleFlag) {
+      ajaxThrottleSet.add(url);
+      setTimeout(() => {
+        ajaxThrottleSet.delete(url);
+      }, options.throttleTimeout || 50);
+    }
     return new Promise((resolve, reject) => {
       if (options.showMask) loadingManager.showMask();
       let ajaxCall = null;

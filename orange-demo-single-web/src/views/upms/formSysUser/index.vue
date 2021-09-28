@@ -181,7 +181,7 @@ export default {
      * 用户管理数据获取函数，返回Primise
      */
     loadSysUserData (params) {
-      params.sysUserFilter = {
+      params.sysUserDtoFilter = {
         loginName: this.formSysUser.formFilterCopy.sysUserLoginName,
         userStatus: this.formSysUser.formFilterCopy.sysUserStatus
       }

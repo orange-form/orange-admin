@@ -34,7 +34,7 @@ export default {
   .tags-item {
     height: 30px;
     line-height: 30px;
-    border: 1px solid $--border-color-extra-light;
+    border: 1px solid rgba(0, 0, 0, 0.15);
     border-radius: 3px;
     box-sizing: border-box;
     display: inline-block;
