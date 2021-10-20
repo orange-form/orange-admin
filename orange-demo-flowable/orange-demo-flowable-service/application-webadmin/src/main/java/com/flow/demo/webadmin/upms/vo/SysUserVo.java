@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.List;
 
 /**
- * SysUserVO对象。
+ * SysUserVO视图对象。
  *
  * @author Jerry
  * @date 2021-06-06

@@ -66,7 +66,7 @@ public class FlowWorkOrder {
     private String businessKey;
 
     /**
-     * 流程状态。
+     * 流程状态。参考FlowTaskStatus常量值对象。
      */
     @TableField(value = "flow_status")
     private Integer flowStatus;

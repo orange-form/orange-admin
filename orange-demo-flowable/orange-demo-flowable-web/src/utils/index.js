@@ -136,8 +136,12 @@ export function objectToQueryString (params) {
     return null;
   } else {
     return Object.keys(params).map((key) => {
-      return `${key}=${params[key]}`;
-    }).join('&');
+      if (params[key] !== undefined) {
+        return `${key}=${params[key]}`;
+      } else {
+        return undefined;
+      }
+    }).filter(item => item != null).join('&');
   }
 }
 /**

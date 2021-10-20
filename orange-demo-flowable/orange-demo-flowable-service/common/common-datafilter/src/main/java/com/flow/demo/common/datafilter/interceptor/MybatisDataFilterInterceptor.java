@@ -85,8 +85,7 @@ public class MybatisDataFilterInterceptor implements Interceptor {
             if (proxy == null) {
                 proxy = ReflectUtil.getFieldValue(mapperProxy, "CGLIB$CALLBACK_0");
             }
-            Class<?> mapperClass =
-                    (Class<?>) ReflectUtil.getFieldValue(proxy, "mapperInterface");
+            Class<?> mapperClass = (Class<?>) ReflectUtil.getFieldValue(proxy, "mapperInterface");
             if (properties.getEnabledTenantFilter()) {
                 loadTenantFilterData(mapperClass);
             }
@@ -111,8 +110,7 @@ public class MybatisDataFilterInterceptor implements Interceptor {
                 tenantInfo.setFieldName(field.getName());
                 tenantInfo.setColumnName(MyModelUtil.mapToColumnName(field, modelClass));
                 // 判断当前dao中是否包括不需要自动注入租户Id过滤的方法。
-                DisableTenantFilter disableTenantFilter =
-                        mapperClass.getAnnotation(DisableTenantFilter.class);
+                DisableTenantFilter disableTenantFilter = mapperClass.getAnnotation(DisableTenantFilter.class);
                 if (disableTenantFilter != null) {
                     // 这里开始获取当前Mapper已经声明的的SqlId中，有哪些是需要排除在外的。
                     // 排除在外的将不进行数据过滤。
@@ -280,16 +278,14 @@ public class MybatisDataFilterInterceptor implements Interceptor {
         String dataPermSessionKey = RedisKeyUtil.makeSessionDataPermIdKey(tokenData.getSessionId());
         String dataPermData = redissonClient.getBucket(dataPermSessionKey).get().toString();
         if (StringUtils.isBlank(dataPermData)) {
-            throw new NoDataPermException(
-                    "No Related DataPerm found for SQL_ID [ " + sqlId + " ].");
+            throw new NoDataPermException("No Related DataPerm found for SQL_ID [ " + sqlId + " ].");
         }
         Map<Integer, String> dataPermMap = new HashMap<>(8);
         for (Map.Entry<String, Object> entry : JSON.parseObject(dataPermData).entrySet()) {
             dataPermMap.put(Integer.valueOf(entry.getKey()), entry.getValue().toString());
         }
         if (MapUtils.isEmpty(dataPermMap)) {
-            throw new NoDataPermException(
-                    "No Related DataPerm found for SQL_ID [ " + sqlId + " ].");
+            throw new NoDataPermException("No Related DataPerm found for SQL_ID [ " + sqlId + " ].");
         }
         if (dataPermMap.containsKey(DataPermRuleType.TYPE_ALL)) {
             return;

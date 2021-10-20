@@ -161,7 +161,7 @@ public class LoginController {
     @PostMapping("/changePassword")
     public ResponseResult<Void> changePassword(
             @MyRequestBody String oldPass, @MyRequestBody String newPass) throws Exception {
-        if (MyCommonUtil.existBlankArgument(oldPass, oldPass)) {
+        if (MyCommonUtil.existBlankArgument(newPass, oldPass)) {
             return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
         }
         TokenData tokenData = TokenData.takeFromRequest();

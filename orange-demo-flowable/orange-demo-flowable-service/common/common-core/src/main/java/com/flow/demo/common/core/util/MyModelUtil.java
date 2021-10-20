@@ -93,6 +93,9 @@ public class MyModelUtil {
      * @return copy后的目标类型对象集合。
      */
     public static <S, T> List<T> copyCollectionTo(Collection<S> sourceCollection, Class<T> targetClazz) {
+        if (sourceCollection == null) {
+            return null;
+        }
         List<T> targetList = new LinkedList<>();
         if (CollectionUtils.isNotEmpty(sourceCollection)) {
             for (S source : sourceCollection) {

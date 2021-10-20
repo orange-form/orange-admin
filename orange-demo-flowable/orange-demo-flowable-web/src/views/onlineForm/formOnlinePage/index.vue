@@ -94,7 +94,7 @@ export default {
         },
         isInit: false
       },
-      pageListWidget: new TableWidget(this.loadOnlinePageData, this.loadOnlinePageVerify, false, false)
+      pageListWidget: new TableWidget(this.loadOnlinePageData, this.loadOnlinePageVerify, true, false)
     }
   },
   methods: {

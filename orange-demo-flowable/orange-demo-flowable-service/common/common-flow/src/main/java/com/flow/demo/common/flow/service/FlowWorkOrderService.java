@@ -58,6 +58,14 @@ public interface FlowWorkOrderService extends IBaseService<FlowWorkOrder, Long> 
     List<FlowWorkOrder> getFlowWorkOrderListWithRelation(FlowWorkOrder filter, String orderBy);
 
     /**
+     * 根据流程实例Id，查询关联的工单对象。
+     *
+     * @param processInstanceId 流程实例Id。
+     * @return 工作流工单对象。
+     */
+    FlowWorkOrder getFlowWorkOrderByProcessInstanceId(String processInstanceId);
+
+    /**
      * 根据业务主键，查询是否存在指定的工单。
      *
      * @param businessKey 业务数据主键Id。
@@ -65,6 +73,13 @@ public interface FlowWorkOrderService extends IBaseService<FlowWorkOrder, Long> 
      * @return 存在返回true，否则false。
      */
     boolean existByBusinessKey(Object businessKey, boolean unfinished);
+
+    /**
+     * 根据业务数据的主键Id，更新流程状态。
+     * @param businessKey 业务数据主键Id。
+     * @param flowStatus  新的流程状态值。
+     */
+    void updateFlowStatusByBusinessKey(String businessKey, int flowStatus);
 
     /**
      * 根据流程实例Id，更新流程状态。

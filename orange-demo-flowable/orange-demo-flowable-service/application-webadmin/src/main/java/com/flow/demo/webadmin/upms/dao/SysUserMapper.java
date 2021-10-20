@@ -15,6 +15,13 @@ import java.util.*;
 public interface SysUserMapper extends BaseDaoMapper<SysUser> {
 
     /**
+     * 批量插入对象列表。
+     *
+     * @param sysUserList 新增对象列表。
+     */
+    void insertList(List<SysUser> sysUserList);
+
+    /**
      * 获取过滤后的对象列表。
      *
      * @param sysUserFilter 主表过滤对象。

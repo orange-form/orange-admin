@@ -17,6 +17,39 @@
         <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
     </resultMap>
 
+    <insert id="insertList">
+        INSERT INTO zz_sys_user
+            (user_id,
+            login_name,
+            password,
+            show_name,
+            dept_id,
+            user_type,
+            head_image_url,
+            user_status,
+            deleted_flag,
+            create_user_id,
+            update_user_id,
+            create_time,
+            update_time)
+        VALUES
+        <foreach collection="list" index="index" item="item" separator="," >
+            (#{item.userId},
+            #{item.loginName},
+            #{item.password},
+            #{item.showName},
+            #{item.deptId},
+            #{item.userType},
+            #{item.headImageUrl},
+            #{item.userStatus},
+            #{item.deletedFlag},
+            #{item.createUserId},
+            #{item.updateUserId},
+            #{item.createTime},
+            #{item.updateTime})
+        </foreach>
+    </insert>
+
     <!-- 如果有逻辑删除字段过滤，请写到这里 -->
     <sql id="filterRef">
         <!-- 这里必须加上全包名，否则当filterRef被其他Mapper.xml包含引用的时候，就会调用Mapper.xml中的该SQL片段 -->

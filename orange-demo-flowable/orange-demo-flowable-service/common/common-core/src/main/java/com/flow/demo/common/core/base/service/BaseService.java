@@ -363,6 +363,52 @@ public abstract class BaseService<M, K extends Serializable> extends ServiceImpl
     }
 
     /**
+     * 返回符合主键 in (idValues) 条件的所有数据。同时返回关联数据。
+     *
+     * @param idValues      主键值集合。
+     * @param relationParam 实体对象数据组装的参数构建器。
+     * @return 检索后的数据列表。
+     */
+    @Override
+    public List<M> getInListWithRelation(Set<K> idValues, MyRelationParam relationParam) {
+        List<M> resultList = this.getInList(idValues);
+        this.buildRelationForDataList(resultList, relationParam);
+        return resultList;
+    }
+
+    /**
+     * 返回符合 inFilterField in (inFilterValues) 条件的所有数据。同时返回关联数据。
+     *
+     * @param inFilterField  参与(In-list)过滤的Java字段。
+     * @param inFilterValues 参与(In-list)过滤的Java字段值集合。
+     * @param relationParam  实体对象数据组装的参数构建器。
+     * @return 检索后的数据列表。
+     */
+    @Override
+    public <T> List<M> getInListWithRelation(String inFilterField, Set<T> inFilterValues, MyRelationParam relationParam) {
+        List<M> resultList = this.getInList(inFilterField, inFilterValues);
+        this.buildRelationForDataList(resultList, relationParam);
+        return resultList;
+    }
+
+    /**
+     * 返回符合 inFilterField in (inFilterValues) 条件的所有数据，并根据orderBy字段排序。同时返回关联数据。
+     *
+     * @param inFilterField  参与(In-list)过滤的Java字段。
+     * @param inFilterValues 参与(In-list)过滤的Java字段值集合。
+     * @param orderBy        排序字段。
+     * @param relationParam  实体对象数据组装的参数构建器。
+     * @return 检索后的数据列表。
+     */
+    @Override
+    public <T> List<M> getInListWithRelation(
+            String inFilterField, Set<T> inFilterValues, String orderBy, MyRelationParam relationParam) {
+        List<M> resultList = this.getInList(inFilterField, inFilterValues, orderBy);
+        this.buildRelationForDataList(resultList, relationParam);
+        return resultList;
+    }
+
+    /**
      * 用参数对象作为过滤条件，获取数据数量。
      *
      * @param filter 该方法基于mybatis 通用mapper，过滤对象中，只有被赋值的字段，才会成为where中的条件。

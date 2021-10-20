@@ -17,13 +17,13 @@ public class DataFilterProperties {
     /**
      * 是否启用租户过滤。
      */
-    @Value("${datafilter.tenant.enabled}")
+    @Value("${datafilter.tenant.enabled:false}")
     private Boolean enabledTenantFilter;
 
     /**
      * 是否启动数据权限过滤。
      */
-    @Value("${datafilter.dataperm.enabled}")
+    @Value("${datafilter.dataperm.enabled:false}")
     private Boolean enabledDataPermFilter;
 
     /**

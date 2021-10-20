@@ -12,7 +12,7 @@ import lombok.Data;
 public class FlowWorkOrderDto {
 
     /**
-     * 流程状态。
+     * 流程状态。参考FlowTaskStatus常量值对象。
      */
     private Integer flowStatus;
 

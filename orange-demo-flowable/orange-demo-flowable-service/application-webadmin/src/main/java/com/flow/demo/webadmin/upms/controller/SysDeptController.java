@@ -10,14 +10,12 @@ import com.flow.demo.common.core.object.*;
 import com.flow.demo.common.core.util.*;
 import com.flow.demo.common.core.constant.*;
 import com.flow.demo.common.core.annotation.MyRequestBody;
-import com.flow.demo.common.core.validator.UpdateGroup;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
-import javax.validation.groups.Default;
 import java.util.stream.Collectors;
 
 /**
@@ -44,7 +42,7 @@ public class SysDeptController {
      */
     @PostMapping("/add")
     public ResponseResult<Long> add(@MyRequestBody SysDeptDto sysDeptDto) {
-        String errorMessage = MyCommonUtil.getModelValidationError(sysDeptDto);
+        String errorMessage = MyCommonUtil.getModelValidationError(sysDeptDto, false);
         if (errorMessage != null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
@@ -70,7 +68,7 @@ public class SysDeptController {
      */
     @PostMapping("/update")
     public ResponseResult<Void> update(@MyRequestBody SysDeptDto sysDeptDto) {
-        String errorMessage = MyCommonUtil.getModelValidationError(sysDeptDto, Default.class, UpdateGroup.class);
+        String errorMessage = MyCommonUtil.getModelValidationError(sysDeptDto, true);
         if (errorMessage != null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
@@ -188,16 +186,20 @@ public class SysDeptController {
             @MyRequestBody SysPostDto sysPostDtoFilter,
             @MyRequestBody MyOrderParam orderParam,
             @MyRequestBody MyPageParam pageParam) {
-        ResponseResult<Void> verifyResult = this.doSysDeptPostVerify(deptId);
-        if (!verifyResult.isSuccess()) {
-            return ResponseResult.errorFrom(verifyResult);
+        if (MyCommonUtil.isNotBlankOrNull(deptId) && !sysDeptService.existId(deptId)) {
+            return ResponseResult.error(ErrorCodeEnum.INVALID_RELATED_RECORD_ID);
         }
         if (pageParam != null) {
             PageMethod.startPage(pageParam.getPageNum(), pageParam.getPageSize());
         }
         SysPost filter = MyModelUtil.copyTo(sysPostDtoFilter, SysPost.class);
         String orderBy = MyOrderParam.buildOrderBy(orderParam, SysPost.class);
-        List<SysPost> sysPostList = sysPostService.getNotInSysPostListByDeptId(deptId, filter, orderBy);
+        List<SysPost> sysPostList;
+        if (MyCommonUtil.isNotBlankOrNull(deptId)) {
+            sysPostList = sysPostService.getNotInSysPostListByDeptId(deptId, filter, orderBy);
+        } else {
+            sysPostList = sysPostService.getSysPostList(filter, orderBy);
+        }
         return ResponseResult.success(MyPageUtil.makeResponseData(sysPostList, SysPost.INSTANCE));
     }
 
@@ -212,13 +214,12 @@ public class SysDeptController {
      */
     @PostMapping("/listSysDeptPost")
     public ResponseResult<MyPageData<SysPostVo>> listSysDeptPost(
-            @MyRequestBody Long deptId,
+            @MyRequestBody(required = true) Long deptId,
             @MyRequestBody SysPostDto sysPostDtoFilter,
             @MyRequestBody MyOrderParam orderParam,
             @MyRequestBody MyPageParam pageParam) {
-        ResponseResult<Void> verifyResult = this.doSysDeptPostVerify(deptId);
-        if (!verifyResult.isSuccess()) {
-            return ResponseResult.errorFrom(verifyResult);
+        if (!sysDeptService.existId(deptId)) {
+            return ResponseResult.error(ErrorCodeEnum.INVALID_RELATED_RECORD_ID);
         }
         if (pageParam != null) {
             PageMethod.startPage(pageParam.getPageNum(), pageParam.getPageSize());
@@ -227,16 +228,6 @@ public class SysDeptController {
         String orderBy = MyOrderParam.buildOrderBy(orderParam, SysPost.class);
         List<SysPost> sysPostList = sysPostService.getSysPostListByDeptId(deptId, filter, orderBy);
         return ResponseResult.success(MyPageUtil.makeResponseData(sysPostList, SysPost.INSTANCE));
-    }
-
-    private ResponseResult<Void> doSysDeptPostVerify(Long deptId) {
-        if (MyCommonUtil.existBlankArgument(deptId)) {
-            return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
-        }
-        if (!sysDeptService.existId(deptId)) {
-            return ResponseResult.error(ErrorCodeEnum.INVALID_RELATED_RECORD_ID);
-        }
-        return ResponseResult.success();
     }
 
     /**
@@ -253,11 +244,9 @@ public class SysDeptController {
         if (MyCommonUtil.existBlankArgument(deptId, sysDeptPostDtoList)) {
             return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
         }
-        for (SysDeptPostDto sysDeptPost : sysDeptPostDtoList) {
-            String errorMessage = MyCommonUtil.getModelValidationError(sysDeptPost);
-            if (errorMessage != null) {
-                return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
-            }
+        String errorMessage = MyCommonUtil.getModelValidationError(sysDeptPostDtoList);
+        if (errorMessage != null) {
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
         Set<Long> postIdSet = sysDeptPostDtoList.stream().map(SysDeptPostDto::getPostId).collect(Collectors.toSet());
         if (!sysDeptService.existId(deptId) || !sysPostService.existUniqueKeyList("postId", postIdSet)) {

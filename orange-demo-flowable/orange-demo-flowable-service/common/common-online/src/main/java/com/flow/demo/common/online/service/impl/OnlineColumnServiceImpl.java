@@ -117,6 +117,10 @@ public class OnlineColumnServiceImpl extends BaseService<OnlineColumn, Long> imp
     public void refresh(SqlTableColumn sqlTableColumn, OnlineColumn onlineColumn) {
         this.evictTableCache(onlineColumn.getTableId());
         BeanUtil.copyProperties(sqlTableColumn, onlineColumn, false);
+        String objectFieldName = CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, onlineColumn.getColumnName());
+        onlineColumn.setObjectFieldName(objectFieldName);
+        String objectFieldType = convertToJavaType(onlineColumn.getColumnType());
+        onlineColumn.setObjectFieldType(objectFieldType);
         onlineColumnMapper.updateById(onlineColumn);
     }
 

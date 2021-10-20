@@ -7,11 +7,14 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.flow.demo.common.core.constant.ErrorCodeEnum;
+import com.flow.demo.common.core.object.CallResult;
 import com.flow.demo.common.core.object.ResponseResult;
 import com.flow.demo.common.core.object.TokenData;
 import com.flow.demo.common.core.util.MyModelUtil;
+import com.flow.demo.common.flow.constant.FlowApprovalType;
 import com.flow.demo.common.flow.constant.FlowConstant;
 import com.flow.demo.common.flow.constant.FlowTaskStatus;
+import com.flow.demo.common.flow.dto.FlowTaskCommentDto;
 import com.flow.demo.common.flow.dto.FlowWorkOrderDto;
 import com.flow.demo.common.flow.model.FlowEntry;
 import com.flow.demo.common.flow.model.FlowEntryPublish;
@@ -22,8 +25,11 @@ import com.flow.demo.common.flow.service.FlowEntryService;
 import com.flow.demo.common.flow.vo.FlowWorkOrderVo;
 import com.flow.demo.common.flow.vo.TaskInfoVo;
 import lombok.extern.slf4j.Slf4j;
+import org.flowable.engine.history.HistoricProcessInstance;
+import org.flowable.engine.runtime.ProcessInstance;
 import org.flowable.task.api.Task;
 import org.flowable.task.api.TaskInfo;
+import org.flowable.task.api.history.HistoricTaskInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -69,6 +75,103 @@ public class FlowOperationHelper {
                 flowEntryService.getFlowEntryPublishById(flowEntry.getMainEntryPublishId());
         flowEntry.setMainFlowEntryPublish(flowEntryPublish);
         return ResponseResult.success(flowEntry);
+    }
+
+    /**
+     * 工作流静态表单的参数验证工具方法。根据流程定义标识，获取关联的流程并对其进行合法性验证。
+     *
+     * @param processDefinitionKey 流程定义标识。
+     * @return 返回流程对象。
+     */
+    public ResponseResult<FlowEntry> verifyFullAndGetFlowEntry(String processDefinitionKey) {
+        String errorMessage;
+        // 验证流程管理数据状态的合法性。
+        ResponseResult<FlowEntry> flowEntryResult = this.verifyAndGetFlowEntry(processDefinitionKey);
+        if (!flowEntryResult.isSuccess()) {
+            return ResponseResult.errorFrom(flowEntryResult);
+        }
+        // 验证流程一个用户任务的合法性。
+        FlowEntryPublish flowEntryPublish = flowEntryResult.getData().getMainFlowEntryPublish();
+        if (!flowEntryPublish.getActiveStatus()) {
+            errorMessage = "数据验证失败，当前流程发布对象已被挂起，不能启动新流程！";
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
+        }
+        ResponseResult<TaskInfoVo> taskInfoResult =
+                this.verifyAndGetInitialTaskInfo(flowEntryPublish, true);
+        if (!taskInfoResult.isSuccess()) {
+            return ResponseResult.errorFrom(taskInfoResult);
+        }
+        return flowEntryResult;
+    }
+
+    /**
+     * 工作流静态表单的参数验证工具方法。根据参数验证并获取指定的流程任务对象。
+     *
+     * @param processInstanceId 流程实例Id。
+     * @param taskId            流程任务Id。
+     * @param flowTaskComment   流程审批对象。
+     * @return 验证后的流程任务对象。
+     */
+    public ResponseResult<Task> verifySubmitAndGetTask(
+            String processInstanceId, String taskId, FlowTaskCommentDto flowTaskComment) {
+        // 验证流程任务的合法性。
+        Task task = flowApiService.getProcessInstanceActiveTask(processInstanceId, taskId);
+        ResponseResult<TaskInfoVo> taskInfoResult = this.verifyAndGetRuntimeTaskInfo(task);
+        if (!taskInfoResult.isSuccess()) {
+            return ResponseResult.errorFrom(taskInfoResult);
+        }
+        CallResult assigneeVerifyResult = flowApiService.verifyAssigneeOrCandidateAndClaim(task);
+        if (!assigneeVerifyResult.isSuccess()) {
+            return ResponseResult.errorFrom(assigneeVerifyResult);
+        }
+        ProcessInstance instance = flowApiService.getProcessInstance(processInstanceId);
+        if (StrUtil.isBlank(instance.getBusinessKey())) {
+            return ResponseResult.success(task);
+        }
+        String errorMessage;
+        if (StrUtil.equals(flowTaskComment.getApprovalType(), FlowApprovalType.TRANSFER)) {
+            if (StrUtil.isBlank(flowTaskComment.getDelegateAssginee())) {
+                errorMessage = "数据验证失败，加签或转办任务指派人不能为空！！";
+                return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
+            }
+        }
+        return ResponseResult.success(task);
+    }
+
+    /**
+     * 工作流静态表单的参数验证工具方法。根据参数验证并获取指定的历史流程实例对象。
+     * 仅当登录用户为任务的分配人时，才能通过验证。
+     *
+     * @param processInstanceId 历史流程实例Id。
+     * @param taskId            历史流程任务Id。
+     * @return 验证后并返回的历史流程实例对象。
+     */
+    public ResponseResult<HistoricProcessInstance> verifyAndHistoricProcessInstance(String processInstanceId, String taskId) {
+        String errorMessage;
+        // 验证流程实例的合法性。
+        HistoricProcessInstance instance = flowApiService.getHistoricProcessInstance(processInstanceId);
+        if (instance == null) {
+            errorMessage = "数据验证失败，指定的流程实例Id并不存在，请刷新后重试！";
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
+        }
+        String loginName = TokenData.takeFromRequest().getLoginName();
+        if (StrUtil.isBlank(taskId)) {
+            if (!StrUtil.equals(loginName, instance.getStartUserId())) {
+                errorMessage = "数据验证失败，指定历史流程的发起人与当前用户不匹配！";
+                return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
+            }
+        } else {
+            HistoricTaskInstance taskInstance = flowApiService.getHistoricTaskInstance(processInstanceId, taskId);
+            if (taskInstance == null) {
+                errorMessage = "数据验证失败，指定的任务Id并不存在，请刷新后重试！";
+                return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
+            }
+            if (!StrUtil.equals(loginName, taskInstance.getAssignee())) {
+                errorMessage = "数据验证失败，历史任务的指派人与当前用户不匹配！";
+                return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
+            }
+        }
+        return ResponseResult.success(instance);
     }
 
     /**

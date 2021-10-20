@@ -15,10 +15,6 @@ export default class FlowOperationController {
     }
     return sender.doUrl(url, 'post', params, axiosOption, httpOption);
   }
-  // 撤销工单
-  static cancelWorkOrder (sender, params, axiosOption, httpOption) {
-    return sender.doUrl('/admin/flow/flowOperation/cancelWorkOrder', 'post', params, axiosOption, httpOption);
-  }
   // 提交用户任务数据
   static submitUserTask (sender, params, axiosOption, httpOption) {
     return sender.doUrl('/admin/flow/flowOnlineOperation/submitUserTask', 'post', params, axiosOption, httpOption);
@@ -34,6 +30,10 @@ export default class FlowOperationController {
   // 获取在线表单工作流以及工作流下表单列表
   static listFlowEntryForm (sender, params, axiosOption, httpOption) {
     return sender.doUrl('/admin/flow/flowOnlineOperation/listFlowEntryForm', 'get', params, axiosOption, httpOption);
+  }
+  // 撤销工单
+  static cancelWorkOrder (sender, params, axiosOption, httpOption) {
+    return sender.doUrl('/admin/flow/flowOperation/cancelWorkOrder', 'post', params, axiosOption, httpOption);
   }
   // 多实例加签
   static submitConsign (sender, params, axiosOption, httpOption) {
@@ -51,47 +51,47 @@ export default class FlowOperationController {
   static startOnly (sender, params, axiosOption, httpOption) {
     return sender.doUrl('/admin/flow/flowOperation/startOnly', 'post', params, axiosOption, httpOption);
   }
-  // 获得流程定义初始化用户任务信息 *
+  // 获得流程定义初始化用户任务信息
   static viewInitialTaskInfo (sender, params, axiosOption, httpOption) {
     return sender.doUrl('/admin/flow/flowOperation/viewInitialTaskInfo', 'get', params, axiosOption, httpOption);
   }
-  // 获取待办任务信息 *
+  // 获取待办任务信息
   static viewRuntimeTaskInfo (sender, params, axiosOption, httpOption) {
     return sender.doUrl('/admin/flow/flowOperation/viewRuntimeTaskInfo', 'get', params, axiosOption, httpOption);
   }
-  // 获取流程实例审批历史 *
+  // 获取流程实例审批历史
   static listFlowTaskComment (sender, params, axiosOption, httpOption) {
     return sender.doUrl('/admin/flow/flowOperation/listFlowTaskComment', 'get', params, axiosOption, httpOption);
   }
-  // 获取历史任务信息 *
+  // 获取历史任务信息
   static viewInitialHistoricTaskInfo (sender, params, axiosOption, httpOption) {
     return sender.doUrl('/admin/flow/flowOperation/viewInitialHistoricTaskInfo', 'get', params, axiosOption, httpOption);
   }
-  // 获取所有待办任务 *
+  // 获取所有待办任务
   static listRuntimeTask (sender, params, axiosOption, httpOption) {
     return sender.doUrl('/admin/flow/flowOperation/listRuntimeTask', 'post', params, axiosOption, httpOption);
   }
-  // 获得流程实例审批路径 *
+  // 获得流程实例审批路径
   static viewHighlightFlowData (sender, params, axiosOption, httpOption) {
     return sender.doUrl('/admin/flow/flowOperation/viewHighlightFlowData', 'get', params, axiosOption, httpOption);
   }
-  // 获得流程实例的配置XML *
+  // 获得流程实例的配置XML
   static viewProcessBpmn (sender, params, axiosOption, httpOption) {
     return sender.doUrl('/admin/flow/flowOperation/viewProcessBpmn', 'get', params, axiosOption, httpOption);
   }
-  // 获得所有历史流程实例 *
+  // 获得所有历史流程实例
   static listAllHistoricProcessInstance (sender, params, axiosOption, httpOption) {
     return sender.doUrl('/admin/flow/flowOperation/listAllHistoricProcessInstance', 'post', params, axiosOption, httpOption);
   }
-  // 获得当前用户历史流程实例 *
+  // 获得当前用户历史流程实例
   static listHistoricProcessInstance (sender, params, axiosOption, httpOption) {
     return sender.doUrl('/admin/flow/flowOperation/listHistoricProcessInstance', 'post', params, axiosOption, httpOption);
   }
-  // 终止流程 *
+  // 终止流程
   static stopProcessInstance (sender, params, axiosOption, httpOption) {
     return sender.doUrl('/admin/flow/flowOperation/stopProcessInstance', 'post', params, axiosOption, httpOption);
   }
-  // 删除流程实例 *
+  // 删除流程实例
   static deleteProcessInstance (sender, params, axiosOption, httpOption) {
     return sender.doUrl('/admin/flow/flowOperation/deleteProcessInstance', 'post', params, axiosOption, httpOption);
   }

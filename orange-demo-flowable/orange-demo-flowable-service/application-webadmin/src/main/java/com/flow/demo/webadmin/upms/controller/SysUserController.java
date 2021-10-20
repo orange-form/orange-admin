@@ -11,7 +11,6 @@ import com.flow.demo.common.core.util.*;
 import com.flow.demo.common.core.constant.*;
 import com.flow.demo.common.core.annotation.MyRequestBody;
 import com.flow.demo.common.core.validator.AddGroup;
-import com.flow.demo.common.core.validator.UpdateGroup;
 import com.flow.demo.webadmin.config.ApplicationConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,7 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
-import javax.validation.groups.Default;
 
 /**
  * 用户管理操作控制器类。
@@ -54,7 +52,7 @@ public class SysUserController {
             @MyRequestBody String deptPostIdListString,
             @MyRequestBody String dataPermIdListString,
             @MyRequestBody String roleIdListString) {
-        String errorMessage = MyCommonUtil.getModelValidationError(sysUserDto, Default.class, AddGroup.class);
+        String errorMessage = MyCommonUtil.getModelValidationError(sysUserDto, false);
         if (errorMessage != null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
@@ -86,7 +84,7 @@ public class SysUserController {
             @MyRequestBody String deptPostIdListString,
             @MyRequestBody String dataPermIdListString,
             @MyRequestBody String roleIdListString) {
-        String errorMessage = MyCommonUtil.getModelValidationError(sysUserDto, Default.class, UpdateGroup.class);
+        String errorMessage = MyCommonUtil.getModelValidationError(sysUserDto, true);
         if (errorMessage != null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }

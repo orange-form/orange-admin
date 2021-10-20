@@ -1,6 +1,7 @@
 package com.flow.demo.common.flow.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.flow.demo.common.core.base.dao.BaseDaoMapper;
 import com.flow.demo.common.core.constant.GlobalDeletedFlag;
 import com.flow.demo.common.core.object.MyRelationParam;
@@ -110,6 +111,13 @@ public class FlowWorkOrderServiceImpl extends BaseService<FlowWorkOrder, Long> i
     }
 
     @Override
+    public FlowWorkOrder getFlowWorkOrderByProcessInstanceId(String processInstanceId) {
+        FlowWorkOrder filter = new FlowWorkOrder();
+        filter.setProcessInstanceId(processInstanceId);
+        return flowWorkOrderMapper.selectOne(new QueryWrapper<>(filter));
+    }
+
+    @Override
     public boolean existByBusinessKey(Object businessKey, boolean unfinished) {
         LambdaQueryWrapper<FlowWorkOrder> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(FlowWorkOrder::getBusinessKey, businessKey.toString());
@@ -118,6 +126,20 @@ public class FlowWorkOrderServiceImpl extends BaseService<FlowWorkOrder, Long> i
                     FlowTaskStatus.FINISHED, FlowTaskStatus.CANCELLED, FlowTaskStatus.STOPPED);
         }
         return flowWorkOrderMapper.selectCount(queryWrapper) > 0;
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public void updateFlowStatusByBusinessKey(String businessKey, int flowStatus) {
+        FlowWorkOrder flowWorkOrder = new FlowWorkOrder();
+        flowWorkOrder.setFlowStatus(flowStatus);
+        if (FlowTaskStatus.FINISHED != flowStatus) {
+            flowWorkOrder.setUpdateTime(new Date());
+            flowWorkOrder.setUpdateUserId(TokenData.takeFromRequest().getUserId());
+        }
+        LambdaQueryWrapper<FlowWorkOrder> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(FlowWorkOrder::getBusinessKey, businessKey);
+        flowWorkOrderMapper.update(flowWorkOrder, queryWrapper);
     }
 
     @Transactional(rollbackFor = Exception.class)

@@ -5,7 +5,7 @@ import lombok.Data;
 import java.util.Date;
 
 /**
- * SysDeptVO对象。
+ * SysDeptVO视图对象。
  *
  * @author Jerry
  * @date 2021-06-06

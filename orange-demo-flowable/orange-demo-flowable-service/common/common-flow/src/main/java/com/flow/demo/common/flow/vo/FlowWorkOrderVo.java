@@ -51,7 +51,7 @@ public class FlowWorkOrderVo {
     private String businessKey;
 
     /**
-     * 流程状态。
+     * 流程状态。参考FlowTaskStatus常量值对象。
      */
     private Integer flowStatus;
 

@@ -5,10 +5,13 @@ import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.digest.DigestUtil;
 import com.flow.demo.common.core.constant.AppDeviceType;
+import com.flow.demo.common.core.validator.AddGroup;
+import com.flow.demo.common.core.validator.UpdateGroup;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
+import javax.validation.groups.Default;
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -109,11 +112,75 @@ public class MyCommonUtil {
      * @return 没有错误返回null，否则返回具体的错误信息。
      */
     public static <T> String getModelValidationError(T model, Class<?>...groups) {
-        Set<ConstraintViolation<T>> constraintViolations = VALIDATOR.validate(model, groups);
-        if (!constraintViolations.isEmpty()) {
-            Iterator<ConstraintViolation<T>> it = constraintViolations.iterator();
-            ConstraintViolation<T> constraint = it.next();
-            return constraint.getMessage();
+        if (model != null) {
+            Set<ConstraintViolation<T>> constraintViolations = VALIDATOR.validate(model, groups);
+            if (!constraintViolations.isEmpty()) {
+                Iterator<ConstraintViolation<T>> it = constraintViolations.iterator();
+                ConstraintViolation<T> constraint = it.next();
+                return constraint.getMessage();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 判断模型对象是否通过校验，没有通过返回具体的校验错误信息。
+     *
+     * @param model     带校验的model。
+     * @param forUpdate 是否为更新。
+     * @return 没有错误返回null，否则返回具体的错误信息。
+     */
+    public static <T> String getModelValidationError(T model, boolean forUpdate) {
+        if (model != null) {
+            Set<ConstraintViolation<T>> constraintViolations;
+            if (forUpdate) {
+                constraintViolations = VALIDATOR.validate(model, Default.class, UpdateGroup.class);
+            } else {
+                constraintViolations = VALIDATOR.validate(model, Default.class, AddGroup.class);
+            }
+            if (!constraintViolations.isEmpty()) {
+                Iterator<ConstraintViolation<T>> it = constraintViolations.iterator();
+                ConstraintViolation<T> constraint = it.next();
+                return constraint.getMessage();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 判断模型对象是否通过校验，没有通过返回具体的校验错误信息。
+     *
+     * @param modelList 带校验的model列表。
+     * @param groups    Validate绑定的校验组。
+     * @return 没有错误返回null，否则返回具体的错误信息。
+     */
+    public static <T> String getModelValidationError(List<T> modelList, Class<?>... groups) {
+        if (CollUtil.isNotEmpty(modelList)) {
+            for (T model : modelList) {
+                String errorMessage = getModelValidationError(model, groups);
+                if (StrUtil.isNotBlank(errorMessage)) {
+                    return errorMessage;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 判断模型对象是否通过校验，没有通过返回具体的校验错误信息。
+     *
+     * @param modelList 带校验的model列表。
+     * @param forUpdate 是否为更新。
+     * @return 没有错误返回null，否则返回具体的错误信息。
+     */
+    public static <T> String getModelValidationError(List<T> modelList, boolean forUpdate) {
+        if (CollUtil.isNotEmpty(modelList)) {
+            for (T model : modelList) {
+                String errorMessage = getModelValidationError(model, forUpdate);
+                if (StrUtil.isNotBlank(errorMessage)) {
+                    return errorMessage;
+                }
+            }
         }
         return null;
     }

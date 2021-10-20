@@ -15,6 +15,13 @@ import java.util.*;
 public interface SysDeptMapper extends BaseDaoMapper<SysDept> {
 
     /**
+     * 批量插入对象列表。
+     *
+     * @param sysDeptList 新增对象列表。
+     */
+    void insertList(List<SysDept> sysDeptList);
+
+    /**
      * 获取过滤后的对象列表。
      *
      * @param sysDeptFilter 主表过滤对象。

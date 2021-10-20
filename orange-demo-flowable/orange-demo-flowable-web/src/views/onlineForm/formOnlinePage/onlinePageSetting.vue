@@ -856,8 +856,8 @@ export default {
             tableName: relation.slaveTable.tableName,
             tableId: relation.slaveTableId,
             relationType: relation.relationType,
-            masterColumnName: relation.masterColumn.columnName,
-            slaveColumnName: relation.slaveColumn.columnName,
+            masterColumnName: (relation.masterColumn || {}).columnName || '未知字段',
+            slaveColumnName: (relation.slaveColumn || {}).columnName || '未知字段',
             cascadeDelete: relation.cascadeDelete,
             leftJoin: relation.leftJoin,
             tag: relation

@@ -43,6 +43,7 @@
     <modules>
         <module>application-webadmin</module>
         <module>common</module>
+        <module>framework</module>
     </modules>
 
     <dependencies>
