@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.flow.demo.common.online.dao.OnlineDatasourceMapper">
+    <resultMap id="BaseResultMap" type="com.flow.demo.common.online.model.OnlineDatasource">
+        <id column="datasource_id" jdbcType="BIGINT" property="datasourceId"/>
+        <result column="datasource_name" jdbcType="VARCHAR" property="datasourceName"/>
+        <result column="variable_name" jdbcType="VARCHAR" property="variableName"/>
+        <result column="dblink_id" jdbcType="BIGINT" property="dblinkId"/>
+        <result column="master_table_id" jdbcType="BIGINT" property="masterTableId"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+    </resultMap>
+
+    <resultMap id="BaseResultMapWithOnlinePageDatasource" type="com.flow.demo.common.online.model.OnlineDatasource" extends="BaseResultMap">
+        <association property="onlinePageDatasource" column="datasource_id" foreignColumn="datasource_id"
+                     notNullColumn="datasource_id" resultMap="com.flow.demo.common.online.dao.OnlinePageDatasourceMapper.BaseResultMap" />
+    </resultMap>
+
+    <!-- 如果有逻辑删除字段过滤，请写到这里 -->
+    <sql id="filterRef">
+        <!-- 这里必须加上全包名，否则当filterRef被其他Mapper.xml包含引用的时候，就会调用Mapper.xml中的该SQL片段 -->
+        <include refid="com.flow.demo.common.online.dao.OnlineDatasourceMapper.inputFilterRef"/>
+    </sql>
+
+    <!-- 这里仅包含调用接口输入的主表过滤条件 -->
+    <sql id="inputFilterRef">
+        <if test="onlineDatasourceFilter != null">
+            <if test="onlineDatasourceFilter.datasourceName != null and onlineDatasourceFilter.datasourceName != ''">
+                AND zz_online_datasource.datasource_name = #{onlineDatasourceFilter.datasourceName}
+            </if>
+        </if>
+    </sql>
+
+    <select id="getOnlineDatasourceList" resultMap="BaseResultMap" parameterType="com.flow.demo.common.online.model.OnlineDatasource">
+        SELECT * FROM zz_online_datasource
+        <where>
+            <include refid="filterRef"/>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+
+    <select id="getOnlineDatasourceListByPageId" resultMap="BaseResultMapWithOnlinePageDatasource">
+        SELECT
+            zz_online_datasource.*,
+            zz_online_page_datasource.*
+        FROM
+            zz_online_datasource,
+            zz_online_page_datasource
+        <where>
+            AND zz_online_page_datasource.page_id = #{pageId}
+            AND zz_online_page_datasource.datasource_id = zz_online_datasource.datasource_id
+            <include refid="filterRef"/>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+
+    <select id="getNotInOnlineDatasourceListByPageId" resultMap="BaseResultMap">
+        SELECT
+            zz_online_datasource.*
+        FROM
+            zz_online_datasource
+        <where>
+            AND NOT EXISTS (SELECT * FROM zz_online_page_datasource
+                WHERE zz_online_page_datasource.page_id = #{pageId} AND zz_online_page_datasource.datasource_id = zz_online_datasource.datasource_id)
+            <include refid="filterRef"/>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+
+    <select id="getOnlineDatasourceListByFormIds" resultMap="BaseResultMap">
+        SELECT
+            zz_online_datasource.*
+        FROM
+            zz_online_datasource, zz_online_form_datasource
+        <where>
+            AND zz_online_form_datasource.datasource_id = zz_online_datasource.datasource_id
+            AND zz_online_form_datasource.form_id IN
+            <foreach collection="formIdSet" item="formId" separator="," open="(" close=")">
+                #{formId}
+            </foreach>
+        </where>
+    </select>
+</mapper>

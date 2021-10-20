@@ -1,0 +1,280 @@
+logging:
+  level:
+    # 这里设置的日志级别优先于log4j2.xml文件Loggers中的日志级别。
+    com.flow.demo: info
+
+server:
+  port: 8082
+  tomcat:
+    uri-encoding: UTF-8
+    threads:
+      max: 100
+      min-spare: 10
+  servlet:
+    encoding:
+      force: true
+      charset: UTF-8
+      enabled: true
+
+# spring相关配置
+spring:
+  application:
+    name: application-webadmin
+  profiles:
+    active: dev
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
+  mvc:
+    converters:
+      preferred-json-mapper: fastjson
+  freemarker:
+    template-loader-path: classpath:/template/
+    cache: false
+    charset: UTF-8
+    check-template-location: true
+    content-type: text/html
+    expose-request-attributes: false
+    expose-session-attributes: false
+    request-context-attribute: request
+    suffix: .ftl
+  activiti:
+    check-process-definitions: false
+    database-schema-update: false
+    history-level: full
+    db-history-used: true
+
+mybatis-plus:
+  mapper-locations: classpath:com/flow/demo/webadmin/*/dao/mapper/*Mapper.xml,com/flow/demo/common/log/dao/mapper/*Mapper.xml,com/flow/demo/common/online/dao/mapper/*Mapper.xml,com/flow/demo/common/flow/dao/mapper/*Mapper.xml
+  type-aliases-package: com.flow.demo.webadmin.*.model,com.flow.demo.common.log.model,com.flow.demo.common.online.model,com.flow.demo.common.flow.model
+  global-config:
+    db-config:
+      logic-delete-value: -1
+      logic-not-delete-value: 1
+
+# 自动分页的配置
+pagehelper:
+  helperDialect: mysql
+  reasonable: true
+  supportMethodsArguments: false
+  params: count=countSql
+
+# 存储session数据的Redis，所有服务均需要，因此放到公共配置中。
+# 根据实际情况，该Redis也可以用于存储其他数据。
+redis:
+  # redisson的配置。每个服务可以自己的配置文件中覆盖此选项。
+  redisson:
+    # 如果该值为false，系统将不会创建RedissionClient的bean。
+    enabled: true
+    # mode的可用值为，single/cluster/sentinel/master-slave
+    mode: single
+    # single: 单机模式
+    #   address: redis://localhost:6379
+    # cluster: 集群模式
+    #   每个节点逗号分隔，同时每个节点前必须以redis://开头。
+    #   address: redis://localhost:6379,redis://localhost:6378,...
+    # sentinel:
+    #   每个节点逗号分隔，同时每个节点前必须以redis://开头。
+    #   address: redis://localhost:6379,redis://localhost:6378,...
+    # master-slave:
+    #   每个节点逗号分隔，第一个为主节点，其余为从节点。同时每个节点前必须以redis://开头。
+    #   address: redis://localhost:6379,redis://localhost:6378,...
+    address: redis://localhost:6380
+    # 链接超时，单位毫秒。
+    timeout: 6000
+    # 单位毫秒。分布式锁的超时检测时长。
+    # 如果一次锁内操作超该毫秒数，或在释放锁之前异常退出，Redis会在该时长之后主动删除该锁使用的key。
+    lockWatchdogTimeout: 60000
+    # redis 密码，空可以不填。
+    password:
+    pool:
+      # 连接池数量。
+      poolSize: 20
+      # 连接池中最小空闲数量。
+      minIdle: 5
+
+common-online:
+  # 注意不要以反斜杠(/)结尾。
+  operationUrlPrefix: /admin/online
+  # 在线表单业务数据上传资源路径
+  uploadFileBaseDir: ./zz-resource/upload-files/online
+  # 如果为false，OnlineOperationController中的接口将不能使用。
+  operationEnabled: true
+
+common-online-api:
+  # 注意不要以反斜杠(/)结尾。
+  urlPrefix: /admin/online
+  # 下面的url列表，请保持反斜杠(/)结尾。
+  viewUrlList:
+    - ${common-online.operationUrlPrefix}/onlineOperation/viewByDatasourceId/
+    - ${common-online.operationUrlPrefix}/onlineOperation/viewByOneToManyRelationId/
+    - ${common-online.operationUrlPrefix}/onlineOperation/listByDatasourceId/
+    - ${common-online.operationUrlPrefix}/onlineOperation/listByOneToManyRelationId/
+    - ${common-online.operationUrlPrefix}/onlineOperation/downloadDatasource/
+    - ${common-online.operationUrlPrefix}/onlineOperation/downloadOneToManyRelation/
+  editUrlList:
+    - ${common-online.operationUrlPrefix}/onlineOperation/addDatasource/
+    - ${common-online.operationUrlPrefix}/onlineOperation/addOneToManyRelation/
+    - ${common-online.operationUrlPrefix}/onlineOperation/updateDatasource/
+    - ${common-online.operationUrlPrefix}/onlineOperation/updateOneToManyRelation/
+    - ${common-online.operationUrlPrefix}/onlineOperation/deleteDatasource/
+    - ${common-online.operationUrlPrefix}/onlineOperation/deleteOneToManyRelation/
+    - ${common-online.operationUrlPrefix}/onlineOperation/uploadDatasource/
+    - ${common-online.operationUrlPrefix}/onlineOperation/uploadOneToManyRelation/
+
+common-flow:
+  # 请慎重修改urlPrefix的缺省配置，注意不要以反斜杠(/)结尾。如必须修改其他路径，请同步修改数据库脚本。
+  urlPrefix: /admin/flow
+
+datafilter:
+  tenant:
+    # 对于单体服务，该值始终为false。
+    enabled: false
+  dataperm:
+    enabled: true
+    # 在拼接数据权限过滤的SQL时，我们会用到sys_dept_relation表，该表的前缀由此配置项指定。
+    # 如果没有前缀，请使用 "" 。
+    deptRelationTablePrefix: zz_
+
+# 暴露监控端点
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+    jmx:
+      exposure:
+        include: '*'
+  endpoint:
+    # 与中间件相关的健康详情也会被展示
+    health:
+      show-details: always
+    configprops:
+      # 在/actuator/configprops中，所有包含password的配置，将用 * 隐藏。
+      # 如果不想隐藏任何配置项的值，可以直接使用如下被注释的空值。
+      # keys-to-sanitize:
+      keys-to-sanitize: password
+  server:
+    servlet:
+      context-path: "/"
+
+# 开发数据库相关配置
+---
+spring:
+  profiles: dev
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    druid:
+      main:
+        url: jdbc:mysql://localhost:3306/zzdemo-online-activiti?characterEncoding=utf8&useSSL=true&serverTimezone=Asia/Shanghai
+        username: root
+        password: 123456
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      name: application-webadmin
+      initialSize: 10
+      minIdle: 10
+      maxActive: 50
+      maxWait: 60000
+      timeBetweenEvictionRunsMillis: 60000
+      minEvictableIdleTimeMillis: 300000
+      poolPreparedStatements: true
+      maxPoolPreparedStatementPerConnectionSize: 20
+      maxOpenPreparedStatements: 20
+      validationQuery: SELECT 'x'
+      testWhileIdle: true
+      testOnBorrow: false
+      testOnReturn: false
+      connectionProperties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=5000
+      filters: stat,wall
+      useGlobalDataSourceStat: true
+      web-stat-filter:
+        enabled: true
+        url-pattern: /*
+        exclusions: "*.js,*.gif,*.jpg,*.bmp,*.png,*.css,*.ico,/druid/*,/actuator/*"
+      stat-view-servlet:
+        enabled: true
+        urlPattern: /druid/*
+        resetEnable: true
+
+application:
+  # Jwt令牌加密的签名值。该值的长度要超过10个字符(过短会报错)。
+  tokenSigningKey: DemoFlow-signing-key
+  # Jwt令牌在Http Header中的键名称。
+  tokenHeaderKey: Authorization
+  # Jwt令牌刷新后在Http Header中的键名称。
+  refreshedTokenHeaderKey: RefreshedToken
+  # Jwt令牌过期时间(毫秒)。
+  expiration: 72000000
+  # 初始化密码。
+  defaultUserPassword: 123456
+  # 缺省的文件上传根目录。
+  uploadFileBaseDir: ./zz-resource/upload-files/app
+  # 跨域的IP(http://192.168.10.10:8086)白名单列表，多个IP之间逗号分隔(* 表示全部信任，空白表示禁用跨域信任)。
+  credentialIpList: "*"
+  # Session的用户和数据权限在Redis中的过期时间(秒)。
+  sessionExpiredSeconds: 86400
+
+sequence:
+  # Snowflake 分布式Id生成算法所需的WorkNode参数值。
+  snowflakeWorkNode: 1
+
+# 发布数据库相关配置
+---
+spring:
+  profiles: product
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    druid:
+      main:
+        url: jdbc:mysql://localhost:3306/zzdemo-online-activiti?characterEncoding=utf8&useSSL=true&serverTimezone=Asia/Shanghai
+        username: root
+        password: 123456
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      name: application-webadmin
+      initialSize: 10
+      minIdle: 10
+      maxActive: 50
+      maxWait: 60000
+      timeBetweenEvictionRunsMillis: 60000
+      minEvictableIdleTimeMillis: 300000
+      poolPreparedStatements: true
+      maxPoolPreparedStatementPerConnectionSize: 20
+      maxOpenPreparedStatements: 20
+      validationQuery: SELECT 'x'
+      testWhileIdle: true
+      testOnBorrow: false
+      testOnReturn: false
+      connectionProperties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=5000
+      filters: stat,wall
+      useGlobalDataSourceStat: true
+      web-stat-filter:
+        enabled: true
+        url-pattern: /*
+        exclusions: "*.js,*.gif,*.jpg,*.bmp,*.png,*.css,*.ico,/druid/*,/actuator/*"
+      stat-view-servlet:
+        enabled: true
+        urlPattern: /druid/*
+        resetEnable: true
+
+application:
+  # Jwt令牌加密的签名值。该值的长度要超过10个字符(过短会报错)。
+  tokenSigningKey: DemoFlow-signing-key
+  # Jwt令牌在Http Header中的键名称。
+  tokenHeaderKey: Authorization
+  # Jwt令牌刷新后在Http Header中的键名称。
+  refreshedTokenHeaderKey: RefreshedToken
+  # Jwt令牌过期时间(毫秒)。
+  expiration: 72000000
+  # 初始化密码。
+  defaultUserPassword: 123456
+  # 缺省的文件上传根目录。
+  uploadFileBaseDir: ./zz-resource/upload-files/app
+  # 跨域的IP(http://192.168.10.10:8086)白名单列表，多个IP之间逗号分隔(* 表示全部信任，空白表示禁用跨域信任)。
+  credentialIpList: "*"
+  # Session的用户和数据权限在Redis中的过期时间(秒)。
+  sessionExpiredSeconds: 86400
+
+sequence:
+  # Snowflake 分布式Id生成算法所需的WorkNode参数值。
+  snowflakeWorkNode: 1

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.flow.demo.webadmin.upms.dao.SysDeptMapper">
+    <resultMap id="BaseResultMap" type="com.flow.demo.webadmin.upms.model.SysDept">
+        <id column="dept_id" jdbcType="BIGINT" property="deptId"/>
+        <result column="dept_name" jdbcType="VARCHAR" property="deptName"/>
+        <result column="show_order" jdbcType="INTEGER" property="showOrder"/>
+        <result column="parent_id" jdbcType="BIGINT" property="parentId"/>
+        <result column="deleted_flag" jdbcType="INTEGER" property="deletedFlag"/>
+        <result column="create_user_id" jdbcType="BIGINT" property="createUserId"/>
+        <result column="update_user_id" jdbcType="BIGINT" property="updateUserId"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+    </resultMap>
+
+    <insert id="insertList">
+        INSERT INTO zz_sys_dept
+            (dept_id,
+            dept_name,
+            show_order,
+            parent_id,
+            deleted_flag,
+            create_user_id,
+            update_user_id,
+            create_time,
+            update_time)
+        VALUES
+        <foreach collection="list" index="index" item="item" separator="," >
+            (#{item.deptId},
+            #{item.deptName},
+            #{item.showOrder},
+            #{item.parentId},
+            #{item.deletedFlag},
+            #{item.createUserId},
+            #{item.updateUserId},
+            #{item.createTime},
+            #{item.updateTime})
+        </foreach>
+    </insert>
+
+    <!-- 如果有逻辑删除字段过滤，请写到这里 -->
+    <sql id="filterRef">
+        <!-- 这里必须加上全包名，否则当filterRef被其他Mapper.xml包含引用的时候，就会调用Mapper.xml中的该SQL片段 -->
+        <include refid="com.flow.demo.webadmin.upms.dao.SysDeptMapper.inputFilterRef"/>
+        AND zz_sys_dept.deleted_flag = ${@com.flow.demo.common.core.constant.GlobalDeletedFlag@NORMAL}
+    </sql>
+
+    <!-- 这里仅包含调用接口输入的主表过滤条件 -->
+    <sql id="inputFilterRef">
+        <if test="sysDeptFilter != null">
+            <if test="sysDeptFilter.deptName != null and sysDeptFilter.deptName != ''">
+                <bind name = "safeSysDeptDeptName" value = "'%' + sysDeptFilter.deptName + '%'" />
+                AND zz_sys_dept.dept_name LIKE #{safeSysDeptDeptName}
+            </if>
+            <if test="sysDeptFilter.parentId != null">
+                AND zz_sys_dept.parent_id = #{sysDeptFilter.parentId}
+            </if>
+        </if>
+    </sql>
+
+    <select id="getSysDeptList" resultMap="BaseResultMap" parameterType="com.flow.demo.webadmin.upms.model.SysDept">
+        SELECT * FROM zz_sys_dept
+        <where>
+            <include refid="filterRef"/>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+</mapper>

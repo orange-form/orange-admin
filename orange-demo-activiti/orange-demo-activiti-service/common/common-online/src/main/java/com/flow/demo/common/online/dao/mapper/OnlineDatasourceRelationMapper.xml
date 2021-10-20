@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.flow.demo.common.online.dao.OnlineDatasourceRelationMapper">
+    <resultMap id="BaseResultMap" type="com.flow.demo.common.online.model.OnlineDatasourceRelation">
+        <id column="relation_id" jdbcType="BIGINT" property="relationId"/>
+        <result column="relation_name" jdbcType="VARCHAR" property="relationName"/>
+        <result column="variable_name" jdbcType="VARCHAR" property="variableName"/>
+        <result column="datasource_id" jdbcType="BIGINT" property="datasourceId"/>
+        <result column="relation_type" jdbcType="INTEGER" property="relationType"/>
+        <result column="master_column_id" jdbcType="BIGINT" property="masterColumnId"/>
+        <result column="slave_table_id" jdbcType="BIGINT" property="slaveTableId"/>
+        <result column="slave_column_id" jdbcType="BIGINT" property="slaveColumnId"/>
+        <result column="cascade_delete" jdbcType="BIT" property="cascadeDelete"/>
+        <result column="left_join" jdbcType="BIT" property="leftJoin"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+    </resultMap>
+
+    <!-- 如果有逻辑删除字段过滤，请写到这里 -->
+    <sql id="filterRef">
+        <!-- 这里必须加上全包名，否则当filterRef被其他Mapper.xml包含引用的时候，就会调用Mapper.xml中的该SQL片段 -->
+        <include refid="com.flow.demo.common.online.dao.OnlineDatasourceRelationMapper.inputFilterRef"/>
+    </sql>
+
+    <!-- 这里仅包含调用接口输入的主表过滤条件 -->
+    <sql id="inputFilterRef">
+        <if test="filter != null">
+            <if test="filter.relationName != null and filter.relationName != ''">
+                AND zz_online_datasource_relation.relation_name = #{filter.relationName}
+            </if>
+            <if test="filter.datasourceId != null">
+                AND zz_online_datasource_relation.datasource_id = #{filter.datasourceId}
+            </if>
+        </if>
+    </sql>
+
+    <select id="getOnlineDatasourceRelationList" resultMap="BaseResultMap"
+            parameterType="com.flow.demo.common.online.model.OnlineDatasourceRelation">
+        SELECT * FROM zz_online_datasource_relation
+        <where>
+            <include refid="filterRef"/>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+</mapper>

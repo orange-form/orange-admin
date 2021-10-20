@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.flow.demo.common.flow.dao.FlowTaskExtMapper">
+    <resultMap id="BaseResultMap" type="com.flow.demo.common.flow.model.FlowTaskExt">
+        <result column="process_definition_id" jdbcType="VARCHAR" property="processDefinitionId"/>
+        <result column="task_id" jdbcType="VARCHAR" property="taskId"/>
+        <result column="operation_list_json" jdbcType="LONGVARCHAR" property="operationListJson"/>
+        <result column="variable_list_json" jdbcType="LONGVARCHAR" property="variableListJson"/>
+        <result column="assignee_list_json" jdbcType="LONGVARCHAR" property="assigneeListJson"/>
+        <result column="group_type" jdbcType="VARCHAR" property="groupType"/>
+    </resultMap>
+
+    <insert id="insertList">
+        INSERT INTO zz_flow_task_ext VALUES
+        <foreach collection="list" index="index" item="item" separator="," >
+            (#{item.processDefinitionId},
+            #{item.taskId},
+            #{item.operationListJson},
+            #{item.variableListJson},
+            #{item.assigneeListJson},
+            #{item.groupType})
+        </foreach>
+    </insert>
+</mapper>
