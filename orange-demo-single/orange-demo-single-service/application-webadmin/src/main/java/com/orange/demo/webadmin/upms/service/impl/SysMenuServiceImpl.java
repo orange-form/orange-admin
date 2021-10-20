@@ -2,6 +2,9 @@ package com.orange.demo.webadmin.upms.service.impl;
 
 import cn.hutool.core.util.ObjectUtil;
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.orange.demo.common.core.base.service.BaseService;
 import com.orange.demo.common.sequence.wrapper.IdGeneratorWrapper;
 import com.orange.demo.common.core.base.dao.BaseDaoMapper;
@@ -23,7 +26,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import tk.mybatis.mapper.entity.Example;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -74,14 +76,12 @@ public class SysMenuServiceImpl extends BaseService<SysMenu, Long> implements Sy
         sysMenu.setDeletedFlag(GlobalDeletedFlag.NORMAL);
         sysMenuMapper.insert(sysMenu);
         if (permCodeIdSet != null) {
-            List<SysMenuPermCode> sysMenuPermCodeList = new LinkedList<>();
             for (Long permCodeId : permCodeIdSet) {
                 SysMenuPermCode menuPermCode = new SysMenuPermCode();
                 menuPermCode.setMenuId(sysMenu.getMenuId());
                 menuPermCode.setPermCodeId(permCodeId);
-                sysMenuPermCodeList.add(menuPermCode);
+                sysMenuPermCodeMapper.insert(menuPermCode);
             }
-            sysMenuPermCodeMapper.insertList(sysMenuPermCodeList);
         }
         // 判断当前菜单是否为指向在线表单的菜单，并将根据约定，动态插入两个子菜单。
         if (sysMenu.getOnlineFormId() != null) {
@@ -124,30 +124,27 @@ public class SysMenuServiceImpl extends BaseService<SysMenu, Long> implements Sy
     public boolean update(SysMenu sysMenu, SysMenu originalSysMenu, Set<Long> permCodeIdSet) {
         MyModelUtil.fillCommonsForUpdate(sysMenu, originalSysMenu);
         sysMenu.setMenuType(originalSysMenu.getMenuType());
-        sysMenu.setDeletedFlag(GlobalDeletedFlag.NORMAL);
-        if (sysMenuMapper.updateByPrimaryKey(sysMenu) != 1) {
+        UpdateWrapper<SysMenu> uw = this.createUpdateQueryForNullValue(sysMenu, sysMenu.getMenuId());
+        if (sysMenuMapper.update(sysMenu, uw) != 1) {
             return false;
         }
         SysMenuPermCode deletedMenuPermCode = new SysMenuPermCode();
         deletedMenuPermCode.setMenuId(sysMenu.getMenuId());
-        sysMenuPermCodeMapper.delete(deletedMenuPermCode);
+        sysMenuPermCodeMapper.delete(new QueryWrapper<>(deletedMenuPermCode));
         if (permCodeIdSet != null) {
-            List<SysMenuPermCode> sysMenuPermCodeList = new LinkedList<>();
             for (Long permCodeId : permCodeIdSet) {
                 SysMenuPermCode menuPermCode = new SysMenuPermCode();
                 menuPermCode.setMenuId(sysMenu.getMenuId());
                 menuPermCode.setPermCodeId(permCodeId);
-                sysMenuPermCodeList.add(menuPermCode);
+                sysMenuPermCodeMapper.insert(menuPermCode);
             }
-            sysMenuPermCodeMapper.insertList(sysMenuPermCodeList);
         }
         // 如果当前菜单的在线表单Id变化了，就需要同步更新他的内置子菜单也同步更新。
         if (ObjectUtil.notEqual(originalSysMenu.getOnlineFormId(), sysMenu.getOnlineFormId())) {
             SysMenu onlineSubMenu = new SysMenu();
             onlineSubMenu.setOnlineFormId(sysMenu.getOnlineFormId());
-            Example e = new Example(SysMenu.class);
-            e.createCriteria().andEqualTo("parentId", sysMenu.getMenuId());
-            sysMenuMapper.updateByExampleSelective(onlineSubMenu, e);
+            sysMenuMapper.update(onlineSubMenu,
+                    new QueryWrapper<SysMenu>().lambda().eq(SysMenu::getParentId, sysMenu.getMenuId()));
         }
         return true;
     }
@@ -162,23 +159,18 @@ public class SysMenuServiceImpl extends BaseService<SysMenu, Long> implements Sy
     @Override
     public boolean remove(SysMenu menu) {
         Long menuId = menu.getMenuId();
-        if (!this.removeById(menuId)) {
+        if (sysMenuMapper.deleteById(menuId) != 1) {
             return false;
         }
         SysRoleMenu roleMenu = new SysRoleMenu();
         roleMenu.setMenuId(menuId);
-        sysRoleMenuMapper.delete(roleMenu);
+        sysRoleMenuMapper.delete(new QueryWrapper<>(roleMenu));
         SysMenuPermCode menuPermCode = new SysMenuPermCode();
         menuPermCode.setMenuId(menuId);
-        sysMenuPermCodeMapper.delete(menuPermCode);
+        sysMenuPermCodeMapper.delete(new QueryWrapper<>(menuPermCode));
         // 如果为指向在线表单的菜单，则连同删除子菜单
         if (menu.getOnlineFormId() != null) {
-            Example e = new Example(SysMenu.class);
-            Example.Criteria c = e.createCriteria().andEqualTo("parentId", menuId);
-            c.andEqualTo("deletedFlag", GlobalDeletedFlag.NORMAL);
-            SysMenu deletedSubMenu = new SysMenu();
-            deletedSubMenu.setDeletedFlag(GlobalDeletedFlag.DELETED);
-            sysMenuMapper.updateByExampleSelective(deletedSubMenu, e);
+            sysMenuMapper.delete(new QueryWrapper<SysMenu>().lambda().eq(SysMenu::getParentId, menuId));
         }
         return true;
     }
@@ -190,12 +182,11 @@ public class SysMenuServiceImpl extends BaseService<SysMenu, Long> implements Sy
      */
     @Override
     public Collection<SysMenu> getAllMenuList() {
-        Example e = new Example(SysMenu.class);
-        e.orderBy("showOrder");
-        Example.Criteria c = e.createCriteria();
-        c.andIn("menuType", Arrays.asList(SysMenuType.TYPE_MENU, SysMenuType.TYPE_DIRECTORY));
-        c.andEqualTo("deletedFlag", GlobalDeletedFlag.NORMAL);
-        return sysMenuMapper.selectByExample(e);
+        QueryWrapper<SysMenu> queryWrapper = new QueryWrapper<>();
+        queryWrapper.orderByAsc(this.safeMapToColumnName("showOrder"));
+        queryWrapper.in(this.safeMapToColumnName("menuType"),
+                Arrays.asList(SysMenuType.TYPE_MENU, SysMenuType.TYPE_DIRECTORY));
+        return sysMenuMapper.selectList(queryWrapper);
     }
 
     /**
@@ -294,12 +285,12 @@ public class SysMenuServiceImpl extends BaseService<SysMenu, Long> implements Sy
      */
     @Override
     public List<SysMenu> getAllOnlineMenuList(Integer menuType) {
-        Example e = new Example(SysMenu.class);
-        Example.Criteria c = e.createCriteria().andIsNotNull("onlineFormId");
+        LambdaQueryWrapper<SysMenu> queryWrapper =
+                new QueryWrapper<SysMenu>().lambda().isNotNull(SysMenu::getOnlineFormId);
         if (menuType != null) {
-            c.andEqualTo("menuType", menuType);
+            queryWrapper.eq(SysMenu::getMenuType, menuType);
         }
-        return sysMenuMapper.selectByExample(e);
+        return sysMenuMapper.selectList(queryWrapper);
     }
 
     /**

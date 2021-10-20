@@ -1,7 +1,5 @@
 package com.orange.demo.webadmin.upms.controller;
 
-import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
-import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
 import com.orange.demo.webadmin.upms.dto.SysPermModuleDto;
 import com.orange.demo.webadmin.upms.vo.SysPermModuleVo;
@@ -13,6 +11,8 @@ import com.orange.demo.common.core.object.*;
 import com.orange.demo.common.core.util.*;
 import com.orange.demo.common.core.validator.UpdateGroup;
 import com.orange.demo.common.core.annotation.MyRequestBody;
+import com.orange.demo.common.log.annotation.OperationLog;
+import com.orange.demo.common.log.model.constant.SysOperationLogType;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -29,7 +29,6 @@ import java.util.Map;
  * @author Jerry
  * @date 2020-09-24
  */
-@Api(tags = "权限资源模块管理接口")
 @Slf4j
 @RestController
 @RequestMapping("/admin/upms/sysPermModule")
@@ -44,7 +43,7 @@ public class SysPermModuleController {
      * @param sysPermModuleDto 新增权限资源模块对象。
      * @return 应答结果对象，包含新增权限资源模块的主键Id。
      */
-    @ApiOperationSupport(ignoreParameters = {"sysPermModuleDto.moduleId"})
+    @OperationLog(type = SysOperationLogType.ADD)
     @PostMapping("/add")
     public ResponseResult<Long> add(@MyRequestBody SysPermModuleDto sysPermModuleDto) {
         String errorMessage = MyCommonUtil.getModelValidationError(sysPermModuleDto);
@@ -67,6 +66,7 @@ public class SysPermModuleController {
      * @param sysPermModuleDto 更新权限资源模块对象。
      * @return 应答结果对象，包含新增权限资源模块的主键Id。
      */
+    @OperationLog(type = SysOperationLogType.UPDATE)
     @PostMapping("/update")
     public ResponseResult<Void> update(@MyRequestBody SysPermModuleDto sysPermModuleDto) {
         String errorMessage = MyCommonUtil.getModelValidationError(sysPermModuleDto, Default.class, UpdateGroup.class);
@@ -98,6 +98,7 @@ public class SysPermModuleController {
      * @param moduleId 指定的权限资源模块主键Id。
      * @return 应答结果对象。
      */
+    @OperationLog(type = SysOperationLogType.DELETE)
     @PostMapping("/delete")
     public ResponseResult<Void> delete(@MyRequestBody Long moduleId) {
         if (MyCommonUtil.existBlankArgument(moduleId)) {

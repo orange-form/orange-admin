@@ -1,6 +1,8 @@
 package com.orange.demo.webadmin.app.controller;
 
 import cn.jimmyshi.beanquery.BeanQuery;
+import com.orange.demo.common.log.annotation.OperationLog;
+import com.orange.demo.common.log.model.constant.SysOperationLogType;
 import com.github.pagehelper.page.PageMethod;
 import com.orange.demo.webadmin.app.vo.*;
 import com.orange.demo.webadmin.app.dto.*;
@@ -10,15 +12,11 @@ import com.orange.demo.common.core.object.*;
 import com.orange.demo.common.core.util.*;
 import com.orange.demo.common.core.constant.*;
 import com.orange.demo.common.core.annotation.MyRequestBody;
-import com.orange.demo.common.core.validator.UpdateGroup;
-import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
-import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
-import javax.validation.groups.Default;
 
 /**
  * 学生数据操作控制器类。
@@ -26,7 +24,6 @@ import javax.validation.groups.Default;
  * @author Jerry
  * @date 2020-09-24
  */
-@Api(tags = "学生数据管理接口")
 @Slf4j
 @RestController
 @RequestMapping("/admin/app/student")
@@ -41,16 +38,10 @@ public class StudentController {
      * @param studentDto 新增对象。
      * @return 应答结果对象，包含新增对象主键Id。
      */
-    @ApiOperationSupport(ignoreParameters = {
-            "studentDto.studentId",
-            "studentDto.searchString",
-            "studentDto.birthdayStart",
-            "studentDto.birthdayEnd",
-            "studentDto.registerTimeStart",
-            "studentDto.registerTimeEnd"})
+    @OperationLog(type = SysOperationLogType.ADD)
     @PostMapping("/add")
     public ResponseResult<Long> add(@MyRequestBody StudentDto studentDto) {
-        String errorMessage = MyCommonUtil.getModelValidationError(studentDto);
+        String errorMessage = MyCommonUtil.getModelValidationError(studentDto, false);
         if (errorMessage != null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
@@ -71,15 +62,10 @@ public class StudentController {
      * @param studentDto 更新对象。
      * @return 应答结果对象。
      */
-    @ApiOperationSupport(ignoreParameters = {
-            "studentDto.searchString",
-            "studentDto.birthdayStart",
-            "studentDto.birthdayEnd",
-            "studentDto.registerTimeStart",
-            "studentDto.registerTimeEnd"})
+    @OperationLog(type = SysOperationLogType.UPDATE)
     @PostMapping("/update")
     public ResponseResult<Void> update(@MyRequestBody StudentDto studentDto) {
-        String errorMessage = MyCommonUtil.getModelValidationError(studentDto, Default.class, UpdateGroup.class);
+        String errorMessage = MyCommonUtil.getModelValidationError(studentDto, true);
         if (errorMessage != null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
@@ -108,6 +94,7 @@ public class StudentController {
      * @param studentId 删除对象主键Id。
      * @return 应答结果对象。
      */
+    @OperationLog(type = SysOperationLogType.DELETE)
     @PostMapping("/delete")
     public ResponseResult<Void> delete(@MyRequestBody Long studentId) {
         String errorMessage;

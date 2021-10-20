@@ -23,6 +23,13 @@ public interface StudentService extends IBaseService<Student, Long> {
     Student saveNew(Student student);
 
     /**
+     * 利用数据库的insertList语法，批量插入对象列表。
+     *
+     * @param studentList 新增对象列表。
+     */
+    void saveNewBatch(List<Student> studentList);
+
+    /**
      * 更新数据对象。
      *
      * @param student         更新的对象。

@@ -15,6 +15,13 @@ import java.util.*;
 public interface StudentActionTransMapper extends BaseDaoMapper<StudentActionTrans> {
 
     /**
+     * 批量插入对象列表。
+     *
+     * @param studentActionTransList 新增对象列表。
+     */
+    void insertList(List<StudentActionTrans> studentActionTransList);
+
+    /**
      * 获取过滤后的对象列表。
      *
      * @param studentActionTransFilter 主表过滤对象。

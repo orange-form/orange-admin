@@ -15,6 +15,13 @@ import java.util.*;
 public interface StudentActionStatsMapper extends BaseDaoMapper<StudentActionStats> {
 
     /**
+     * 批量插入对象列表。
+     *
+     * @param studentActionStatsList 新增对象列表。
+     */
+    void insertList(List<StudentActionStats> studentActionStatsList);
+
+    /**
      * 获取分组计算后的数据对象列表。
      *
      * @param studentActionStatsFilter 主表过滤对象。

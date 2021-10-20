@@ -15,6 +15,13 @@ import java.util.*;
 public interface SysUserMapper extends BaseDaoMapper<SysUser> {
 
     /**
+     * 批量插入对象列表。
+     *
+     * @param sysUserList 新增对象列表。
+     */
+    void insertList(List<SysUser> sysUserList);
+
+    /**
      * 获取过滤后的对象列表。
      *
      * @param sysUserFilter 主表过滤对象。
@@ -47,6 +54,32 @@ public interface SysUserMapper extends BaseDaoMapper<SysUser> {
      */
     List<SysUser> getNotInSysUserListByRoleId(
             @Param("roleId") Long roleId,
+            @Param("sysUserFilter") SysUser sysUserFilter,
+            @Param("orderBy") String orderBy);
+
+    /**
+     * 根据数据权限Id，获取关联的用户Id列表。
+     *
+     * @param dataPermId    关联的数据权限Id。
+     * @param sysUserFilter 用户过滤条件对象。
+     * @param orderBy order by从句的参数。
+     * @return 和DataPermId关联的用户列表。
+     */
+    List<SysUser> getSysUserListByDataPermId(
+            @Param("dataPermId") Long dataPermId,
+            @Param("sysUserFilter") SysUser sysUserFilter,
+            @Param("orderBy") String orderBy);
+
+    /**
+     * 根据数据权限Id，获取和当前数据权限Id没有建立多对多关联关系的用户Id列表。
+     *
+     * @param dataPermId    关联的数据权限Id。
+     * @param sysUserFilter 用户过滤条件对象。
+     * @param orderBy order by从句的参数。
+     * @return 和DataPermId没有建立关联关系的用户列表。
+     */
+    List<SysUser> getNotInSysUserListByDataPermId(
+            @Param("dataPermId") Long dataPermId,
             @Param("sysUserFilter") SysUser sysUserFilter,
             @Param("orderBy") String orderBy);
 

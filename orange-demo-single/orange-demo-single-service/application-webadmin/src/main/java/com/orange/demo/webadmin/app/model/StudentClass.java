@@ -1,15 +1,15 @@
 package com.orange.demo.webadmin.app.model;
 
+import com.baomidou.mybatisplus.annotation.*;
+import com.orange.demo.webadmin.upms.model.SysDept;
 import com.orange.demo.webadmin.app.model.constant.ClassLevel;
 import com.orange.demo.common.core.annotation.RelationDict;
 import com.orange.demo.common.core.annotation.RelationConstDict;
 import com.orange.demo.common.core.base.mapper.BaseModelMapper;
-import com.orange.demo.common.core.annotation.DeletedFlagColumn;
 import com.orange.demo.webadmin.app.vo.StudentClassVo;
 import lombok.Data;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
-import javax.persistence.*;
 
 import java.util.Date;
 import java.util.Map;
@@ -21,71 +21,70 @@ import java.util.Map;
  * @date 2020-09-24
  */
 @Data
-@Table(name = "zz_class")
+@TableName(value = "zz_class")
 public class StudentClass {
 
     /**
      * 班级Id。
      */
-    @Id
-    @Column(name = "class_id")
+    @TableId(value = "class_id")
     private Long classId;
 
     /**
      * 班级名称。
      */
-    @Column(name = "class_name")
+    @TableField(value = "class_name")
     private String className;
 
     /**
      * 学校Id。
      */
-    @Column(name = "school_id")
+    @TableField(value = "school_id")
     private Long schoolId;
 
     /**
      * 学生班长Id。
      */
-    @Column(name = "leader_id")
+    @TableField(value = "leader_id")
     private Long leaderId;
 
     /**
      * 已完成课时数量。
      */
-    @Column(name = "finish_class_hour")
+    @TableField(value = "finish_class_hour")
     private Integer finishClassHour;
 
     /**
      * 班级级别(0: 初级班 1: 培优班 2: 冲刺提分班 3: 竞赛班)。
      */
-    @Column(name = "class_level")
+    @TableField(value = "class_level")
     private Integer classLevel;
 
     /**
      * 创建用户。
      */
-    @Column(name = "create_user_id")
+    @TableField(value = "create_user_id")
     private Long createUserId;
 
     /**
      * 班级创建时间。
      */
-    @Column(name = "create_time")
+    @TableField(value = "create_time")
     private Date createTime;
 
     /**
      * 逻辑删除标记字段(1: 正常 -1: 已删除)。
      */
-    @DeletedFlagColumn
+    @TableLogic
     private Integer status;
 
     @RelationDict(
             masterIdField = "schoolId",
-            slaveServiceName = "schoolInfoService",
-            slaveModelClass = SchoolInfo.class,
-            slaveIdField = "schoolId",
-            slaveNameField = "schoolName")
-    @Transient
+            slaveServiceName = "sysDeptService",
+            slaveModelClass = SysDept.class,
+            slaveIdField = "deptId",
+            slaveNameField = "deptName")
+    @TableField(exist = false)
     private Map<String, Object> schoolIdDictMap;
 
     @RelationDict(
@@ -94,13 +93,13 @@ public class StudentClass {
             slaveModelClass = Student.class,
             slaveIdField = "studentId",
             slaveNameField = "studentName")
-    @Transient
+    @TableField(exist = false)
     private Map<String, Object> leaderIdDictMap;
 
     @RelationConstDict(
             masterIdField = "classLevel",
             constantDictClass = ClassLevel.class)
-    @Transient
+    @TableField(exist = false)
     private Map<String, Object> classLevelDictMap;
 
     @Mapper

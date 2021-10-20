@@ -1,5 +1,8 @@
 package com.orange.demo.webadmin.app.service.impl;
 
+import cn.hutool.core.collection.CollUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.orange.demo.webadmin.app.service.*;
 import com.orange.demo.webadmin.app.dao.*;
 import com.orange.demo.webadmin.app.model.*;
@@ -55,14 +58,22 @@ public class CourseServiceImpl extends BaseService<Course, Long> implements Cour
     @Transactional(rollbackFor = Exception.class)
     @Override
     public Course saveNew(Course course) {
-        course.setCourseId(idGenerator.nextLongId());
-        TokenData tokenData = TokenData.takeFromRequest();
-        course.setCreateUserId(tokenData.getUserId());
-        Date now = new Date();
-        course.setCreateTime(now);
-        course.setUpdateTime(now);
-        courseMapper.insert(course);
+        courseMapper.insert(this.buildDefaultValue(course));
         return course;
+    }
+
+    /**
+     * 利用数据库的insertList语法，批量插入对象列表。
+     *
+     * @param courseList 新增对象列表。
+     */
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public void saveNewBatch(List<Course> courseList) {
+        if (CollUtil.isNotEmpty(courseList)) {
+            courseList.forEach(this::buildDefaultValue);
+            courseMapper.insertList(courseList);
+        }
     }
 
     /**
@@ -79,7 +90,8 @@ public class CourseServiceImpl extends BaseService<Course, Long> implements Cour
         course.setCreateTime(originalCourse.getCreateTime());
         course.setUpdateTime(new Date());
         // 这里重点提示，在执行主表数据更新之前，如果有哪些字段不支持修改操作，请用原有数据对象字段替换当前数据字段。
-        return courseMapper.updateByPrimaryKey(course) == 1;
+        UpdateWrapper<Course> uw = this.createUpdateQueryForNullValue(course, course.getCourseId());
+        return courseMapper.update(course, uw) == 1;
     }
 
     /**
@@ -91,14 +103,13 @@ public class CourseServiceImpl extends BaseService<Course, Long> implements Cour
     @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean remove(Long courseId) {
-        // 这里先删除主数据
-        if (!this.removeById(courseId)) {
+        if (courseMapper.deleteById(courseId) == 0) {
             return false;
         }
         // 开始删除多对多父表的关联
         ClassCourse classCourse = new ClassCourse();
         classCourse.setCourseId(courseId);
-        classCourseMapper.delete(classCourse);
+        classCourseMapper.delete(new QueryWrapper<>(classCourse));
         return true;
     }
 
@@ -182,5 +193,15 @@ public class CourseServiceImpl extends BaseService<Course, Long> implements Cour
             return CallResult.error(String.format(errorMessageFormat, "所属年级"));
         }
         return CallResult.ok();
+    }
+
+    private Course buildDefaultValue(Course course) {
+        course.setCourseId(idGenerator.nextLongId());
+        TokenData tokenData = TokenData.takeFromRequest();
+        course.setCreateUserId(tokenData.getUserId());
+        Date now = new Date();
+        course.setCreateTime(now);
+        course.setUpdateTime(now);
+        return course;
     }
 }

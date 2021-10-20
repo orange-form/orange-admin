@@ -28,7 +28,8 @@
         </el-form-item>
         <el-form-item label="课程名称">
           <el-input class="filter-item" v-model="formCourse.formFilter.courseName"
-            :clearable="true" placeholder="课程名称" />
+            :clearable="true" placeholder="课程名称"
+          />
         </el-form-item>
         <el-button slot="operator" type="primary" :plain="true" size="mini" @click="refreshFormCourse(true)">查询</el-button>
         <el-button slot="operator" type="primary" size="mini" :disabled="!checkPermCodeExist('formCourse:formCourse:formCreateCourse')"

@@ -6,7 +6,8 @@
         <el-col :span="12">
           <el-form-item label="班级名称" prop="StudentClass.className">
             <el-input class="input-item" v-model="formData.StudentClass.className"
-              :clearable="true" placeholder="班级名称" />
+              :clearable="true" placeholder="班级名称"
+            />
           </el-form-item>
         </el-col>
         <el-col :span="12">
@@ -42,7 +43,9 @@
         <el-col :span="12">
           <el-form-item label="已完成课时" prop="StudentClass.finishClassHour">
             <el-input-number class="input-item" v-model="formData.StudentClass.finishClassHour"
-              :clearable="true" controls-position="right" placeholder="已完成课时" />
+              :clearable="true"
+              placeholder="已完成课时"
+            />
           </el-form-item>
         </el-col>
         <el-col :span="24">
@@ -172,7 +175,7 @@ export default {
     loadSchoolIdDropdownList () {
       return new Promise((resolve, reject) => {
         let params = {};
-        DictionaryController.dictSchoolInfo(this, params).then(res => {
+        DictionaryController.dictSysDeptByParentId(this, params).then(res => {
           resolve(res.getList());
         }).catch(e => {
           reject(e);

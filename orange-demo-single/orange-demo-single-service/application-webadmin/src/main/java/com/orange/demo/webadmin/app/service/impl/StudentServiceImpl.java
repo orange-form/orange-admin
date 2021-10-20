@@ -1,9 +1,13 @@
 package com.orange.demo.webadmin.app.service.impl;
 
+import cn.hutool.core.collection.CollUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.orange.demo.application.common.constant.StudentStatus;
 import com.orange.demo.webadmin.app.service.*;
 import com.orange.demo.webadmin.app.dao.*;
 import com.orange.demo.webadmin.app.model.*;
+import com.orange.demo.webadmin.upms.service.SysDeptService;
 import com.orange.demo.common.core.base.dao.BaseDaoMapper;
 import com.orange.demo.common.core.object.MyRelationParam;
 import com.orange.demo.common.core.object.CallResult;
@@ -37,7 +41,7 @@ public class StudentServiceImpl extends BaseService<Student, Long> implements St
     @Autowired
     private GradeService gradeService;
     @Autowired
-    private SchoolInfoService schoolInfoService;
+    private SysDeptService sysDeptService;
     @Autowired
     private IdGeneratorWrapper idGenerator;
 
@@ -60,13 +64,22 @@ public class StudentServiceImpl extends BaseService<Student, Long> implements St
     @Transactional(rollbackFor = Exception.class)
     @Override
     public Student saveNew(Student student) {
-        student.setStudentId(idGenerator.nextLongId());
-        student.setRegisterTime(new Date());
-        MyModelUtil.setDefaultValue(student, "totalCoin", 0);
-        MyModelUtil.setDefaultValue(student, "leftCoin", 0);
-        MyModelUtil.setDefaultValue(student, "status", StudentStatus.NORMAL);
-        studentMapper.insert(student);
+        studentMapper.insert(this.buildDefaultValue(student));
         return student;
+    }
+
+    /**
+     * 利用数据库的insertList语法，批量插入对象列表。
+     *
+     * @param studentList 新增对象列表。
+     */
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public void saveNewBatch(List<Student> studentList) {
+        if (CollUtil.isNotEmpty(studentList)) {
+            studentList.forEach(this::buildDefaultValue);
+            studentMapper.insertList(studentList);
+        }
     }
 
     /**
@@ -81,7 +94,8 @@ public class StudentServiceImpl extends BaseService<Student, Long> implements St
     public boolean update(Student student, Student originalStudent) {
         student.setRegisterTime(originalStudent.getRegisterTime());
         // 这里重点提示，在执行主表数据更新之前，如果有哪些字段不支持修改操作，请用原有数据对象字段替换当前数据字段。
-        return studentMapper.updateByPrimaryKey(student) == 1;
+        UpdateWrapper<Student> uw = this.createUpdateQueryForNullValue(student, student.getStudentId());
+        return studentMapper.update(student, uw) == 1;
     }
 
     /**
@@ -93,14 +107,13 @@ public class StudentServiceImpl extends BaseService<Student, Long> implements St
     @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean remove(Long studentId) {
-        // 这里先删除主数据
-        if (!this.removeById(studentId)) {
+        if (studentMapper.deleteById(studentId) == 0) {
             return false;
         }
         // 开始删除多对多父表的关联
         ClassStudent classStudent = new ClassStudent();
         classStudent.setStudentId(studentId);
-        classStudentMapper.delete(classStudent);
+        classStudentMapper.delete(new QueryWrapper<>(classStudent));
         return true;
     }
 
@@ -200,9 +213,18 @@ public class StudentServiceImpl extends BaseService<Student, Long> implements St
         }
         //这里是基于字典的验证。
         if (this.needToVerify(student, originalStudent, Student::getSchoolId)
-                && !schoolInfoService.existId(student.getSchoolId())) {
+                && !sysDeptService.existId(student.getSchoolId())) {
             return CallResult.error(String.format(errorMessageFormat, "所属校区"));
         }
         return CallResult.ok();
+    }
+
+    private Student buildDefaultValue(Student student) {
+        student.setStudentId(idGenerator.nextLongId());
+        student.setRegisterTime(new Date());
+        MyModelUtil.setDefaultValue(student, "totalCoin", 0);
+        MyModelUtil.setDefaultValue(student, "leftCoin", 0);
+        MyModelUtil.setDefaultValue(student, "status", StudentStatus.NORMAL);
+        return student;
     }
 }

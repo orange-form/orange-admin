@@ -27,10 +27,23 @@
             </el-radio>
           </el-radio-group>
         </el-form-item>
+        <el-form-item label="所属部门" prop="deptId">
+          <el-cascader class="input-item" v-model="deptId.value" :clearable="true"
+            placeholder="所属部门" :loading="deptId.impl.loading" :props="{value: 'deptId', label: 'deptName', checkStrictly: true}"
+            @visible-change="onDeptIdVisibleChange" :options="deptId.impl.dropdownList"
+            @change="onDeptIdValueChange">
+          </el-cascader>
+        </el-form-item>
         <el-form-item label="用户角色" prop="roleIdList">
           <el-select v-model="formData.roleIdList" multiple placeholder="用户角色">
             <el-option v-for="role in roleList" :key="role.roleId"
               :label="role.roleName" :value="role.roleId" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="数据权限" prop="dataPermIdList">
+          <el-select v-model="formData.dataPermIdList" multiple placeholder="数据权限">
+            <el-option v-for="dataPerm in dataPermList" :key="dataPerm.dataPermId"
+              :label="dataPerm.dataPermName" :value="dataPerm.dataPermId" />
           </el-select>
         </el-form-item>
       </el-col>
@@ -51,7 +64,7 @@
 import { findTreeNodePath } from '@/utils';
 /* eslint-disable-next-line */
 import { DropdownWidget, TableWidget, UploadWidget, ChartWidget } from '@/utils/widget.js';
-import { SystemController } from '@/api';
+import { SystemController, SysDeptController, SysDataPermController } from '@/api';
 import { uploadMixin } from '@/core/mixins';
 
 export default {
@@ -68,6 +81,7 @@ export default {
         showName: undefined,
         userType: 2,
         userStatus: 0,
+        dataPermIdList: [],
         roleIdList: []
       },
       params: {
@@ -75,23 +89,55 @@ export default {
         loginName: undefined,
         password: undefined,
         showName: undefined,
-        
+        deptId: '',
         userType: 2,
         userStatus: 0,
+        dataPermIdListString: undefined,
         roleIdListString: undefined
+      },
+      deptId: {
+        impl: new DropdownWidget(this.loadDeptmentDropdownList, true, 'deptId'),
+        value: []
       },
       rules: {
         loginName: [{required: true, message: '用户名称不能为空', trigger: 'blur'}],
         password: [{required: true, message: '用户密码不能为空', trigger: 'blur'}],
         passwordRepeat: [{required: true, message: '重输密码不能为空', trigger: 'blur'}],
         showName: [{required: true, message: '用户昵称不能为空', trigger: 'blur'}],
+        dataPermIdList: [{required: true, message: '数据权限不能为空', trigger: 'change'}],
         roleIdList: [{required: true, message: '用户角色不能为空', trigger: 'change'}]
       },
       showHeaderSelect: false,
+      dataPermList: [],
       roleList: []
     }
   },
   methods: {
+    /**
+     * 所属部门下拉数据获取函数
+     */
+    loadDeptmentDropdownList () {
+      return new Promise((resolve, reject) => {
+        let params = {};
+        SysDeptController.list(this, params).then(res => {
+          resolve(res.data.dataList);
+        }).catch(e => {
+          reject(e);
+        });
+      });
+    },
+    /**
+     * 所属部门下拉框显隐
+     */
+    onDeptIdVisibleChange (show) {
+      this.deptId.impl.onVisibleChange(show).catch(e => {});
+    },
+    /**
+     * 所属部门选中值改变
+     */
+    onDeptIdValueChange (value) {
+      this.formData.deptId = Array.isArray(value) ? value[value.length - 1] : undefined;
+    },
     onCancel (isSuccess = false) {
       if (this.observer != null) {
         this.observer.cancel(isSuccess);
@@ -112,9 +158,10 @@ export default {
               password: this.formData.password,
               showName: this.formData.showName,
               userType: this.formData.userType,
-              
+              deptId: this.formData.deptId,
               userStatus: this.formData.userStatus
             },
+            dataPermIdListString: Array.isArray(this.formData.dataPermIdList) ? this.formData.dataPermIdList.join(',') : undefined,
             roleIdListString: Array.isArray(this.formData.roleIdList) ? this.formData.roleIdList.join(',') : undefined
           }
 
@@ -139,6 +186,11 @@ export default {
         this.roleList = res.data.dataList;
       }).catch(e => {});
     },
+    loadDataPerm () {
+      SysDataPermController.list(this, {}).then(res => {
+        this.dataPermList = res.data.dataList;
+      }).catch(e => {});
+    },
     loadRowData (id) {
       var params = {
         userId: id
@@ -153,12 +205,19 @@ export default {
   },
   mounted () {
     if (this.rowData != null) {
-      this.formData = {...this.rowData, roleIdList: []};
+      this.formData = {...this.rowData, dataPermIdList: [], roleIdList: []};
+      if (Array.isArray(this.formData.sysDataPermUserList)) {
+        this.formData.dataPermIdList = this.formData.sysDataPermUserList.map(item => item.dataPermId);
+      }
       if (Array.isArray(this.formData.sysUserRoleList)) {
         this.formData.roleIdList = this.formData.sysUserRoleList.map(item => item.roleId);
       }
     }
+    this.deptId.impl.onVisibleChange(true).then(res => {
+      this.deptId.value = findTreeNodePath(this.deptId.impl.dropdownList, this.formData.deptId, 'deptId');
+    });
     this.loadRole();
+    this.loadDataPerm();
   }
 }
 </script>

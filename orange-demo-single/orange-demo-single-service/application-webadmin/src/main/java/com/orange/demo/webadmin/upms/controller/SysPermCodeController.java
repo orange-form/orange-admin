@@ -1,7 +1,6 @@
 package com.orange.demo.webadmin.upms.controller;
 
-import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
-import io.swagger.annotations.Api;
+import com.alibaba.fastjson.TypeReference;
 import lombok.extern.slf4j.Slf4j;
 import com.orange.demo.webadmin.upms.dto.SysPermCodeDto;
 import com.orange.demo.webadmin.upms.vo.SysPermCodeVo;
@@ -12,6 +11,8 @@ import com.orange.demo.common.core.object.*;
 import com.orange.demo.common.core.util.*;
 import com.orange.demo.common.core.validator.UpdateGroup;
 import com.orange.demo.common.core.annotation.MyRequestBody;
+import com.orange.demo.common.log.annotation.OperationLog;
+import com.orange.demo.common.log.model.constant.SysOperationLogType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.web.bind.annotation.*;
@@ -25,7 +26,6 @@ import java.util.*;
  * @author Jerry
  * @date 2020-09-24
  */
-@Api(tags = "权限字管理接口")
 @Slf4j
 @RestController
 @RequestMapping("/admin/upms/sysPermCode")
@@ -41,8 +41,7 @@ public class SysPermCodeController {
      * @param permIdListString 与当前权限Id绑定的权限资源Id列表，多个权限资源之间逗号分隔。
      * @return 应答结果对象，包含新增权限字的主键Id。
      */
-    @SuppressWarnings("unchecked")
-    @ApiOperationSupport(ignoreParameters = {"sysPermCodeDto.permCodeId"})
+    @OperationLog(type = SysOperationLogType.ADD)
     @PostMapping("/add")
     public ResponseResult<Long> add(
             @MyRequestBody SysPermCodeDto sysPermCodeDto, @MyRequestBody String permIdListString) {
@@ -57,7 +56,7 @@ public class SysPermCodeController {
         }
         Set<Long> permIdSet = null;
         if (result.getData() != null) {
-            permIdSet = (Set<Long>) result.getData().get("permIdSet");
+            permIdSet = result.getData().getObject("permIdSet", new TypeReference<Set<Long>>(){});
         }
         sysPermCode = sysPermCodeService.saveNew(sysPermCode, permIdSet);
         return ResponseResult.success(sysPermCode.getPermCodeId());
@@ -70,7 +69,7 @@ public class SysPermCodeController {
      * @param permIdListString 与当前权限Id绑定的权限资源Id列表，多个权限资源之间逗号分隔。
      * @return 应答结果对象。
      */
-    @SuppressWarnings("unchecked")
+    @OperationLog(type = SysOperationLogType.UPDATE)
     @PostMapping("/update")
     public ResponseResult<Void> update(
             @MyRequestBody SysPermCodeDto sysPermCodeDto, @MyRequestBody String permIdListString) {
@@ -90,7 +89,7 @@ public class SysPermCodeController {
         }
         Set<Long> permIdSet = null;
         if (result.getData() != null) {
-            permIdSet = (Set<Long>) result.getData().get("permIdSet");
+            permIdSet = result.getData().getObject("permIdSet", new TypeReference<Set<Long>>(){});
         }
         try {
             if (!sysPermCodeService.update(sysPermCode, originalSysPermCode, permIdSet)) {
@@ -110,6 +109,7 @@ public class SysPermCodeController {
      * @param permCodeId 指定的权限字主键Id。
      * @return 应答结果对象。
      */
+    @OperationLog(type = SysOperationLogType.DELETE)
     @PostMapping("/delete")
     public ResponseResult<Void> delete(@MyRequestBody Long permCodeId) {
         if (MyCommonUtil.existBlankArgument(permCodeId)) {

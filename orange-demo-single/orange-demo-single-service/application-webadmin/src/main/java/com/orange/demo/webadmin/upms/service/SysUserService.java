@@ -25,11 +25,12 @@ public interface SysUserService extends IBaseService<SysUser, Long> {
     /**
      * 保存新增的用户对象。
      *
-     * @param user      新增的用户对象。
-     * @param roleIdSet 用户角色Id集合。
+     * @param user          新增的用户对象。
+     * @param roleIdSet     用户角色Id集合。
+     * @param dataPermIdSet 数据权限Id集合。
      * @return 新增后的用户对象。
      */
-    SysUser saveNew(SysUser user, Set<Long> roleIdSet);
+    SysUser saveNew(SysUser user, Set<Long> roleIdSet, Set<Long> dataPermIdSet);
 
     /**
      * 更新用户对象。
@@ -37,9 +38,10 @@ public interface SysUserService extends IBaseService<SysUser, Long> {
      * @param user          更新的用户对象。
      * @param originalUser  原有的用户对象。
      * @param roleIdSet     用户角色Id列表。
+     * @param dataPermIdSet 数据权限Id集合。
      * @return 更新成功返回true，否则false。
      */
-    boolean update(SysUser user, SysUser originalUser, Set<Long> roleIdSet);
+    boolean update(SysUser user, SysUser originalUser, Set<Long> roleIdSet, Set<Long> dataPermIdSet);
 
     /**
      * 修改用户密码。
@@ -99,6 +101,26 @@ public interface SysUserService extends IBaseService<SysUser, Long> {
     List<SysUser> getNotInSysUserListByRoleId(Long roleId, SysUser filter, String orderBy);
 
     /**
+     * 获取指定数据权限的用户列表。
+     *
+     * @param dataPermId 数据权限主键Id。
+     * @param filter     用户过滤对象。
+     * @param orderBy    排序参数。
+     * @return 用户列表。
+     */
+    List<SysUser> getSysUserListByDataPermId(Long dataPermId, SysUser filter, String orderBy);
+
+    /**
+     * 获取不属于指定数据权限的用户列表。
+     *
+     * @param dataPermId 数据权限主键Id。
+     * @param filter     用户过滤对象。
+     * @param orderBy    排序参数。
+     * @return 用户列表。
+     */
+    List<SysUser> getNotInSysUserListByDataPermId(Long dataPermId, SysUser filter, String orderBy);
+
+    /**
      * 查询用户的权限资源地址列表。同时返回详细的分配路径。
      *
      * @param userId 用户Id。
@@ -131,7 +153,9 @@ public interface SysUserService extends IBaseService<SysUser, Long> {
      * @param sysUser         当前操作的对象。
      * @param originalSysUser 原有对象。
      * @param roleIds         逗号分隔的角色Id列表字符串。
+     * @param dataPermIds     逗号分隔的数据权限Id列表字符串。
      * @return 验证结果。
      */
-    CallResult verifyRelatedData(SysUser sysUser, SysUser originalSysUser, String roleIds);
+    CallResult verifyRelatedData(
+            SysUser sysUser, SysUser originalSysUser, String roleIds, String dataPermIds);
 }

@@ -6,4 +6,17 @@
         <result column="edition_name" jdbcType="VARCHAR" property="editionName"/>
         <result column="status" jdbcType="INTEGER" property="status"/>
     </resultMap>
+
+    <insert id="insertList">
+        INSERT INTO zz_material_edition
+            (edition_id,
+            edition_name,
+            status)
+        VALUES
+        <foreach collection="list" index="index" item="item" separator="," >
+            (#{item.editionId},
+            #{item.editionName},
+            #{item.status})
+        </foreach>
+    </insert>
 </mapper>

@@ -1,6 +1,6 @@
 package com.orange.demo.webadmin.upms.model;
 
-import com.orange.demo.common.core.annotation.DeletedFlagColumn;
+import com.baomidou.mybatisplus.annotation.*;
 import com.orange.demo.common.core.annotation.RelationManyToMany;
 import com.orange.demo.common.core.base.mapper.BaseModelMapper;
 import com.orange.demo.webadmin.upms.vo.SysRoleVo;
@@ -9,7 +9,6 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
-import javax.persistence.*;
 import java.util.*;
 
 /**
@@ -19,58 +18,57 @@ import java.util.*;
  * @date 2020-09-24
  */
 @Data
-@Table(name = "zz_sys_role")
+@TableName(value = "zz_sys_role")
 public class SysRole {
 
     /**
      * 角色Id。
      */
-    @Id
-    @Column(name = "role_id")
+    @TableId(value = "role_id")
     private Long roleId;
 
     /**
      * 角色名称。
      */
-    @Column(name = "role_name")
+    @TableField(value = "role_name")
     private String roleName;
 
     /**
      * 创建者Id。
      */
-    @Column(name = "create_user_id")
+    @TableField(value = "create_user_id")
     private Long createUserId;
 
     /**
      * 创建时间。
      */
-    @Column(name = "create_time")
+    @TableField(value = "create_time")
     private Date createTime;
 
     /**
      * 更新者Id。
      */
-    @Column(name = "update_user_id")
+    @TableField(value = "update_user_id")
     private Long updateUserId;
 
     /**
      * 更新时间。
      */
-    @Column(name = "update_time")
+    @TableField(value = "update_time")
     private Date updateTime;
 
     /**
      * 逻辑删除标记字段(1: 正常 -1: 已删除)。
      */
-    @DeletedFlagColumn
-    @Column(name = "deleted_flag")
+    @TableLogic
+    @TableField(value = "deleted_flag")
     private Integer deletedFlag;
 
     @RelationManyToMany(
             relationMapperName = "sysRoleMenuMapper",
             relationMasterIdField = "roleId",
             relationModelClass = SysRoleMenu.class)
-    @Transient
+    @TableField(exist = false)
     private List<SysRoleMenu> sysRoleMenuList;
 
     @Mapper

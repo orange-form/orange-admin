@@ -23,6 +23,13 @@ public interface CourseService extends IBaseService<Course, Long> {
     Course saveNew(Course course);
 
     /**
+     * 利用数据库的insertList语法，批量插入对象列表。
+     *
+     * @param courseList 新增对象列表。
+     */
+    void saveNewBatch(List<Course> courseList);
+
+    /**
      * 更新数据对象。
      *
      * @param course         更新的对象。

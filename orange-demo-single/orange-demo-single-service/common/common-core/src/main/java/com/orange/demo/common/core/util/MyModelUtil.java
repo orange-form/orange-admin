@@ -2,22 +2,19 @@ package com.orange.demo.common.core.util;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.ReflectUtil;
+import com.baomidou.mybatisplus.annotation.*;
 import com.orange.demo.common.core.exception.InvalidDataFieldException;
 import com.orange.demo.common.core.annotation.*;
 import com.orange.demo.common.core.exception.MyRuntimeException;
 import com.orange.demo.common.core.object.TokenData;
 import com.orange.demo.common.core.object.Tuple2;
 import com.orange.demo.common.core.upload.UploadStoreInfo;
+import com.google.common.base.CaseFormat;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
-import tk.mybatis.mapper.entity.Example;
 
-import javax.persistence.Column;
-import javax.persistence.Table;
-import javax.persistence.Transient;
-import java.lang.reflect.Modifier;
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -96,6 +93,9 @@ public class MyModelUtil {
      * @return copy后的目标类型对象集合。
      */
     public static <S, T> List<T> copyCollectionTo(Collection<S> sourceCollection, Class<T> targetClazz) {
+        if (sourceCollection == null) {
+            return null;
+        }
         List<T> targetList = new LinkedList<>();
         if (CollectionUtils.isNotEmpty(sourceCollection)) {
             for (S source : sourceCollection) {
@@ -207,8 +207,20 @@ public class MyModelUtil {
             if (field == null) {
                 return null;
             }
-            Column c = field.getAnnotation(Column.class);
-            String columnName = c == null ? fieldName : c.name();
+            TableField c = field.getAnnotation(TableField.class);
+            String columnName = null;
+            if (c == null) {
+                TableId id = field.getAnnotation(TableId.class);
+                if (id != null) {
+                    columnName = id.value();
+                }
+            }
+            if (columnName == null) {
+                columnName = c == null ? CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, fieldName) : c.value();
+                if (StringUtils.isBlank(columnName)) {
+                    columnName = CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, fieldName);
+                }
+            }
             // 这里缺省情况下都是按照整型去处理，因为他覆盖太多的类型了。
             // 如Integer/Long/Double/BigDecimal，可根据实际情况完善和扩充。
             String typeName = field.getType().getSimpleName();
@@ -231,8 +243,8 @@ public class MyModelUtil {
      * @return Model对象对应的数据表名称。
      */
     public static String mapToTableName(Class<?> modelClazz) {
-        Table t = modelClazz.getAnnotation(Table.class);
-        return t == null ? null : t.name();
+        TableName t = modelClazz.getAnnotation(TableName.class);
+        return t == null ? null : t.value();
     }
 
     /**
@@ -590,43 +602,6 @@ public class MyModelUtil {
 
     private static <M> Object normalize(boolean isMap, M model) {
         return isMap ? BeanUtil.beanToMap(model) : model;
-    }
-
-    /**
-     * 转换过滤对象到与其等效的Example对象。
-     *
-     * @param filterModel 过滤对象。
-     * @param modelClass  过滤对象的Class对象。
-     * @param <T>         过滤对象类型。
-     * @return 转换后的Example对象。
-     */
-    public static <T> Example convertFilterModelToExample(T filterModel, Class<T> modelClass) {
-        if (filterModel == null) {
-            return null;
-        }
-        Example e = new Example(modelClass);
-        Example.Criteria c = e.createCriteria();
-        Field[] fields = ReflectUtil.getFields(modelClass);
-        for (Field field : fields) {
-            if (field.getAnnotation(Transient.class) == null) {
-                int modifiers = field.getModifiers();
-                // transient类型的字段不能作为查询条件
-                if ((modifiers & 128) != 0 || Modifier.isStatic(modifiers)) {
-                    continue;
-                }
-                ReflectUtil.setAccessible(field);
-                try {
-                    Object o = field.get(filterModel);
-                    if (o != null) {
-                        c.andEqualTo(field.getName(), field.get(filterModel));
-                    }
-                } catch (IllegalAccessException ex) {
-                    log.error("Failed to call reflection code.", ex);
-                    throw new MyRuntimeException(ex);
-                }
-            }
-        }
-        return e;
     }
 
     /**

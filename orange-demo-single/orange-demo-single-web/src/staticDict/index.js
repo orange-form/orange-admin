@@ -285,6 +285,75 @@ const CourseDifficult = new DictionaryBase('课程难度', [
 ]);
 Vue.prototype.CourseDifficult = CourseDifficult;
 
+const SysOperationType = new DictionaryBase('操作日志操作类型', [
+  {
+    id: 0,
+    name: '登录',
+    symbol: 'LOGIN'
+  },
+  {
+    id: 5,
+    name: '登出',
+    symbol: 'LOGOUT'
+  },
+  {
+    id: 10,
+    name: '新增',
+    symbol: 'ADD'
+  },
+  {
+    id: 15,
+    name: '修改',
+    symbol: 'UPDATE'
+  },
+  {
+    id: 20,
+    name: '删除',
+    symbol: 'DELETE'
+  },
+  {
+    id: 35,
+    name: '查询',
+    symbol: 'LIST'
+  },
+  {
+    id: 40,
+    name: '分组查询',
+    symbol: 'LIST_WITH_GROUP'
+  },
+  {
+    id: 45,
+    name: '导出',
+    symbol: 'EXPORT'
+  },
+  {
+    id: 25,
+    name: '新增多对多关联',
+    symbol: 'ADD_M2M'
+  },
+  {
+    id: 30,
+    name: '移除多对多关联',
+    symbol: 'DELETE_M2M'
+  },
+  {
+    id: 50,
+    name: '上传',
+    symbol: 'UPLOAD'
+  },
+  {
+    id: 55,
+    name: '下载',
+    symbol: 'DOWNLOAD'
+  },
+  {
+    id: 60,
+    name: '重置缓存',
+    symbol: 'RELOAD_CACHE'
+  }
+]);
+Vue.prototype.SysOperationType = SysOperationType;
+
 const SysPermModuleType = new DictionaryBase('权限分组类型', [
   {
     id: 0,
@@ -336,6 +405,41 @@ const SysMenuType = new DictionaryBase('菜单类型', [
   }
 ]);
 Vue.prototype.SysMenuType = SysMenuType;
+
+const SysDataPermType = new DictionaryBase('数据权限类型', [
+  {
+    id: 0,
+    name: '查看全部',
+    symbol: 'ALL'
+  },
+  {
+    id: 1,
+    name: '仅看自己',
+    symbol: 'ONLY_USER'
+  },
+  {
+    id: 2,
+    name: '仅看所在部门',
+    symbol: 'ONLY_DEPT'
+  },
+  {
+    id: 3,
+    name: '仅看所在部门及子部门',
+    symbol: 'ONLY_DEPT_AND_CHILD'
+  },
+  {
+    id: 4,
+    name: '自选部门及子部门',
+    symbol: 'CUSTOM_DEPT_AND_CHILD'
+  },
+  {
+    id: 5,
+    name: '仅自选部门',
+    symbol: 'CUSTOM_DEPT'
+  }
+]);
+Vue.prototype.SysDataPermType = SysDataPermType;
+
 export {
   DictionaryBase,
   SysUserStatus,
@@ -349,6 +453,8 @@ export {
   ClassStatus,
   ClassLevel,
   CourseDifficult,
+  SysDataPermType,
+  SysOperationType,
   SysPermModuleType,
   SysPermCodeType,
   SysMenuType

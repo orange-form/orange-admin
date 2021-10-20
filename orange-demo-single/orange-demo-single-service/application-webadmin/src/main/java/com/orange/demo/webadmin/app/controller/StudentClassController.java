@@ -1,5 +1,7 @@
 package com.orange.demo.webadmin.app.controller;
 
+import com.orange.demo.common.log.annotation.OperationLog;
+import com.orange.demo.common.log.model.constant.SysOperationLogType;
 import com.github.pagehelper.page.PageMethod;
 import com.orange.demo.webadmin.app.vo.*;
 import com.orange.demo.webadmin.app.dto.*;
@@ -9,15 +11,11 @@ import com.orange.demo.common.core.object.*;
 import com.orange.demo.common.core.util.*;
 import com.orange.demo.common.core.constant.*;
 import com.orange.demo.common.core.annotation.MyRequestBody;
-import com.orange.demo.common.core.validator.UpdateGroup;
-import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
-import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
-import javax.validation.groups.Default;
 import java.util.stream.Collectors;
 
 /**
@@ -26,7 +24,6 @@ import java.util.stream.Collectors;
  * @author Jerry
  * @date 2020-09-24
  */
-@Api(tags = "班级数据管理接口")
 @Slf4j
 @RestController
 @RequestMapping("/admin/app/studentClass")
@@ -45,10 +42,10 @@ public class StudentClassController {
      * @param studentClassDto 新增对象。
      * @return 应答结果对象，包含新增对象主键Id。
      */
-    @ApiOperationSupport(ignoreParameters = {"studentClassDto.classId"})
+    @OperationLog(type = SysOperationLogType.ADD)
     @PostMapping("/add")
     public ResponseResult<Long> add(@MyRequestBody StudentClassDto studentClassDto) {
-        String errorMessage = MyCommonUtil.getModelValidationError(studentClassDto);
+        String errorMessage = MyCommonUtil.getModelValidationError(studentClassDto, false);
         if (errorMessage != null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
@@ -69,9 +66,10 @@ public class StudentClassController {
      * @param studentClassDto 更新对象。
      * @return 应答结果对象。
      */
+    @OperationLog(type = SysOperationLogType.UPDATE)
     @PostMapping("/update")
     public ResponseResult<Void> update(@MyRequestBody StudentClassDto studentClassDto) {
-        String errorMessage = MyCommonUtil.getModelValidationError(studentClassDto, Default.class, UpdateGroup.class);
+        String errorMessage = MyCommonUtil.getModelValidationError(studentClassDto, true);
         if (errorMessage != null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
@@ -100,6 +98,7 @@ public class StudentClassController {
      * @param classId 删除对象主键Id。
      * @return 应答结果对象。
      */
+    @OperationLog(type = SysOperationLogType.DELETE)
     @PostMapping("/delete")
     public ResponseResult<Void> delete(@MyRequestBody Long classId) {
         String errorMessage;
@@ -138,7 +137,8 @@ public class StudentClassController {
         }
         StudentClass studentClassFilter = MyModelUtil.copyTo(studentClassDtoFilter, StudentClass.class);
         String orderBy = MyOrderParam.buildOrderBy(orderParam, StudentClass.class);
-        List<StudentClass> studentClassList = studentClassService.getStudentClassListWithRelation(studentClassFilter, orderBy);
+        List<StudentClass> studentClassList =
+                studentClassService.getStudentClassListWithRelation(studentClassFilter, orderBy);
         return ResponseResult.success(MyPageUtil.makeResponseData(studentClassList, StudentClass.INSTANCE));
     }
 
@@ -176,17 +176,20 @@ public class StudentClassController {
             @MyRequestBody CourseDto courseDtoFilter,
             @MyRequestBody MyOrderParam orderParam,
             @MyRequestBody MyPageParam pageParam) {
-        ResponseResult<Void> verifyResult = this.doClassCourseVerify(classId);
-        if (!verifyResult.isSuccess()) {
-            return ResponseResult.errorFrom(verifyResult);
+        if (MyCommonUtil.isNotBlankOrNull(classId) && !studentClassService.existId(classId)) {
+            return ResponseResult.error(ErrorCodeEnum.INVALID_RELATED_RECORD_ID);
         }
         if (pageParam != null) {
             PageMethod.startPage(pageParam.getPageNum(), pageParam.getPageSize());
         }
         Course filter = MyModelUtil.copyTo(courseDtoFilter, Course.class);
         String orderBy = MyOrderParam.buildOrderBy(orderParam, Course.class);
-        List<Course> courseList =
-                courseService.getNotInCourseListByClassId(classId, filter, orderBy);
+        List<Course> courseList;
+        if (MyCommonUtil.isNotBlankOrNull(classId)) {
+            courseList = courseService.getNotInCourseListByClassId(classId, filter, orderBy);
+        } else {
+            courseList = courseService.getCourseList(filter, orderBy);
+        }
         return ResponseResult.success(MyPageUtil.makeResponseData(courseList, Course.INSTANCE));
     }
 
@@ -201,13 +204,12 @@ public class StudentClassController {
      */
     @PostMapping("/listClassCourse")
     public ResponseResult<MyPageData<CourseVo>> listClassCourse(
-            @MyRequestBody Long classId,
+            @MyRequestBody(required = true) Long classId,
             @MyRequestBody CourseDto courseDtoFilter,
             @MyRequestBody MyOrderParam orderParam,
             @MyRequestBody MyPageParam pageParam) {
-        ResponseResult<Void> verifyResult = this.doClassCourseVerify(classId);
-        if (!verifyResult.isSuccess()) {
-            return ResponseResult.errorFrom(verifyResult);
+        if (!studentClassService.existId(classId)) {
+            return ResponseResult.error(ErrorCodeEnum.INVALID_RELATED_RECORD_ID);
         }
         if (pageParam != null) {
             PageMethod.startPage(pageParam.getPageNum(), pageParam.getPageSize());
@@ -219,16 +221,6 @@ public class StudentClassController {
         return ResponseResult.success(MyPageUtil.makeResponseData(courseList, Course.INSTANCE));
     }
 
-    private ResponseResult<Void> doClassCourseVerify(Long classId) {
-        if (MyCommonUtil.existBlankArgument(classId)) {
-            return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
-        }
-        if (!studentClassService.existId(classId)) {
-            return ResponseResult.error(ErrorCodeEnum.INVALID_RELATED_RECORD_ID);
-        }
-        return ResponseResult.success();
-    }
-
     /**
      * 批量添加班级数据和 [课程数据] 对象的多对多关联关系数据。
      *
@@ -236,6 +228,7 @@ public class StudentClassController {
      * @param classCourseDtoList 关联对象列表。
      * @return 应答结果对象。
      */
+    @OperationLog(type = SysOperationLogType.ADD_M2M)
     @PostMapping("/addClassCourse")
     public ResponseResult<Void> addClassCourse(
             @MyRequestBody Long classId,
@@ -243,11 +236,9 @@ public class StudentClassController {
         if (MyCommonUtil.existBlankArgument(classId, classCourseDtoList)) {
             return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
         }
-        for (ClassCourseDto classCourse : classCourseDtoList) {
-            String errorMessage = MyCommonUtil.getModelValidationError(classCourse);
-            if (errorMessage != null) {
-                return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
-            }
+        String errorMessage = MyCommonUtil.getModelValidationError(classCourseDtoList);
+        if (errorMessage != null) {
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
         Set<Long> courseIdSet =
                 classCourseDtoList.stream().map(ClassCourseDto::getCourseId).collect(Collectors.toSet());
@@ -267,6 +258,7 @@ public class StudentClassController {
      * @param classCourseDto 对多对中间表对象。
      * @return 应答结果对象。
      */
+    @OperationLog(type = SysOperationLogType.UPDATE)
     @PostMapping("/updateClassCourse")
     public ResponseResult<Void> updateClassCourse(
             @MyRequestBody ClassCourseDto classCourseDto) {
@@ -309,6 +301,7 @@ public class StudentClassController {
      * @param courseId 从表主键Id。
      * @return 应答结果对象。
      */
+    @OperationLog(type = SysOperationLogType.DELETE_M2M)
     @PostMapping("/deleteClassCourse")
     public ResponseResult<Void> deleteClassCourse(
             @MyRequestBody Long classId, @MyRequestBody Long courseId) {
@@ -336,17 +329,20 @@ public class StudentClassController {
             @MyRequestBody StudentDto studentDtoFilter,
             @MyRequestBody MyOrderParam orderParam,
             @MyRequestBody MyPageParam pageParam) {
-        ResponseResult<Void> verifyResult = this.doClassStudentVerify(classId);
-        if (!verifyResult.isSuccess()) {
-            return ResponseResult.errorFrom(verifyResult);
+        if (MyCommonUtil.isNotBlankOrNull(classId) && !studentClassService.existId(classId)) {
+            return ResponseResult.error(ErrorCodeEnum.INVALID_RELATED_RECORD_ID);
         }
         if (pageParam != null) {
             PageMethod.startPage(pageParam.getPageNum(), pageParam.getPageSize());
         }
         Student filter = MyModelUtil.copyTo(studentDtoFilter, Student.class);
         String orderBy = MyOrderParam.buildOrderBy(orderParam, Student.class);
-        List<Student> studentList =
-                studentService.getNotInStudentListByClassId(classId, filter, orderBy);
+        List<Student> studentList;
+        if (MyCommonUtil.isNotBlankOrNull(classId)) {
+            studentList = studentService.getNotInStudentListByClassId(classId, filter, orderBy);
+        } else {
+            studentList = studentService.getStudentList(filter, orderBy);
+        }
         return ResponseResult.success(MyPageUtil.makeResponseData(studentList, Student.INSTANCE));
     }
 
@@ -361,13 +357,12 @@ public class StudentClassController {
      */
     @PostMapping("/listClassStudent")
     public ResponseResult<MyPageData<StudentVo>> listClassStudent(
-            @MyRequestBody Long classId,
+            @MyRequestBody(required = true) Long classId,
             @MyRequestBody StudentDto studentDtoFilter,
             @MyRequestBody MyOrderParam orderParam,
             @MyRequestBody MyPageParam pageParam) {
-        ResponseResult<Void> verifyResult = this.doClassStudentVerify(classId);
-        if (!verifyResult.isSuccess()) {
-            return ResponseResult.errorFrom(verifyResult);
+        if (!studentClassService.existId(classId)) {
+            return ResponseResult.error(ErrorCodeEnum.INVALID_RELATED_RECORD_ID);
         }
         if (pageParam != null) {
             PageMethod.startPage(pageParam.getPageNum(), pageParam.getPageSize());
@@ -379,16 +374,6 @@ public class StudentClassController {
         return ResponseResult.success(MyPageUtil.makeResponseData(studentList, Student.INSTANCE));
     }
 
-    private ResponseResult<Void> doClassStudentVerify(Long classId) {
-        if (MyCommonUtil.existBlankArgument(classId)) {
-            return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
-        }
-        if (!studentClassService.existId(classId)) {
-            return ResponseResult.error(ErrorCodeEnum.INVALID_RELATED_RECORD_ID);
-        }
-        return ResponseResult.success();
-    }
-
     /**
      * 批量添加班级数据和 [学生数据] 对象的多对多关联关系数据。
      *
@@ -396,6 +381,7 @@ public class StudentClassController {
      * @param classStudentDtoList 关联对象列表。
      * @return 应答结果对象。
      */
+    @OperationLog(type = SysOperationLogType.ADD_M2M)
     @PostMapping("/addClassStudent")
     public ResponseResult<Void> addClassStudent(
             @MyRequestBody Long classId,
@@ -403,11 +389,9 @@ public class StudentClassController {
         if (MyCommonUtil.existBlankArgument(classId, classStudentDtoList)) {
             return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
         }
-        for (ClassStudentDto classStudent : classStudentDtoList) {
-            String errorMessage = MyCommonUtil.getModelValidationError(classStudent);
-            if (errorMessage != null) {
-                return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
-            }
+        String errorMessage = MyCommonUtil.getModelValidationError(classStudentDtoList);
+        if (errorMessage != null) {
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
         Set<Long> studentIdSet =
                 classStudentDtoList.stream().map(ClassStudentDto::getStudentId).collect(Collectors.toSet());
@@ -428,6 +412,7 @@ public class StudentClassController {
      * @param studentId 从表主键Id。
      * @return 应答结果对象。
      */
+    @OperationLog(type = SysOperationLogType.DELETE_M2M)
     @PostMapping("/deleteClassStudent")
     public ResponseResult<Void> deleteClassStudent(
             @MyRequestBody Long classId, @MyRequestBody Long studentId) {
@@ -438,5 +423,25 @@ public class StudentClassController {
             return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST);
         }
         return ResponseResult.success();
+    }
+
+    private String doBusinessDataVerify(
+            StudentClassDto studentClassDto,
+            boolean forUpdate,
+            List<ClassCourseDto> classCourseDtoList,
+            List<ClassStudentDto> classStudentDtoList) {
+        String errorMessage = MyCommonUtil.getModelValidationError(studentClassDto, forUpdate);
+        if (errorMessage != null) {
+            return errorMessage;
+        }
+        errorMessage = MyCommonUtil.getModelValidationError(classCourseDtoList);
+        if (errorMessage != null) {
+            return "参数 [classCourseDtoList] 数据验证失败" + errorMessage;
+        }
+        errorMessage = MyCommonUtil.getModelValidationError(classStudentDtoList);
+        if (errorMessage != null) {
+            return "参数 [classStudentDtoList] 数据验证失败" + errorMessage;
+        }
+        return null;
     }
 }

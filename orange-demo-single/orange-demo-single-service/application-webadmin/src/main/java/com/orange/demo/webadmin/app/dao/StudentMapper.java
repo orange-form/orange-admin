@@ -15,6 +15,13 @@ import java.util.*;
 public interface StudentMapper extends BaseDaoMapper<Student> {
 
     /**
+     * 批量插入对象列表。
+     *
+     * @param studentList 新增对象列表。
+     */
+    void insertList(List<Student> studentList);
+
+    /**
      * 获取过滤后的对象列表。
      *
      * @param studentFilter 主表过滤对象。

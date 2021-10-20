@@ -32,7 +32,8 @@
             </el-form-item>
             <el-form-item label="学生姓名">
               <el-input class="filter-item" v-model="formStudent.formFilter.searchString"
-                :clearable="true" placeholder="输入学生姓名 / 手机号码 模糊查询" />
+                :clearable="true" placeholder="输入学生姓名 / 手机号码 模糊查询"
+              />
             </el-form-item>
             <el-button slot="operator" type="primary" :plain="true" size="mini" @click="refreshFormStudent(true)">查询</el-button>
             <el-button slot="operator" type="primary" size="mini" :disabled="!checkPermCodeExist('formStudent:formStudent:formCreateStudent')"
@@ -182,7 +183,7 @@ export default {
     loadSchoolIdDropdownList () {
       return new Promise((resolve, reject) => {
         let params = {};
-        DictionaryController.dictSchoolInfo(this, params).then(res => {
+        DictionaryController.dictSysDept(this, params).then(res => {
           resolve(res.getList());
         }).catch(e => {
           reject(e);

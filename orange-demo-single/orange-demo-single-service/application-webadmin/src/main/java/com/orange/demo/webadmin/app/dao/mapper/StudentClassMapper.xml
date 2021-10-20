@@ -13,6 +13,31 @@
         <result column="status" jdbcType="TINYINT" property="status"/>
     </resultMap>
 
+    <insert id="insertList">
+        INSERT INTO zz_class
+            (class_id,
+            class_name,
+            school_id,
+            leader_id,
+            finish_class_hour,
+            class_level,
+            create_user_id,
+            create_time,
+            status)
+        VALUES
+        <foreach collection="list" index="index" item="item" separator="," >
+            (#{item.classId},
+            #{item.className},
+            #{item.schoolId},
+            #{item.leaderId},
+            #{item.finishClassHour},
+            #{item.classLevel},
+            #{item.createUserId},
+            #{item.createTime},
+            #{item.status})
+        </foreach>
+    </insert>
+
     <!-- 如果有逻辑删除字段过滤，请写到这里 -->
     <sql id="filterRef">
         <!-- 这里必须加上全包名，否则当filterRef被其他Mapper.xml包含引用的时候，就会调用Mapper.xml中的该SQL片段 -->

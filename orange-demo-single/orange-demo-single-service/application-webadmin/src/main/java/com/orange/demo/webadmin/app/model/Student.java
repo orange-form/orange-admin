@@ -1,5 +1,7 @@
 package com.orange.demo.webadmin.app.model;
 
+import com.baomidou.mybatisplus.annotation.*;
+import com.orange.demo.webadmin.upms.model.SysDept;
 import com.orange.demo.application.common.constant.Gender;
 import com.orange.demo.application.common.constant.ExpLevel;
 import com.orange.demo.application.common.constant.StudentStatus;
@@ -11,7 +13,6 @@ import com.orange.demo.webadmin.app.vo.StudentVo;
 import lombok.Data;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
-import javax.persistence.*;
 
 import java.util.Date;
 import java.util.Map;
@@ -23,44 +24,43 @@ import java.util.Map;
  * @date 2020-09-24
  */
 @Data
-@Table(name = "zz_student")
+@TableName(value = "zz_student")
 public class Student {
 
     /**
      * 学生Id。
      */
-    @Id
-    @Column(name = "student_id")
+    @TableId(value = "student_id")
     private Long studentId;
 
     /**
      * 登录手机。
      */
-    @Column(name = "login_mobile")
+    @TableField(value = "login_mobile")
     private String loginMobile;
 
     /**
      * 学生姓名。
      */
-    @Column(name = "student_name")
+    @TableField(value = "student_name")
     private String studentName;
 
     /**
      * 所在省份Id。
      */
-    @Column(name = "province_id")
+    @TableField(value = "province_id")
     private Long provinceId;
 
     /**
      * 所在城市Id。
      */
-    @Column(name = "city_id")
+    @TableField(value = "city_id")
     private Long cityId;
 
     /**
      * 区县Id。
      */
-    @Column(name = "district_id")
+    @TableField(value = "district_id")
     private Long districtId;
 
     /**
@@ -76,37 +76,37 @@ public class Student {
     /**
      * 经验等级 (0: 初级 1: 中级 2: 高级 3: 资深)。
      */
-    @Column(name = "experience_level")
+    @TableField(value = "experience_level")
     private Integer experienceLevel;
 
     /**
      * 总共充值学币数量。
      */
-    @Column(name = "total_coin")
+    @TableField(value = "total_coin")
     private Integer totalCoin;
 
     /**
      * 可用学币数量。
      */
-    @Column(name = "left_coin")
+    @TableField(value = "left_coin")
     private Integer leftCoin;
 
     /**
      * 年级Id。
      */
-    @Column(name = "grade_id")
+    @TableField(value = "grade_id")
     private Integer gradeId;
 
     /**
      * 校区Id。
      */
-    @Column(name = "school_id")
+    @TableField(value = "school_id")
     private Long schoolId;
 
     /**
      * 注册时间。
      */
-    @Column(name = "register_time")
+    @TableField(value = "register_time")
     private Date registerTime;
 
     /**
@@ -117,31 +117,31 @@ public class Student {
     /**
      * birthday 范围过滤起始值(>=)。
      */
-    @Transient
+    @TableField(exist = false)
     private String birthdayStart;
 
     /**
      * birthday 范围过滤结束值(<=)。
      */
-    @Transient
+    @TableField(exist = false)
     private String birthdayEnd;
 
     /**
      * registerTime 范围过滤起始值(>=)。
      */
-    @Transient
+    @TableField(exist = false)
     private String registerTimeStart;
 
     /**
      * registerTime 范围过滤结束值(<=)。
      */
-    @Transient
+    @TableField(exist = false)
     private String registerTimeEnd;
 
     /**
      * login_mobile / student_name LIKE搜索字符串。
      */
-    @Transient
+    @TableField(exist = false)
     private String searchString;
 
     public void setSearchString(String searchString) {
@@ -154,7 +154,7 @@ public class Student {
             slaveModelClass = AreaCode.class,
             slaveIdField = "areaId",
             slaveNameField = "areaName")
-    @Transient
+    @TableField(exist = false)
     private Map<String, Object> provinceIdDictMap;
 
     @RelationDict(
@@ -163,7 +163,7 @@ public class Student {
             slaveModelClass = AreaCode.class,
             slaveIdField = "areaId",
             slaveNameField = "areaName")
-    @Transient
+    @TableField(exist = false)
     private Map<String, Object> cityIdDictMap;
 
     @RelationDict(
@@ -172,7 +172,7 @@ public class Student {
             slaveModelClass = AreaCode.class,
             slaveIdField = "areaId",
             slaveNameField = "areaName")
-    @Transient
+    @TableField(exist = false)
     private Map<String, Object> districtIdDictMap;
 
     @RelationDict(
@@ -181,34 +181,34 @@ public class Student {
             slaveModelClass = Grade.class,
             slaveIdField = "gradeId",
             slaveNameField = "gradeName")
-    @Transient
+    @TableField(exist = false)
     private Map<String, Object> gradeIdDictMap;
 
     @RelationDict(
             masterIdField = "schoolId",
-            slaveServiceName = "schoolInfoService",
-            slaveModelClass = SchoolInfo.class,
-            slaveIdField = "schoolId",
-            slaveNameField = "schoolName")
-    @Transient
+            slaveServiceName = "sysDeptService",
+            slaveModelClass = SysDept.class,
+            slaveIdField = "deptId",
+            slaveNameField = "deptName")
+    @TableField(exist = false)
     private Map<String, Object> schoolIdDictMap;
 
     @RelationConstDict(
             masterIdField = "gender",
             constantDictClass = Gender.class)
-    @Transient
+    @TableField(exist = false)
     private Map<String, Object> genderDictMap;
 
     @RelationConstDict(
             masterIdField = "experienceLevel",
             constantDictClass = ExpLevel.class)
-    @Transient
+    @TableField(exist = false)
     private Map<String, Object> experienceLevelDictMap;
 
     @RelationConstDict(
             masterIdField = "status",
             constantDictClass = StudentStatus.class)
-    @Transient
+    @TableField(exist = false)
     private Map<String, Object> statusDictMap;
 
     @Mapper

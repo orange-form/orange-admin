@@ -40,16 +40,13 @@ spring:
     request-context-attribute: request
     suffix: .ftl
 
-# mybatis的基本配置
-mybatis:
-  mapperLocations: classpath:com/orange/demo/webadmin/*/dao/mapper/*Mapper.xml,com/orange/demo/common/log/dao/mapper/*Mapper.xml
-  typeAliasesPackage: com.orange.demo.webadmin.*.model,com.orange.demo.common.log.model
-
-# mybatis的通用mapper的配置
-mapper:
-  mappers: tk.mybatis.mapper.common.Mapper,tk.mybatis.mapper.additional.insert.InsertListMapper
-  not-empty: false
-  identity: MYSQL
+mybatis-plus:
+  mapper-locations: classpath:com/orange/demo/webadmin/*/dao/mapper/*Mapper.xml,com/orange/demo/common/log/dao/mapper/*Mapper.xml
+  type-aliases-package: com.orange.demo.webadmin.*.model,com.orange.demo.common.log.model
+  global-config:
+    db-config:
+      logic-delete-value: -1
+      logic-not-delete-value: 1
 
 # 自动分页的配置
 pagehelper:
@@ -92,14 +89,15 @@ redis:
       # 连接池中最小空闲数量。
       minIdle: 5
 
-swagger:
-  # 当enabled为false的时候，则可禁用swagger。
-  enabled: true
-  # 工程的基础包名。
-  basePackage: com.orange.demo.webadmin
-  title: 橙单单体服务工程
-  description: 橙单单体服务工程详情
-  version: 1.0
+datafilter:
+  tenant:
+    # 对于单体服务，该值始终为false。
+    enabled: false
+  dataperm:
+    enabled: true
+    # 在拼接数据权限过滤的SQL时，我们会用到sys_dept_relation表，该表的前缀由此配置项指定。
+    # 如果没有前缀，请使用 "" 。
+    deptRelationTablePrefix: zz_
 
 # 暴露监控端点
 management:
@@ -122,6 +120,11 @@ management:
   server:
     servlet:
       context-path: "/"
+
+common-log:
+  # 操作日志配置，对应配置文件common-log/OperationLogProperties.java
+  operation-log:
+    enabled: true
 
 # 开发数据库相关配置
 ---

@@ -25,6 +25,55 @@
         <result column="do_exercise_correct_count" jdbcType="INTEGER" property="doExerciseCorrectCount"/>
     </resultMap>
 
+    <insert id="insertList">
+        INSERT INTO zz_student_action_stats
+            (stats_id,
+            stats_date,
+            stats_month,
+            grade_id,
+            province_id,
+            city_id,
+            buy_course_amount,
+            buy_course_count,
+            buy_video_amount,
+            buy_video_count,
+            buy_paper_amount,
+            buy_paper_count,
+            buy_flower_amount,
+            buy_flower_count,
+            recharge_coin_amount,
+            recharge_coin_count,
+            do_course_count,
+            watch_video_count,
+            watch_video_total_second,
+            do_exercise_count,
+            do_exercise_correct_count)
+        VALUES
+        <foreach collection="list" index="index" item="item" separator="," >
+            (#{item.statsId},
+            #{item.statsDate},
+            #{item.statsMonth},
+            #{item.gradeId},
+            #{item.provinceId},
+            #{item.cityId},
+            #{item.buyCourseAmount},
+            #{item.buyCourseCount},
+            #{item.buyVideoAmount},
+            #{item.buyVideoCount},
+            #{item.buyPaperAmount},
+            #{item.buyPaperCount},
+            #{item.buyFlowerAmount},
+            #{item.buyFlowerCount},
+            #{item.rechargeCoinAmount},
+            #{item.rechargeCoinCount},
+            #{item.doCourseCount},
+            #{item.watchVideoCount},
+            #{item.watchVideoTotalSecond},
+            #{item.doExerciseCount},
+            #{item.doExerciseCorrectCount})
+        </foreach>
+    </insert>
+
     <!-- 如果有逻辑删除字段过滤，请写到这里 -->
     <sql id="filterRef">
         <!-- 这里必须加上全包名，否则当filterRef被其他Mapper.xml包含引用的时候，就会调用Mapper.xml中的该SQL片段 -->

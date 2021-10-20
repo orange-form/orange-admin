@@ -1,6 +1,6 @@
 package com.orange.demo.webadmin.upms.model;
 
-import com.orange.demo.common.core.annotation.DeletedFlagColumn;
+import com.baomidou.mybatisplus.annotation.*;
 import com.orange.demo.common.core.annotation.RelationManyToMany;
 import com.orange.demo.common.core.base.mapper.BaseModelMapper;
 import com.orange.demo.webadmin.upms.vo.SysMenuVo;
@@ -9,7 +9,6 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
-import javax.persistence.*;
 import java.util.*;
 
 /**
@@ -19,56 +18,55 @@ import java.util.*;
  * @date 2020-09-24
  */
 @Data
-@Table(name = "zz_sys_menu")
+@TableName(value = "zz_sys_menu")
 public class SysMenu {
 
     /**
      * 菜单Id。
      */
-    @Id
-    @Column(name = "menu_id")
+    @TableId(value = "menu_id")
     private Long menuId;
 
     /**
      * 父菜单Id，目录菜单的父菜单为null。
      */
-    @Column(name = "parent_id")
+    @TableField(value = "parent_id")
     private Long parentId;
 
     /**
      * 菜单显示名称。
      */
-    @Column(name = "menu_name")
+    @TableField(value = "menu_name")
     private String menuName;
 
     /**
      * 菜单类型(0: 目录 1: 菜单 2: 按钮 3: UI片段)。
      */
-    @Column(name = "menu_type")
+    @TableField(value = "menu_type")
     private Integer menuType;
 
     /**
      * 前端表单路由名称，仅用于menu_type为1的菜单类型。
      */
-    @Column(name = "form_router_name")
+    @TableField(value = "form_router_name")
     private String formRouterName;
 
     /**
      * 在线表单主键Id，仅用于在线表单绑定的菜单。
      */
-    @Column(name = "online_form_id")
+    @TableField(value = "online_form_id")
     private Long onlineFormId;
 
     /**
      * 在线表单菜单的权限控制类型，具体值可参考SysOnlineMenuPermType常量对象。
      */
-    @Column(name = "online_menu_perm_type")
+    @TableField(value = "online_menu_perm_type")
     private Integer onlineMenuPermType;
 
     /**
      * 菜单显示顺序 (值越小，排序越靠前)。
      */
-    @Column(name = "show_order")
+    @TableField(value = "show_order")
     private Integer showOrder;
 
     /**
@@ -79,39 +77,39 @@ public class SysMenu {
     /**
      * 创建者Id。
      */
-    @Column(name = "create_user_id")
+    @TableField(value = "create_user_id")
     private Long createUserId;
 
     /**
      * 创建时间。
      */
-    @Column(name = "create_time")
+    @TableField(value = "create_time")
     private Date createTime;
 
     /**
      * 更新者Id。
      */
-    @Column(name = "update_user_id")
+    @TableField(value = "update_user_id")
     private Long updateUserId;
 
     /**
      * 更新时间。
      */
-    @Column(name = "update_time")
+    @TableField(value = "update_time")
     private Date updateTime;
 
     /**
      * 逻辑删除标记字段(1: 正常 -1: 已删除)。
      */
-    @DeletedFlagColumn
-    @Column(name = "deleted_flag")
+    @TableLogic
+    @TableField(value = "deleted_flag")
     private Integer deletedFlag;
 
     @RelationManyToMany(
             relationMapperName = "sysMenuPermCodeMapper",
             relationMasterIdField = "menuId",
             relationModelClass = SysMenuPermCode.class)
-    @Transient
+    @TableField(exist = false)
     private List<SysMenuPermCode> sysMenuPermCodeList;
 
     @Mapper

@@ -63,6 +63,22 @@ export default class SystemController {
     return sender.doUrl('admin/upms/sysUser/update', 'post', params, axiosOption, httpOption);
   }
 
+  static addDepartment (sender, params, axiosOption, httpOption) {
+    return sender.doUrl('admin/upms/sysDept/add', 'post', params, axiosOption, httpOption);
+  }
+
+  static deleteDepartment (sender, params, axiosOption, httpOption) {
+    return sender.doUrl('admin/upms/sysDept/delete', 'post', params, axiosOption, httpOption);
+  }
+
+  static updateDepartment (sender, params, axiosOption, httpOption) {
+    return sender.doUrl('admin/upms/sysDept/update', 'post', params, axiosOption, httpOption);
+  }
+
+  static getDepartmentList (sender, params, axiosOption, httpOption) {
+    return sender.doUrl('admin/upms/sysDept/list', 'post', params, axiosOption, httpOption);
+  }
+
   // 菜单接口
   static getMenuPermList (sender, params, axiosOption, httpOption) {
     return sender.doUrl('admin/upms/sysMenu/list', 'post', params, axiosOption, httpOption);
@@ -224,6 +240,10 @@ export default class SystemController {
 
   static listSysMenuByPermIdWithDetail (sender, params, axiosOption, httpOption) {
     return sender.doUrl('admin/upms/sysPerm/listSysMenuWithDetail', 'get', params, axiosOption, httpOption);
+  }
+  // 操作日志
+  static listSysOperationLog (sender, params, axiosOption, httpOption) {
+    return sender.doUrl('admin/upms/sysOperationLog/list', 'post', params, axiosOption, httpOption);
   }
   // 在线用户
   static listSysLoginUser (sender, params, axiosOption, httpOption) {

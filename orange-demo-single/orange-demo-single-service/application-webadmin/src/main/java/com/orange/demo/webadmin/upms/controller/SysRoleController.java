@@ -1,7 +1,6 @@
 package com.orange.demo.webadmin.upms.controller;
 
-import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
-import io.swagger.annotations.Api;
+import com.alibaba.fastjson.TypeReference;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.page.PageMethod;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +18,8 @@ import com.orange.demo.common.core.constant.ErrorCodeEnum;
 import com.orange.demo.common.core.object.*;
 import com.orange.demo.common.core.util.*;
 import com.orange.demo.common.core.annotation.MyRequestBody;
+import com.orange.demo.common.log.annotation.OperationLog;
+import com.orange.demo.common.log.model.constant.SysOperationLogType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,7 +33,6 @@ import java.util.stream.Collectors;
  * @author Jerry
  * @date 2020-09-24
  */
-@Api(tags = "角色管理接口")
 @Slf4j
 @RestController
 @RequestMapping("/admin/upms/sysRole")
@@ -50,8 +50,7 @@ public class SysRoleController {
      * @param menuIdListString 与当前角色Id绑定的menuId列表，多个menuId之间逗号分隔。
      * @return 应答结果对象，包含新增角色的主键Id。
      */
-    @SuppressWarnings("unchecked")
-    @ApiOperationSupport(ignoreParameters = {"sysRoleDto.roleId", "sysRoleDto.createTimeStart", "sysRoleDto.createTimeEnd"})
+    @OperationLog(type = SysOperationLogType.ADD)
     @PostMapping("/add")
     public ResponseResult<Long> add(
             @MyRequestBody SysRoleDto sysRoleDto, @MyRequestBody String menuIdListString) {
@@ -66,7 +65,7 @@ public class SysRoleController {
         }
         Set<Long> menuIdSet = null;
         if (result.getData() != null) {
-            menuIdSet = (Set<Long>) result.getData().get("menuIdSet");
+            menuIdSet = result.getData().getObject("menuIdSet", new TypeReference<Set<Long>>(){});
         }
         sysRoleService.saveNew(sysRole, menuIdSet);
         return ResponseResult.success(sysRole.getRoleId());
@@ -79,8 +78,7 @@ public class SysRoleController {
      * @param menuIdListString 与当前角色Id绑定的menuId列表，多个menuId之间逗号分隔。
      * @return 应答结果对象。
      */
-    @SuppressWarnings("unchecked")
-    @ApiOperationSupport(ignoreParameters = {"sysRoleDto.createTimeStart", "sysRoleDto.createTimeEnd"})
+    @OperationLog(type = SysOperationLogType.UPDATE)
     @PostMapping("/update")
     public ResponseResult<Void> update(
             @MyRequestBody SysRoleDto sysRoleDto, @MyRequestBody String menuIdListString) {
@@ -100,7 +98,7 @@ public class SysRoleController {
         }
         Set<Long> menuIdSet = null;
         if (result.getData() != null) {
-            menuIdSet = (Set<Long>) result.getData().get("menuIdSet");
+            menuIdSet = result.getData().getObject("menuIdSet", new TypeReference<Set<Long>>(){});
         }
         if (!sysRoleService.update(sysRole, originalSysRole, menuIdSet)) {
             errorMessage = "更新失败，数据不存在，请刷新后重试！";
@@ -115,6 +113,7 @@ public class SysRoleController {
      * @param roleId 指定角色主键Id。
      * @return 应答结果对象。
      */
+    @OperationLog(type = SysOperationLogType.DELETE)
     @PostMapping("/delete")
     public ResponseResult<Void> delete(@MyRequestBody Long roleId) {
         if (MyCommonUtil.existBlankArgument(roleId)) {
@@ -249,6 +248,7 @@ public class SysRoleController {
      * @param userIdListString 逗号分隔的用户Id列表。
      * @return 应答结果对象。
      */
+    @OperationLog(type = SysOperationLogType.ADD_M2M)
     @PostMapping("/addUserRole")
     public ResponseResult<Void> addUserRole(
             @MyRequestBody Long roleId, @MyRequestBody String userIdListString) {
@@ -279,6 +279,7 @@ public class SysRoleController {
      * @param userId 指定用户主键Id。
      * @return 应答数据结果。
      */
+    @OperationLog(type = SysOperationLogType.DELETE_M2M)
     @PostMapping("/deleteUserRole")
     public ResponseResult<Void> deleteUserRole(
             @MyRequestBody Long roleId, @MyRequestBody Long userId) {
