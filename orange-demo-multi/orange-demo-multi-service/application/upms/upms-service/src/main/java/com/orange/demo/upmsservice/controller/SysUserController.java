@@ -1,6 +1,8 @@
 package com.orange.demo.upmsservice.controller;
 
 import com.alibaba.fastjson.TypeReference;
+import com.orange.demo.common.log.annotation.OperationLog;
+import com.orange.demo.common.log.model.constant.SysOperationLogType;
 import com.github.pagehelper.page.PageMethod;
 import com.orange.demo.upmsservice.model.*;
 import com.orange.demo.upmsservice.service.*;
@@ -12,8 +14,6 @@ import com.orange.demo.common.core.constant.*;
 import com.orange.demo.common.core.base.controller.BaseController;
 import com.orange.demo.common.core.base.service.IBaseService;
 import com.orange.demo.common.core.annotation.MyRequestBody;
-import com.orange.demo.common.core.validator.AddGroup;
-import com.orange.demo.common.core.validator.UpdateGroup;
 import com.orange.demo.upmsservice.config.ApplicationConfig;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import io.swagger.annotations.*;
@@ -21,7 +21,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.groups.Default;
 import java.util.*;
 
 /**
@@ -49,46 +48,55 @@ public class SysUserController extends BaseController<SysUser, SysUserVo, Long> 
     /**
      * 新增用户操作。
      *
-     * @param sysUserDto       新增用户对象。
-     * @param roleIdListString 逗号分隔的角色Id列表。
+     * @param sysUserDto           新增用户对象。
+     * @param dataPermIdListString 逗号分隔的数据权限Id列表。
+     * @param roleIdListString     逗号分隔的角色Id列表。
      * @return 应答结果对象，包含新增用户的主键Id。
      */
     @ApiOperationSupport(ignoreParameters = {
             "sysUserDto.userId",
             "sysUserDto.createTimeStart",
             "sysUserDto.createTimeEnd"})
+    @OperationLog(type = SysOperationLogType.ADD)
     @PostMapping("/add")
     public ResponseResult<Long> add(
-            @MyRequestBody SysUserDto sysUserDto, @MyRequestBody String roleIdListString) {
-        String errorMessage = MyCommonUtil.getModelValidationError(sysUserDto, Default.class, AddGroup.class);
+            @MyRequestBody SysUserDto sysUserDto,
+            @MyRequestBody String dataPermIdListString,
+            @MyRequestBody String roleIdListString) {
+        String errorMessage = MyCommonUtil.getModelValidationError(sysUserDto, false);
         if (errorMessage != null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
         SysUser sysUser = MyModelUtil.copyTo(sysUserDto, SysUser.class);
         CallResult result = sysUserService.verifyRelatedData(
-                sysUser, null, roleIdListString);
+                sysUser, null, roleIdListString, dataPermIdListString);
         if (!result.isSuccess()) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, result.getErrorMessage());
         }
         Set<Long> roleIdSet = result.getData().getObject("roleIdSet", new TypeReference<Set<Long>>() {});
-        sysUserService.saveNew(sysUser, roleIdSet);
+        Set<Long> dataPermIdSet = result.getData().getObject("dataPermIdSet", new TypeReference<Set<Long>>() {});
+        sysUserService.saveNew(sysUser, roleIdSet, dataPermIdSet);
         return ResponseResult.success(sysUser.getUserId());
     }
 
     /**
      * 更新用户操作。
      *
-     * @param sysUserDto       更新用户对象。
-     * @param roleIdListString 逗号分隔的角色Id列表。
+     * @param sysUserDto           更新用户对象。
+     * @param dataPermIdListString 逗号分隔的数据权限Id列表。
+     * @param roleIdListString     逗号分隔的角色Id列表。
      * @return 应答结果对象。
      */
     @ApiOperationSupport(ignoreParameters = {
             "sysUserDto.createTimeStart",
             "sysUserDto.createTimeEnd"})
+    @OperationLog(type = SysOperationLogType.UPDATE)
     @PostMapping("/update")
     public ResponseResult<Void> update(
-            @MyRequestBody SysUserDto sysUserDto, @MyRequestBody String roleIdListString) {
-        String errorMessage = MyCommonUtil.getModelValidationError(sysUserDto, Default.class, UpdateGroup.class);
+            @MyRequestBody SysUserDto sysUserDto,
+            @MyRequestBody String dataPermIdListString,
+            @MyRequestBody String roleIdListString) {
+        String errorMessage = MyCommonUtil.getModelValidationError(sysUserDto, true);
         if (errorMessage != null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
@@ -98,12 +106,13 @@ public class SysUserController extends BaseController<SysUser, SysUserVo, Long> 
         }
         SysUser sysUser = MyModelUtil.copyTo(sysUserDto, SysUser.class);
         CallResult result = sysUserService.verifyRelatedData(
-                sysUser, originalUser, roleIdListString);
+                sysUser, originalUser, roleIdListString, dataPermIdListString);
         if (!result.isSuccess()) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, result.getErrorMessage());
         }
         Set<Long> roleIdSet = result.getData().getObject("roleIdSet", new TypeReference<Set<Long>>() {});
-        if (!sysUserService.update(sysUser, originalUser, roleIdSet)) {
+        Set<Long> dataPermIdSet = result.getData().getObject("dataPermIdSet", new TypeReference<Set<Long>>() {});
+        if (!sysUserService.update(sysUser, originalUser, roleIdSet, dataPermIdSet)) {
             return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST);
         }
         return ResponseResult.success();
@@ -132,6 +141,7 @@ public class SysUserController extends BaseController<SysUser, SysUserVo, Long> 
      * @param userId 删除对象主键Id。
      * @return 应答结果对象。
      */
+    @OperationLog(type = SysOperationLogType.DELETE)
     @PostMapping("/delete")
     public ResponseResult<Void> delete(@MyRequestBody Long userId) {
         String errorMessage;
@@ -170,8 +180,7 @@ public class SysUserController extends BaseController<SysUser, SysUserVo, Long> 
         }
         SysUser sysUserFilter = MyModelUtil.copyTo(sysUserDtoFilter, SysUser.class);
         String orderBy = MyOrderParam.buildOrderBy(orderParam, SysUser.class);
-        List<SysUser> sysUserList =
-                sysUserService.getSysUserListWithRelation(sysUserFilter, orderBy);
+        List<SysUser> sysUserList = sysUserService.getSysUserListWithRelation(sysUserFilter, orderBy);
         return ResponseResult.success(MyPageUtil.makeResponseData(sysUserList, SysUser.INSTANCE));
     }
 
@@ -187,8 +196,7 @@ public class SysUserController extends BaseController<SysUser, SysUserVo, Long> 
             return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
         }
         // 这里查看用户数据时候，需要把用户多对多关联的角色和数据权限Id一并查出。
-        SysUser sysUser =
-                sysUserService.getByIdWithRelation(userId, MyRelationParam.full());
+        SysUser sysUser = sysUserService.getByIdWithRelation(userId, MyRelationParam.full());
         if (sysUser == null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST);
         }

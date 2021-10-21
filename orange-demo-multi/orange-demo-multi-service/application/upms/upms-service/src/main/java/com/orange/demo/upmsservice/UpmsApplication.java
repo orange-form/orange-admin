@@ -1,6 +1,8 @@
 package com.orange.demo.upmsservice;
 
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.cloud.client.SpringCloudApplication;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.ComponentScan;
@@ -11,6 +13,7 @@ import org.springframework.context.annotation.ComponentScan;
  * @author Jerry
  * @date 2020-08-08
  */
+@EnableAutoConfiguration(exclude = {DataSourceAutoConfiguration.class})
 @SpringCloudApplication
 @EnableFeignClients(basePackages = "com.orange.demo")
 @ComponentScan("com.orange.demo")

@@ -15,6 +15,13 @@ import java.util.*;
 public interface CourseMapper extends BaseDaoMapper<Course> {
 
     /**
+     * 批量插入对象列表。
+     *
+     * @param courseList 新增对象列表。
+     */
+    void insertList(List<Course> courseList);
+
+    /**
      * 获取过滤后的对象列表。
      *
      * @param inFilterColumn 参与(In-list)过滤的数据表列。

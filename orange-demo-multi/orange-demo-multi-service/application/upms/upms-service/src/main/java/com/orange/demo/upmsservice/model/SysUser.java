@@ -1,18 +1,18 @@
 package com.orange.demo.upmsservice.model;
 
+import com.baomidou.mybatisplus.annotation.*;
 import com.orange.demo.upmsapi.vo.SysUserVo;
 import com.orange.demo.upmsapi.constant.SysUserType;
 import com.orange.demo.upmsapi.constant.SysUserStatus;
+import com.orange.demo.common.core.annotation.RelationDict;
 import com.orange.demo.common.core.annotation.RelationConstDict;
 import com.orange.demo.common.core.annotation.RelationManyToMany;
 import com.orange.demo.common.core.base.model.BaseModel;
 import com.orange.demo.common.core.base.mapper.BaseModelMapper;
-import com.orange.demo.common.core.annotation.DeletedFlagColumn;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
-import javax.persistence.*;
 
 import java.util.Map;
 import java.util.List;
@@ -25,20 +25,19 @@ import java.util.List;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@Table(name = "zz_sys_user")
+@TableName(value = "zz_sys_user")
 public class SysUser extends BaseModel {
 
     /**
      * 用户Id。
      */
-    @Id
-    @Column(name = "user_id")
+    @TableId(value = "user_id")
     private Long userId;
 
     /**
      * 登录用户名。
      */
-    @Column(name = "login_name")
+    @TableField(value = "login_name")
     private String loginName;
 
     /**
@@ -49,44 +48,50 @@ public class SysUser extends BaseModel {
     /**
      * 用户显示名称。
      */
-    @Column(name = "show_name")
+    @TableField(value = "show_name")
     private String showName;
+
+    /**
+     * 用户部门Id。
+     */
+    @TableField(value = "dept_id")
+    private Long deptId;
 
     /**
      * 用户类型(0: 管理员 1: 系统管理用户 2: 系统业务用户)。
      */
-    @Column(name = "user_type")
+    @TableField(value = "user_type")
     private Integer userType;
 
     /**
      * 用户头像的Url。
      */
-    @Column(name = "head_image_url")
+    @TableField(value = "head_image_url")
     private String headImageUrl;
 
     /**
      * 用户状态(0: 正常 1: 锁定)。
      */
-    @Column(name = "user_status")
+    @TableField(value = "user_status")
     private Integer userStatus;
 
     /**
      * 逻辑删除标记字段(1: 正常 -1: 已删除)。
      */
-    @DeletedFlagColumn
-    @Column(name = "deleted_flag")
+    @TableLogic
+    @TableField(value = "deleted_flag")
     private Integer deletedFlag;
 
     /**
      * createTime 范围过滤起始值(>=)。
      */
-    @Transient
+    @TableField(exist = false)
     private String createTimeStart;
 
     /**
      * createTime 范围过滤结束值(<=)。
      */
-    @Transient
+    @TableField(exist = false)
     private String createTimeEnd;
 
     /**
@@ -96,19 +101,38 @@ public class SysUser extends BaseModel {
             relationMapperName = "sysUserRoleMapper",
             relationMasterIdField = "userId",
             relationModelClass = SysUserRole.class)
-    @Transient
+    @TableField(exist = false)
     private List<SysUserRole> sysUserRoleList;
+
+    /**
+     * 多对多用户数据权限数据集合。
+     */
+    @RelationManyToMany(
+            relationMapperName = "sysDataPermUserMapper",
+            relationMasterIdField = "userId",
+            relationModelClass = SysDataPermUser.class)
+    @TableField(exist = false)
+    private List<SysDataPermUser> sysDataPermUserList;
+
+    @RelationDict(
+            masterIdField = "deptId",
+            slaveServiceName = "sysDeptService",
+            slaveModelClass = SysDept.class,
+            slaveIdField = "deptId",
+            slaveNameField = "deptName")
+    @TableField(exist = false)
+    private Map<String, Object> deptIdDictMap;
 
     @RelationConstDict(
             masterIdField = "userType",
             constantDictClass = SysUserType.class)
-    @Transient
+    @TableField(exist = false)
     private Map<String, Object> userTypeDictMap;
 
     @RelationConstDict(
             masterIdField = "userStatus",
             constantDictClass = SysUserStatus.class)
-    @Transient
+    @TableField(exist = false)
     private Map<String, Object> userStatusDictMap;
 
     @Mapper
@@ -120,6 +144,7 @@ public class SysUser extends BaseModel {
          * @return 实体对象。
          */
         @Mapping(target = "sysUserRoleList", expression = "java(mapToBean(sysUserVo.getSysUserRoleList(), com.orange.demo.upmsservice.model.SysUserRole.class))")
+        @Mapping(target = "sysDataPermUserList", expression = "java(mapToBean(sysUserVo.getSysDataPermUserList(), com.orange.demo.upmsservice.model.SysDataPermUser.class))")
         @Override
         SysUser toModel(SysUserVo sysUserVo);
         /**
@@ -129,6 +154,7 @@ public class SysUser extends BaseModel {
          * @return 域对象。
          */
         @Mapping(target = "sysUserRoleList", expression = "java(beanToMap(sysUser.getSysUserRoleList(), false))")
+        @Mapping(target = "sysDataPermUserList", expression = "java(beanToMap(sysUser.getSysDataPermUserList(), false))")
         @Override
         SysUserVo fromModel(SysUser sysUser);
     }

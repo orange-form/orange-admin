@@ -2,6 +2,7 @@ package com.orange.demo.common.core.base.controller;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.ReflectUtil;
+import com.baomidou.mybatisplus.annotation.*;
 import com.orange.demo.common.core.base.mapper.BaseModelMapper;
 import com.orange.demo.common.core.base.service.IBaseService;
 import com.orange.demo.common.core.constant.AggregationKind;
@@ -18,7 +19,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import javax.persistence.Id;
+import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.util.LinkedList;
@@ -37,7 +38,7 @@ import java.util.stream.Collectors;
  * @date 2020-08-08
  */
 @Slf4j
-public abstract class BaseController<M, V, K> {
+public abstract class BaseController<M, V, K extends Serializable> {
 
     /**
      * 当前Service关联的主Model实体对象的Class。
@@ -68,7 +69,7 @@ public abstract class BaseController<M, V, K> {
         domainVoClass = (Class<V>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[1];
         Field[] fields = ReflectUtil.getFields(modelClass);
         for (Field field : fields) {
-            if (null != field.getAnnotation(Id.class)) {
+            if (null != field.getAnnotation(TableId.class)) {
                 idFieldName = field.getName();
                 break;
             }

@@ -28,7 +28,8 @@
         </el-form-item>
         <el-form-item label="课程名称">
           <el-input class="filter-item" v-model="formSetClassCourse.formFilter.courseName"
-            :clearable="true" placeholder="课程名称" />
+            :clearable="true" placeholder="课程名称"
+          />
         </el-form-item>
         <el-button slot="operator" type="primary" :plain="true" size="mini" @click="refreshFormSetClassCourse(true)">查询</el-button>
         <el-button slot="operator" type="primary" size="mini" :disabled="tableSelectRowList.length <= 0 || !checkPermCodeExist('formSetClassCourse:formSetClassCourse:addClassCourse')"
@@ -39,10 +40,14 @@
     </el-form>
     <el-row>
       <el-col :span="24">
-        <el-table :data="formSetClassCourse.Course.impl.dataList" size="mini" @sort-change="formSetClassCourse.Course.impl.onSortChange"
-          @selection-change="onCourseSelectionChange" header-cell-class-name="table-header-gray">
+        <el-table :data="formSetClassCourse.Course.impl.dataList" size="mini"
+          @sort-change="formSetClassCourse.Course.impl.onSortChange"
+          @selection-change="onCourseSelectionChange"
+          header-cell-class-name="table-header-gray">
           <el-table-column label="序号" type="index" header-align="center" align="center" width="55px" :index="formSetClassCourse.Course.impl.getTableIndex" />
-          <el-table-column type="selection" header-align="center" align="center" width="55px" />
+          <el-table-column type="selection"
+            header-align="center" align="center" width="55px"
+          />
           <el-table-column label="课程名称" prop="courseName">
           </el-table-column>
           <el-table-column label="课程难度" prop="difficultyDictMap.name">

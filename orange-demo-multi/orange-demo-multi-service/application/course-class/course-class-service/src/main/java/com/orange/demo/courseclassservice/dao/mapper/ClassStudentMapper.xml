@@ -5,4 +5,15 @@
         <id column="class_id" jdbcType="BIGINT" property="classId"/>
         <id column="student_id" jdbcType="BIGINT" property="studentId"/>
     </resultMap>
+
+    <insert id="insertList">
+        INSERT INTO zz_class_student
+            (class_id,
+            student_id)
+        VALUES
+        <foreach collection="list" index="index" item="item" separator="," >
+            (#{item.classId},
+            #{item.studentId})
+        </foreach>
+    </insert>
 </mapper>

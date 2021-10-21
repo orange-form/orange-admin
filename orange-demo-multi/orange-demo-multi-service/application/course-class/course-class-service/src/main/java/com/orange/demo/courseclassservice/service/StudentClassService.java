@@ -23,6 +23,13 @@ public interface StudentClassService extends IBaseService<StudentClass, Long> {
     StudentClass saveNew(StudentClass studentClass);
 
     /**
+     * 利用数据库的insertList语法，批量插入对象列表。
+     *
+     * @param studentClassList 新增对象列表。
+     */
+    void saveNewBatch(List<StudentClass> studentClassList);
+
+    /**
      * 更新数据对象。
      *
      * @param studentClass         更新的对象。
@@ -145,4 +152,13 @@ public interface StudentClassService extends IBaseService<StudentClass, Long> {
      * @return 数据全部正确返回true，否则false，同时返回具体的错误信息。
      */
     CallResult verifyRelatedData(StudentClass studentClass, StudentClass originalStudentClass);
+
+    /**
+     * 根据最新对象和原有对象的数据对比，判断关联的远程字典数据和多对一主表数据是否都是合法数据。
+     *
+     * @param studentClass         最新数据对象。
+     * @param originalStudentClass 原有数据对象。
+     * @return 数据全部正确返回true，否则false，同时返回具体的错误信息。
+     */
+    CallResult verifyRemoteRelatedData(StudentClass studentClass, StudentClass originalStudentClass);
 }

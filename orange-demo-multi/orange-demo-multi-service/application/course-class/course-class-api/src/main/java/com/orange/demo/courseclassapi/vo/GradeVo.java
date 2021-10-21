@@ -5,12 +5,12 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 /**
- * GradeVO对象。
+ * GradeVO视图对象。
  *
  * @author Jerry
  * @date 2020-08-08
  */
-@ApiModel("GradeVO实体对象")
+@ApiModel("GradeVO视图对象")
 @Data
 public class GradeVo {
 

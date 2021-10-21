@@ -9,6 +9,8 @@ import com.orange.demo.common.core.util.MyModelUtil;
 import com.orange.demo.common.core.util.MyCommonUtil;
 import com.orange.demo.common.core.annotation.MyRequestBody;
 import com.orange.demo.common.core.validator.UpdateGroup;
+import com.orange.demo.common.log.annotation.OperationLog;
+import com.orange.demo.common.log.model.constant.SysOperationLogType;
 import com.orange.demo.upmsapi.dto.SysPermModuleDto;
 import com.orange.demo.upmsapi.vo.SysPermModuleVo;
 import com.orange.demo.upmsservice.model.SysPerm;
@@ -46,6 +48,7 @@ public class SysPermModuleController {
      * @return 应答结果对象，包含新增权限资源模块的主键Id。
      */
     @ApiOperationSupport(ignoreParameters = {"sysPermModuleDto.moduleId"})
+    @OperationLog(type = SysOperationLogType.ADD)
     @PostMapping("/add")
     public ResponseResult<Long> add(@MyRequestBody SysPermModuleDto sysPermModuleDto) {
         String errorMessage = MyCommonUtil.getModelValidationError(sysPermModuleDto);
@@ -68,6 +71,7 @@ public class SysPermModuleController {
      * @param sysPermModuleDto 更新权限资源模块对象。
      * @return 应答结果对象，包含新增权限资源模块的主键Id。
      */
+    @OperationLog(type = SysOperationLogType.UPDATE)
     @PostMapping("/update")
     public ResponseResult<Void> update(@MyRequestBody SysPermModuleDto sysPermModuleDto) {
         String errorMessage = MyCommonUtil.getModelValidationError(sysPermModuleDto, Default.class, UpdateGroup.class);
@@ -99,6 +103,7 @@ public class SysPermModuleController {
      * @param moduleId 指定的权限资源模块主键Id。
      * @return 应答结果对象。
      */
+    @OperationLog(type = SysOperationLogType.DELETE)
     @PostMapping("/delete")
     public ResponseResult<Void> delete(@MyRequestBody Long moduleId) {
         if (MyCommonUtil.existBlankArgument(moduleId)) {

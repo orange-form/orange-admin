@@ -6,6 +6,8 @@ import com.orange.demo.common.core.upload.BaseUpDownloader;
 import com.orange.demo.common.core.upload.UpDownloaderFactory;
 import com.orange.demo.common.core.upload.UploadResponseInfo;
 import com.orange.demo.common.core.upload.UploadStoreInfo;
+import com.orange.demo.common.log.annotation.OperationLog;
+import com.orange.demo.common.log.model.constant.SysOperationLogType;
 import com.github.pagehelper.page.PageMethod;
 import com.orange.demo.courseclassservice.model.*;
 import com.orange.demo.courseclassservice.service.*;
@@ -17,7 +19,6 @@ import com.orange.demo.common.core.constant.*;
 import com.orange.demo.common.core.base.controller.BaseController;
 import com.orange.demo.common.core.base.service.IBaseService;
 import com.orange.demo.common.core.annotation.MyRequestBody;
-import com.orange.demo.common.core.validator.UpdateGroup;
 import com.orange.demo.common.redis.cache.SessionCacheHelper;
 import com.orange.demo.courseclassservice.config.ApplicationConfig;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
@@ -28,7 +29,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
-import javax.validation.groups.Default;
 import java.util.*;
 
 /**
@@ -71,9 +71,10 @@ public class CourseController extends BaseController<Course, CourseVo, Long> {
             "courseDto.classHourEnd",
             "courseDto.updateTimeStart",
             "courseDto.updateTimeEnd"})
+    @OperationLog(type = SysOperationLogType.ADD)
     @PostMapping("/add")
     public ResponseResult<Long> add(@MyRequestBody CourseDto courseDto) {
-        String errorMessage = MyCommonUtil.getModelValidationError(courseDto);
+        String errorMessage = MyCommonUtil.getModelValidationError(courseDto, false);
         if (errorMessage != null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
@@ -101,9 +102,10 @@ public class CourseController extends BaseController<Course, CourseVo, Long> {
             "CourseDto.classHourEnd",
             "CourseDto.updateTimeStart",
             "CourseDto.updateTimeEnd"})
+    @OperationLog(type = SysOperationLogType.UPDATE)
     @PostMapping("/update")
     public ResponseResult<Void> update(@MyRequestBody CourseDto courseDto) {
-        String errorMessage = MyCommonUtil.getModelValidationError(courseDto, Default.class, UpdateGroup.class);
+        String errorMessage = MyCommonUtil.getModelValidationError(courseDto, true);
         if (errorMessage != null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
@@ -132,6 +134,7 @@ public class CourseController extends BaseController<Course, CourseVo, Long> {
      * @param courseId 删除对象主键Id。
      * @return 应答结果对象。
      */
+    @OperationLog(type = SysOperationLogType.DELETE)
     @PostMapping("/delete")
     public ResponseResult<Void> delete(@MyRequestBody Long courseId) {
         String errorMessage;
@@ -170,8 +173,7 @@ public class CourseController extends BaseController<Course, CourseVo, Long> {
         }
         Course courseFilter = MyModelUtil.copyTo(courseDtoFilter, Course.class);
         String orderBy = MyOrderParam.buildOrderBy(orderParam, Course.class);
-        List<Course> courseList =
-                courseService.getCourseListWithRelation(courseFilter, orderBy);
+        List<Course> courseList = courseService.getCourseListWithRelation(courseFilter, orderBy);
         return ResponseResult.success(MyPageUtil.makeResponseData(courseList, Course.INSTANCE));
     }
 
@@ -186,8 +188,7 @@ public class CourseController extends BaseController<Course, CourseVo, Long> {
         if (MyCommonUtil.existBlankArgument(courseId)) {
             return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
         }
-        Course course =
-                courseService.getByIdWithRelation(courseId, MyRelationParam.full());
+        Course course = courseService.getByIdWithRelation(courseId, MyRelationParam.full());
         if (course == null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST);
         }
@@ -205,6 +206,7 @@ public class CourseController extends BaseController<Course, CourseVo, Long> {
      * @param asImage   下载文件是否为图片。
      * @param response  Http 应答对象。
      */
+    @OperationLog(type = SysOperationLogType.DOWNLOAD, saveResponse = false)
     @GetMapping("/download")
     public void download(
             @RequestParam(required = false) Long courseId,
@@ -263,6 +265,7 @@ public class CourseController extends BaseController<Course, CourseVo, Long> {
      * @param asImage    是否作为图片上传。如果是图片，今后下载的时候无需权限验证。否则就是附件上传，下载时需要权限验证。
      * @param uploadFile 上传文件对象。
      */
+    @OperationLog(type = SysOperationLogType.UPLOAD, saveResponse = false)
     @PostMapping("/upload")
     public void upload(
             @RequestParam String fieldName,

@@ -8,12 +8,12 @@ import java.util.Date;
 import java.util.Map;
 
 /**
- * StudentActionStatsVO对象。
+ * StudentActionStatsVO视图对象。
  *
  * @author Jerry
  * @date 2020-08-08
  */
-@ApiModel("StudentActionStatsVO实体对象")
+@ApiModel("StudentActionStatsVO视图对象")
 @Data
 public class StudentActionStatsVo {
 

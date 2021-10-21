@@ -12,7 +12,8 @@
         </el-form-item>
         <el-form-item label="班级名称">
           <el-input class="filter-item" v-model="formClass.formFilter.className"
-            :clearable="true" placeholder="班级名称" />
+            :clearable="true" placeholder="班级名称"
+          />
         </el-form-item>
         <el-button slot="operator" type="primary" :plain="true" size="mini" @click="refreshFormClass(true)">查询</el-button>
       </filter-box>
@@ -181,7 +182,7 @@
 
 <script>
 /* eslint-disable-next-line */
-import { findTreeNodePath, findItemFromList } from '@/utils';
+import { findTreeNode, findTreeNodePath, findItemFromList } from '@/utils';
 /* eslint-disable-next-line */
 import rules from '@/utils/validate.js';
 /* eslint-disable-next-line */
@@ -370,7 +371,7 @@ export default {
     loadSchoolIdDropdownList () {
       return new Promise((resolve, reject) => {
         let params = {};
-        DictionaryController.dictSchoolInfo(this, params).then(res => {
+        DictionaryController.dictSysDeptByParentId(this, params).then(res => {
           resolve(res.getList());
         }).catch(e => {
           reject(e);

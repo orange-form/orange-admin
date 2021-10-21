@@ -1,8 +1,8 @@
 package com.orange.demo.common.core.base.model;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.Data;
 
-import javax.persistence.Column;
 import java.util.Date;
 
 /**
@@ -17,24 +17,24 @@ public class BaseModel {
     /**
      * 创建者Id。
      */
-    @Column(name = "create_user_id")
+    @TableField(value = "create_user_id")
     private Long createUserId;
 
     /**
      * 创建时间。
      */
-    @Column(name = "create_time")
+    @TableField(value = "create_time")
     private Date createTime;
 
     /**
      * 更新者Id。
      */
-    @Column(name = "update_user_id")
+    @TableField(value = "update_user_id")
     private Long updateUserId;
 
     /**
      * 更新时间。
      */
-    @Column(name = "update_time")
+    @TableField(value = "update_time")
     private Date updateTime;
 }

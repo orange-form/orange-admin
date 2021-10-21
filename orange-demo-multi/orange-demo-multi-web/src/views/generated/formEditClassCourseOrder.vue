@@ -6,7 +6,9 @@
         <el-col :span="24">
           <el-form-item label="课程顺序" prop="StudentClass.course.classCourse.courseOrder">
             <el-input-number class="input-item" v-model="formData.StudentClass.course.classCourse.courseOrder"
-              :clearable="true" controls-position="right" placeholder="课程顺序(数值越小越靠前)" />
+              :clearable="true"
+              placeholder="课程顺序(数值越小越靠前)"
+            />
           </el-form-item>
         </el-col>
         <el-col :span="24">

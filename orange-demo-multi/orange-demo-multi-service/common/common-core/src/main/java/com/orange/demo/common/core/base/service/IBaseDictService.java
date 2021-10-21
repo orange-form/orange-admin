@@ -1,5 +1,6 @@
 package com.orange.demo.common.core.base.service;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -10,7 +11,7 @@ import java.util.List;
  * @author Jerry
  * @date 2020-08-08
  */
-public interface IBaseDictService<M, K> extends IBaseService<M, K> {
+public interface IBaseDictService<M, K extends Serializable> extends IBaseService<M, K> {
 
     /**
      * 重新加载数据库中所有当前表数据到系统内存。

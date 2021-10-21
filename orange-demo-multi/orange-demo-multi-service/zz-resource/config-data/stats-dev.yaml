@@ -15,6 +15,15 @@ application:
   # 通常在调试和测试阶段设置为false，以便及时发现问题。
   ignoreRpcError: false
 
+datafilter:
+  tenant:
+    enabled: false
+  dataperm:
+    enabled: true
+    # 在拼接数据权限过滤的SQL时，我们会用到sys_dept_relation表，该表的前缀由此配置项指定。
+    # 如果没有前缀，请使用 "" 。
+    deptRelationTablePrefix: zz_
+
 sequence:
   # 是否使用基于美团Leaf的分布式Id生成器。
   advanceIdGenerator: true
@@ -25,15 +34,19 @@ sequence:
   # zk中生成WorkNode的路径。不同的业务可以使用不同的路径，以免冲突。
   zkPath: com/orange/demo
 
-# mybatis的基本配置
-mybatis:
-  mapperLocations: classpath:com/orange/demo/*/dao/mapper/*Mapper.xml
-  typeAliasesPackage: com.orange.demo.*.model
+common-log:
+  # 操作日志配置，对应配置文件common-log/OperationLogProperties.java
+  operation-log:
+    enabled: true
+    kafkaTopic: SysOperationLog
 
-mapper:
-  mappers: tk.mybatis.mapper.common.Mapper,tk.mybatis.mapper.additional.insert.InsertListMapper
-  not-empty: false
-  identity: MYSQL
+mybatis-plus:
+  mapper-locations: classpath:com/orange/demo/*/dao/mapper/*Mapper.xml
+  type-aliases-package: com.orange.demo.*.model
+  global-config:
+    db-config:
+      logic-delete-value: -1
+      logic-not-delete-value: 1
 
 pagehelper:
   helperDialect: mysql
@@ -42,6 +55,14 @@ pagehelper:
   params: count=countSql
 
 spring:
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      batch-size: 16
+      retries: 0
+      buffer-memory: 33554432
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource
     druid:

@@ -12,6 +12,8 @@ import com.orange.demo.common.core.util.MyCommonUtil;
 import com.orange.demo.common.core.util.MyPageUtil;
 import com.orange.demo.common.core.annotation.MyRequestBody;
 import com.orange.demo.common.core.validator.UpdateGroup;
+import com.orange.demo.common.log.annotation.OperationLog;
+import com.orange.demo.common.log.model.constant.SysOperationLogType;
 import com.orange.demo.upmsapi.dto.SysPermDto;
 import com.orange.demo.upmsapi.vo.SysPermVo;
 import com.orange.demo.upmsservice.model.SysPerm;
@@ -45,6 +47,7 @@ public class SysPermController {
      * @return 应答结果对象，包含新增权限资源的主键Id。
      */
     @ApiOperationSupport(ignoreParameters = {"sysPermDto.permId"})
+    @OperationLog(type = SysOperationLogType.ADD)
     @PostMapping("/add")
     public ResponseResult<Long> add(@MyRequestBody SysPermDto sysPermDto) {
         String errorMessage = MyCommonUtil.getModelValidationError(sysPermDto);
@@ -66,6 +69,7 @@ public class SysPermController {
      * @param sysPermDto 更新权限资源对象。
      * @return 应答结果对象，包含更新权限资源的主键Id。
      */
+    @OperationLog(type = SysOperationLogType.UPDATE)
     @PostMapping("/update")
     public ResponseResult<Void> update(@MyRequestBody SysPermDto sysPermDto) {
         String errorMessage = MyCommonUtil.getModelValidationError(sysPermDto, Default.class, UpdateGroup.class);
@@ -92,6 +96,7 @@ public class SysPermController {
      * @param permId 指定的权限资源主键Id。
      * @return 应答结果对象。
      */
+    @OperationLog(type = SysOperationLogType.DELETE)
     @PostMapping("/delete")
     public ResponseResult<Void> delete(@MyRequestBody Long permId) {
         if (MyCommonUtil.existBlankArgument(permId)) {

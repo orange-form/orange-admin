@@ -65,23 +65,20 @@
     <orderEntry type="library" name="Maven: com.alibaba:druid-spring-boot-starter:1.2.6" level="project" />
     <orderEntry type="library" name="Maven: com.alibaba:druid:1.2.6" level="project" />
     <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot-autoconfigure:2.3.10.RELEASE" level="project" />
-    <orderEntry type="library" name="Maven: tk.mybatis:mapper-spring-boot-starter:2.1.5" level="project" />
+    <orderEntry type="library" name="Maven: com.baomidou:mybatis-plus-boot-starter:3.4.2" level="project" />
+    <orderEntry type="library" name="Maven: com.baomidou:mybatis-plus:3.4.2" level="project" />
+    <orderEntry type="library" name="Maven: com.baomidou:mybatis-plus-extension:3.4.2" level="project" />
+    <orderEntry type="library" name="Maven: com.baomidou:mybatis-plus-core:3.4.2" level="project" />
+    <orderEntry type="library" name="Maven: com.baomidou:mybatis-plus-annotation:3.4.2" level="project" />
     <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot-starter-jdbc:2.3.10.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: com.zaxxer:HikariCP:3.4.5" level="project" />
     <orderEntry type="library" name="Maven: org.springframework:spring-jdbc:5.2.14.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: org.springframework:spring-tx:5.2.14.RELEASE" level="project" />
-    <orderEntry type="library" name="Maven: org.mybatis:mybatis:3.4.6" level="project" />
-    <orderEntry type="library" name="Maven: org.mybatis:mybatis-spring:1.3.2" level="project" />
-    <orderEntry type="library" name="Maven: tk.mybatis:mapper-core:1.1.5" level="project" />
-    <orderEntry type="library" name="Maven: javax.persistence:persistence-api:1.0" level="project" />
-    <orderEntry type="library" name="Maven: tk.mybatis:mapper-base:1.1.5" level="project" />
-    <orderEntry type="library" name="Maven: tk.mybatis:mapper-weekend:1.1.5" level="project" />
-    <orderEntry type="library" name="Maven: tk.mybatis:mapper-spring:1.1.5" level="project" />
-    <orderEntry type="library" name="Maven: tk.mybatis:mapper-extra:1.1.5" level="project" />
-    <orderEntry type="library" name="Maven: tk.mybatis:mapper-spring-boot-autoconfigure:2.1.5" level="project" />
     <orderEntry type="library" name="Maven: com.github.pagehelper:pagehelper-spring-boot-starter:1.3.0" level="project" />
     <orderEntry type="library" name="Maven: org.mybatis.spring.boot:mybatis-spring-boot-starter:2.1.3" level="project" />
     <orderEntry type="library" name="Maven: org.mybatis.spring.boot:mybatis-spring-boot-autoconfigure:2.1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.mybatis:mybatis:3.5.5" level="project" />
+    <orderEntry type="library" name="Maven: org.mybatis:mybatis-spring:2.0.5" level="project" />
     <orderEntry type="library" name="Maven: com.github.pagehelper:pagehelper-spring-boot-autoconfigure:1.3.0" level="project" />
     <orderEntry type="library" name="Maven: com.github.pagehelper:pagehelper:5.2.0" level="project" />
     <orderEntry type="library" name="Maven: com.github.jsqlparser:jsqlparser:3.2" level="project" />

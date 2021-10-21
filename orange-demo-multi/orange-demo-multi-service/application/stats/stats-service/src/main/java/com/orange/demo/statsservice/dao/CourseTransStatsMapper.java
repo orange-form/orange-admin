@@ -15,6 +15,13 @@ import java.util.*;
 public interface CourseTransStatsMapper extends BaseDaoMapper<CourseTransStats> {
 
     /**
+     * 批量插入对象列表。
+     *
+     * @param courseTransStatsList 新增对象列表。
+     */
+    void insertList(List<CourseTransStats> courseTransStatsList);
+
+    /**
      * 获取分组计算后的数据对象列表。
      *
      * @param courseTransStatsFilter 主表过滤对象。

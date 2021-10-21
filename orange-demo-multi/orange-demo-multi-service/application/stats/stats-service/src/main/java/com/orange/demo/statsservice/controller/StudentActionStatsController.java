@@ -104,8 +104,7 @@ public class StudentActionStatsController extends BaseController<StudentActionSt
         if (MyCommonUtil.existBlankArgument(statsId)) {
             return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
         }
-        StudentActionStats studentActionStats =
-                studentActionStatsService.getByIdWithRelation(statsId, MyRelationParam.full());
+        StudentActionStats studentActionStats = studentActionStatsService.getByIdWithRelation(statsId, MyRelationParam.full());
         if (studentActionStats == null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST);
         }

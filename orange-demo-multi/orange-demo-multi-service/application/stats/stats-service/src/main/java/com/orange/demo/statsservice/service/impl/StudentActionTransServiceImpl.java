@@ -1,8 +1,11 @@
 package com.orange.demo.statsservice.service.impl;
 
+import cn.hutool.core.collection.CollUtil;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.orange.demo.statsservice.service.*;
 import com.orange.demo.statsservice.dao.*;
 import com.orange.demo.statsservice.model.*;
+import com.orange.demo.upmsapi.client.*;
 import com.orange.demo.courseclassapi.client.*;
 import com.orange.demo.common.core.util.*;
 import com.orange.demo.common.core.object.MyRelationParam;
@@ -32,7 +35,7 @@ public class StudentActionTransServiceImpl extends BaseService<StudentActionTran
     @Autowired
     private StudentActionTransMapper studentActionTransMapper;
     @Autowired
-    private SchoolInfoClient schoolInfoClient;
+    private SysDeptClient sysDeptClient;
     @Autowired
     private GradeClient gradeClient;
     @Autowired
@@ -57,10 +60,22 @@ public class StudentActionTransServiceImpl extends BaseService<StudentActionTran
     @Transactional(rollbackFor = Exception.class)
     @Override
     public StudentActionTrans saveNew(StudentActionTrans studentActionTrans) {
-        studentActionTrans.setTransId(idGenerator.nextLongId());
-        studentActionTrans.setCreateTime(new Date());
-        studentActionTransMapper.insert(studentActionTrans);
+        studentActionTransMapper.insert(this.buildDefaultValue(studentActionTrans));
         return studentActionTrans;
+    }
+
+    /**
+     * 利用数据库的insertList语法，批量插入对象列表。
+     *
+     * @param studentActionTransList 新增对象列表。
+     */
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public void saveNewBatch(List<StudentActionTrans> studentActionTransList) {
+        if (CollUtil.isNotEmpty(studentActionTransList)) {
+            studentActionTransList.forEach(this::buildDefaultValue);
+            studentActionTransMapper.insertList(studentActionTransList);
+        }
     }
 
     /**
@@ -75,7 +90,8 @@ public class StudentActionTransServiceImpl extends BaseService<StudentActionTran
     public boolean update(StudentActionTrans studentActionTrans, StudentActionTrans originalStudentActionTrans) {
         studentActionTrans.setCreateTime(originalStudentActionTrans.getCreateTime());
         // 这里重点提示，在执行主表数据更新之前，如果有哪些字段不支持修改操作，请用原有数据对象字段替换当前数据字段。
-        return studentActionTransMapper.updateByPrimaryKey(studentActionTrans) == 1;
+        UpdateWrapper<StudentActionTrans> uw = this.createUpdateQueryForNullValue(studentActionTrans, studentActionTrans.getTransId());
+        return studentActionTransMapper.update(studentActionTrans, uw) == 1;
     }
 
     /**
@@ -87,8 +103,7 @@ public class StudentActionTransServiceImpl extends BaseService<StudentActionTran
     @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean remove(Long transId) {
-        // 这里先删除主数据
-        return this.removeById(transId);
+        return studentActionTransMapper.deleteById(transId) == 1;
     }
 
     /**
@@ -177,7 +192,7 @@ public class StudentActionTransServiceImpl extends BaseService<StudentActionTran
         String errorMessageFormat = "数据验证失败，关联的%s并不存在，请刷新后重试！";
         if (this.needToVerify(studentActionTrans, originalStudentActionTrans, StudentActionTrans::getSchoolId)) {
             ResponseResult<Boolean> responseResult =
-                    schoolInfoClient.existId(studentActionTrans.getSchoolId());
+                    sysDeptClient.existId(studentActionTrans.getSchoolId());
             if (this.hasErrorOfVerifyRemoteRelatedData(responseResult)) {
                 return CallResult.error(String.format(errorMessageFormat, "学生校区"));
             }
@@ -190,5 +205,11 @@ public class StudentActionTransServiceImpl extends BaseService<StudentActionTran
             }
         }
         return CallResult.ok();
+    }
+
+    private StudentActionTrans buildDefaultValue(StudentActionTrans studentActionTrans) {
+        studentActionTrans.setTransId(idGenerator.nextLongId());
+        studentActionTrans.setCreateTime(new Date());
+        return studentActionTrans;
     }
 }

@@ -16,6 +16,17 @@ application:
   # 是否忽略远程调用中出现的任何错误，包括逻辑异常和系统异常。
   # 通常在调试和测试阶段设置为false，以便及时发现问题。
   ignoreRpcError: false
+  # Session的数据权限信息在Redis中的过期时间(秒)。
+  dataPermExpiredSeconds: 86460
+
+datafilter:
+  tenant:
+    enabled: false
+  dataperm:
+    enabled: true
+    # 在拼接数据权限过滤的SQL时，我们会用到sys_dept_relation表，该表的前缀由此配置项指定。
+    # 如果没有前缀，请使用 "" 。
+    deptRelationTablePrefix: zz_
 
 sequence:
   # 是否使用基于美团Leaf的分布式Id生成器。
@@ -27,14 +38,19 @@ sequence:
   # zk中生成WorkNode的路径。不同的业务可以使用不同的路径，以免冲突。
   zkPath: com/orange/demo
 
-mybatis:
-  mapperLocations: classpath:com/orange/demo/*/dao/mapper/*Mapper.xml,com/orange/demo/common/datasync/dao/mapper/*Mapper.xml,com/orange/demo/common/log/dao/mapper/*Mapper.xml
-  typeAliasesPackage: com.orange.demo.*.model,com.orange.demo.common.datasync.model,com.orange.demo.common.log.model
+common-log:
+  # 操作日志配置，对应配置文件common-log/OperationLogProperties.java
+  operation-log:
+    enabled: true
+    kafkaTopic: SysOperationLog
 
-mapper:
-  mappers: tk.mybatis.mapper.common.Mapper,tk.mybatis.mapper.additional.insert.InsertListMapper
-  not-empty: false
-  identity: MYSQL
+mybatis-plus:
+  mapper-locations: classpath:com/orange/demo/*/dao/mapper/*Mapper.xml,com/orange/demo/common/datasync/dao/mapper/*Mapper.xml,com/orange/demo/common/log/dao/mapper/*Mapper.xml
+  type-aliases-package: com.orange.demo.*.model,com.orange.demo.common.datasync.model,com.orange.demo.common.log.model
+  global-config:
+    db-config:
+      logic-delete-value: -1
+      logic-not-delete-value: 1
 
 pagehelper:
   helperDialect: mysql
@@ -43,12 +59,25 @@ pagehelper:
   params: count=countSql
 
 spring:
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      batch-size: 16
+      retries: 0
+      buffer-memory: 33554432
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource
     druid:
-      url: jdbc:mysql://localhost:3306/zzdemo-multi?characterEncoding=utf8&useSSL=true&serverTimezone=Asia/Shanghai
-      username: root
-      password: 123456
+      main:
+        url: jdbc:mysql://localhost:3306/zzdemo-multi?characterEncoding=utf8&useSSL=true&serverTimezone=Asia/Shanghai
+        username: root
+        password: 123456
+      operation-log:
+        url: jdbc:mysql://localhost:3306/zzdemo-multi?characterEncoding=utf8&useSSL=true&serverTimezone=Asia/Shanghai
+        username: root
+        password: 123456
       driver-class-name: com.mysql.cj.jdbc.Driver
       name: upms
       initialSize: 10

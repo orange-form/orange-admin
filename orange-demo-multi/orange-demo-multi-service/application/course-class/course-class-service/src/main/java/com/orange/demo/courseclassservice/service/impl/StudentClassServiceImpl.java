@@ -1,10 +1,15 @@
 package com.orange.demo.courseclassservice.service.impl;
 
+import cn.hutool.core.collection.CollUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.orange.demo.courseclassservice.service.*;
 import com.orange.demo.courseclassservice.dao.*;
 import com.orange.demo.courseclassservice.model.*;
+import com.orange.demo.upmsapi.client.*;
 import com.orange.demo.common.core.util.*;
 import com.orange.demo.common.core.object.MyRelationParam;
+import com.orange.demo.common.core.object.ResponseResult;
 import com.orange.demo.common.core.object.CallResult;
 import com.orange.demo.common.core.object.TokenData;
 import com.orange.demo.common.core.constant.GlobalDeletedFlag;
@@ -16,7 +21,6 @@ import com.github.pagehelper.Page;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import tk.mybatis.mapper.entity.Example;
 
 import java.util.*;
 
@@ -37,9 +41,9 @@ public class StudentClassServiceImpl extends BaseService<StudentClass, Long> imp
     @Autowired
     private ClassStudentMapper classStudentMapper;
     @Autowired
-    private SchoolInfoService schoolInfoService;
-    @Autowired
     private StudentService studentService;
+    @Autowired
+    private SysDeptClient sysDeptClient;
     @Autowired
     private IdGeneratorWrapper idGenerator;
 
@@ -62,13 +66,22 @@ public class StudentClassServiceImpl extends BaseService<StudentClass, Long> imp
     @Transactional(rollbackFor = Exception.class)
     @Override
     public StudentClass saveNew(StudentClass studentClass) {
-        studentClass.setClassId(idGenerator.nextLongId());
-        TokenData tokenData = TokenData.takeFromRequest();
-        studentClass.setCreateUserId(tokenData.getUserId());
-        studentClass.setCreateTime(new Date());
-        studentClass.setStatus(GlobalDeletedFlag.NORMAL);
-        studentClassMapper.insert(studentClass);
+        studentClassMapper.insert(this.buildDefaultValue(studentClass));
         return studentClass;
+    }
+
+    /**
+     * 利用数据库的insertList语法，批量插入对象列表。
+     *
+     * @param studentClassList 新增对象列表。
+     */
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public void saveNewBatch(List<StudentClass> studentClassList) {
+        if (CollUtil.isNotEmpty(studentClassList)) {
+            studentClassList.forEach(this::buildDefaultValue);
+            studentClassMapper.insertList(studentClassList);
+        }
     }
 
     /**
@@ -83,9 +96,9 @@ public class StudentClassServiceImpl extends BaseService<StudentClass, Long> imp
     public boolean update(StudentClass studentClass, StudentClass originalStudentClass) {
         studentClass.setCreateUserId(originalStudentClass.getCreateUserId());
         studentClass.setCreateTime(originalStudentClass.getCreateTime());
-        studentClass.setStatus(GlobalDeletedFlag.NORMAL);
         // 这里重点提示，在执行主表数据更新之前，如果有哪些字段不支持修改操作，请用原有数据对象字段替换当前数据字段。
-        return studentClassMapper.updateByPrimaryKey(studentClass) == 1;
+        UpdateWrapper<StudentClass> uw = this.createUpdateQueryForNullValue(studentClass, studentClass.getClassId());
+        return studentClassMapper.update(studentClass, uw) == 1;
     }
 
     /**
@@ -97,17 +110,16 @@ public class StudentClassServiceImpl extends BaseService<StudentClass, Long> imp
     @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean remove(Long classId) {
-        // 这里先删除主数据
-        if (!this.removeById(classId)) {
+        if (studentClassMapper.deleteById(classId) == 0) {
             return false;
         }
         // 开始删除多对多中间表的关联
         ClassCourse classCourse = new ClassCourse();
         classCourse.setClassId(classId);
-        classCourseMapper.delete(classCourse);
+        classCourseMapper.delete(new QueryWrapper<>(classCourse));
         ClassStudent classStudent = new ClassStudent();
         classStudent.setClassId(classId);
-        classStudentMapper.delete(classStudent);
+        classStudentMapper.delete(new QueryWrapper<>(classStudent));
         return true;
     }
 
@@ -197,8 +209,8 @@ public class StudentClassServiceImpl extends BaseService<StudentClass, Long> imp
         for (ClassCourse classCourse : classCourseList) {
             classCourse.setClassId(classId);
             MyModelUtil.setDefaultValue(classCourse, "courseOrder", 0);
+            classCourseMapper.insert(classCourse);
         }
-        classCourseMapper.insertList(classCourseList);
     }
 
     /**
@@ -210,11 +222,13 @@ public class StudentClassServiceImpl extends BaseService<StudentClass, Long> imp
     @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean updateClassCourse(ClassCourse classCourse) {
-        Example e = new Example(ClassCourse.class);
-        e.createCriteria()
-                .andEqualTo("classId", classCourse.getClassId())
-                .andEqualTo("courseId", classCourse.getCourseId());
-        return classCourseMapper.updateByExample(classCourse, e) > 0;
+        ClassCourse filter = new ClassCourse();
+        filter.setClassId(classCourse.getClassId());
+        filter.setCourseId(classCourse.getCourseId());
+        UpdateWrapper<ClassCourse> uw =
+                BaseService.createUpdateQueryForNullValue(classCourse, ClassCourse.class);
+        uw.setEntity(filter);
+        return classCourseMapper.update(classCourse, uw) > 0;
     }
 
     /**
@@ -226,11 +240,10 @@ public class StudentClassServiceImpl extends BaseService<StudentClass, Long> imp
      */
     @Override
     public ClassCourse getClassCourse(Long classId, Long courseId) {
-        Example e = new Example(ClassCourse.class);
-        e.createCriteria()
-                .andEqualTo("classId", classId)
-                .andEqualTo("courseId", courseId);
-        return classCourseMapper.selectOneByExample(e);
+        ClassCourse filter = new ClassCourse();
+        filter.setClassId(classId);
+        filter.setCourseId(courseId);
+        return classCourseMapper.selectOne(new QueryWrapper<>(filter));
     }
 
     /**
@@ -246,7 +259,7 @@ public class StudentClassServiceImpl extends BaseService<StudentClass, Long> imp
         ClassCourse filter = new ClassCourse();
         filter.setClassId(classId);
         filter.setCourseId(courseId);
-        return classCourseMapper.delete(filter) > 0;
+        return classCourseMapper.delete(new QueryWrapper<>(filter)) > 0;
     }
 
     /**
@@ -260,8 +273,8 @@ public class StudentClassServiceImpl extends BaseService<StudentClass, Long> imp
     public void addClassStudentList(List<ClassStudent> classStudentList, Long classId) {
         for (ClassStudent classStudent : classStudentList) {
             classStudent.setClassId(classId);
+            classStudentMapper.insert(classStudent);
         }
-        classStudentMapper.insertList(classStudentList);
     }
 
     /**
@@ -277,7 +290,7 @@ public class StudentClassServiceImpl extends BaseService<StudentClass, Long> imp
         ClassStudent filter = new ClassStudent();
         filter.setClassId(classId);
         filter.setStudentId(studentId);
-        return classStudentMapper.delete(filter) > 0;
+        return classStudentMapper.delete(new QueryWrapper<>(filter)) > 0;
     }
 
     /**
@@ -290,14 +303,39 @@ public class StudentClassServiceImpl extends BaseService<StudentClass, Long> imp
     @Override
     public CallResult verifyRelatedData(StudentClass studentClass, StudentClass originalStudentClass) {
         String errorMessageFormat = "数据验证失败，关联的%s并不存在，请刷新后重试！";
-        if (this.needToVerify(studentClass, originalStudentClass, StudentClass::getSchoolId)
-                && !schoolInfoService.existId(studentClass.getSchoolId())) {
-            return CallResult.error(String.format(errorMessageFormat, "所属校区"));
-        }
         if (this.needToVerify(studentClass, originalStudentClass, StudentClass::getLeaderId)
                 && !studentService.existId(studentClass.getLeaderId())) {
             return CallResult.error(String.format(errorMessageFormat, "班长"));
         }
         return CallResult.ok();
+    }
+
+    /**
+     * 根据最新对象和原有对象的数据对比，判断关联的远程字典数据和多对一主表数据是否都是合法数据。
+     *
+     * @param studentClass         最新数据对象。
+     * @param originalStudentClass 原有数据对象。
+     * @return 数据全部正确返回true，否则false，同时返回具体的错误信息。
+     */
+    @Override
+    public CallResult verifyRemoteRelatedData(StudentClass studentClass, StudentClass originalStudentClass) {
+        String errorMessageFormat = "数据验证失败，关联的%s并不存在，请刷新后重试！";
+        if (this.needToVerify(studentClass, originalStudentClass, StudentClass::getSchoolId)) {
+            ResponseResult<Boolean> responseResult =
+                    sysDeptClient.existId(studentClass.getSchoolId());
+            if (this.hasErrorOfVerifyRemoteRelatedData(responseResult)) {
+                return CallResult.error(String.format(errorMessageFormat, "所属校区"));
+            }
+        }
+        return CallResult.ok();
+    }
+
+    private StudentClass buildDefaultValue(StudentClass studentClass) {
+        studentClass.setClassId(idGenerator.nextLongId());
+        TokenData tokenData = TokenData.takeFromRequest();
+        studentClass.setCreateUserId(tokenData.getUserId());
+        studentClass.setCreateTime(new Date());
+        studentClass.setStatus(GlobalDeletedFlag.NORMAL);
+        return studentClass;
     }
 }

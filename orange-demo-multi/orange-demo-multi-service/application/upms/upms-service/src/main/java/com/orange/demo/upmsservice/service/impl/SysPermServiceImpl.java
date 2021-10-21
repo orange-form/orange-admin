@@ -1,5 +1,6 @@
 package com.orange.demo.upmsservice.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import cn.hutool.core.util.ObjectUtil;
 import com.orange.demo.common.core.base.service.BaseService;
 import com.orange.demo.common.sequence.wrapper.IdGeneratorWrapper;
@@ -18,7 +19,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import tk.mybatis.mapper.entity.Example;
 
 import java.util.*;
 
@@ -78,8 +78,7 @@ public class SysPermServiceImpl extends BaseService<SysPerm, Long> implements Sy
     @Override
     public boolean update(SysPerm perm, SysPerm originalPerm) {
         MyModelUtil.fillCommonsForUpdate(perm, originalPerm);
-        perm.setDeletedFlag(GlobalDeletedFlag.NORMAL);
-        return sysPermMapper.updateByPrimaryKeySelective(perm) != 0;
+        return sysPermMapper.updateById(perm) != 0;
     }
 
     /**
@@ -91,12 +90,12 @@ public class SysPermServiceImpl extends BaseService<SysPerm, Long> implements Sy
     @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean remove(Long permId) {
-        if (!this.removeById(permId)) {
+        if (sysPermMapper.deleteById(permId) != 1) {
             return false;
         }
         SysPermCodePerm permCodePerm = new SysPermCodePerm();
         permCodePerm.setPermId(permId);
-        sysPermCodePermMapper.delete(permCodePerm);
+        sysPermCodePermMapper.delete(new QueryWrapper<>(permCodePerm));
         return true;
     }
 
@@ -108,17 +107,13 @@ public class SysPermServiceImpl extends BaseService<SysPerm, Long> implements Sy
      */
     @Override
     public List<SysPerm> getPermListWithRelation(SysPerm sysPermFilter) {
-        Example e = new Example(SysPerm.class);
-        e.orderBy("showOrder");
-        Example.Criteria c = e.createCriteria();
-        if (ObjectUtil.isNotNull(sysPermFilter.getModuleId())) {
-            c.andEqualTo("moduleId", sysPermFilter.getModuleId());
-        }
-        if (ObjectUtil.isNotNull(sysPermFilter.getUrl())) {
-            c.andLike("url", "%" + sysPermFilter.getUrl() + "%");
-        }
-        c.andEqualTo("deletedFlag", GlobalDeletedFlag.NORMAL);
-        List<SysPerm> permList = sysPermMapper.selectByExample(e);
+        QueryWrapper<SysPerm> queryWrapper = new QueryWrapper<>();
+        queryWrapper.orderByAsc(this.safeMapToColumnName("showOrder"));
+        queryWrapper.eq(ObjectUtil.isNotNull(sysPermFilter.getModuleId()),
+        this.safeMapToColumnName("moduleId"), sysPermFilter.getModuleId());
+        queryWrapper.like(ObjectUtil.isNotNull(sysPermFilter.getUrl()),
+        this.safeMapToColumnName("url"), "%" + sysPermFilter.getUrl() + "%");
+        List<SysPerm> permList = sysPermMapper.selectList(queryWrapper);
         // 这里因为权限只有字典数据，所以仅仅做字典关联。
         this.buildRelationForDataList(permList, MyRelationParam.dictOnly());
         return permList;

@@ -1,5 +1,7 @@
 package com.orange.demo.statsservice.controller;
 
+import com.orange.demo.common.log.annotation.OperationLog;
+import com.orange.demo.common.log.model.constant.SysOperationLogType;
 import com.github.pagehelper.page.PageMethod;
 import com.orange.demo.statsservice.model.*;
 import com.orange.demo.statsservice.service.*;
@@ -11,14 +13,12 @@ import com.orange.demo.common.core.constant.*;
 import com.orange.demo.common.core.base.controller.BaseController;
 import com.orange.demo.common.core.base.service.IBaseService;
 import com.orange.demo.common.core.annotation.MyRequestBody;
-import com.orange.demo.common.core.validator.UpdateGroup;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import io.swagger.annotations.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.groups.Default;
 import java.util.*;
 
 /**
@@ -51,9 +51,10 @@ public class StudentActionTransController extends BaseController<StudentActionTr
             "studentActionTransDto.transId",
             "studentActionTransDto.createTimeStart",
             "studentActionTransDto.createTimeEnd"})
+    @OperationLog(type = SysOperationLogType.ADD)
     @PostMapping("/add")
     public ResponseResult<Long> add(@MyRequestBody StudentActionTransDto studentActionTransDto) {
-        String errorMessage = MyCommonUtil.getModelValidationError(studentActionTransDto);
+        String errorMessage = MyCommonUtil.getModelValidationError(studentActionTransDto, false);
         if (errorMessage != null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
@@ -77,9 +78,10 @@ public class StudentActionTransController extends BaseController<StudentActionTr
     @ApiOperationSupport(ignoreParameters = {
             "StudentActionTransDto.createTimeStart",
             "StudentActionTransDto.createTimeEnd"})
+    @OperationLog(type = SysOperationLogType.UPDATE)
     @PostMapping("/update")
     public ResponseResult<Void> update(@MyRequestBody StudentActionTransDto studentActionTransDto) {
-        String errorMessage = MyCommonUtil.getModelValidationError(studentActionTransDto, Default.class, UpdateGroup.class);
+        String errorMessage = MyCommonUtil.getModelValidationError(studentActionTransDto, true);
         if (errorMessage != null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
@@ -108,6 +110,7 @@ public class StudentActionTransController extends BaseController<StudentActionTr
      * @param transId 删除对象主键Id。
      * @return 应答结果对象。
      */
+    @OperationLog(type = SysOperationLogType.DELETE)
     @PostMapping("/delete")
     public ResponseResult<Void> delete(@MyRequestBody Long transId) {
         String errorMessage;
@@ -162,8 +165,7 @@ public class StudentActionTransController extends BaseController<StudentActionTr
         if (MyCommonUtil.existBlankArgument(transId)) {
             return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
         }
-        StudentActionTrans studentActionTrans =
-                studentActionTransService.getByIdWithRelation(transId, MyRelationParam.full());
+        StudentActionTrans studentActionTrans = studentActionTransService.getByIdWithRelation(transId, MyRelationParam.full());
         if (studentActionTrans == null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST);
         }

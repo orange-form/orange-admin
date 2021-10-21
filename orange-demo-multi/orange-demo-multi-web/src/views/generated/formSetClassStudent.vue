@@ -19,10 +19,14 @@
     </el-form>
     <el-row>
       <el-col :span="24">
-        <el-table :data="formSetClassStudent.Student.impl.dataList" size="mini" @sort-change="formSetClassStudent.Student.impl.onSortChange"
-          @selection-change="onStudentSelectionChange" header-cell-class-name="table-header-gray">
+        <el-table :data="formSetClassStudent.Student.impl.dataList" size="mini"
+          @sort-change="formSetClassStudent.Student.impl.onSortChange"
+          @selection-change="onStudentSelectionChange"
+          header-cell-class-name="table-header-gray">
           <el-table-column label="序号" type="index" header-align="center" align="center" width="55px" :index="formSetClassStudent.Student.impl.getTableIndex" />
-          <el-table-column type="selection" header-align="center" align="center" width="55px" />
+          <el-table-column type="selection"
+            header-align="center" align="center" width="55px"
+          />
           <el-table-column label="姓名" prop="studentName">
           </el-table-column>
           <el-table-column label="手机号码" prop="loginMobile">
@@ -153,7 +157,7 @@ export default {
     loadSchoolIdDropdownList () {
       return new Promise((resolve, reject) => {
         let params = {};
-        DictionaryController.dictSchoolInfo(this, params).then(res => {
+        DictionaryController.dictSysDeptByParentId(this, params).then(res => {
           resolve(res.getList());
         }).catch(e => {
           reject(e);

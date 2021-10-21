@@ -6,4 +6,17 @@
         <result column="grade_name" jdbcType="VARCHAR" property="gradeName"/>
         <result column="status" jdbcType="INTEGER" property="status"/>
     </resultMap>
+
+    <insert id="insertList">
+        INSERT INTO zz_grade
+            (grade_id,
+            grade_name,
+            status)
+        VALUES
+        <foreach collection="list" index="index" item="item" separator="," >
+            (#{item.gradeId},
+            #{item.gradeName},
+            #{item.status})
+        </foreach>
+    </insert>
 </mapper>

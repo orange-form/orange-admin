@@ -6,13 +6,16 @@
         <el-col :span="12">
           <el-form-item label="课程名称" prop="Course.courseName">
             <el-input class="input-item" v-model="formData.Course.courseName"
-              :clearable="true" placeholder="课程名称" />
+              :clearable="true" placeholder="课程名称"
+            />
           </el-form-item>
         </el-col>
         <el-col :span="12">
           <el-form-item label="课程价格" prop="Course.price">
             <el-input-number class="input-item" v-model="formData.Course.price"
-              :clearable="true" controls-position="right" placeholder="课程价格" />
+              :clearable="true"
+              placeholder="课程价格"
+            />
           </el-form-item>
         </el-col>
         <el-col :span="12">
@@ -48,18 +51,22 @@
         <el-col :span="12">
           <el-form-item label="课时数量" prop="Course.classHour">
             <el-input-number class="input-item" v-model="formData.Course.classHour"
-              :clearable="true" controls-position="right" placeholder="课时数量" />
+              :clearable="true"
+              placeholder="课时数量"
+            />
           </el-form-item>
         </el-col>
         <el-col :span="24">
           <el-form-item label="课程描述" prop="Course.description">
             <el-input class="input-item" v-model="formData.Course.description"
-              :clearable="true" placeholder="课程描述" />
+              :clearable="true" placeholder="课程描述"
+            />
           </el-form-item>
         </el-col>
         <el-col :span="24">
           <el-form-item label="课程图片" prop="Course.pictureUrl">
-            <el-upload class="upload-image-item upload-image-multi" name="uploadFile" :headers="getUploadHeaders"
+            <el-upload
+              class="upload-image-item upload-image-multi" name="uploadFile" :headers="getUploadHeaders"
               :action="getUploadActionUrl('/admin/CourseClass/course/upload')"
               :data="{fieldName: 'pictureUrl', asImage: true}"
               :on-success="onPictureUrlUploadSuccess"

@@ -1,6 +1,7 @@
 package com.orange.demo.upmsservice.controller;
 
 import cn.hutool.core.util.ObjectUtil;
+import com.alibaba.fastjson.TypeReference;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
@@ -10,6 +11,8 @@ import com.orange.demo.common.core.util.MyModelUtil;
 import com.orange.demo.common.core.util.MyCommonUtil;
 import com.orange.demo.common.core.annotation.MyRequestBody;
 import com.orange.demo.common.core.validator.UpdateGroup;
+import com.orange.demo.common.log.annotation.OperationLog;
+import com.orange.demo.common.log.model.constant.SysOperationLogType;
 import com.orange.demo.upmsapi.dto.SysMenuDto;
 import com.orange.demo.upmsapi.vo.SysMenuVo;
 import com.orange.demo.upmsapi.constant.SysMenuType;
@@ -43,8 +46,8 @@ public class SysMenuController {
      * @param permCodeIdListString 与当前菜单Id绑定的权限Id列表，多个权限之间逗号分隔。
      * @return 应答结果对象，包含新增菜单的主键Id。
      */
-    @SuppressWarnings("unchecked")
     @ApiOperationSupport(ignoreParameters = {"sysMenuDto.menuId"})
+    @OperationLog(type = SysOperationLogType.ADD)
     @PostMapping("/add")
     public ResponseResult<Long> add(
             @MyRequestBody SysMenuDto sysMenuDto, @MyRequestBody String permCodeIdListString) {
@@ -70,7 +73,7 @@ public class SysMenuController {
         }
         Set<Long> permCodeIdSet = null;
         if (result.getData() != null) {
-            permCodeIdSet = (Set<Long>) result.getData().get("permCodeIdSet");
+            permCodeIdSet = result.getData().getObject("permCodeIdSet", new TypeReference<Set<Long>>(){});
         }
         sysMenuService.saveNew(sysMenu, permCodeIdSet);
         return ResponseResult.success(sysMenu.getMenuId());
@@ -83,7 +86,7 @@ public class SysMenuController {
      * @param permCodeIdListString 与当前菜单Id绑定的权限Id列表，多个权限之间逗号分隔。
      * @return 应答结果对象。
      */
-    @SuppressWarnings("unchecked")
+    @OperationLog(type = SysOperationLogType.UPDATE)
     @PostMapping("/update")
     public ResponseResult<Void> update(
             @MyRequestBody SysMenuDto sysMenuDto, @MyRequestBody String permCodeIdListString) {
@@ -118,7 +121,7 @@ public class SysMenuController {
         }
         Set<Long> permCodeIdSet = null;
         if (result.getData() != null) {
-            permCodeIdSet = (Set<Long>) result.getData().get("permCodeIdSet");
+            permCodeIdSet = result.getData().getObject("permCodeIdSet", new TypeReference<Set<Long>>(){});
         }
         if (!sysMenuService.update(sysMenu, originalSysMenu, permCodeIdSet)) {
             errorMessage = "数据验证失败，当前权限字并不存在，请刷新后重试！";
@@ -133,6 +136,7 @@ public class SysMenuController {
      * @param menuId 指定菜单主键Id。
      * @return 应答结果对象。
      */
+    @OperationLog(type = SysOperationLogType.DELETE)
     @PostMapping("/delete")
     public ResponseResult<Void> delete(@MyRequestBody Long menuId) {
         if (MyCommonUtil.existBlankArgument(menuId)) {

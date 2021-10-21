@@ -13,5 +13,6 @@
 
     <modules>
         <module>admin-monitor</module>
+        <module>apidoc-tools</module>
     </modules>
 </project>

@@ -6,6 +6,7 @@
         <result column="login_name" jdbcType="VARCHAR" property="loginName"/>
         <result column="password" jdbcType="VARCHAR" property="password"/>
         <result column="show_name" jdbcType="VARCHAR" property="showName"/>
+        <result column="dept_id" jdbcType="BIGINT" property="deptId"/>
         <result column="user_type" jdbcType="INTEGER" property="userType"/>
         <result column="head_image_url" jdbcType="VARCHAR" property="headImageUrl"/>
         <result column="user_status" jdbcType="INTEGER" property="userStatus"/>
@@ -15,6 +16,39 @@
         <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
         <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
     </resultMap>
+
+    <insert id="insertList">
+        INSERT INTO zz_sys_user
+            (user_id,
+            login_name,
+            password,
+            show_name,
+            dept_id,
+            user_type,
+            head_image_url,
+            user_status,
+            deleted_flag,
+            create_user_id,
+            update_user_id,
+            create_time,
+            update_time)
+        VALUES
+        <foreach collection="list" index="index" item="item" separator="," >
+            (#{item.userId},
+            #{item.loginName},
+            #{item.password},
+            #{item.showName},
+            #{item.deptId},
+            #{item.userType},
+            #{item.headImageUrl},
+            #{item.userStatus},
+            #{item.deletedFlag},
+            #{item.createUserId},
+            #{item.updateUserId},
+            #{item.createTime},
+            #{item.updateTime})
+        </foreach>
+    </insert>
 
     <!-- 如果有逻辑删除字段过滤，请写到这里 -->
     <sql id="filterRef">
@@ -33,6 +67,9 @@
             <if test="sysUserFilter.showName != null and sysUserFilter.showName != ''">
                 <bind name = "safeSysUserShowName" value = "'%' + sysUserFilter.showName + '%'" />
                 AND zz_sys_user.show_name LIKE #{safeSysUserShowName}
+            </if>
+            <if test="sysUserFilter.deptId != null">
+                AND zz_sys_user.dept_id = #{sysUserFilter.deptId}
             </if>
             <if test="sysUserFilter.userStatus != null">
                 AND zz_sys_user.user_status = #{sysUserFilter.userStatus}
@@ -96,6 +133,34 @@
         <where>
             NOT EXISTS (SELECT * FROM zz_sys_user_role
                 WHERE zz_sys_user_role.role_id = #{roleId} AND zz_sys_user_role.user_id = zz_sys_user.user_id)
+            <include refid="filterRef"/>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+
+    <select id="getSysUserListByDataPermId" resultMap="BaseResultMap">
+        SELECT
+            zz_sys_user.*
+        FROM
+            zz_sys_data_perm_user,
+            zz_sys_user
+        <where>
+            AND zz_sys_data_perm_user.data_perm_id = #{dataPermId}
+            AND zz_sys_data_perm_user.user_id = zz_sys_user.user_id
+            <include refid="filterRef"/>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+
+    <select id="getNotInSysUserListByDataPermId" resultMap="BaseResultMap">
+        SELECT * FROM zz_sys_user
+        <where>
+            NOT EXISTS (SELECT * FROM zz_sys_data_perm_user
+                WHERE zz_sys_data_perm_user.data_perm_id = #{dataPermId} AND zz_sys_data_perm_user.user_id = zz_sys_user.user_id)
             <include refid="filterRef"/>
         </where>
         <if test="orderBy != null and orderBy != ''">

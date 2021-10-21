@@ -51,6 +51,13 @@ public class SysUserDto {
     private String showName;
 
     /**
+     * 用户部门Id。
+     */
+    @ApiModelProperty(value = "用户部门Id", required = true)
+    @NotNull(message = "数据验证失败，用户部门Id不能为空！")
+    private Long deptId;
+
+    /**
      * 用户类型(0: 管理员 1: 系统管理用户 2: 系统业务用户)。
      */
     @ApiModelProperty(value = "用户类型(0: 管理员 1: 系统管理用户 2: 系统业务用户)", required = true)

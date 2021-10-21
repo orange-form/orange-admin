@@ -23,6 +23,13 @@ public interface StudentActionTransService extends IBaseService<StudentActionTra
     StudentActionTrans saveNew(StudentActionTrans studentActionTrans);
 
     /**
+     * 利用数据库的insertList语法，批量插入对象列表。
+     *
+     * @param studentActionTransList 新增对象列表。
+     */
+    void saveNewBatch(List<StudentActionTrans> studentActionTransList);
+
+    /**
      * 更新数据对象。
      *
      * @param studentActionTrans         更新的对象。

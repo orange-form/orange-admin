@@ -104,8 +104,7 @@ public class CourseTransStatsController extends BaseController<CourseTransStats,
         if (MyCommonUtil.existBlankArgument(statsId)) {
             return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
         }
-        CourseTransStats courseTransStats =
-                courseTransStatsService.getByIdWithRelation(statsId, MyRelationParam.full());
+        CourseTransStats courseTransStats = courseTransStatsService.getByIdWithRelation(statsId, MyRelationParam.full());
         if (courseTransStats == null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST);
         }

@@ -142,17 +142,6 @@ export default class DictionaryController {
   static dictReloadGradeCachedData (sender, params, axiosOption, httpOption) {
     return sender.doUrl('/admin/CourseClass/grade/reloadCachedData', 'get', params, axiosOption, httpOption);
   }
-  static dictSchoolInfo (sender, params, axiosOption, httpOption) {
-    return new Promise((resolve, reject) => {
-      sender.doUrl('/admin/CourseClass/schoolInfo/listDict', 'get', params, axiosOption, httpOption).then(res => {
-        let dictData = new staticDict.DictionaryBase('校区');
-        dictData.setList(res.data);
-        resolve(dictData);
-      }).catch(err => {
-        reject(err);
-      });
-    });
-  }
   static dictStudent (sender, params, axiosOption, httpOption) {
     return new Promise((resolve, reject) => {
       sender.doUrl('/admin/CourseClass/student/listDict', 'get', params, axiosOption, httpOption).then(res => {
@@ -162,6 +151,33 @@ export default class DictionaryController {
       }).catch(err => {
         reject(err);
       });
+    });
+  }
+  static dictSysDept (sender, params, axiosOption, httpOption) {
+    return new Promise((resolve, reject) => {
+      sender.doUrl('/admin/upms/sysDept/listDict', 'get', params, axiosOption, httpOption).then(res => {
+        let dictData = new staticDict.DictionaryBase('部门字典');
+        dictData.setList(res.data);
+        resolve(dictData);
+      }).catch(err => {
+        reject(err);
+      });
+    });
+  }
+  static dictSysDeptByParentId (sender, params, axiosOption, httpOption) {
+    return new Promise((resolve, reject) => {
+      sender.doUrl('/admin/upms/sysDept/listDictByParentId', 'get', params, axiosOption, httpOption).then(res => {
+        let dictData = new staticDict.DictionaryBase('部门字典');
+        dictData.setList(res.data);
+        resolve(dictData);
+      }).catch(err => {
+        reject(err);
+      });
+    });
+  }
+  static dictSysDataPermType () {
+    return new Promise((resolve) => {
+      resolve(staticDict.SysDataPermType);
     });
   }
 }

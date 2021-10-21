@@ -1,6 +1,8 @@
 package com.orange.demo.courseclassservice.controller;
 
 import cn.jimmyshi.beanquery.BeanQuery;
+import com.orange.demo.common.log.annotation.OperationLog;
+import com.orange.demo.common.log.model.constant.SysOperationLogType;
 import com.github.pagehelper.page.PageMethod;
 import com.orange.demo.courseclassservice.model.*;
 import com.orange.demo.courseclassservice.service.*;
@@ -12,14 +14,12 @@ import com.orange.demo.common.core.constant.*;
 import com.orange.demo.common.core.base.controller.BaseController;
 import com.orange.demo.common.core.base.service.IBaseService;
 import com.orange.demo.common.core.annotation.MyRequestBody;
-import com.orange.demo.common.core.validator.UpdateGroup;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import io.swagger.annotations.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.groups.Default;
 import java.util.*;
 
 /**
@@ -55,9 +55,10 @@ public class StudentController extends BaseController<Student, StudentVo, Long> 
             "studentDto.birthdayEnd",
             "studentDto.registerTimeStart",
             "studentDto.registerTimeEnd"})
+    @OperationLog(type = SysOperationLogType.ADD)
     @PostMapping("/add")
     public ResponseResult<Long> add(@MyRequestBody StudentDto studentDto) {
-        String errorMessage = MyCommonUtil.getModelValidationError(studentDto);
+        String errorMessage = MyCommonUtil.getModelValidationError(studentDto, false);
         if (errorMessage != null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
@@ -66,6 +67,12 @@ public class StudentController extends BaseController<Student, StudentVo, Long> 
         CallResult callResult = studentService.verifyRelatedData(student, null);
         if (!callResult.isSuccess()) {
             errorMessage = callResult.getErrorMessage();
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
+        }
+        // 验证远程服务关联Id的数据合法性
+        CallResult remoteCallResult = studentService.verifyRemoteRelatedData(student, null);
+        if (!remoteCallResult.isSuccess()) {
+            errorMessage = remoteCallResult.getErrorMessage();
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
         student = studentService.saveNew(student);
@@ -84,9 +91,10 @@ public class StudentController extends BaseController<Student, StudentVo, Long> 
             "StudentDto.birthdayEnd",
             "StudentDto.registerTimeStart",
             "StudentDto.registerTimeEnd"})
+    @OperationLog(type = SysOperationLogType.UPDATE)
     @PostMapping("/update")
     public ResponseResult<Void> update(@MyRequestBody StudentDto studentDto) {
-        String errorMessage = MyCommonUtil.getModelValidationError(studentDto, Default.class, UpdateGroup.class);
+        String errorMessage = MyCommonUtil.getModelValidationError(studentDto, true);
         if (errorMessage != null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
@@ -103,6 +111,12 @@ public class StudentController extends BaseController<Student, StudentVo, Long> 
             errorMessage = callResult.getErrorMessage();
             return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
         }
+        // 验证远程服务关联Id的数据合法性
+        CallResult remoteCallResult = studentService.verifyRemoteRelatedData(student, originalStudent);
+        if (!remoteCallResult.isSuccess()) {
+            errorMessage = remoteCallResult.getErrorMessage();
+            return ResponseResult.error(ErrorCodeEnum.DATA_VALIDATED_FAILED, errorMessage);
+        }
         if (!studentService.update(student, originalStudent)) {
             return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST);
         }
@@ -115,6 +129,7 @@ public class StudentController extends BaseController<Student, StudentVo, Long> 
      * @param studentId 删除对象主键Id。
      * @return 应答结果对象。
      */
+    @OperationLog(type = SysOperationLogType.DELETE)
     @PostMapping("/delete")
     public ResponseResult<Void> delete(@MyRequestBody Long studentId) {
         String errorMessage;
@@ -153,8 +168,7 @@ public class StudentController extends BaseController<Student, StudentVo, Long> 
         }
         Student studentFilter = MyModelUtil.copyTo(studentDtoFilter, Student.class);
         String orderBy = MyOrderParam.buildOrderBy(orderParam, Student.class);
-        List<Student> studentList =
-                studentService.getStudentListWithRelation(studentFilter, orderBy);
+        List<Student> studentList = studentService.getStudentListWithRelation(studentFilter, orderBy);
         return ResponseResult.success(MyPageUtil.makeResponseData(studentList, Student.INSTANCE));
     }
 
@@ -169,8 +183,7 @@ public class StudentController extends BaseController<Student, StudentVo, Long> 
         if (MyCommonUtil.existBlankArgument(studentId)) {
             return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
         }
-        Student student =
-                studentService.getByIdWithRelation(studentId, MyRelationParam.full());
+        Student student = studentService.getByIdWithRelation(studentId, MyRelationParam.full());
         if (student == null) {
             return ResponseResult.error(ErrorCodeEnum.DATA_NOT_EXIST);
         }

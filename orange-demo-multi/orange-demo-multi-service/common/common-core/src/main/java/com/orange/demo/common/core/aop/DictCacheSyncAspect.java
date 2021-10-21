@@ -10,6 +10,8 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
+import java.io.Serializable;
+
 /**
  * 字典缓存同步的AOP。该AOP的优先级必须比事务切面的优先级高，因此会在事务外执行该切面的代码。
  *
@@ -39,23 +41,23 @@ public class DictCacheSyncAspect {
         Object arg = joinPoint.getArgs()[0];
         if ("saveNew".equals(methodName)) {
             Object data = joinPoint.proceed();
-            BaseDictService<Object, Object> service =
-                    (BaseDictService<Object, Object>) joinPoint.getTarget();
+            BaseDictService<Object, Serializable> service =
+                    (BaseDictService<Object, Serializable>) joinPoint.getTarget();
             // 这里参数必须使用saveNew方法的返回对象，因为里面包含实际主键值。
             service.putDictionaryCache(data);
             return data;
         } else if ("update".equals(methodName)) {
             Object data = joinPoint.proceed();
-            BaseDictService<Object, Object> service =
-                    (BaseDictService<Object, Object>) joinPoint.getTarget();
+            BaseDictService<Object, Serializable> service =
+                    (BaseDictService<Object, Serializable>) joinPoint.getTarget();
             // update的方法返回的是boolean，因此这里的参数需要使用第一个参数即可。
             service.putDictionaryCache(arg);
             return data;
         } else {
             // remove
-            BaseDictService<Object, Object> service =
-                    (BaseDictService<Object, Object>) joinPoint.getTarget();
-            service.removeDictionaryCache(arg);
+            BaseDictService<Object, Serializable> service =
+                    (BaseDictService<Object, Serializable>) joinPoint.getTarget();
+            service.removeDictionaryCache((Serializable) arg);
             return joinPoint.proceed();
         }
     }

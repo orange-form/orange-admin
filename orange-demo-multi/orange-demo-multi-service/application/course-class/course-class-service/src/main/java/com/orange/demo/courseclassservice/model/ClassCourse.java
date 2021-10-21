@@ -1,7 +1,7 @@
 package com.orange.demo.courseclassservice.model;
 
+import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
-import javax.persistence.*;
 
 /**
  * ClassCourse实体对象。
@@ -10,26 +10,24 @@ import javax.persistence.*;
  * @date 2020-08-08
  */
 @Data
-@Table(name = "zz_class_course")
+@TableName(value = "zz_class_course")
 public class ClassCourse {
 
     /**
      * 班级Id。
      */
-    @Id
-    @Column(name = "class_id")
+    @TableField(value = "class_id")
     private Long classId;
 
     /**
      * 课程Id。
      */
-    @Id
-    @Column(name = "course_id")
+    @TableField(value = "course_id")
     private Long courseId;
 
     /**
      * 课程顺序(数值越小越靠前)。
      */
-    @Column(name = "course_order")
+    @TableField(value = "course_order")
     private Integer courseOrder;
 }

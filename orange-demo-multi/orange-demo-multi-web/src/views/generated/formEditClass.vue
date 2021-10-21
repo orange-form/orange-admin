@@ -6,7 +6,8 @@
         <el-col :span="12">
           <el-form-item label="班级名称" prop="StudentClass.className">
             <el-input class="input-item" v-model="formData.StudentClass.className"
-              :clearable="true" placeholder="班级名称" />
+              :clearable="true" placeholder="班级名称"
+            />
           </el-form-item>
         </el-col>
         <el-col :span="12">
@@ -21,12 +22,12 @@
         </el-col>
         <el-col :span="12">
           <el-form-item label="所属校区" prop="StudentClass.schoolId">
-            <el-select class="input-item" v-model="formData.StudentClass.schoolId" :clearable="true" filterable
-              placeholder="所属校区" :loading="formEditClass.schoolId.impl.loading"
+            <el-cascader class="input-item" v-model="formEditClass.schoolId.value" :options="formEditClass.schoolId.impl.dropdownList" filterable
+              :clearable="true" :show-all-levels="false" placeholder="所属校区"
+              :props="{value: 'id', label: 'name', checkStrictly: true}"
               @visible-change="formEditClass.schoolId.impl.onVisibleChange"
-              @change="onSchoolIdValueChange">
-              <el-option v-for="item in formEditClass.schoolId.impl.dropdownList" :key="item.id" :value="item.id" :label="item.name" />
-            </el-select>
+              @change="onSchoolIdValueChange"
+            />
           </el-form-item>
         </el-col>
         <el-col :span="12">
@@ -42,7 +43,9 @@
         <el-col :span="12">
           <el-form-item label="已完成课时" prop="StudentClass.finishClassHour">
             <el-input-number class="input-item" v-model="formData.StudentClass.finishClassHour"
-              :clearable="true" controls-position="right" placeholder="已完成课时" />
+              :clearable="true"
+              placeholder="已完成课时"
+            />
           </el-form-item>
         </el-col>
         <el-col :span="24">
@@ -63,6 +66,8 @@
 </template>
 
 <script>
+/* eslint-disable-next-line */
+import { findTreeNode, findTreeNodePath, findItemFromList } from '@/utils';
 /* eslint-disable-next-line */
 import rules from '@/utils/validate.js';
 /* eslint-disable-next-line */
@@ -133,7 +138,8 @@ export default {
           impl: new DropdownWidget(this.loadClassLevelDropdownList)
         },
         schoolId: {
-          impl: new DropdownWidget(this.loadSchoolIdDropdownList)
+          impl: new DropdownWidget(this.loadSchoolIdDropdownList, true, 'id', 'parentId'),
+          value: []
         },
         leaderId: {
           impl: new DropdownWidget(this.loadLeaderIdDropdownList)
@@ -175,7 +181,7 @@ export default {
     loadSchoolIdDropdownList () {
       return new Promise((resolve, reject) => {
         let params = {};
-        DictionaryController.dictSchoolInfo(this, params).then(res => {
+        DictionaryController.dictSysDept(this, params).then(res => {
           resolve(res.getList());
         }).catch(e => {
           reject(e);
@@ -186,6 +192,7 @@ export default {
      * 所属校区选中值改变
      */
     onSchoolIdValueChange (value) {
+      this.formData.StudentClass.schoolId = Array.isArray(value) ? value[value.length - 1] : undefined;
       // 清除被过滤组件选中值，并且将被过滤组件的状态设置为dirty
       this.formData.StudentClass.leaderId = undefined;
       this.formEditClass.leaderId.impl.dirty = true;
@@ -218,6 +225,9 @@ export default {
       this.loadStudentClassData().then(res => {
         if (!this.formEditClass.isInit) {
           // 初始化下拉数据
+          this.formEditClass.schoolId.impl.onVisibleChange(true).then(res => {
+            this.formEditClass.schoolId.value = findTreeNodePath(res, this.formData.StudentClass.schoolId, 'id');
+          }).catch(e => {});
         }
         this.formEditClass.isInit = true;
       }).catch(e => {});
@@ -280,6 +290,7 @@ export default {
             if (this.formData.StudentClass.schoolIdDictMap && this.formEditClass.schoolId.impl.dirty) {
               this.formEditClass.schoolId.impl.dropdownList = [this.formData.StudentClass.schoolIdDictMap];
             }
+            if (this.formData.StudentClass.schoolId) this.formEditClass.schoolId.value = [this.formData.StudentClass.schoolId];
             if (this.formData.StudentClass.leaderIdDictMap && this.formEditClass.leaderId.impl.dirty) {
               this.formEditClass.leaderId.impl.dropdownList = [this.formData.StudentClass.leaderIdDictMap];
             }

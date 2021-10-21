@@ -14,6 +14,8 @@ import com.orange.demo.common.core.constant.ErrorCodeEnum;
 import com.orange.demo.common.core.util.MyModelUtil;
 import com.orange.demo.common.core.util.MyCommonUtil;
 import com.orange.demo.common.core.validator.UpdateGroup;
+import com.orange.demo.common.log.annotation.OperationLog;
+import com.orange.demo.common.log.model.constant.SysOperationLogType;
 import com.orange.demo.courseclassapi.dto.GradeDto;
 import com.orange.demo.courseclassapi.vo.GradeVo;
 import com.orange.demo.courseclassservice.model.Grade;
@@ -52,6 +54,7 @@ public class GradeController extends BaseController<Grade, GradeVo, Integer> {
      * @return 应答结果对象，包含新增对象主键Id。
      */
     @ApiOperationSupport(ignoreParameters = {"gradeDto.gradeId"})
+    @OperationLog(type = SysOperationLogType.ADD)
     @PostMapping("/add")
     public ResponseResult<Integer> add(@MyRequestBody GradeDto gradeDto) {
         String errorMessage = MyCommonUtil.getModelValidationError(gradeDto);
@@ -69,6 +72,7 @@ public class GradeController extends BaseController<Grade, GradeVo, Integer> {
      * @param gradeDto 更新对象。
      * @return 应答结果对象。
      */
+    @OperationLog(type = SysOperationLogType.UPDATE)
     @PostMapping("/update")
     public ResponseResult<Void> update(@MyRequestBody GradeDto gradeDto) {
         String errorMessage = MyCommonUtil.getModelValidationError(gradeDto, Default.class, UpdateGroup.class);
@@ -92,6 +96,7 @@ public class GradeController extends BaseController<Grade, GradeVo, Integer> {
      * @param gradeId 删除对象主键Id。
      * @return 应答结果对象。
      */
+    @OperationLog(type = SysOperationLogType.DELETE)
     @PostMapping("/delete")
     public ResponseResult<Void> delete(@MyRequestBody Integer gradeId) {
         if (MyCommonUtil.existBlankArgument(gradeId)) {
@@ -276,6 +281,7 @@ public class GradeController extends BaseController<Grade, GradeVo, Integer> {
      * 由于缓存的数据更新，在add/update/delete等接口均有同步处理。因此该接口仅当同步过程中出现问题时，
      * 可手工调用，或者每天晚上定时同步一次。
      */
+    @OperationLog(type = SysOperationLogType.RELOAD_CACHE)
     @GetMapping("/reloadCachedData")
     public ResponseResult<Boolean> reloadCachedData() {
         gradeService.reloadCachedData(true);

@@ -1,5 +1,6 @@
 package com.orange.demo.courseclassservice.dao;
 
+import com.orange.demo.common.core.annotation.EnableDataPerm;
 import com.orange.demo.common.core.base.dao.BaseDaoMapper;
 import com.orange.demo.courseclassservice.model.StudentClass;
 import org.apache.ibatis.annotations.Param;
@@ -12,7 +13,15 @@ import java.util.*;
  * @author Jerry
  * @date 2020-08-08
  */
+@EnableDataPerm
 public interface StudentClassMapper extends BaseDaoMapper<StudentClass> {
+
+    /**
+     * 批量插入对象列表。
+     *
+     * @param studentClassList 新增对象列表。
+     */
+    void insertList(List<StudentClass> studentClassList);
 
     /**
      * 获取过滤后的对象列表。

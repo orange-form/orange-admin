@@ -9,12 +9,12 @@ import java.util.Map;
 import java.util.List;
 
 /**
- * SysUserVO对象。
+ * SysUserVO视图对象。
  *
  * @author Jerry
  * @date 2020-08-08
  */
-@ApiModel("SysUserVO实体对象")
+@ApiModel("SysUserVO视图对象")
 @Data
 public class SysUserVo {
 
@@ -35,6 +35,12 @@ public class SysUserVo {
      */
     @ApiModelProperty(value = "用户显示名称")
     private String showName;
+
+    /**
+     * 用户部门Id。
+     */
+    @ApiModelProperty(value = "用户部门Id")
+    private Long deptId;
 
     /**
      * 用户类型(0: 管理员 1: 系统管理用户 2: 系统业务用户)。
@@ -83,6 +89,18 @@ public class SysUserVo {
      */
     @ApiModelProperty(value = "多对多用户角色数据集合")
     private List<Map<String, Object>> sysUserRoleList;
+
+    /**
+     * 多对多用户数据权限数据集合。
+     */
+    @ApiModelProperty(value = "多对多用户数据权限数据集合")
+    private List<Map<String, Object>> sysDataPermUserList;
+
+    /**
+     * deptId 字典关联数据。
+     */
+    @ApiModelProperty(value = "deptId 字典关联数据")
+    private Map<String, Object> deptIdDictMap;
 
     /**
      * userType 常量字典关联数据。

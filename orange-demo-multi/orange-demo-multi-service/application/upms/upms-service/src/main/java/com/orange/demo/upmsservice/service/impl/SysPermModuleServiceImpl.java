@@ -71,8 +71,7 @@ public class SysPermModuleServiceImpl extends BaseService<SysPermModule, Long> i
     @Override
     public boolean update(SysPermModule sysPermModule, SysPermModule originalSysPermModule) {
         MyModelUtil.fillCommonsForUpdate(sysPermModule, originalSysPermModule);
-        sysPermModule.setDeletedFlag(GlobalDeletedFlag.NORMAL);
-        return sysPermModuleMapper.updateByPrimaryKey(sysPermModule) != 0;
+        return sysPermModuleMapper.updateById(sysPermModule) != 0;
     }
 
     /**
@@ -84,7 +83,7 @@ public class SysPermModuleServiceImpl extends BaseService<SysPermModule, Long> i
     @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean remove(Long moduleId) {
-        return this.removeById(moduleId);
+        return sysPermModuleMapper.deleteById(moduleId) == 1;
     }
 
     /**

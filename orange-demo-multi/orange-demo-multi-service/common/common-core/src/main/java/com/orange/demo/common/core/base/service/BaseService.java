@@ -1,5 +1,10 @@
 package com.orange.demo.common.core.base.service;
 
+import com.baomidou.mybatisplus.annotation.*;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import cn.hutool.core.util.ReflectUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.orange.demo.common.core.annotation.*;
@@ -8,6 +13,7 @@ import com.orange.demo.common.core.base.client.BaseClient;
 import com.orange.demo.common.core.constant.AggregationKind;
 import com.orange.demo.common.core.constant.AggregationType;
 import com.orange.demo.common.core.constant.GlobalDeletedFlag;
+import com.orange.demo.common.core.exception.InvalidDataFieldException;
 import com.orange.demo.common.core.exception.MyRuntimeException;
 import com.orange.demo.common.core.exception.RemoteDataBuildException;
 import com.orange.demo.common.core.object.*;
@@ -21,12 +27,8 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.transaction.annotation.Transactional;
-import tk.mybatis.mapper.entity.Example;
 
-import javax.persistence.Column;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.Transient;
+import java.io.Serializable;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -47,7 +49,7 @@ import static java.util.stream.Collectors.*;
  * @date 2020-08-08
  */
 @Slf4j
-public abstract class BaseService<M, K> implements IBaseService<M, K> {
+public abstract class BaseService<M, K extends Serializable> extends ServiceImpl<BaseDaoMapper<M>, M> implements IBaseService<M, K> {
     /**
      * 当前Service关联的主Model实体对象的Class。
      */
@@ -156,6 +158,11 @@ public abstract class BaseService<M, K> implements IBaseService<M, K> {
 
     private static final String AND_OP = " AND ";
 
+    @Override
+    public BaseDaoMapper<M> getBaseMapper() {
+        return mapper();
+    }
+
     /**
      * 构造函数，在实例化的时候，一次性完成所有有关主Model对象信息的加载。
      */
@@ -163,7 +170,7 @@ public abstract class BaseService<M, K> implements IBaseService<M, K> {
     public BaseService() {
         modelClass = (Class<M>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
         idFieldClass = (Class<K>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[1];
-        this.tableName = modelClass.getAnnotation(Table.class).name();
+        this.tableName = modelClass.getAnnotation(TableName.class).value();
         Field[] fields = ReflectUtil.getFields(modelClass);
         for (Field field : fields) {
             initializeField(field);
@@ -171,10 +178,10 @@ public abstract class BaseService<M, K> implements IBaseService<M, K> {
     }
 
     private void initializeField(Field field) {
-        if (idFieldName == null && null != field.getAnnotation(Id.class)) {
+        if (idFieldName == null && null != field.getAnnotation(TableId.class)) {
             idFieldName = field.getName();
-            Column c = field.getAnnotation(Column.class);
-            idColumnName = c == null ? idFieldName : c.name();
+            TableId c = field.getAnnotation(TableId.class);
+            idColumnName = c == null ? idFieldName : c.value();
             setIdFieldMethod = ReflectUtil.getMethod(
                     modelClass, "set" + StringUtils.capitalize(idFieldName), idFieldClass);
             getIdFieldMethod = ReflectUtil.getMethod(
@@ -182,21 +189,18 @@ public abstract class BaseService<M, K> implements IBaseService<M, K> {
         }
         if (updateTimeFieldName == null && null != field.getAnnotation(JobUpdateTimeColumn.class)) {
             updateTimeFieldName = field.getName();
-            Column c = field.getAnnotation(Column.class);
-            updateTimeColumnName = c == null ? updateTimeFieldName : c.name();
+            updateTimeColumnName = this.safeMapToColumnName(updateTimeFieldName);
         }
-        if (deletedFlagFieldName == null && null != field.getAnnotation(DeletedFlagColumn.class)) {
+        if (deletedFlagFieldName == null && null != field.getAnnotation(TableLogic.class)) {
             deletedFlagFieldName = field.getName();
-            Column c = field.getAnnotation(Column.class);
-            deletedFlagColumnName = c == null ? deletedFlagFieldName : c.name();
+            deletedFlagColumnName = this.safeMapToColumnName(deletedFlagFieldName);
             setDeletedFlagMethod = ReflectUtil.getMethod(
                     modelClass, "set" + StringUtils.capitalize(deletedFlagFieldName), Integer.class);
         }
         if (tenantIdFieldName == null && null != field.getAnnotation(TenantFilterColumn.class)) {
             tenantIdField = field;
             tenantIdFieldName = field.getName();
-            Column c = field.getAnnotation(Column.class);
-            tenantIdColumnName = c == null ? tenantIdFieldName : c.name();
+            tenantIdColumnName = this.safeMapToColumnName(tenantIdFieldName);
         }
     }
 
@@ -220,31 +224,6 @@ public abstract class BaseService<M, K> implements IBaseService<M, K> {
     }
 
     /**
-     * 基于主键Id删除数据。如果包含逻辑删除字段，则进行逻辑删除。
-     *
-     * @param id 主键Id值。
-     * @return true删除成功，false数据不存在。
-     */
-    @Transactional(rollbackFor = Exception.class)
-    @Override
-    public boolean removeById(K id) {
-        if (this.deletedFlagFieldName == null) {
-            return mapper().deleteByPrimaryKey(id) == 1;
-        }
-        try {
-            Example e = new Example(modelClass);
-            Example.Criteria c = e.createCriteria().andEqualTo(idFieldName, id);
-            c.andEqualTo(deletedFlagFieldName, GlobalDeletedFlag.NORMAL);
-            M data = modelClass.newInstance();
-            setDeletedFlagMethod.invoke(data, GlobalDeletedFlag.DELETED);
-            return mapper().updateByExampleSelective(data, e) == 1;
-        } catch (Exception ex) {
-            log.error("Failed to call reflection method in BaseService.removeById.", ex);
-            throw new MyRuntimeException(ex);
-        }
-    }
-
-    /**
      * 根据过滤条件删除数据。
      *
      * @param filter 过滤对象。
@@ -253,25 +232,7 @@ public abstract class BaseService<M, K> implements IBaseService<M, K> {
     @Transactional(rollbackFor = Exception.class)
     @Override
     public Integer removeBy(M filter) {
-        if (deletedFlagFieldName == null) {
-            return mapper().delete(filter);
-        }
-        Example e = new Example(modelClass);
-        Example.Criteria c = e.createCriteria();
-        Field[] fields = ReflectUtil.getFields(modelClass);
-        for (Field field : fields) {
-            if (field.getAnnotation(Transient.class) == null) {
-                this.assembleCriteriaByFilter(filter, field, c);
-            }
-        }
-        try {
-            M deletedObject = modelClass.newInstance();
-            this.setDeletedFlagMethod.invoke(deletedObject, GlobalDeletedFlag.DELETED);
-            return mapper().updateByExampleSelective(deletedObject, e);
-        } catch (Exception ex) {
-            log.error("Failed to call reflection method in BaseService.removeBy.", ex);
-            throw new MyRuntimeException(ex);
-        }
+        return mapper().delete(new QueryWrapper<>(filter));
     }
 
     /**
@@ -299,27 +260,8 @@ public abstract class BaseService<M, K> implements IBaseService<M, K> {
         if (fieldName.equals(this.idFieldName)) {
             return this.existId((K) fieldValue);
         }
-        Example e = new Example(modelClass);
-        e.createCriteria().andEqualTo(fieldName, fieldValue);
-        return mapper().selectCountByExample(e) == 1;
-    }
-
-    /**
-     * 获取主键Id关联的数据。
-     *
-     * @param id 主键Id
-     * @return 主键关联的数据，不存在返回null。
-     */
-    @Override
-    public M getById(K id) {
-        if (deletedFlagFieldName == null) {
-            return mapper().selectByPrimaryKey(id);
-        }
-        Example e = new Example(modelClass);
-        e.createCriteria()
-                .andEqualTo(idFieldName, id)
-                .andEqualTo(deletedFlagFieldName, GlobalDeletedFlag.NORMAL);
-        return mapper().selectOneByExample(e);
+        String columnName = MyModelUtil.mapToColumnName(fieldName, modelClass);
+        return mapper().selectCount(new QueryWrapper<M>().eq(columnName, fieldValue)) == 1;
     }
 
     /**
@@ -335,12 +277,9 @@ public abstract class BaseService<M, K> implements IBaseService<M, K> {
         if (filterField.equals(idFieldName)) {
             return this.getById((K) filterValue);
         }
-        Example e = new Example(modelClass);
-        Example.Criteria c = e.createCriteria().andEqualTo(filterField, filterValue);
-        if (deletedFlagFieldName != null) {
-            c.andEqualTo(deletedFlagFieldName, GlobalDeletedFlag.NORMAL);
-        }
-        return mapper().selectOneByExample(e);
+        String columnName = this.safeMapToColumnName(filterField);
+        QueryWrapper<M> queryWrapper = new QueryWrapper<M>().eq(columnName, filterValue);
+        return mapper().selectOne(queryWrapper);
     }
 
     /**
@@ -365,12 +304,7 @@ public abstract class BaseService<M, K> implements IBaseService<M, K> {
      */
     @Override
     public List<M> getAllList() {
-        if (deletedFlagFieldName == null) {
-            return mapper().selectAll();
-        }
-        Example e = new Example(modelClass);
-        e.createCriteria().andEqualTo(deletedFlagFieldName, GlobalDeletedFlag.NORMAL);
-        return mapper().selectByExample(e);
+        return mapper().selectList(Wrappers.emptyWrapper());
     }
 
     /**
@@ -381,14 +315,11 @@ public abstract class BaseService<M, K> implements IBaseService<M, K> {
      */
     @Override
     public List<M> getAllListByOrder(String... orderByProperties) {
-        Example e = new Example(modelClass);
-        for (String orderByProperty : orderByProperties) {
-            e.orderBy(orderByProperty);
+        String[] columns = new String[orderByProperties.length];
+        for (int i = 0; i < orderByProperties.length; i++) {
+            columns[i] = this.safeMapToColumnName(orderByProperties[i]);
         }
-        if (deletedFlagFieldName != null) {
-            e.and().andEqualTo(deletedFlagFieldName, GlobalDeletedFlag.NORMAL);
-        }
-        return mapper().selectByExample(e);
+        return mapper().selectList(new QueryWrapper<M>().orderByAsc(columns));
     }
 
     /**
@@ -417,8 +348,8 @@ public abstract class BaseService<M, K> implements IBaseService<M, K> {
         if (CollectionUtils.isEmpty(inFilterValues)) {
             return true;
         }
-        Example e = this.makeDefaultInListExample(inFilterField, inFilterValues, null);
-        return mapper().selectCountByExample(e) == inFilterValues.size();
+        String column = this.safeMapToColumnName(inFilterField);
+        return mapper().selectCount(new QueryWrapper<M>().in(column, inFilterValues)) == inFilterValues.size();
     }
 
     /**
@@ -457,8 +388,58 @@ public abstract class BaseService<M, K> implements IBaseService<M, K> {
         if (CollectionUtils.isEmpty(inFilterValues)) {
             return new LinkedList<>();
         }
-        Example e = this.makeDefaultInListExample(inFilterField, inFilterValues, orderBy);
-        return mapper().selectByExample(e);
+        String column = this.safeMapToColumnName(inFilterField);
+        QueryWrapper<M> queryWrapper = new QueryWrapper<M>().in(column, inFilterValues);
+        if (StringUtils.isNotBlank(orderBy)) {
+            queryWrapper.last(orderBy);
+        }
+        return mapper().selectList(queryWrapper);
+    }
+
+    /**
+     * 返回符合主键 in (idValues) 条件的所有数据。同时返回关联数据。
+     *
+     * @param idValues      主键值集合。
+     * @param relationParam 实体对象数据组装的参数构建器。
+     * @return 检索后的数据列表。
+     */
+    @Override
+    public List<M> getInListWithRelation(Set<K> idValues, MyRelationParam relationParam) {
+        List<M> resultList = this.getInList(idValues);
+        this.buildRelationForDataList(resultList, relationParam);
+        return resultList;
+    }
+
+    /**
+     * 返回符合 inFilterField in (inFilterValues) 条件的所有数据。同时返回关联数据。
+     *
+     * @param inFilterField  参与(In-list)过滤的Java字段。
+     * @param inFilterValues 参与(In-list)过滤的Java字段值集合。
+     * @param relationParam  实体对象数据组装的参数构建器。
+     * @return 检索后的数据列表。
+     */
+    @Override
+    public <T> List<M> getInListWithRelation(String inFilterField, Set<T> inFilterValues, MyRelationParam relationParam) {
+        List<M> resultList = this.getInList(inFilterField, inFilterValues);
+        this.buildRelationForDataList(resultList, relationParam);
+        return resultList;
+    }
+
+    /**
+     * 返回符合 inFilterField in (inFilterValues) 条件的所有数据，并根据orderBy字段排序。同时返回关联数据。
+     *
+     * @param inFilterField  参与(In-list)过滤的Java字段。
+     * @param inFilterValues 参与(In-list)过滤的Java字段值集合。
+     * @param orderBy        排序字段。
+     * @param relationParam  实体对象数据组装的参数构建器。
+     * @return 检索后的数据列表。
+     */
+    @Override
+    public <T> List<M> getInListWithRelation(
+            String inFilterField, Set<T> inFilterValues, String orderBy, MyRelationParam relationParam) {
+        List<M> resultList = this.getInList(inFilterField, inFilterValues, orderBy);
+        this.buildRelationForDataList(resultList, relationParam);
+        return resultList;
     }
 
     /**
@@ -469,16 +450,7 @@ public abstract class BaseService<M, K> implements IBaseService<M, K> {
      */
     @Override
     public int getCountByFilter(M filter) {
-        if (deletedFlagFieldName == null) {
-            return mapper().selectCount(filter);
-        }
-        try {
-            setDeletedFlagMethod.invoke(filter, GlobalDeletedFlag.NORMAL);
-            return mapper().selectCount(filter);
-        } catch (Exception e) {
-            log.error("Failed to call reflection [setDeletedFlagMethod] in BaseService.getCountByFilter.", e);
-            throw new MyRuntimeException(e);
-        }
+        return mapper().selectCount(new QueryWrapper<>(filter));
     }
 
     /**
@@ -500,42 +472,7 @@ public abstract class BaseService<M, K> implements IBaseService<M, K> {
      */
     @Override
     public List<M> getListByFilter(M filter) {
-        if (filter == null) {
-            return this.getAllList();
-        }
-        if (deletedFlagFieldName == null) {
-            return mapper().select(filter);
-        }
-        try {
-            setDeletedFlagMethod.invoke(filter, GlobalDeletedFlag.NORMAL);
-            return mapper().select(filter);
-        } catch (Exception ex) {
-            log.error("Failed to call reflection code of BaseService.getListByFilter.", ex);
-            throw new MyRuntimeException(ex);
-        }
-    }
-
-    private void assembleCriteriaByFilter(M filter, Field field, Example.Criteria c) {
-        int modifiers = field.getModifiers();
-        // transient类型的字段不能作为查询条件
-        int transientMask = 128;
-        if ((modifiers & transientMask) != 0 || Modifier.isStatic(modifiers)) {
-            return;
-        }
-        if (field.getName().equals(deletedFlagFieldName)) {
-            c.andEqualTo(deletedFlagFieldName, GlobalDeletedFlag.NORMAL);
-        } else {
-            ReflectUtil.setAccessible(field);
-            try {
-                Object o = field.get(filter);
-                if (o != null) {
-                    c.andEqualTo(field.getName(), field.get(filter));
-                }
-            } catch (IllegalAccessException ex) {
-                log.error("Failed to call reflection code of BaseService.getListByFilter.", ex);
-                throw new MyRuntimeException(ex);
-            }
-        }
+        return mapper().selectList(new QueryWrapper<>(filter));
     }
 
     /**
@@ -547,17 +484,14 @@ public abstract class BaseService<M, K> implements IBaseService<M, K> {
      */
     @Override
     public List<M> getListByParentId(String parentIdFieldName, K parentId) {
-        Example e = new Example(modelClass);
-        Example.Criteria c = e.createCriteria();
+        QueryWrapper<M> queryWrapper = new QueryWrapper<>();
+        String parentIdColumn = this.safeMapToColumnName(parentIdFieldName);
         if (parentId != null) {
-            c.andEqualTo(parentIdFieldName, parentId);
+            queryWrapper.eq(parentIdColumn, parentId);
         } else {
-            c.andIsNull(parentIdFieldName);
+            queryWrapper.isNull(parentIdColumn);
         }
-        if (deletedFlagFieldName != null) {
-            c.andEqualTo(deletedFlagFieldName, GlobalDeletedFlag.NORMAL);
-        }
-        return mapper().selectByExample(e);
+        return mapper().selectList(queryWrapper);
     }
 
     /**
@@ -587,32 +521,21 @@ public abstract class BaseService<M, K> implements IBaseService<M, K> {
      */
     @Override
     public List<M> getListByCondition(List<String> selectList, M filter, String whereClause, String orderBy) {
-        Example e = new Example(modelClass);
-        Example.Criteria c = null;
+        QueryWrapper<M> queryWrapper = new QueryWrapper<>(filter);
         if (CollectionUtils.isNotEmpty(selectList)) {
-            String[] selectFields = new String[selectList.size()];
-            selectList.toArray(selectFields);
-            e.selectProperties(selectFields);
-        }
-        if (StringUtils.isNotBlank(orderBy)) {
-            e.setOrderByClause(orderBy);
-        }
-        if (filter != null) {
-            c = e.createCriteria();
-            Field[] fields = ReflectUtil.getFields(modelClass);
-            for (Field field : fields) {
-                if (field.getAnnotation(Transient.class) == null) {
-                    this.assembleCriteriaByFilter(filter, field, c);
-                }
+            String[] columns = new String[selectList.size()];
+            for (int i = 0; i < selectList.size(); i++) {
+                columns[i] = this.safeMapToColumnName(selectList.get(i));
             }
+            queryWrapper.select(columns);
         }
         if (StringUtils.isNotBlank(whereClause)) {
-            if (c == null) {
-                c = e.createCriteria();
-            }
-            c.andCondition(whereClause);
+            queryWrapper.apply(whereClause);
         }
-        return mapper().selectByExample(e);
+        if (StringUtils.isNotBlank(orderBy)) {
+            queryWrapper.last(" ORDER BY " + orderBy);
+        }
+        return mapper().selectList(queryWrapper);
     }
 
     /**
@@ -911,9 +834,10 @@ public abstract class BaseService<M, K> implements IBaseService<M, K> {
                 continue;
             }
             Object masterIdValue = ReflectUtil.getFieldValue(dataObject, relationStruct.masterIdField);
-            Example e = new Example(relationStruct.relationManyToMany.relationModelClass());
-            e.createCriteria().andEqualTo(relationStruct.masterIdField.getName(), masterIdValue);
-            List<?> manyToManyList = relationStruct.manyToManyMapper.selectByExample(e);
+            String masterIdColumn = this.safeMapToColumnName(relationStruct.masterIdField.getName());
+            Map<String, Object> filterMap = new HashMap<>(1);
+            filterMap.put(masterIdColumn, masterIdValue);
+            List<?> manyToManyList = relationStruct.manyToManyMapper.selectByMap(filterMap);
             ReflectUtil.setFieldValue(dataObject, relationStruct.relationField, manyToManyList);
         }
     }
@@ -1304,7 +1228,7 @@ public abstract class BaseService<M, K> implements IBaseService<M, K> {
             if (CollectionUtils.isEmpty(masterIdSet)) {
                 continue;
             }
-            BaseService<Object, Object> relationService = relationStruct.localService;
+            BaseService<Object, Serializable> relationService = relationStruct.localService;
             List<Object> relationList =
                     relationService.getInList(relationStruct.relationOneToOne.slaveIdField(), masterIdSet);
             MyModelUtil.makeOneToOneRelation(
@@ -1313,8 +1237,8 @@ public abstract class BaseService<M, K> implements IBaseService<M, K> {
             if (withDict && relationStruct.relationOneToOne.loadSlaveDict()
                     && CollectionUtils.isNotEmpty(relationList)) {
                 @SuppressWarnings("unchecked")
-                BaseService<Object, Object> proxyTarget =
-                        (BaseService<Object, Object>) AopTargetUtil.getTarget(relationService);
+                BaseService<Object, Serializable> proxyTarget =
+                        (BaseService<Object, Serializable>) AopTargetUtil.getTarget(relationService);
                 // 关联常量字典
                 proxyTarget.buildConstDictForDataList(relationList, ignoreFields);
                 // 关联本地字典。
@@ -1343,14 +1267,14 @@ public abstract class BaseService<M, K> implements IBaseService<M, K> {
             }
             Object id = ReflectUtil.getFieldValue(dataObject, relationStruct.masterIdField);
             if (id != null) {
-                BaseService<Object, Object> relationService = relationStruct.localService;
+                BaseService<Object, Serializable> relationService = relationStruct.localService;
                 Object relationObject = relationService.getOne(relationStruct.relationOneToOne.slaveIdField(), id);
                 ReflectUtil.setFieldValue(dataObject, relationStruct.relationField, relationObject);
                 // 仅仅当需要加载从表字典关联时，才去加载。
                 if (withDict && relationStruct.relationOneToOne.loadSlaveDict() && relationObject != null) {
                     @SuppressWarnings("unchecked")
-                    BaseService<Object, Object> proxyTarget =
-                            (BaseService<Object, Object>) AopTargetUtil.getTarget(relationService);
+                    BaseService<Object, Serializable> proxyTarget =
+                            (BaseService<Object, Serializable>) AopTargetUtil.getTarget(relationService);
                     // 关联常量字典
                     proxyTarget.buildConstDictForData(relationObject, ignoreFields);
                     // 关联本地字典。
@@ -1382,7 +1306,7 @@ public abstract class BaseService<M, K> implements IBaseService<M, K> {
                     .collect(toSet());
             // 从主表集合中，抽取主表关联字段的集合，再以in list形式去从表中查询。
             if (CollectionUtils.isNotEmpty(masterIdSet)) {
-                BaseService<Object, Object> relationService = relationStruct.localService;
+                BaseService<Object, Serializable> relationService = relationStruct.localService;
                 List<Object> relationList =
                         relationService.getInList(relationStruct.relationOneToMany.slaveIdField(), masterIdSet);
                 MyModelUtil.makeOneToManyRelation(
@@ -1407,7 +1331,7 @@ public abstract class BaseService<M, K> implements IBaseService<M, K> {
             }
             Object id = ReflectUtil.getFieldValue(dataObject, relationStruct.masterIdField);
             if (id != null) {
-                BaseService<Object, Object> relationService = relationStruct.localService;
+                BaseService<Object, Serializable> relationService = relationStruct.localService;
                 Set<Object> masterIdSet = new HashSet<>(1);
                 masterIdSet.add(id);
                 List<Object> relationObject = relationService.getInList(
@@ -1799,32 +1723,97 @@ public abstract class BaseService<M, K> implements IBaseService<M, K> {
     }
 
     /**
-     * 通过(In-list)条件和orderBy条件，构建Example对象，以供后续的查询操作使用。
+     * 因为Mybatis Plus中QueryWrapper的条件方法都要求传入数据表字段名，因此提供该函数将
+     * Java实体对象的字段名转换为数据表字段名，如果不存在会抛出异常。
+     * 另外在MyModelUtil.mapToColumnName有一级缓存，对于查询过的对象字段都会放到缓存中，
+     * 下次映射转换的时候，会直接从缓存获取。
      *
-     * @param inFilterField  参与(In-list)过滤的Java字段。
-     * @param inFilterValues 参与(In-list)过滤的字段值集合。
-     * @param orderBy        排序字段。
-     * @param <T>            in 属性字段的类型。
-     * @return 构建后的Example对象。
+     * @param fieldName Java实体对象的字段名。
+     * @return 对应的数据表字段名。
      */
-    protected <T> Example makeDefaultInListExample(String inFilterField, Collection<T> inFilterValues, String orderBy) {
-        Set<T> inFilterValueSet;
-        Example e = new Example(modelClass);
-        if (StringUtils.isNotBlank(orderBy)) {
-            e.setOrderByClause(orderBy);
+    protected String safeMapToColumnName(String fieldName) {
+        String columnName = MyModelUtil.mapToColumnName(fieldName, modelClass);
+        if (columnName == null) {
+            throw new InvalidDataFieldException(modelClass.getSimpleName(), fieldName);
         }
-        if (inFilterValues instanceof Set) {
-            inFilterValueSet = (Set<T>) inFilterValues;
-        } else {
-            inFilterValueSet = new HashSet<>(inFilterValues.size());
-            inFilterValueSet.addAll(inFilterValues);
+        return columnName;
+    }
+
+    /**
+     * 因为Mybatis Plus在update的时候，不能将实体对象中值为null的字段，更新为null，
+     * 而且忽略更新，在全部更新场景下，这个是非常重要的，所以我们写了这个函数绕开这一问题。
+     * 该函数会遍历实体对象中，所有不包含@Transient注解，没有transient修饰符的字段，如果
+     * 当前对象的该字段值为null，则会调用UpdateWrapper的set方法，将该字段赋值为null。
+     * 相比于其他重载方法，该方法会将参数中的主键id，设置到UpdateWrapper的过滤条件中。
+     *
+     * @param o  实体对象。
+     * @param id 实体对象的主键值。
+     * @return 创建后的UpdateWrapper。
+     */
+    protected UpdateWrapper<M> createUpdateQueryForNullValue(M o, K id) {
+        UpdateWrapper<M> uw = createUpdateQueryForNullValue(o, modelClass);
+        try {
+            M filter = modelClass.newInstance();
+            this.setIdFieldMethod.invoke(filter, id);
+            uw.setEntity(filter);
+        } catch (Exception e) {
+            log.error("Failed to call reflection code of BaseService.createUpdateQueryForNullValue.", e);
+            throw new MyRuntimeException(e);
         }
-        Example.Criteria c = e.createCriteria();
-        c.andIn(inFilterField, inFilterValueSet);
-        if (deletedFlagFieldName != null) {
-            c.andEqualTo(deletedFlagFieldName, GlobalDeletedFlag.NORMAL);
+        return uw;
+    }
+
+    /**
+     * 因为Mybatis Plus在update的时候，不能将实体对象中值为null的字段，更新为null，
+     * 而且忽略更新，在全部更新场景下，这个是非常重要的，所以我们写了这个函数绕开这一问题。
+     * 该函数会遍历实体对象中，所有不包含@Transient注解，没有transient修饰符的字段，如果
+     * 当前对象的该字段值为null，则会调用UpdateWrapper的set方法，将该字段赋值为null。
+     *
+     * @param o 实体对象。
+     * @return 创建后的UpdateWrapper。
+     */
+    protected UpdateWrapper<M> createUpdateQueryForNullValue(M o) {
+        return createUpdateQueryForNullValue(o, modelClass);
+    }
+
+    /**
+     * 因为Mybatis Plus在update的时候，不能将实体对象中值为null的字段，更新为null，
+     * 而且忽略更新，在全部更新场景下，这个是非常重要的，所以我们写了这个函数绕开这一问题。
+     * 该函数会遍历实体对象中，所有不包含@Transient注解，没有transient修饰符的字段，如果
+     * 当前对象的该字段值为null，则会调用UpdateWrapper的set方法，将该字段赋值为null。
+     *
+     * @param o     实体对象。
+     * @param clazz 实体对象的class。
+     * @return 创建后的UpdateWrapper。
+     */
+    public static <T> UpdateWrapper<T> createUpdateQueryForNullValue(T o, Class<T> clazz) {
+        UpdateWrapper<T> uw = new UpdateWrapper<>();
+        Field[] fields = ReflectUtil.getFields(clazz);
+        List<String> nullColumnList = new LinkedList<>();
+        for (Field field : fields) {
+            TableField tableField = field.getAnnotation(TableField.class);
+            if (tableField == null || tableField.exist()) {
+                int modifiers = field.getModifiers();
+                // transient类型的字段不能作为查询条件，静态字段和逻辑删除都不考虑。
+                int transientMask = 128;
+                if ((modifiers & transientMask) == 1
+                        || Modifier.isStatic(modifiers)
+                        || field.getAnnotation(TableLogic.class) != null) {
+                    continue;
+                }
+                // 仅当实体对象参数中，当前字段值为null的时候，才会赋值给UpdateWrapper。
+                // 以便在后续的更新中，可以将这些null字段的值设置到数据库表对应的字段中。
+                if (ReflectUtil.getFieldValue(o, field) == null) {
+                    nullColumnList.add(MyModelUtil.safeMapToColumnName(field.getName(), clazz));
+                }
+            }
         }
-        return e;
+        if (CollectionUtils.isNotEmpty(nullColumnList)) {
+            for (String nullColumn : nullColumnList) {
+                uw.set(nullColumn, null);
+            }
+        }
+        return uw;
     }
 
     @SuppressWarnings("unchecked")
@@ -1914,7 +1903,7 @@ public abstract class BaseService<M, K> implements IBaseService<M, K> {
                 relationStruct.localService = ApplicationContextHolder.getBean(
                         StringUtils.uncapitalize(relationOneToOne.slaveServiceName()));
             } else {
-                relationStruct.localService = (BaseService<Object, Object>)
+                relationStruct.localService = (BaseService<Object, Serializable>)
                         ApplicationContextHolder.getBean(relationOneToOne.slaveServiceClass());
             }
             localRelationOneToOneStructList.add(relationStruct);
@@ -1930,7 +1919,7 @@ public abstract class BaseService<M, K> implements IBaseService<M, K> {
                 relationStruct.localService = ApplicationContextHolder.getBean(
                         StringUtils.uncapitalize(relationOneToMany.slaveServiceName()));
             } else {
-                relationStruct.localService = (BaseService<Object, Object>)
+                relationStruct.localService = (BaseService<Object, Serializable>)
                         ApplicationContextHolder.getBean(relationOneToMany.slaveServiceClass());
             }
             localRelationOneToManyStructList.add(relationStruct);
@@ -1977,7 +1966,7 @@ public abstract class BaseService<M, K> implements IBaseService<M, K> {
                 relationStruct.localService =
                         ApplicationContextHolder.getBean(StringUtils.uncapitalize(relationDict.slaveServiceName()));
             } else {
-                relationStruct.localService = (BaseService<Object, Object>)
+                relationStruct.localService = (BaseService<Object, Serializable>)
                         ApplicationContextHolder.getBean(relationDict.slaveServiceClass());
             }
             localRelationDictStructList.add(relationStruct);
@@ -1999,7 +1988,7 @@ public abstract class BaseService<M, K> implements IBaseService<M, K> {
                 relationStruct.localService = ApplicationContextHolder.getBean(
                         StringUtils.uncapitalize(relationOneToManyAggregation.slaveServiceName()));
             } else {
-                relationStruct.localService = (BaseService<Object, Object>)
+                relationStruct.localService = (BaseService<Object, Serializable>)
                         ApplicationContextHolder.getBean(relationOneToManyAggregation.slaveServiceClass());
             }
             localRelationOneToManyAggrStructList.add(relationStruct);
@@ -2018,7 +2007,7 @@ public abstract class BaseService<M, K> implements IBaseService<M, K> {
                 relationStruct.localService = ApplicationContextHolder.getBean(
                         StringUtils.uncapitalize(relationManyToManyAggregation.slaveServiceName()));
             } else {
-                relationStruct.localService = (BaseService<Object, Object>)
+                relationStruct.localService = (BaseService<Object, Serializable>)
                         ApplicationContextHolder.getBean(relationManyToManyAggregation.slaveServiceClass());
             }
             localRelationManyToManyAggrStructList.add(relationStruct);
@@ -2411,7 +2400,7 @@ public abstract class BaseService<M, K> implements IBaseService<M, K> {
 
     static class LocalRelationStruct extends RelationStruct {
         private Field equalOneToOneRelationField;
-        private BaseService<Object, Object> localService;
+        private BaseService<Object, Serializable> localService;
         private BaseDaoMapper<Object> manyToManyMapper;
         private Map<Object, String> dictMap;
         private RelationDict relationDict;

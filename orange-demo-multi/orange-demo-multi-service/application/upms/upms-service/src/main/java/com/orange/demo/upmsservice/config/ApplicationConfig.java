@@ -34,4 +34,8 @@ public class ApplicationConfig {
      * 通常在调试和测试阶段设置为false，以便及时发现问题。
      */
     private Boolean ignoreRpcError;
+    /**
+     * Session的数据权限缓存时长(单位：秒)。
+     */
+    private Integer dataPermExpiredSeconds;
 }

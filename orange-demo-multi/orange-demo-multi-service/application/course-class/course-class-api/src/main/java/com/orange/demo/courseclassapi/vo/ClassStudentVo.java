@@ -5,12 +5,12 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 /**
- * ClassStudentVO对象。
+ * ClassStudentVO视图对象。
  *
  * @author Jerry
  * @date 2020-08-08
  */
-@ApiModel("ClassStudentVO实体对象")
+@ApiModel("ClassStudentVO视图对象")
 @Data
 public class ClassStudentVo {
 

@@ -4,18 +4,24 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/OrangeMultiDemo.iml" filepath="$PROJECT_DIR$/OrangeMultiDemo.iml" />
       <module fileurl="file://$PROJECT_DIR$/framework/admin-monitor/admin-monitor.iml" filepath="$PROJECT_DIR$/framework/admin-monitor/admin-monitor.iml" />
+      <module fileurl="file://$PROJECT_DIR$/framework/apidoc-tools/apidoc-tools.iml" filepath="$PROJECT_DIR$/framework/apidoc-tools/apidoc-tools.iml" />
       <module fileurl="file://$PROJECT_DIR$/application/application.iml" filepath="$PROJECT_DIR$/application/application.iml" />
       <module fileurl="file://$PROJECT_DIR$/application/application-common/application-common.iml" filepath="$PROJECT_DIR$/application/application-common/application-common.iml" />
+      <module fileurl="file://$PROJECT_DIR$/application-consumer/application-consumer.iml" filepath="$PROJECT_DIR$/application-consumer/application-consumer.iml" />
       <module fileurl="file://$PROJECT_DIR$/common/common.iml" filepath="$PROJECT_DIR$/common/common.iml" />
       <module fileurl="file://$PROJECT_DIR$/common/common-core/common-core.iml" filepath="$PROJECT_DIR$/common/common-core/common-core.iml" />
+      <module fileurl="file://$PROJECT_DIR$/common/common-datafilter/common-datafilter.iml" filepath="$PROJECT_DIR$/common/common-datafilter/common-datafilter.iml" />
+      <module fileurl="file://$PROJECT_DIR$/common/common-log/common-log.iml" filepath="$PROJECT_DIR$/common/common-log/common-log.iml" />
       <module fileurl="file://$PROJECT_DIR$/common/common-redis/common-redis.iml" filepath="$PROJECT_DIR$/common/common-redis/common-redis.iml" />
       <module fileurl="file://$PROJECT_DIR$/common/common-sequence/common-sequence.iml" filepath="$PROJECT_DIR$/common/common-sequence/common-sequence.iml" />
       <module fileurl="file://$PROJECT_DIR$/common/common-swagger/common-swagger.iml" filepath="$PROJECT_DIR$/common/common-swagger/common-swagger.iml" />
+      <module fileurl="file://$PROJECT_DIR$/common/common-xxljob/common-xxljob.iml" filepath="$PROJECT_DIR$/common/common-xxljob/common-xxljob.iml" />
       <module fileurl="file://$PROJECT_DIR$/application/course-class/course-class.iml" filepath="$PROJECT_DIR$/application/course-class/course-class.iml" />
       <module fileurl="file://$PROJECT_DIR$/application/course-class/course-class-api/course-class-api.iml" filepath="$PROJECT_DIR$/application/course-class/course-class-api/course-class-api.iml" />
       <module fileurl="file://$PROJECT_DIR$/application/course-class/course-class-service/course-class-service.iml" filepath="$PROJECT_DIR$/application/course-class/course-class-service/course-class-service.iml" />
       <module fileurl="file://$PROJECT_DIR$/framework/framework.iml" filepath="$PROJECT_DIR$/framework/framework.iml" />
       <module fileurl="file://$PROJECT_DIR$/application/gateway/gateway.iml" filepath="$PROJECT_DIR$/application/gateway/gateway.iml" />
+      <module fileurl="file://$PROJECT_DIR$/application-consumer/operation-log-consumer/operation-log-consumer.iml" filepath="$PROJECT_DIR$/application-consumer/operation-log-consumer/operation-log-consumer.iml" />
       <module fileurl="file://$PROJECT_DIR$/application/stats/stats.iml" filepath="$PROJECT_DIR$/application/stats/stats.iml" />
       <module fileurl="file://$PROJECT_DIR$/application/stats/stats-api/stats-api.iml" filepath="$PROJECT_DIR$/application/stats/stats-api/stats-api.iml" />
       <module fileurl="file://$PROJECT_DIR$/application/stats/stats-service/stats-service.iml" filepath="$PROJECT_DIR$/application/stats/stats-service/stats-service.iml" />

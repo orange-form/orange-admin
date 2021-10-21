@@ -6,13 +6,6 @@
         <option value="$PROJECT_DIR$/pom.xml" />
       </list>
     </option>
-    <option name="ignoredFiles">
-      <set>
-        <option value="$PROJECT_DIR$/common/common-datafilter/pom.xml" />
-        <option value="$PROJECT_DIR$/common/common-log/pom.xml" />
-        <option value="$PROJECT_DIR$/framework/apidoc-tools/pom.xml" />
-      </set>
-    </option>
   </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" project-jdk-name="1.8.0_232" project-jdk-type="JavaSDK" />
 </project>

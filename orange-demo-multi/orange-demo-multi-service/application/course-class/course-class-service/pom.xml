@@ -22,6 +22,11 @@
         </dependency>
         <dependency>
             <groupId>com.orange.demo</groupId>
+            <artifactId>upms-api</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.orange.demo</groupId>
             <artifactId>common-log</artifactId>
             <version>1.0.0</version>
         </dependency>

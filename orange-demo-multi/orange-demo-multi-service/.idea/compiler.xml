@@ -2,6 +2,7 @@
 <project version="4">
   <component name="CompilerConfiguration">
     <annotationProcessing>
+      <profile default="true" name="Default" enabled="true" />
       <profile name="Annotation profile for OrangeMultiDemo" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
@@ -14,17 +15,22 @@
         </processorPath>
         <module name="common-sequence" />
         <module name="stats-api" />
+        <module name="common-datafilter" />
         <module name="course-class-api" />
         <module name="stats-service" />
-        <module name="upms-api" />
+        <module name="course-class-service" />
+        <module name="upms-service" />
         <module name="common-swagger" />
         <module name="admin-monitor" />
-        <module name="upms-service" />
+        <module name="common-xxljob" />
         <module name="common-redis" />
         <module name="common-core" />
-        <module name="application-common" />
-        <module name="course-class-service" />
         <module name="gateway" />
+        <module name="operation-log-consumer" />
+        <module name="application-common" />
+        <module name="apidoc-tools" />
+        <module name="upms-api" />
+        <module name="common-log" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
@@ -32,6 +38,7 @@
       <module name="apidoc-tools" target="1.8" />
       <module name="application" target="1.8" />
       <module name="application-common" target="1.8" />
+      <module name="application-consumer" target="1.8" />
       <module name="common" target="1.8" />
       <module name="common-core" target="1.8" />
       <module name="common-datafilter" target="1.8" />
@@ -39,11 +46,13 @@
       <module name="common-redis" target="1.8" />
       <module name="common-sequence" target="1.8" />
       <module name="common-swagger" target="1.8" />
+      <module name="common-xxljob" target="1.8" />
       <module name="course-class" target="1.8" />
       <module name="course-class-api" target="1.8" />
       <module name="course-class-service" target="1.8" />
       <module name="framework" target="1.8" />
       <module name="gateway" target="1.8" />
+      <module name="operation-log-consumer" target="1.8" />
       <module name="OrangeMultiDemo" target="1.8" />
       <module name="stats" target="1.8" />
       <module name="stats-api" target="1.8" />

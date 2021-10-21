@@ -1,11 +1,16 @@
 package com.orange.demo.courseclassservice.service.impl;
 
+import cn.hutool.core.collection.CollUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.orange.demo.application.common.constant.StudentStatus;
 import com.orange.demo.courseclassservice.service.*;
 import com.orange.demo.courseclassservice.dao.*;
 import com.orange.demo.courseclassservice.model.*;
+import com.orange.demo.upmsapi.client.*;
 import com.orange.demo.common.core.util.*;
 import com.orange.demo.common.core.object.MyRelationParam;
+import com.orange.demo.common.core.object.ResponseResult;
 import com.orange.demo.common.core.object.CallResult;
 import com.orange.demo.common.core.base.dao.BaseDaoMapper;
 import com.orange.demo.common.core.base.service.BaseService;
@@ -33,11 +38,11 @@ public class StudentServiceImpl extends BaseService<Student, Long> implements St
     @Autowired
     private ClassStudentMapper classStudentMapper;
     @Autowired
-    private SchoolInfoService schoolInfoService;
-    @Autowired
     private AreaCodeService areaCodeService;
     @Autowired
     private GradeService gradeService;
+    @Autowired
+    private SysDeptClient sysDeptClient;
     @Autowired
     private IdGeneratorWrapper idGenerator;
 
@@ -60,12 +65,22 @@ public class StudentServiceImpl extends BaseService<Student, Long> implements St
     @Transactional(rollbackFor = Exception.class)
     @Override
     public Student saveNew(Student student) {
-        student.setStudentId(idGenerator.nextLongId());
-        MyModelUtil.setDefaultValue(student, "totalCoin", 0);
-        MyModelUtil.setDefaultValue(student, "leftCoin", 0);
-        MyModelUtil.setDefaultValue(student, "status", StudentStatus.NORMAL);
-        studentMapper.insert(student);
+        studentMapper.insert(this.buildDefaultValue(student));
         return student;
+    }
+
+    /**
+     * 利用数据库的insertList语法，批量插入对象列表。
+     *
+     * @param studentList 新增对象列表。
+     */
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public void saveNewBatch(List<Student> studentList) {
+        if (CollUtil.isNotEmpty(studentList)) {
+            studentList.forEach(this::buildDefaultValue);
+            studentMapper.insertList(studentList);
+        }
     }
 
     /**
@@ -79,7 +94,8 @@ public class StudentServiceImpl extends BaseService<Student, Long> implements St
     @Override
     public boolean update(Student student, Student originalStudent) {
         // 这里重点提示，在执行主表数据更新之前，如果有哪些字段不支持修改操作，请用原有数据对象字段替换当前数据字段。
-        return studentMapper.updateByPrimaryKey(student) == 1;
+        UpdateWrapper<Student> uw = this.createUpdateQueryForNullValue(student, student.getStudentId());
+        return studentMapper.update(student, uw) == 1;
     }
 
     /**
@@ -91,14 +107,13 @@ public class StudentServiceImpl extends BaseService<Student, Long> implements St
     @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean remove(Long studentId) {
-        // 这里先删除主数据
-        if (!this.removeById(studentId)) {
+        if (studentMapper.deleteById(studentId) == 0) {
             return false;
         }
         // 开始删除与本地多对多父表的关联
         ClassStudent classStudent = new ClassStudent();
         classStudent.setStudentId(studentId);
-        classStudentMapper.delete(classStudent);
+        classStudentMapper.delete(new QueryWrapper<>(classStudent));
         return true;
     }
 
@@ -234,10 +249,34 @@ public class StudentServiceImpl extends BaseService<Student, Long> implements St
                 && !gradeService.existId(student.getGradeId())) {
             return CallResult.error(String.format(errorMessageFormat, "年级"));
         }
-        if (this.needToVerify(student, originalStudent, Student::getSchoolId)
-                && !schoolInfoService.existId(student.getSchoolId())) {
-            return CallResult.error(String.format(errorMessageFormat, "所属校区"));
+        return CallResult.ok();
+    }
+
+    /**
+     * 根据最新对象和原有对象的数据对比，判断关联的远程字典数据和多对一主表数据是否都是合法数据。
+     *
+     * @param student         最新数据对象。
+     * @param originalStudent 原有数据对象。
+     * @return 数据全部正确返回true，否则false，同时返回具体的错误信息。
+     */
+    @Override
+    public CallResult verifyRemoteRelatedData(Student student, Student originalStudent) {
+        String errorMessageFormat = "数据验证失败，关联的%s并不存在，请刷新后重试！";
+        if (this.needToVerify(student, originalStudent, Student::getSchoolId)) {
+            ResponseResult<Boolean> responseResult =
+                    sysDeptClient.existId(student.getSchoolId());
+            if (this.hasErrorOfVerifyRemoteRelatedData(responseResult)) {
+                return CallResult.error(String.format(errorMessageFormat, "所属校区"));
+            }
         }
         return CallResult.ok();
+    }
+
+    private Student buildDefaultValue(Student student) {
+        student.setStudentId(idGenerator.nextLongId());
+        MyModelUtil.setDefaultValue(student, "totalCoin", 0);
+        MyModelUtil.setDefaultValue(student, "leftCoin", 0);
+        MyModelUtil.setDefaultValue(student, "status", StudentStatus.NORMAL);
+        return student;
     }
 }

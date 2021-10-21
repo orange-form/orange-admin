@@ -8,12 +8,12 @@ import java.util.Date;
 import java.util.Map;
 
 /**
- * StudentVO对象。
+ * StudentVO视图对象。
  *
  * @author Jerry
  * @date 2020-08-08
  */
-@ApiModel("StudentVO实体对象")
+@ApiModel("StudentVO视图对象")
 @Data
 public class StudentVo {
 
@@ -108,6 +108,12 @@ public class StudentVo {
     private Integer status;
 
     /**
+     * schoolId 字典关联数据。
+     */
+    @ApiModelProperty(value = "schoolId 字典关联数据")
+    private Map<String, Object> schoolIdDictMap;
+
+    /**
      * provinceId 字典关联数据。
      */
     @ApiModelProperty(value = "provinceId 字典关联数据")
@@ -130,12 +136,6 @@ public class StudentVo {
      */
     @ApiModelProperty(value = "gradeId 字典关联数据")
     private Map<String, Object> gradeIdDictMap;
-
-    /**
-     * schoolId 字典关联数据。
-     */
-    @ApiModelProperty(value = "schoolId 字典关联数据")
-    private Map<String, Object> schoolIdDictMap;
 
     /**
      * gender 常量字典关联数据。

@@ -1,0 +1,48 @@
+2021-10-21 11:34:10,003 INFO DEFAULT_GROUP@@course-class {SYNC} {IP-NEW} cluster: DEFAULT, new ips size: 1, content: [192.168.43.157:9001:unknown:DEFAULT_1.0_true_false_DEFAULT]
+
+2021-10-21 11:34:10,007 INFO [IP-UPDATED] namespace: public, service: DEFAULT_GROUP@@course-class, ips: 192.168.43.157:9001_true,
+
+2021-10-21 11:37:26,534 INFO DEFAULT_GROUP@@stats {SYNC} {IP-NEW} cluster: DEFAULT, new ips size: 1, content: [192.168.43.157:9002:unknown:DEFAULT_1.0_true_false_DEFAULT]
+
+2021-10-21 11:37:26,535 INFO [IP-UPDATED] namespace: public, service: DEFAULT_GROUP@@stats, ips: 192.168.43.157:9002_true,
+
+2021-10-21 11:39:05,519 INFO DEFAULT_GROUP@@upms {SYNC} {IP-NEW} cluster: DEFAULT, new ips size: 1, content: [192.168.43.157:9000:unknown:DEFAULT_1.0_true_false_DEFAULT]
+
+2021-10-21 11:39:05,520 INFO [IP-UPDATED] namespace: public, service: DEFAULT_GROUP@@upms, ips: 192.168.43.157:9000_true,
+
+2021-10-21 11:39:51,301 INFO DEFAULT_GROUP@@gateway {SYNC} {IP-NEW} cluster: DEFAULT, new ips size: 1, content: [192.168.43.157:8082:unknown:DEFAULT_1.0_true_false_DEFAULT]
+
+2021-10-21 11:39:51,301 INFO [IP-UPDATED] namespace: public, service: DEFAULT_GROUP@@gateway, ips: 192.168.43.157:8082_true,
+
+2021-10-21 12:07:05,681 INFO DEFAULT_GROUP@@course-class {SYNC} {IP-DEAD} cluster: DEFAULT, dead ips size: 1, content: [192.168.43.157:9001:unknown:DEFAULT_1.0_true_false_DEFAULT]
+
+2021-10-21 12:07:05,682 INFO [IP-UPDATED] namespace: public, service: DEFAULT_GROUP@@course-class, ips: 
+
+2021-10-21 12:07:33,387 INFO DEFAULT_GROUP@@course-class {SYNC} {IP-NEW} cluster: DEFAULT, new ips size: 1, content: [192.168.43.157:9001:unknown:DEFAULT_1.0_true_false_DEFAULT]
+
+2021-10-21 12:07:33,388 INFO [IP-UPDATED] namespace: public, service: DEFAULT_GROUP@@course-class, ips: 192.168.43.157:9001_true,
+
+2021-10-21 12:32:19,842 INFO DEFAULT_GROUP@@course-class {SYNC} {IP-DEAD} cluster: DEFAULT, dead ips size: 1, content: [192.168.43.157:9001:unknown:DEFAULT_1.0_true_false_DEFAULT]
+
+2021-10-21 12:32:19,843 INFO [IP-UPDATED] namespace: public, service: DEFAULT_GROUP@@course-class, ips: 
+
+2021-10-21 12:33:35,812 INFO DEFAULT_GROUP@@course-class {SYNC} {IP-NEW} cluster: DEFAULT, new ips size: 1, content: [192.168.43.157:9001:unknown:DEFAULT_1.0_true_false_DEFAULT]
+
+2021-10-21 12:33:35,812 INFO [IP-UPDATED] namespace: public, service: DEFAULT_GROUP@@course-class, ips: 192.168.43.157:9001_true,
+
+2021-10-21 12:34:47,296 INFO DEFAULT_GROUP@@course-class {SYNC} {IP-DEAD} cluster: DEFAULT, dead ips size: 1, content: [192.168.43.157:9001:unknown:DEFAULT_1.0_true_false_DEFAULT]
+
+2021-10-21 12:34:47,296 INFO [IP-UPDATED] namespace: public, service: DEFAULT_GROUP@@course-class, ips: 
+
+2021-10-21 12:34:47,626 INFO DEFAULT_GROUP@@gateway {SYNC} {IP-DEAD} cluster: DEFAULT, dead ips size: 1, content: [192.168.43.157:8082:unknown:DEFAULT_1.0_true_false_DEFAULT]
+
+2021-10-21 12:34:47,626 INFO [IP-UPDATED] namespace: public, service: DEFAULT_GROUP@@gateway, ips: 
+
+2021-10-21 12:34:47,731 INFO DEFAULT_GROUP@@stats {SYNC} {IP-DEAD} cluster: DEFAULT, dead ips size: 1, content: [192.168.43.157:9002:unknown:DEFAULT_1.0_true_false_DEFAULT]
+
+2021-10-21 12:34:47,731 INFO [IP-UPDATED] namespace: public, service: DEFAULT_GROUP@@stats, ips: 
+
+2021-10-21 12:34:47,763 INFO DEFAULT_GROUP@@upms {SYNC} {IP-DEAD} cluster: DEFAULT, dead ips size: 1, content: [192.168.43.157:9000:unknown:DEFAULT_1.0_true_false_DEFAULT]
+
+2021-10-21 12:34:47,763 INFO [IP-UPDATED] namespace: public, service: DEFAULT_GROUP@@upms, ips: 
+

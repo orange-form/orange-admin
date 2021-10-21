@@ -9,12 +9,12 @@ import java.util.Date;
 import java.util.Map;
 
 /**
- * CourseVO对象。
+ * CourseVO视图对象。
  *
  * @author Jerry
  * @date 2020-08-08
  */
-@ApiModel("CourseVO实体对象")
+@ApiModel("CourseVO视图对象")
 @Data
 public class CourseVo {
 

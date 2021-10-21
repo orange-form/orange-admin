@@ -1,8 +1,9 @@
 package com.orange.demo.statsservice.model;
 
+import com.baomidou.mybatisplus.annotation.*;
 import com.orange.demo.statsapi.vo.StudentActionTransVo;
-import com.orange.demo.courseclassapi.client.SchoolInfoClient;
-import com.orange.demo.courseclassapi.vo.SchoolInfoVo;
+import com.orange.demo.upmsapi.client.SysDeptClient;
+import com.orange.demo.upmsapi.vo.SysDeptVo;
 import com.orange.demo.courseclassapi.vo.GradeVo;
 import com.orange.demo.courseclassapi.client.GradeClient;
 import com.orange.demo.application.common.constant.StudentActionType;
@@ -13,7 +14,6 @@ import com.orange.demo.common.core.base.mapper.BaseModelMapper;
 import lombok.Data;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
-import javax.persistence.*;
 
 import java.util.Date;
 import java.util.Map;
@@ -25,119 +25,118 @@ import java.util.Map;
  * @date 2020-08-08
  */
 @Data
-@Table(name = "zz_student_action_trans")
+@TableName(value = "zz_student_action_trans")
 public class StudentActionTrans {
 
     /**
      * 主键Id。
      */
-    @Id
-    @Column(name = "trans_id")
+    @TableId(value = "trans_id")
     private Long transId;
 
     /**
      * 学生Id。
      */
-    @Column(name = "student_id")
+    @TableField(value = "student_id")
     private Long studentId;
 
     /**
      * 学生名称。
      */
-    @Column(name = "student_name")
+    @TableField(value = "student_name")
     private String studentName;
 
     /**
      * 学生校区。
      */
-    @Column(name = "school_id")
+    @TableField(value = "school_id")
     private Long schoolId;
 
     /**
      * 年级Id。
      */
-    @Column(name = "grade_id")
+    @TableField(value = "grade_id")
     private Integer gradeId;
 
     /**
      * 行为类型(0: 充值  1: 购课 2: 上课签到 3: 上课签退 4: 看视频课 5: 做作业 6: 刷题 7: 献花)。
      */
-    @Column(name = "action_type")
+    @TableField(value = "action_type")
     private Integer actionType;
 
     /**
      * 设备类型(0: iOS 1: Android 2: PC)。
      */
-    @Column(name = "device_type")
+    @TableField(value = "device_type")
     private Integer deviceType;
 
     /**
      * 看视频秒数。
      */
-    @Column(name = "watch_video_seconds")
+    @TableField(value = "watch_video_seconds")
     private Integer watchVideoSeconds;
 
     /**
      * 购买献花数量。
      */
-    @Column(name = "flower_count")
+    @TableField(value = "flower_count")
     private Integer flowerCount;
 
     /**
      * 购买作业数量。
      */
-    @Column(name = "paper_count")
+    @TableField(value = "paper_count")
     private Integer paperCount;
 
     /**
      * 购买视频数量。
      */
-    @Column(name = "video_count")
+    @TableField(value = "video_count")
     private Integer videoCount;
 
     /**
      * 购买课程数量。
      */
-    @Column(name = "course_count")
+    @TableField(value = "course_count")
     private Integer courseCount;
 
     /**
      * 充值学币数量。
      */
-    @Column(name = "coin_count")
+    @TableField(value = "coin_count")
     private Integer coinCount;
 
     /**
      * 做题是否正确标记。
      */
-    @Column(name = "exercise_correct_flag")
+    @TableField(value = "exercise_correct_flag")
     private Integer exerciseCorrectFlag;
 
     /**
      * 发生时间。
      */
-    @Column(name = "create_time")
+    @TableField(value = "create_time")
     private Date createTime;
 
     /**
      * createTime 范围过滤起始值(>=)。
      */
-    @Transient
+    @TableField(exist = false)
     private String createTimeStart;
 
     /**
      * createTime 范围过滤结束值(<=)。
      */
-    @Transient
+    @TableField(exist = false)
     private String createTimeEnd;
 
     @RelationDict(
             masterIdField = "schoolId",
-            slaveClientClass = SchoolInfoClient.class,
-            slaveModelClass = SchoolInfoVo.class,
-            slaveIdField = "schoolId",
-            slaveNameField = "schoolName")
-    @Transient
+            slaveClientClass = SysDeptClient.class,
+            slaveModelClass = SysDeptVo.class,
+            slaveIdField = "deptId",
+            slaveNameField = "deptName")
+    @TableField(exist = false)
     private Map<String, Object> schoolIdDictMap;
 
     @RelationDict(
@@ -146,19 +145,19 @@ public class StudentActionTrans {
             slaveModelClass = GradeVo.class,
             slaveIdField = "gradeId",
             slaveNameField = "gradeName")
-    @Transient
+    @TableField(exist = false)
     private Map<String, Object> gradeIdDictMap;
 
     @RelationConstDict(
             masterIdField = "actionType",
             constantDictClass = StudentActionType.class)
-    @Transient
+    @TableField(exist = false)
     private Map<String, Object> actionTypeDictMap;
 
     @RelationConstDict(
             masterIdField = "deviceType",
             constantDictClass = DeviceType.class)
-    @Transient
+    @TableField(exist = false)
     private Map<String, Object> deviceTypeDictMap;
 
     @Mapper

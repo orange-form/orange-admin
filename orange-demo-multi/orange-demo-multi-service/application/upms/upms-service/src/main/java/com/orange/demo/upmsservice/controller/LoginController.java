@@ -12,10 +12,13 @@ import com.orange.demo.common.core.constant.ApplicationConstant;
 import com.orange.demo.common.core.object.*;
 import com.orange.demo.common.core.util.*;
 import com.orange.demo.common.redis.cache.SessionCacheHelper;
+import com.orange.demo.common.log.annotation.OperationLog;
+import com.orange.demo.common.log.model.constant.SysOperationLogType;
 import com.orange.demo.upmsapi.constant.SysUserStatus;
 import com.orange.demo.upmsapi.constant.SysUserType;
 import com.orange.demo.upmsservice.model.*;
 import com.orange.demo.upmsservice.service.*;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -46,7 +49,11 @@ public class LoginController {
     @Autowired
     private SysMenuService sysMenuService;
     @Autowired
+    private SysDataPermService sysDataPermService;
+    @Autowired
     private SysPermWhitelistService sysPermWhitelistService;
+    @Autowired
+    private RedissonClient redissonClient;
     @Autowired
     private SessionCacheHelper cacheHelper;
     @Autowired
@@ -65,6 +72,7 @@ public class LoginController {
             @ApiImplicitParam(name = "loginName", defaultValue = "admin"),
             @ApiImplicitParam(name = "password", defaultValue = "IP3ccke3GhH45iGHB5qP9p7iZw6xUyj28Ju10rnBiPKOI35sc%2BjI7%2FdsjOkHWMfUwGYGfz8ik31HC2Ruk%2Fhkd9f6RPULTHj7VpFdNdde2P9M4mQQnFBAiPM7VT9iW3RyCtPlJexQ3nAiA09OqG%2F0sIf1kcyveSrulxembARDbDo%3D")
     })
+    @OperationLog(type = SysOperationLogType.LOGIN, saveResponse = false)
     @PostMapping("/doLogin")
     public ResponseResult<JSONObject> doLogin(
             @MyRequestBody String loginName, @MyRequestBody String password) throws Exception {
@@ -87,6 +95,8 @@ public class LoginController {
             errorMessage = "登录失败，用户账号被锁定！";
             return ResponseResult.error(ErrorCodeEnum.INVALID_USER_STATUS, errorMessage);
         }
+        String patternKey = RedisKeyUtil.getSessionIdPrefix(user.getLoginName(), MyCommonUtil.getDeviceType()) + "*";
+        redissonClient.getKeys().deleteByPatternAsync(patternKey);
         JSONObject jsonData = this.buildLoginData(user);
         return ResponseResult.success(jsonData);
     }
@@ -96,9 +106,11 @@ public class LoginController {
      *
      * @return 应答结果对象。
      */
+    @OperationLog(type = SysOperationLogType.LOGOUT)
     @PostMapping("/doLogout")
     public ResponseResult<Void> doLogout() {
         TokenData tokenData = TokenData.takeFromRequest();
+        sysDataPermService.removeDataPermCache(tokenData.getSessionId());
         cacheHelper.removeAllSessionCache(tokenData.getSessionId());
         return ResponseResult.success();
     }
@@ -143,7 +155,7 @@ public class LoginController {
     @PostMapping("/changePassword")
     public ResponseResult<Void> changePassword(
             @MyRequestBody String oldPass, @MyRequestBody String newPass) throws Exception {
-        if (MyCommonUtil.existBlankArgument(oldPass, oldPass)) {
+        if (MyCommonUtil.existBlankArgument(newPass, oldPass)) {
             return ResponseResult.error(ErrorCodeEnum.ARGUMENT_NULL_EXIST);
         }
         TokenData tokenData = TokenData.takeFromRequest();
@@ -169,6 +181,7 @@ public class LoginController {
         TokenData tokenData = new TokenData();
         String sessionId = user.getLoginName() + "_" + deviceType + "_" + MyCommonUtil.generateUuid();
         tokenData.setUserId(user.getUserId());
+        tokenData.setDeptId(user.getDeptId());
         tokenData.setIsAdmin(isAdmin);
         tokenData.setLoginName(user.getLoginName());
         tokenData.setShowName(user.getShowName());
@@ -197,6 +210,9 @@ public class LoginController {
         }
         jsonData.put("menuList", menuList);
         jsonData.put("permCodeList", permCodeList);
+        if (user.getUserType() != SysUserType.TYPE_ADMIN) {
+            sysDataPermService.putDataPermCache(sessionId, user.getUserId(), user.getDeptId());
+        }
         return jsonData;
     }
 }
