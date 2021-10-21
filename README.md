@@ -1,21 +1,9 @@
 ### 重要声明
- **橙单正式开源基于 flowable 6.6 和在线表单的的工作流功能，前后台代码全部开放，无任何代码混淆。** 欢迎加入我们的QQ群(788581363)，或添加作者个人QQ(3510245832) 拉你入群。如果确实对您有所帮助，Fork 的同时，也请 Star 一下。
-> **如果您不想东拼西凑的去找各种工作流相关的代码案例和小技巧，也不想自己趟坑，而是分分钟就想得到成熟稳定、开箱即用的工程，请考虑橙单** 。目前已开源部分的所有测试和技术支持，均由橙单团队负责。
+ ***从 2.0 版本开始，橙单正式开源基于 Flowable 6.6 / Activiti 7.x 和在线表单的的工作流功能，前后台代码完整开源，无任何混淆。而此前开源的单体和微服务工程，基础架构代码目前也已全部开源，18 万字的线上文档全部免费。*** 欢迎加入我们的QQ群(788581363)，或添加作者个人QQ(3510245832) 拉你入群。如果确实对您有所帮助，Fork 的同时，也请 Star 一下。
+> 翻看源码之后你会发现，如此高质量且 Human Readable 的代码竟然全部是由工具生成的。
 
-#### 工作流支持
--  **前后端代码无一丝混淆，完全交付，且代码质量超高** ，极易学习和二次开发，同时支持单体和微服务架构。
-- 同时集成 Activiti 7.x 和 Flowable 6.6 作为工作流引擎，配置工程时可自行二选一。
-- 集成工作流和在线表单，无需写一行代码即可配置出相对复杂的工作流业务。
-- 支持同一流程的多版本发布，同时支持版本切换。
-- 支持完整的工作流工单管理，稍作修改即可支持分布式操作。(下个版本会支持相关的代码生成)
-- 支持部门岗位和用户岗位，配置工程时可自行选择是否支持。
-- 支持基于部门、岗位、本部门领导岗位、上级部门领导岗位等候选组。
-- 开箱即用的支持，工单撤销和终止、会签加签、待办已办转办、历史任务、审批详情列表、附件上传下载等。
-- 工作流前端已集成美观的流程编辑器，同时支持流程图高亮及任务跟踪。
-- 严格且合理的数据安全校验，流程敏感数据 (如合同信息) 不会被越权访问和下载。
-- 已去除 Spring Security 的缺省依赖，并与现有权限系统完美整合。
-- 工作流与在线表单演示环境，全部代码由橙单生成器直接生成，未经任何修改。 [http://demo.orangeforms.com/flow](http://demo.orangeforms.com/flow)。
-- 橙单生成后工程(除工作流外)演示环境，全部代码由橙单生成器直接生成，未经任何修改。 [http://demo.orangeforms.com](http://demo.orangeforms.com)。
+### 最新功能
+支持静态表单 + 工作流的代码生成。用户在生成器配置表单和流程，即可生成完整的业务代码。生成后代码具备产品级强度(见下面的代码截图)，对于二次开发极为友好。
 
 <table>
 <tr>
@@ -28,7 +16,7 @@
   <td><img src="https://images.gitee.com/uploads/images/2021/0810/075956_5afda298_7431510.png"/></td>
   <td><img src="https://images.gitee.com/uploads/images/2021/0810/080302_09a26dfd_7431510.png"/></td>
   <td><img src="https://images.gitee.com/uploads/images/2021/0822/143220_ef7fe017_7431510.png"/></td>
-  <td><img src="https://images.gitee.com/uploads/images/2021/0901/201141_d6a804cb_7431510.png"/></td>
+  <td><img src="https://images.gitee.com/uploads/images/2021/1020/193130_270d1c30_7431510.png"/></td>
 </tr>
 </table>
 
@@ -57,13 +45,29 @@
 
 #### 在线资源
 - 网站首页。[http://www.orangeforms.com](http://www.orangeforms.com)
-- 教学视频。[https://www.bilibili.com/video/bv1Wg4y1i7vP](https://www.bilibili.com/video/bv1Wg4y1i7vP)
+- 橙单配置视频。[https://www.bilibili.com/video/bv1Wg4y1i7vP](https://www.bilibili.com/video/bv1Wg4y1i7vP)
+- 工作流操作视频：[https://www.bilibili.com/video/BV1j44y1y7k2?p=1](https://www.bilibili.com/video/BV1j44y1y7k2?p=1)
 - 教学版演示配置。[http://config.orangeforms.com](http://config.orangeforms.com)
 - 生成器操作指南。[http://www.orangeforms.com/orange-doc/](http://www.orangeforms.com/orange-doc/)
 - 后端代码文档。[http://www.orangeforms.com/development-doc/](http://www.orangeforms.com/development-doc/)
 - 前端代码文档。[http://www.orangeforms.com/development-vue/](http://www.orangeforms.com/development-vue/)
 - 演示项目。[http://demo.orangeforms.com](http://demo.orangeforms.com)
 - 工作流演示项目。[http://demo.orangeforms.com/flow](http://demo.orangeforms.com/flow)
+
+#### 工作流支持
+-  **从 2.0 版本开始，支持静态表单 + 工作流的代码生成。用户可在生成器配置表单和流程，再生成相关的完整业务代码，生成后代码对于二次开发极为友好** 。
+- 前后端代码无一丝混淆，完全交付，且代码质量超高，同时支持单体和微服务架构。
+- 同时集成 Activiti 7.x 和 Flowable 6.6 作为工作流引擎，配置工程时可自行二选一。
+- 集成工作流和在线表单，无需写一行代码即可配置出相对复杂的工作流业务。
+- 支持同一流程的多版本发布，同时支持版本切换。
+- 支持完整的工作流工单管理，稍作修改即可支持分布式操作。(下个版本会支持相关的代码生成)
+- 支持部门岗位和用户岗位，配置工程时可自行选择是否支持。
+- 支持基于部门、岗位、本部门领导岗位、上级部门领导岗位等候选组。
+- 开箱即用的支持，工单撤销和终止、会签加签、待办已办转办、历史任务、审批详情列表、附件上传下载等。
+- 工作流前端已集成美观的流程编辑器，同时支持流程图高亮及任务跟踪。
+- 严格且合理的数据安全校验，流程敏感数据 (如合同信息) 不会被越权访问和下载。
+- 已去除 Spring Security 的缺省依赖，并与现有权限系统完美整合。
+- 工作流与在线表单演示环境，全部代码由橙单生成器直接生成，未经任何修改。 [http://demo.orangeforms.com/flow](http://demo.orangeforms.com/flow)。
 
 #### 在线表单支持
 - 前后端代码完全交付，甚至可配置为自己的项目包名。
