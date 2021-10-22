@@ -101,6 +101,11 @@ const SysFlowTaskOperationType = new DictionaryBase('任务操作类型', [
     id: 'multi_abstain',
     name: '弃权（会签）',
     symbol: 'MULTI_ABSTAIN'
+  },
+  {
+    id: 'set_assignee',
+    name: '指定审批人',
+    symbol: 'SET_ASSIGNEE'
   }
 ]);
 Vue.prototype.SysFlowTaskOperationType = SysFlowTaskOperationType;

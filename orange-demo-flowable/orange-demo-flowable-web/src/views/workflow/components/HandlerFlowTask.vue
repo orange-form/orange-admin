@@ -136,6 +136,7 @@ export default {
         case this.SysFlowTaskOperationType.CO_SIGN:
         case this.SysFlowTaskOperationType.MULTI_AGREE:
         case this.SysFlowTaskOperationType.MULTI_SIGN:
+        case this.SysFlowTaskOperationType.SET_ASSIGNEE:
           return 'primary';
         case this.SysFlowTaskOperationType.SAVE:
           return 'success';
@@ -150,6 +151,7 @@ export default {
       switch (type) {
         case this.SysFlowTaskOperationType.AGREE:
         case this.SysFlowTaskOperationType.MULTI_AGREE:
+        case this.SysFlowTaskOperationType.SET_ASSIGNEE:
           return 'success';
         case this.SysFlowTaskOperationType.REFUSE:
         case this.SysFlowTaskOperationType.PARALLEL_REFUSE:

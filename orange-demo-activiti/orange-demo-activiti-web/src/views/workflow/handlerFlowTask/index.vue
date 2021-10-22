@@ -136,10 +136,15 @@ export default {
         if (this.isOnlineForm) {
           this.$refs.workflowForm.getFormData().then(formData => {
             formData.taskVariableData = this.$refs.workflowForm.getVariableData(this.variableList);
-            // 会签操作设置多实例处理人集合
+            
             if (operationType === this.SysFlowTaskOperationType.MULTI_SIGN) {
+              // 会签操作设置多实例处理人集合
               if (formData.taskVariableData == null) formData.taskVariableData = {};
               formData.taskVariableData.assigneeList = assignee.split(',');
+            } else if (operationType === this.SysFlowTaskOperationType.SET_ASSIGNEE) {
+              // 设置下一个任务节点处理人
+              if (formData.taskVariableData == null) formData.taskVariableData = {};
+              formData.taskVariableData.appointedAssignee = assignee;
             }
             resolve(formData);
           }).catch(e => {

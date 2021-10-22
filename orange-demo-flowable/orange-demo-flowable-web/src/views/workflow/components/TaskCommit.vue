@@ -74,6 +74,7 @@ export default {
       this.$dialog.show('选择用户', TaskUserSelect, {
         area: ['1000px', '600px']
       }, {
+        showAssignee: false,
         multiple: this.multiSelect
       }).then(res => {
         let assignee = null;
@@ -88,7 +89,12 @@ export default {
   },
   computed: {
     showAssignSelect () {
-      return [this.SysFlowTaskOperationType.TRANSFER, this.SysFlowTaskOperationType.CO_SIGN, this.SysFlowTaskOperationType.MULTI_SIGN].indexOf(this.operation.type) !== -1;
+      return [
+        this.SysFlowTaskOperationType.TRANSFER,
+        this.SysFlowTaskOperationType.CO_SIGN,
+        this.SysFlowTaskOperationType.MULTI_SIGN,
+        this.SysFlowTaskOperationType.SET_ASSIGNEE
+      ].indexOf(this.operation.type) !== -1;
     },
     multiSelect () {
       return this.operation.type === this.SysFlowTaskOperationType.CO_SIGN || this.operation.type === this.SysFlowTaskOperationType.MULTI_SIGN;

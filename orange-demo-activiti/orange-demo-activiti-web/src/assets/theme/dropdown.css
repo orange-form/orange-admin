@@ -1398,8 +1398,8 @@
     cursor: pointer;
     outline: none; }
     .el-dropdown-menu__item:not(.is-disabled):hover, .el-dropdown-menu__item:focus {
-      background-color: #409EFF;
-      color: #FFFFFF; }
+      background-color: #ecf5ff;
+      color: #66b1ff; }
     .el-dropdown-menu__item i {
       margin-right: 5px; }
     .el-dropdown-menu__item--divided {

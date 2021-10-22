@@ -13,6 +13,9 @@
           <el-button type="primary" size="mini" @click="setStartUser">
             流程发起人
           </el-button>
+          <el-button v-if="showAssignee" type="primary" size="mini" @click="useAppointedAssignee">
+            使用指定审批人
+          </el-button>
           <el-button type="primary" size="mini" @click="onSubmit" :disabled="!canCommit">
             添加用户
           </el-button>
@@ -77,6 +80,11 @@ import { SystemController } from '@/api';
 export default {
   name: 'TaskUserSelect',
   props: {
+    // 是否显示指定审批人
+    showAssignee: {
+      type: Boolean,
+      default: true
+    },
     // 是否多选
     multiple: {
       type: Boolean,
@@ -120,6 +128,12 @@ export default {
       this.onCancel(true, {
         /* eslint-disable-next-line */
         loginName: '${startUserName}'
+      });
+    },
+    useAppointedAssignee () {
+      this.onCancel(true, {
+        /* eslint-disable-next-line */
+        loginName: '${appointedAssignee}'
       });
     },
     canSelect (row) {

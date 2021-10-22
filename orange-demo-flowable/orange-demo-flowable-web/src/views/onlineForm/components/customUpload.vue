@@ -35,12 +35,15 @@
         </template>
       </el-upload>
       <template v-else>
-        <template v-for="item in uploadWidgetImpl.fileList">
-          <img class="table-cell-image" v-if="widgetConfig.isImage" :key="item.url" :src="item.url" />
-          <a v-else :key="item.url" href="javascript:void(0);" @click="downloadFile(item.url, item.name)">
-            {{item.name}}
-          </a>
+        <template v-if="widgetConfig.isImage">
+          <el-image v-for="item in uploadWidgetImpl.fileList"
+            :preview-src-list="(uploadWidgetImpl.fileList || []).map(imgItem => imgItem.url)"
+            class="table-cell-image" :key="item.url" :src="item.url" fit="fill">
+          </el-image>
         </template>
+        <a v-else v-for="item in uploadWidgetImpl.fileList" :key="item.url" href="javascript:void(0);" @click="downloadFile(item.url, item.name)">
+          {{item.name}}
+        </a>
       </template>
     </el-form-item>
   </el-col>
