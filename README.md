@@ -100,7 +100,7 @@
 #### 关于我们
 - S.L 老师，20年开发经验，后台全栈架构师，代码强迫症、性能洁癖、能看出一像素偏差。精通 C++/Java/Scala/Web高并发/大数据/C++服务器/视频直播网络技术，略懂容器。
 - J.T 老师，15年开发经验，前端全栈架构师，思维极缜密、号边界王。精通 C++/Java/Javascript/Vue & React/C++客户端/Android原生/小程序/视频直播编解码技术。
-- 欢迎加入我们的技术交流 QQ 群，如遇任何使用中的问题我们都将第一时间为您答疑。群2:[![加入QQ群2](https://img.shields.io/badge/883176267-red.svg)](//shang.qq.com/wpa/qunwpa?idkey=590857a1b4c587e2be3d66b9a7e2015109772e777c6451c897dee393489b1661)
+- 欢迎加入我们的技术交流 QQ 群，如遇任何使用中的问题我们都将第一时间为您答疑。群2:[![加入QQ群2](https://img.shields.io/badge/883176267-red.svg)](https://qm.qq.com/cgi-bin/qm/qr?k=cMMom9SdX1j57T_58WihLZ4TBrBpokrv&jump_from=webapi)
 - 由于被恶意举报，如果您通过群号搜索不到，请添加作者的 QQ (3510245832)，我们会将您拉入群中。
 ![QQ群](https://images.gitee.com/uploads/images/2021/1028/112843_04869611_7431510.png "orange-group1.png")
 
