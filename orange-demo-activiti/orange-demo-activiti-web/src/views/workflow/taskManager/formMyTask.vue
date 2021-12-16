@@ -3,6 +3,18 @@
   <div style="position: relative;">
     <el-form label-width="100px" size="mini" label-position="right" @submit.native.prevent>
       <filter-box :item-width="350">
+        <el-form-item label="流程名称">
+          <el-input class="filter-item" v-model="formMyTask.formFilter.processDefinitionName"
+            :clearable="true" placeholder="流程名称" />
+        </el-form-item>
+        <el-form-item label="流程标识">
+          <el-input class="filter-item" v-model="formMyTask.formFilter.processDefinitionKey"
+            :clearable="true" placeholder="流程标识" />
+        </el-form-item>
+        <el-form-item label="任务名称">
+          <el-input class="filter-item" v-model="formMyTask.formFilter.taskName"
+            :clearable="true" placeholder="任务名称" />
+        </el-form-item>
         <el-button slot="operator" type="primary" :plain="true" size="mini" @click="refreshMyTask(true)">查询</el-button>
       </filter-box>
     </el-form>
@@ -52,6 +64,16 @@ export default {
   data () {
     return {
       formMyTask: {
+        formFilter: {
+          processDefinitionName: undefined,
+          processDefinitionKey: undefined,
+          taskName: undefined
+        },
+        formFilterCopy: {
+          processDefinitionName: undefined,
+          processDefinitionKey: undefined,
+          taskName: undefined
+        },
         taskWidget: new TableWidget(this.loadTaskData, this.loadTaskDataVerify, true, false, 'entryId', 1),
         isInit: false
       }
@@ -61,6 +83,9 @@ export default {
     loadTaskData (params) {
       if (params == null) params = {};
       params = {
+        processDefinitionName: this.formMyTask.formFilterCopy.processDefinitionName,
+        processDefinitionKey: this.formMyTask.formFilterCopy.processDefinitionKey,
+        taskName: this.formMyTask.formFilterCopy.taskName,
         ...params
       }
       return new Promise((resolve, reject) => {
@@ -75,6 +100,9 @@ export default {
       });
     },
     loadTaskDataVerify () {
+      this.formMyTask.formFilterCopy.processDefinitionName = this.formMyTask.formFilter.processDefinitionName;
+      this.formMyTask.formFilterCopy.processDefinitionKey = this.formMyTask.formFilter.processDefinitionKey;
+      this.formMyTask.formFilterCopy.taskName = this.formMyTask.formFilter.taskName;
       return true;
     },
     onSubmit (row) {
@@ -101,7 +129,9 @@ export default {
               flowEntryName: row.processDefinitionName,
               processInstanceInitiator: row.processInstanceInitiator,
               // 过滤掉加签操作，加签只有在已完成任务里可以操作
-              operationList: (res.data.operationList || []).filter(item => item.type !== this.SysFlowTaskOperationType.CO_SIGN),
+              operationList: (res.data.operationList || []).filter(item => {
+                return item.type !== this.SysFlowTaskOperationType.CO_SIGN && item.type !== this.SysFlowTaskOperationType.REVOKE;
+              }),
               variableList: res.data.variableList
             }
           });

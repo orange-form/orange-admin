@@ -30,6 +30,8 @@
 
 <script>
 /* eslint-disable-next-line */
+import { findTreeNode, findTreeNodePath, findItemFromList } from '@/utils';
+/* eslint-disable-next-line */
 import rules from '@/utils/validate.js';
 /* eslint-disable-next-line */
 import { uploadMixin, statsDateRangeMixin } from '@/core/mixins';
@@ -90,9 +92,9 @@ export default {
     }
   },
   methods: {
-    onCancel (isSuccess) {
+    onCancel (isSuccess, data) {
       if (this.observer != null) {
-        this.observer.cancel(isSuccess);
+        this.observer.cancel(isSuccess, data);
       }
     },
     /**
@@ -110,13 +112,6 @@ export default {
      * 保存
      */
     onUpdateClassCourseClick () {
-      if (
-        this.classId == null ||
-        this.courseId == null
-      ) {
-        this.$message.error('请求失败，发现必填参数为空！');
-        return;
-      }
       let params = {
         classCourseDto: {
           classId: this.classId,

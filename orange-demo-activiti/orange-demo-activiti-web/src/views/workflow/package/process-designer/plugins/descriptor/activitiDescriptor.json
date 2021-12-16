@@ -1096,6 +1096,11 @@
           "name": "showOrder",
           "type": "String",
           "isAttr": true
+        },
+        {
+          "name": "multiSignAssignee",
+          "type": "String",
+          "isAttr": true
         }
       ]
     },
@@ -1121,6 +1126,69 @@
       "properties": [
         {
           "name": "id",
+          "type": "String",
+          "isAttr": true
+        }
+      ]
+    },
+    {
+      "name": "DeptPostList",
+      "superClass": [ "Element" ],
+      "meta": {
+        "allowedIn": [
+          "bpmn:UserTask"
+        ]
+      },
+      "properties": [
+        {
+          "name": "deptPostList",
+          "type": "DeptPost",
+          "isMany": true
+        }
+      ]
+    },
+    {
+      "name": "DeptPost",
+      "superClass": [ "Element" ],
+      "properties": [
+        {
+          "name": "id",
+          "type": "String",
+          "isAttr": true
+        },
+        {
+          "name": "type",
+          "type": "String",
+          "isAttr": true
+        },
+        {
+          "name": "postId",
+          "type": "String",
+          "isAttr": true
+        },
+        {
+          "name": "deptPostId",
+          "type": "String",
+          "isAttr": true
+        }
+      ]
+    },
+    {
+      "name": "UserCandidateGroups",
+      "superClass": [ "Element" ],
+      "meta": {
+        "allowedIn": [
+          "bpmn:UserTask"
+        ]
+      },
+      "properties": [
+        {
+          "name": "type",
+          "type": "String",
+          "isAttr": true
+        },
+        {
+          "name": "value",
           "type": "String",
           "isAttr": true
         }

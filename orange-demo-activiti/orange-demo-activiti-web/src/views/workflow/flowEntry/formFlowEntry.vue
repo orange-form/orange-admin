@@ -240,7 +240,9 @@ export default {
               readOnly: res.data.readOnly,
               taskName: '启动流程',
               flowEntryName: row.processDefinitionName,
-              operationList: (res.data.operationList || []).filter(item => item.type !== this.SysFlowTaskOperationType.CO_SIGN),
+              operationList: (res.data.operationList || []).filter(item => {
+                return item.type !== this.SysFlowTaskOperationType.CO_SIGN && item.type !== this.SysFlowTaskOperationType.REVOKE;
+              }),
               variableList: res.data.variableList
             }
           });

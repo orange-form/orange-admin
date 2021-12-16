@@ -25,5 +25,8 @@ export default {
   // 当前菜单
   currentMenuId: getObjectFromSessionStorage('currentMenuId', undefined),
   // 当前栏目
-  currentColumnId: getObjectFromSessionStorage('currentColumnId', undefined)
+  currentColumnId: getObjectFromSessionStorage('currentColumnId', undefined),
+  // 消息列表
+  messageTimeer: null,
+  messageList: []
 }

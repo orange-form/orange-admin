@@ -18,7 +18,7 @@
           <slot name="operations" />
         </template>
         <template v-else>
-          <el-button v-for="(operation, index) in operationList" :key="index"
+          <el-button v-for="(operation, index) in flowOperationList" :key="index"
             size="small" :type="getButtonType(operation.type) || 'primary'" :plain="operation.plain || false"
             @click="handlerOperation(operation)">
             {{operation.label}}
@@ -144,6 +144,9 @@ export default {
         case this.SysFlowTaskOperationType.PARALLEL_REFUSE:
         case this.SysFlowTaskOperationType.MULTI_REFUSE:
           return 'default';
+        case this.SysFlowTaskOperationType.REJECT:
+        case this.SysFlowTaskOperationType.REVOKE:
+          return 'danger';
         default: return 'default';
       }
     },
@@ -158,7 +161,9 @@ export default {
         case this.SysFlowTaskOperationType.MULTI_REFUSE:
           return 'warning';
         case this.SysFlowTaskOperationType.STOP:
-          return 'danger'
+        case this.SysFlowTaskOperationType.REJECT:
+        case this.SysFlowTaskOperationType.REVOKE:
+          return 'danger';
         default:
           return 'primary';
       }
@@ -213,6 +218,28 @@ export default {
   computed: {
     isReadOnly () {
       return typeof this.readOnly === 'string' ? this.readOnly === 'true' : this.readOnly;
+    },
+    flowOperationList () {
+      if (Array.isArray(this.operationList)) {
+        return this.operationList.map(item => {
+          if (item.type === this.SysFlowTaskOperationType.MULTI_SIGN && item.multiSignAssignee != null) {
+            let multiSignAssignee = {
+              ...item.multiSignAssignee
+            }
+            multiSignAssignee.assigneeList = item.multiSignAssignee.assigneeList ? multiSignAssignee.assigneeList.split(',') : undefined;
+            return {
+              ...item,
+              multiSignAssignee
+            }
+          } else {
+            return {
+              ...item
+            }
+          }
+        });
+      } else {
+        return [];
+      }
     },
     ...mapGetters(['getMainContextHeight'])
   },

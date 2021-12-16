@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.orangeforms.common.flow.dao.FlowCategoryMapper">
+    <resultMap id="BaseResultMap" type="com.orangeforms.common.flow.model.FlowCategory">
+        <id column="category_id" jdbcType="BIGINT" property="categoryId"/>
+        <result column="name" jdbcType="VARCHAR" property="name"/>
+        <result column="code" jdbcType="VARCHAR" property="code"/>
+        <result column="show_order" jdbcType="INTEGER" property="showOrder"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="update_user_id" jdbcType="BIGINT" property="updateUserId"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="create_user_id" jdbcType="BIGINT" property="createUserId"/>
+    </resultMap>
+
+    <select id="getFlowCategoryList" resultMap="BaseResultMap" parameterType="com.orangeforms.common.flow.model.FlowCategory">
+        SELECT * FROM zz_flow_category
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+</mapper>

@@ -50,8 +50,12 @@ export default {
           isStart ? resolve() : reject();
           return;
         }
-        // 会签、指定审批人或者审批操作
-        if (!isStart || operation.type === this.SysFlowTaskOperationType.MULTI_SIGN || operation.type === this.SysFlowTaskOperationType.SET_ASSIGNEE) {
+        // 撤销操作不弹出选择窗口
+        let showCommitDig = (!isStart && operation.type !== this.SysFlowTaskOperationType.REVOKE) || operation.type === this.SysFlowTaskOperationType.SET_ASSIGNEE;
+        if (operation.type === this.SysFlowTaskOperationType.MULTI_SIGN) {
+          showCommitDig = !operation.multiSignAssignee || !Array.isArray(operation.multiSignAssignee.assigneeList) || operation.multiSignAssignee.assigneeList.length <= 0;
+        }
+        if (showCommitDig) {
           let title = isStart ? '提交' : (operation.type === this.SysFlowTaskOperationType.CO_SIGN ? '加签' : '审批');
           this.$dialog.show(title, TaskCommit, {
             area: '500px'

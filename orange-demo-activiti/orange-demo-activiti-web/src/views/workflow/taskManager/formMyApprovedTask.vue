@@ -28,6 +28,11 @@
           <el-table-column label="流程名称" prop="processDefinitionName" />
           <el-table-column label="流程标识" prop="processDefinitionKey" />
           <el-table-column label="任务名称" prop="name" />
+          <el-table-column label="执行操作">
+            <template slot-scope="scope">
+              <span>{{SysFlowTaskOperationType.getValue(scope.row.approvalType)}}</span>
+            </template>
+          </el-table-column>
           <el-table-column label="任务发起人" prop="startUser" />
           <el-table-column label="任务发起时间" prop="startTime" />
           <el-table-column label="操作" width="100px">
@@ -149,7 +154,10 @@ export default {
             readOnly: true,
             flowEntryName: row.processDefinitionName,
             processInstanceInitiator: row.processInstanceInitiator,
-            operationList: res.data.operationList.filter(item => item.type === this.SysFlowTaskOperationType.CO_SIGN)
+            // 在已办理任务中仅显示加签和撤销操作
+            operationList: res.data.operationList.filter(item => {
+              return item.type === this.SysFlowTaskOperationType.CO_SIGN || item.type === this.SysFlowTaskOperationType.REVOKE;
+            })
           }
         });
       }).then(res => {});

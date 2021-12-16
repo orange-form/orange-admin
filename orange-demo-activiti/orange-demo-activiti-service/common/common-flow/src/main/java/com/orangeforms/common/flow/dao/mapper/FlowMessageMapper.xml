@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.orangeforms.common.flow.dao.FlowMessageMapper">
+    <resultMap id="BaseResultMap" type="com.orangeforms.common.flow.model.FlowMessage">
+        <id column="message_id" jdbcType="BIGINT" property="messageId"/>
+        <id column="message_type" jdbcType="TINYINT" property="messageType"/>
+        <id column="message_content" jdbcType="VARCHAR" property="messageContent"/>
+        <id column="remind_count" jdbcType="INTEGER" property="remindCount"/>
+        <result column="work_order_id" jdbcType="BIGINT" property="workOrderId"/>
+        <result column="process_definition_id" jdbcType="VARCHAR" property="processDefinitionId"/>
+        <result column="process_definition_key" jdbcType="VARCHAR" property="processDefinitionKey"/>
+        <result column="process_definition_name" jdbcType="VARCHAR" property="processDefinitionName"/>
+        <result column="process_instance_id" jdbcType="VARCHAR" property="processInstanceId"/>
+        <result column="process_instance_initiator" jdbcType="VARCHAR" property="processInstanceInitiator"/>
+        <result column="task_id" jdbcType="VARCHAR" property="taskId"/>
+        <result column="task_definition_key" jdbcType="VARCHAR" property="taskDefinitionKey"/>
+        <result column="task_name" jdbcType="VARCHAR" property="taskName"/>
+        <result column="task_start_time" jdbcType="TIMESTAMP" property="taskStartTime"/>
+        <result column="task_assignee" jdbcType="VARCHAR" property="taskAssignee"/>
+        <result column="task_finished" jdbcType="BIT" property="taskFinished"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="update_user_id" jdbcType="BIGINT" property="updateUserId"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="create_user_id" jdbcType="BIGINT" property="createUserId"/>
+        <result column="create_username" jdbcType="VARCHAR" property="createUsername"/>
+    </resultMap>
+
+    <select id="getRemindingMessageListByUser" resultMap="BaseResultMap">
+        SELECT a.* FROM zz_flow_message a
+        <where>
+            a.task_finished = 0
+            AND a.message_type = 0
+            <if test="groupIdSet == null">
+            AND a.task_assignee = #{loginName}
+            </if>
+            <if test="groupIdSet != null">
+            AND (a.task_assignee = #{loginName} OR EXISTS (SELECT * FROM zz_flow_message_candicate_identity b
+                WHERE a.message_id = b.message_id AND b.candidate_id in
+                <foreach collection="groupIdSet" index="index" item="item" separator="," open="(" close=")">
+                    #{item}
+                </foreach>))
+            </if>
+        </where>
+        ORDER BY a.update_time DESC
+    </select>
+</mapper>

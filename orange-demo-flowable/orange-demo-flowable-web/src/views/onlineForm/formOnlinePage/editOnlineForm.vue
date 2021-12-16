@@ -183,6 +183,8 @@ export default {
           return this.pageType === this.SysOnlinePageType.FLOW;
         } else if (item.id === this.SysOnlineFormType.QUERY) {
           return this.pageType !== this.SysOnlinePageType.FLOW;
+        } else if (item.id === this.SysOnlineFormType.WORK_ORDER) {
+          return this.pageType === this.SysOnlinePageType.FLOW;
         } else {
           return true;
         }
@@ -190,11 +192,18 @@ export default {
     },
     getValidTableList () {
       return this.datasourceTableList.filter(item => {
-        // 主数据源和一对多关联的从表，才可以创建表单
-        return (
-          item.relationType == null || item.relationType === this.SysOnlineRelationType.ONE_TO_MANY ||
-          (this.formData.formType === this.SysOnlineFormType.FLOW && item.relationType === this.SysOnlineRelationType.ONE_TO_ONE)
-        );
+        switch (this.formData.formType) {
+          // 工单列表页面和工作流流程页面，只能选择主表
+          case this.SysOnlineFormType.FLOW:
+          case this.SysOnlineFormType.WORK_ORDER:
+            return item.relationType == null;
+          // 流程编辑页面只支持一对多从表，普通编辑页面只支持主表和一对多从表
+          case this.SysOnlineFormType.FORM:
+            return this.pageType === this.SysOnlinePageType.FLOW ? item.relationType === this.SysOnlineRelationType.ONE_TO_MANY : (item.relationType == null || item.relationType === this.SysOnlineRelationType.ONE_TO_MANY);
+          // 查询页面可以选择主表或者一对多从表
+          case this.SysOnlineFormType.QUERY:
+            return item.relationType == null || item.relationType === this.SysOnlineRelationType.ONE_TO_MANY;
+        }
       });
     }
   },

@@ -1,2 +1,2 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-com.flow.demo.common.log.config.CommonLogAutoConfig
+com.orangeforms.common.log.config.CommonLogAutoConfig

@@ -1,7 +1,7 @@
 logging:
   level:
     # 这里设置的日志级别优先于log4j2.xml文件Loggers中的日志级别。
-    com.orange.demo: info
+    com.orangeforms: info
 
 server:
   port: 9001
@@ -32,7 +32,7 @@ sequence:
   # 与本机的ip一起构成zk中标识不同服务实例的key值。
   idPort: 19001
   # zk中生成WorkNode的路径。不同的业务可以使用不同的路径，以免冲突。
-  zkPath: com/orange/demo
+  zkPath: com/orangeforms
 
 common-log:
   # 操作日志配置，对应配置文件common-log/OperationLogProperties.java
@@ -41,8 +41,8 @@ common-log:
     kafkaTopic: SysOperationLog
 
 mybatis-plus:
-  mapper-locations: classpath:com/orange/demo/*/dao/mapper/*Mapper.xml
-  type-aliases-package: com.orange.demo.*.model
+  mapper-locations: classpath:com/orangeforms/*/dao/mapper/*Mapper.xml
+  type-aliases-package: com.orangeforms.*.model
   global-config:
     db-config:
       logic-delete-value: -1

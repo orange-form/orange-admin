@@ -29,7 +29,7 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex';
+import { mapGetters, mapActions } from 'vuex';
 import flowMixins from '../mixins/flowMixins.js';
 import { FlowOperationController } from '@/api/flowController.js';
 import WorkflowForm from '@/views/onlineForm/index.vue';
@@ -136,11 +136,11 @@ export default {
         if (this.isOnlineForm) {
           this.$refs.workflowForm.getFormData().then(formData => {
             formData.taskVariableData = this.$refs.workflowForm.getVariableData(this.variableList);
-            
+            assignee = (assignee && assignee !== '') ? assignee.split(',') : undefined;
             if (operationType === this.SysFlowTaskOperationType.MULTI_SIGN) {
               // 会签操作设置多实例处理人集合
               if (formData.taskVariableData == null) formData.taskVariableData = {};
-              formData.taskVariableData.assigneeList = assignee.split(',');
+              formData.taskVariableData.assigneeList = assignee;
             } else if (operationType === this.SysFlowTaskOperationType.SET_ASSIGNEE) {
               // 设置下一个任务节点处理人
               if (formData.taskVariableData == null) formData.taskVariableData = {};
@@ -205,6 +205,30 @@ export default {
             }).catch(e => {});
             return;
           }
+          // 驳回操作
+          if (operation.type === this.SysFlowTaskOperationType.REJECT) {
+            FlowOperationController.rejectRuntimeTask(this, {
+              processInstanceId: this.processInstanceId,
+              taskId: this.taskId,
+              comment: (res || {}).message
+            }).then(res => {
+              this.handlerClose();
+            }).catch(e => {});
+            return;
+          }
+          // 撤销操作
+          if (operation.type === this.SysFlowTaskOperationType.REVOKE) {
+            this.$confirm('是否撤销此任务？').then(res => {
+              FlowOperationController.revokeHistoricTask(this, {
+                processInstanceId: this.processInstanceId,
+                taskId: this.taskId,
+                comment: '任务处理人撤销任务'
+              }).then(res => {
+                this.handlerClose();
+              }).catch(e => {});
+            }).catch(e => {});
+            return;
+          }
           this.getMasterData(operation.type, (res || {}).assignee).then(formData => {
             let params = {
               taskId: this.taskId,
@@ -221,6 +245,7 @@ export default {
 
             FlowOperationController.submitUserTask(this, params).then(res => {
               this.handlerClose();
+              this.reloadMessage(this);
               this.$message.success('提交成功！');
             }).catch(e => {});
           });
@@ -267,7 +292,8 @@ export default {
         let funInitFormData = this.getRouterCompomentFunction('initFormData');
         funInitFormData ? funInitFormData() : this.$message.error('当前流程并未实现页面初始化功能，请联系管理员！');
       }
-    }
+    },
+    ...mapActions(['reloadMessage'])
   },
   computed: {
     isReadOnly () {

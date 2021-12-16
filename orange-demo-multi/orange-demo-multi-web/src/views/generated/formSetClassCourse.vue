@@ -87,6 +87,8 @@
 
 <script>
 /* eslint-disable-next-line */
+import { findTreeNode, findTreeNodePath, findItemFromList } from '@/utils';
+/* eslint-disable-next-line */
 import rules from '@/utils/validate.js';
 /* eslint-disable-next-line */
 import { DropdownWidget, TableWidget, UploadWidget, ChartWidget } from '@/utils/widget.js';
@@ -262,12 +264,6 @@ export default {
      * 添加
      */
     onAddClassCourseClick () {
-      if (
-        this.classId == null
-      ) {
-        this.$message.error('请求失败，发现必填参数为空！');
-        return;
-      }
       let params = {
         classId: this.classId,
         classCourseDtoList: this.tableSelectRowList.map((item) => {

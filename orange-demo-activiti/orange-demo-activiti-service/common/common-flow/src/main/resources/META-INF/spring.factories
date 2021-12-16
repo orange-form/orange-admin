@@ -1,2 +1,2 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-com.flow.demo.common.flow.config.FlowAutoConfig
+com.orangeforms.common.flow.config.FlowAutoConfig

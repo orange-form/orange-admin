@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.flow.demo.webadmin.upms.dao.SysPermWhitelistMapper">
-    <resultMap id="BaseResultMap" type="com.flow.demo.webadmin.upms.model.SysPermWhitelist">
-        <id column="perm_url" jdbcType="VARCHAR" property="permUrl"/>
-        <result column="module_name" jdbcType="VARCHAR" property="moduleName"/>
-        <result column="perm_name" jdbcType="VARCHAR" property="permName"/>
-    </resultMap>
-</mapper>

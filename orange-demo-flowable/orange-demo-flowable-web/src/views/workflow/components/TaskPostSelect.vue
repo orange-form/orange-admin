@@ -1,26 +1,28 @@
 <template>
-  <el-container class="advance-query-form">
-    <el-aside width="300px">
+  <el-container>
+    <el-main style="background-color: white;">
       <el-card class="base-card" shadow="never" :body-style="{ padding: '0px' }" style="border: none;">
         <div slot="header" class="base-card-header">
-          <span style="font-size: 16px; font-weight: 500; color: #282828;">所属部门</span>
-        </div>
-        <el-scrollbar :style="{height: '500px'}" class="custom-scroll">
-          <el-tree class="dept-tree" ref="deptTree" :data="getDeptTreeData" :props="{label: 'name'}"
-            node-key="id" :default-expand-all="true" :expand-on-click-node="false"
-            @node-click="onDeptNodeClick"
-            :highlight-current="true">
-            <div slot-scope="{ data }" style="height: 35px; line-height: 35px;">
-              {{data.name}}
-            </div>
-          </el-tree>
-        </el-scrollbar>
-      </el-card>
-    </el-aside>
-    <el-main style="margin-left: 15px; background-color: white;">
-      <el-card class="base-card" shadow="never" :body-style="{ padding: '0px' }" style="border: none;">
-        <div slot="header" class="base-card-header">
-          <span style="font-size: 16px; font-weight: 500; color: #282828;">岗位列表</span>
+          <el-row type="flex" align="middle">
+            <el-radio-group v-model="formData.deptType" size="mini" @change="formData.deptId = undefined">
+              <el-radio-button label="allDeptPost">全部</el-radio-button>
+              <el-radio-button label="selfDeptPost">本部门</el-radio-button>
+              <el-radio-button label="upDeptPost">上级部门</el-radio-button>
+              <el-radio-button label="deptPost">指定部门</el-radio-button>
+            </el-radio-group>
+            <el-cascader v-model="formData.deptId" :clearable="true"
+              size="mini" placeholder="选择部门" v-show="formData.deptType === 'deptPost'"
+              :props="{value: 'id', label: 'name', checkStrictly: true}"
+              :options="deptList">
+            </el-cascader>
+            <!--
+            <el-select v-model="formData.deptId" size="mini" placeholder="选择部门" v-show="formData.deptType === 'deptPost'" style="margin-left: 10px;">
+              <el-option v-for="item in deptList" :key="item.id"
+                :label="item.name" :value="item.id"
+              />
+            </el-select>
+            -->
+          </el-row>
           <div class="base-card-operation">
             <el-button type="primary" size="mini"
               :disabled="selectPost.length <= 0"
@@ -36,7 +38,11 @@
           @selection-change="handleSelectionChange"
         >
           <el-table-column type="selection" width="50px" :selectable="canSelect" />
-          <el-table-column label="岗位名称" prop="postShowName" />
+          <el-table-column label="岗位名称">
+            <template slot-scope="scope">
+              <span>{{scope.row.postShowName || scope.row.postName}}</span>
+            </template>
+          </el-table-column>
           <el-table-column label="领导岗位">
             <template slot-scope="scope">
               <el-tag size="mini" :type="scope.row.leaderPost ? 'success' : 'danger'">
@@ -52,12 +58,13 @@
 </template>
 
 <script>
-import { DictionaryController } from '@/api/index.js';
-
 export default {
   name: 'taskPostSelect',
   props: {
     deptList: {
+      type: Array
+    },
+    postList: {
       type: Array
     },
     deptPostList: {
@@ -70,6 +77,11 @@ export default {
   data () {
     return {
       currentDept: undefined,
+      formData: {
+        deptType: 'allDeptPost',
+        deptId: undefined,
+        postId: undefined
+      },
       // deptList: [],
       selectPost: []
     }
@@ -87,26 +99,18 @@ export default {
         return true;
       }
     },
-    loadSysDeptData () {
-      DictionaryController.dictSysDept(this, {}).then(res => {
-        this.deptList = res.getList();
-        this.currentDept = this.deptList[0];
-        if (this.currentDept) {
-          this.$nextTick(() => {
-            this.$refs.deptTree.setCurrentKey(this.currentDept.id);
-          });
-        }
-      }).catch(e => {});
-    },
-    onDeptNodeClick (data) {
-      this.selectPost = [];
-      this.currentDept = data;
-    },
     handleSelectionChange (values) {
       this.selectPost = values;
     },
     onAddPostClick () {
-      this.onCancel(true, this.selectPost);
+      this.onCancel(true, this.selectPost.map(item => {
+        return {
+          id: `${this.formData.deptType}__${item.deptPostId || item.postId}`,
+          deptType: this.formData.deptType,
+          deptPostId: this.formData.deptType === 'deptPost' ? item.deptPostId : undefined,
+          postId: this.formData.deptType === 'deptPost' ? undefined : item.postId
+        }
+      }));
     }
   },
   computed: {
@@ -114,29 +118,16 @@ export default {
       return this.deptList;
     },
     getValidDeptPostList () {
-      if (Array.isArray(this.deptPostList)) {
-        if (this.currentDept == null) {
-          return this.deptPostList;
-        } else {
-          return this.deptPostList.filter(item => {
-            return item.deptId === this.currentDept.id;
-          });
-        }
+      if (this.formData.deptType !== 'deptPost') {
+        return this.postList || [];
       } else {
-        return [];
+        return (this.deptPostList || []).filter(item => {
+          return item.deptId === (Array.isArray(this.formData.deptId) ? this.formData.deptId[this.formData.deptId.length - 1] : this.formData.deptId);
+        });
       }
     }
   },
   mounted () {
-    // this.loadSysDeptData();
-    if (Array.isArray(this.deptList)) {
-      this.currentDept = this.deptList[0];
-      if (this.currentDept) {
-        this.$nextTick(() => {
-          this.$refs.deptTree.setCurrentKey(this.currentDept.id);
-        });
-      }
-    }
   }
 }
 </script>

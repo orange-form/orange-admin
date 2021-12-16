@@ -87,7 +87,9 @@ swagger:
   # 当enabled为false的时候，则可禁用swagger。
   enabled: true
   # 工程的基础包名。
-  basePackage: com.orange.demo
+  basePackage: com.orangeforms
+  # 工程服务的基础包名。
+  serviceBasePackage:
   title: 橙单单体服务工程
   description: 橙单单体服务工程详情
   version: 1.0

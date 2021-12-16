@@ -234,9 +234,9 @@ export default {
     }
   },
   methods: {
-    onCancel (isSuccess) {
+    onCancel (isSuccess, data) {
       if (this.observer != null) {
-        this.observer.cancel(isSuccess);
+        this.observer.cancel(isSuccess, data);
       }
     },
     /**
@@ -401,21 +401,6 @@ export default {
     onAddClick () {
       this.$refs.formCreateStudent.validate((valid) => {
         if (!valid) return;
-        if (
-          this.formData.Student.loginMobile == null ||
-          this.formData.Student.studentName == null ||
-          this.formData.Student.provinceId == null ||
-          this.formData.Student.cityId == null ||
-          this.formData.Student.districtId == null ||
-          this.formData.Student.gender == null ||
-          this.formData.Student.birthday == null ||
-          this.formData.Student.experienceLevel == null ||
-          this.formData.Student.gradeId == null ||
-          this.formData.Student.schoolId == null
-        ) {
-          this.$message.error('请求失败，发现必填参数为空！');
-          return;
-        }
         let params = {
           studentDto: {
             loginMobile: this.formData.Student.loginMobile,

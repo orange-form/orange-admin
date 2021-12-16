@@ -95,4 +95,20 @@ export default class FlowOperationController {
   static deleteProcessInstance (sender, params, axiosOption, httpOption) {
     return sender.doUrl('/admin/flow/flowOperation/deleteProcessInstance', 'post', params, axiosOption, httpOption);
   }
+  // 催办
+  static remindRuntimeTask (sender, params, axiosOption, httpOption) {
+    return sender.doUrl('/admin/flow/flowOperation/remindRuntimeTask', 'post', params, axiosOption, httpOption);
+  }
+  // 催办消息列表
+  static listRemindingTask (sender, params, axiosOption, httpOption) {
+    return sender.doUrl('/admin/flow/flowMessage/listRemindingTask', 'post', params, axiosOption, httpOption);
+  }
+  // 驳回
+  static rejectRuntimeTask (sender, params, axiosOption, httpOption) {
+    return sender.doUrl('/admin/flow/flowOperation/rejectRuntimeTask', 'post', params, axiosOption, httpOption);
+  }
+  // 撤销
+  static revokeHistoricTask (sender, params, axiosOption, httpOption) {
+    return sender.doUrl('/admin/flow/flowOperation/revokeHistoricTask', 'post', params, axiosOption, httpOption);
+  }
 }

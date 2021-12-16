@@ -2,7 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <groupId>com.orange.demo</groupId>
+        <groupId>com.orangeforms</groupId>
         <artifactId>course-class</artifactId>
         <version>1.0.0</version>
     </parent>
@@ -16,27 +16,27 @@
     <dependencies>
         <!-- 业务组件依赖 -->
         <dependency>
-            <groupId>com.orange.demo</groupId>
+            <groupId>com.orangeforms</groupId>
             <artifactId>course-class-api</artifactId>
             <version>1.0.0</version>
         </dependency>
         <dependency>
-            <groupId>com.orange.demo</groupId>
+            <groupId>com.orangeforms</groupId>
             <artifactId>upms-api</artifactId>
             <version>1.0.0</version>
         </dependency>
         <dependency>
-            <groupId>com.orange.demo</groupId>
+            <groupId>com.orangeforms</groupId>
             <artifactId>common-log</artifactId>
             <version>1.0.0</version>
         </dependency>
         <dependency>
-            <groupId>com.orange.demo</groupId>
+            <groupId>com.orangeforms</groupId>
             <artifactId>common-redis</artifactId>
             <version>1.0.0</version>
         </dependency>
         <dependency>
-            <groupId>com.orange.demo</groupId>
+            <groupId>com.orangeforms</groupId>
             <artifactId>common-sequence</artifactId>
             <version>1.0.0</version>
         </dependency>

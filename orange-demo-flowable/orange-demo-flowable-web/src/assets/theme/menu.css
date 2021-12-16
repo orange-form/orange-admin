@@ -490,7 +490,7 @@
   position: relative;
   margin: 0;
   padding-left: 0;
-  background-color: #272C34; }
+  background-color: #FFFFFF; }
   .el-menu::before,
   .el-menu::after {
     display: table;
@@ -607,7 +607,7 @@
   height: 56px;
   line-height: 56px;
   font-size: 14px;
-  color: #FFFFFF;
+  color: #303133;
   padding: 0 20px;
   list-style: none;
   cursor: pointer;
@@ -623,7 +623,7 @@
     color: #909399; }
   .el-menu-item:hover, .el-menu-item:focus {
     outline: none;
-    background-color: #409EFF; }
+    background-color: #ecf5ff; }
   .el-menu-item.is-disabled {
     opacity: 0.25;
     cursor: not-allowed;
@@ -647,7 +647,7 @@
     height: 56px;
     line-height: 56px;
     font-size: 14px;
-    color: #FFFFFF;
+    color: #303133;
     padding: 0 20px;
     list-style: none;
     cursor: pointer;
@@ -663,13 +663,13 @@
       color: #909399; }
     .el-submenu__title:hover, .el-submenu__title:focus {
       outline: none;
-      background-color: #409EFF; }
+      background-color: #ecf5ff; }
     .el-submenu__title.is-disabled {
       opacity: 0.25;
       cursor: not-allowed;
       background: none !important; }
     .el-submenu__title:hover {
-      background-color: #409EFF; }
+      background-color: #ecf5ff; }
   .el-submenu .el-menu {
     border: none; }
   .el-submenu .el-menu-item {

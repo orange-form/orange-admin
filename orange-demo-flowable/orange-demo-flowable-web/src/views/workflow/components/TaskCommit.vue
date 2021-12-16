@@ -3,7 +3,8 @@
     <el-form ref="formTaskCommit" :model="formData" class="full-width-input" :rules="rules" style="width: 100%;"
       label-width="100px" size="mini" label-position="right" @submit.native.prevent>
       <el-row :gutter="20">
-        <el-col :span="24" v-if="operation.type !== SysFlowTaskOperationType.CO_SIGN && operation.type !== SysFlowTaskOperationType.MULTI_SIGN">
+        <el-col :span="24"
+          v-if="operation.type !== SysFlowTaskOperationType.CO_SIGN && operation.type !== SysFlowTaskOperationType.MULTI_SIGN">
           <el-form-item label="审批意见：" prop="message">
             <el-input v-model="formData.message" clearable placeholder="请输入审批意见" />
           </el-form-item>
@@ -89,12 +90,18 @@ export default {
   },
   computed: {
     showAssignSelect () {
+      let showAssignSelect = false;
+      // 如果是会签操作，判断是否在流程内设置了会签人
+      if (this.operation.type === this.SysFlowTaskOperationType.MULTI_SIGN) {
+        showAssignSelect = !this.operation.multiSignAssignee ||
+          !Array.isArray(this.operation.multiSignAssignee.assigneeList) ||
+          this.operation.multiSignAssignee.assigneeList.length <= 0;
+      }
       return [
         this.SysFlowTaskOperationType.TRANSFER,
         this.SysFlowTaskOperationType.CO_SIGN,
-        this.SysFlowTaskOperationType.MULTI_SIGN,
         this.SysFlowTaskOperationType.SET_ASSIGNEE
-      ].indexOf(this.operation.type) !== -1;
+      ].indexOf(this.operation.type) !== -1 || showAssignSelect;
     },
     multiSelect () {
       return this.operation.type === this.SysFlowTaskOperationType.CO_SIGN || this.operation.type === this.SysFlowTaskOperationType.MULTI_SIGN;

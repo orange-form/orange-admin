@@ -36,6 +36,7 @@
           @viewWOrkOrder="onView"
           @handlerWOrkOrder="onSubmit"
           @cancelWOrkOrder="onCancelWorkOrder"
+          @handlerRemind="onRemindClick"
         />
       </el-col>
     </el-row>
@@ -251,6 +252,13 @@ export default {
             }
           });
         }
+      }).catch(e => {});
+    },
+    onRemindClick (row) {
+      FlowOperationController.remindRuntimeTask(this, {
+        workOrderId: row.workOrderId
+      }).then(res => {
+        this.$message.success('催办成功');
       }).catch(e => {});
     },
     onCancelWorkOrder (row) {

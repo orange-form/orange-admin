@@ -80,6 +80,8 @@
 
 <script>
 /* eslint-disable-next-line */
+import { findTreeNode, findTreeNodePath, findItemFromList } from '@/utils';
+/* eslint-disable-next-line */
 import rules from '@/utils/validate.js';
 /* eslint-disable-next-line */
 import { DropdownWidget, TableWidget, UploadWidget, ChartWidget } from '@/utils/widget.js';

@@ -3,7 +3,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.orange.demo</groupId>
+    <groupId>com.orangeforms</groupId>
     <artifactId>OrangeMultiDemo</artifactId>
     <version>1.0.0</version>
     <name>OrangeMultiDemo</name>
@@ -77,6 +77,63 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-log4j2</artifactId>
+            <version>2.6.1</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>log4j-core</artifactId>
+                    <groupId>org.apache.logging.log4j</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>log4j-jul</artifactId>
+                    <groupId>org.apache.logging.log4j</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>log4j-slf4j-impl</artifactId>
+                    <groupId>org.apache.logging.log4j</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>2.15.0</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>log4j-api</artifactId>
+                    <groupId>org.apache.logging.log4j</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-jul</artifactId>
+            <version>2.15.0</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>log4j-api</artifactId>
+                    <groupId>org.apache.logging.log4j</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-slf4j-impl</artifactId>
+            <version>2.15.0</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>log4j-core</artifactId>
+                    <groupId>org.apache.logging.log4j</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>log4j-api</artifactId>
+                    <groupId>org.apache.logging.log4j</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <version>2.15.0</version>
         </dependency>
         <!-- aop模块 -->
         <dependency>
@@ -176,6 +233,12 @@
             <groupId>com.lmax</groupId>
             <artifactId>disruptor</artifactId>
             <version>${disruptor.version}</version>
+        </dependency>
+        <!-- skywalking 在log4j2中，输出traceid是所需的依赖 -->
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>apm-toolkit-log4j-2.x</artifactId>
+            <version>7.0.0</version>
         </dependency>
         <!--swagger 2.10.5 必须的依赖 -->
         <dependency>

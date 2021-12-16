@@ -102,6 +102,8 @@
 
 <script>
 /* eslint-disable-next-line */
+import { findTreeNode, findTreeNodePath, findItemFromList } from '@/utils';
+/* eslint-disable-next-line */
 import rules from '@/utils/validate.js';
 /* eslint-disable-next-line */
 import { DropdownWidget, TableWidget, UploadWidget, ChartWidget } from '@/utils/widget.js';
@@ -282,12 +284,6 @@ export default {
      * 删除
      */
     onDeleteClick (row) {
-      if (
-        row.courseId == null
-      ) {
-        this.$message.error('请求失败，发现必填参数为空！');
-        return;
-      }
       let params = {
         courseId: row.courseId
       };

@@ -33,7 +33,7 @@
               </div>
             </div>
             <el-row class="no-scroll" :gutter="20">
-              <el-col class="table-box" :span="24">
+              <el-col class="table-box gutter-bottom" :span="24">
                 <el-table ref="studentClass" :data="formClass.StudentClass.impl.dataList" size="mini" @sort-change="formClass.StudentClass.impl.onSortChange"
                   header-cell-class-name="table-header-gray"
                   highlight-current-row @current-change="formClass.StudentClass.impl.currentRowChange">
@@ -89,7 +89,7 @@
                   </div>
                 </div>
                 <el-row class="no-scroll" :gutter="20">
-                  <el-col class="table-box" :span="24">
+                  <el-col class="table-box gutter-bottom" :span="24">
                     <el-table ref="course" :data="formClass.Course.impl.dataList" size="mini" @sort-change="formClass.Course.impl.onSortChange"
                       header-cell-class-name="table-header-gray">
                       <el-table-column label="序号" header-align="center" align="center" type="index" width="55px" :index="formClass.Course.impl.getTableIndex" />
@@ -139,7 +139,7 @@
                   </div>
                 </div>
                 <el-row class="no-scroll" :gutter="20">
-                  <el-col class="table-box" :span="24">
+                  <el-col class="table-box gutter-bottom" :span="24">
                     <el-table ref="student" :data="formClass.Student.impl.dataList" size="mini" @sort-change="formClass.Student.impl.onSortChange"
                       header-cell-class-name="table-header-gray">
                       <el-table-column label="序号" header-align="center" align="center" type="index" width="55px" :index="formClass.Student.impl.getTableIndex" />
@@ -481,13 +481,6 @@ export default {
      * 移除
      */
     onDeleteClassCourseClick (row) {
-      if (
-        (this.formClass.StudentClass.impl.currentRow || {}).classId == null ||
-        row.courseId == null
-      ) {
-        this.$message.error('请求失败，发现必填参数为空！');
-        return;
-      }
       let params = {
         classId: (this.formClass.StudentClass.impl.currentRow || {}).classId,
         courseId: row.courseId
@@ -519,13 +512,6 @@ export default {
      * 移除
      */
     onDeleteClassStudentClick (row) {
-      if (
-        (this.formClass.StudentClass.impl.currentRow || {}).classId == null ||
-        row.studentId == null
-      ) {
-        this.$message.error('请求失败，发现必填参数为空！');
-        return;
-      }
       let params = {
         classId: (this.formClass.StudentClass.impl.currentRow || {}).classId,
         studentId: row.studentId
@@ -556,12 +542,6 @@ export default {
      * 删除
      */
     onDeleteClick (row) {
-      if (
-        row.classId == null
-      ) {
-        this.$message.error('请求失败，发现必填参数为空！');
-        return;
-      }
       let params = {
         classId: row.classId
       };

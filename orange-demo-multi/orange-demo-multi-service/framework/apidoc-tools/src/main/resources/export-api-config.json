@@ -1,6 +1,6 @@
 {
   "projectName": "橙单微服务开源版",
-  "basePackage": "com.orange.demo",
+  "basePackage": "com.orangeforms",
   "projectRootPath": "这里请使用当前工程的根目录，如：e:/xxx/OrangeDemo 或者 /Users/xxx/OrangeDemo",
   "microService": "true",
   "serviceList": [
@@ -12,7 +12,7 @@
       "port": "8082",
       "controllerInfoList": [
         {
-          "path": "/course-class-service/src/main/java/com/orange/demo/courseclassservice/controller"
+          "path": "/course-class-service/src/main/java/com/orangeforms/courseclassservice/controller"
         }
       ]
     },
@@ -24,7 +24,7 @@
       "port": "8082",
       "controllerInfoList": [
         {
-          "path": "/stats-service/src/main/java/com/orange/demo/statsservice/controller"
+          "path": "/stats-service/src/main/java/com/orangeforms/statsservice/controller"
         }
       ]
     },
@@ -36,7 +36,7 @@
       "port": "8082",
       "controllerInfoList": [
         {
-          "path": "/upms-service/src/main/java/com/orange/demo/upmsservice/controller"
+          "path": "/upms-service/src/main/java/com/orangeforms/upmsservice/controller"
         }
       ]
     }

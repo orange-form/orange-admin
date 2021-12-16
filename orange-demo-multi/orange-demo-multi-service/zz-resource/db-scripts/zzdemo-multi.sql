@@ -3,15 +3,15 @@
 
  Source Server         : localhost
  Source Server Type    : MySQL
- Source Server Version : 50720
+ Source Server Version : 80027
  Source Host           : localhost:3306
  Source Schema         : zzdemo-multi
 
  Target Server Type    : MySQL
- Target Server Version : 50720
+ Target Server Version : 80027
  File Encoding         : 65001
 
- Date: 21/10/2021 12:37:51
+ Date: 16/12/2021 21:18:10
 */
 
 SET NAMES utf8mb4;
@@ -22,10 +22,10 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- ----------------------------
 DROP TABLE IF EXISTS `zz_area_code`;
 CREATE TABLE `zz_area_code` (
-  `area_id` bigint(20) unsigned NOT NULL COMMENT '行政区划主键Id',
-  `area_name` varchar(128) COLLATE utf8mb4_bin NOT NULL DEFAULT '' COMMENT '行政区划名称',
-  `area_level` int(11) NOT NULL COMMENT '行政区划级别 (1: 省级别 2: 市级别 3: 区级别)',
-  `parent_id` bigint(20) DEFAULT NULL COMMENT '父级行政区划Id',
+  `area_id` bigint unsigned NOT NULL COMMENT '行政区划主键Id',
+  `area_name` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL DEFAULT '' COMMENT '行政区划名称',
+  `area_level` int NOT NULL COMMENT '行政区划级别 (1: 省级别 2: 市级别 3: 区级别)',
+  `parent_id` bigint DEFAULT NULL COMMENT '父级行政区划Id',
   PRIMARY KEY (`area_id`) USING BTREE,
   KEY `idx_level` (`area_level`) USING BTREE,
   KEY `idx_area_name` (`area_name`) USING BTREE,
@@ -3699,15 +3699,15 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `zz_class`;
 CREATE TABLE `zz_class` (
-  `class_id` bigint(20) NOT NULL COMMENT '班级Id',
-  `class_name` varchar(64) COLLATE utf8mb4_bin NOT NULL COMMENT '班级名称',
-  `school_id` bigint(20) NOT NULL COMMENT '学校Id',
-  `leader_id` bigint(20) NOT NULL COMMENT '学生班长Id',
-  `finish_class_hour` int(11) NOT NULL DEFAULT '0' COMMENT '已完成课时数量',
-  `class_level` tinyint(4) NOT NULL COMMENT '班级级别(0: 初级班 1: 培优班 2: 冲刺提分班 3: 竞赛班)',
-  `create_user_id` bigint(20) NOT NULL COMMENT '创建用户',
+  `class_id` bigint NOT NULL COMMENT '班级Id',
+  `class_name` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '班级名称',
+  `school_id` bigint NOT NULL COMMENT '学校Id',
+  `leader_id` bigint NOT NULL COMMENT '学生班长Id',
+  `finish_class_hour` int NOT NULL DEFAULT '0' COMMENT '已完成课时数量',
+  `class_level` tinyint NOT NULL COMMENT '班级级别(0: 初级班 1: 培优班 2: 冲刺提分班 3: 竞赛班)',
+  `create_user_id` bigint NOT NULL COMMENT '创建用户',
   `create_time` datetime NOT NULL COMMENT '班级创建时间',
-  `status` tinyint(4) NOT NULL DEFAULT '0' COMMENT '班级状态(0: 正常 1: 解散)',
+  `status` tinyint NOT NULL DEFAULT '0' COMMENT '班级状态(0: 正常 1: 解散)',
   PRIMARY KEY (`class_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
@@ -3723,38 +3723,52 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `zz_class_course`;
 CREATE TABLE `zz_class_course` (
-  `class_id` bigint(20) NOT NULL COMMENT '班级Id',
-  `course_id` bigint(20) NOT NULL COMMENT '课程Id',
-  `course_order` tinyint(4) NOT NULL DEFAULT '0' COMMENT '课程顺序(数值越小越靠前)',
+  `class_id` bigint NOT NULL COMMENT '班级Id',
+  `course_id` bigint NOT NULL COMMENT '课程Id',
+  `course_order` tinyint NOT NULL DEFAULT '0' COMMENT '课程顺序(数值越小越靠前)',
   PRIMARY KEY (`class_id`,`course_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+
+-- ----------------------------
+-- Records of zz_class_course
+-- ----------------------------
+BEGIN;
+INSERT INTO `zz_class_course` VALUES (1451033289182675040, 1451033210187153434, 0);
+COMMIT;
 
 -- ----------------------------
 -- Table structure for zz_class_student
 -- ----------------------------
 DROP TABLE IF EXISTS `zz_class_student`;
 CREATE TABLE `zz_class_student` (
-  `class_id` bigint(20) NOT NULL COMMENT '班级Id',
-  `student_id` bigint(20) NOT NULL COMMENT '学生Id',
+  `class_id` bigint NOT NULL COMMENT '班级Id',
+  `student_id` bigint NOT NULL COMMENT '学生Id',
   PRIMARY KEY (`class_id`,`student_id`) USING BTREE,
   KEY `idx_student_id` (`student_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+
+-- ----------------------------
+-- Records of zz_class_student
+-- ----------------------------
+BEGIN;
+INSERT INTO `zz_class_student` VALUES (1451033289182675040, 1451033014799695951);
+COMMIT;
 
 -- ----------------------------
 -- Table structure for zz_course
 -- ----------------------------
 DROP TABLE IF EXISTS `zz_course`;
 CREATE TABLE `zz_course` (
-  `course_id` bigint(20) NOT NULL COMMENT '主键Id',
+  `course_id` bigint NOT NULL COMMENT '主键Id',
   `course_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL COMMENT '课程名称',
   `price` decimal(10,2) NOT NULL COMMENT '课程价格',
   `description` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL COMMENT '课程描述',
-  `difficulty` int(11) NOT NULL COMMENT '课程难度(0: 容易 1: 普通 2: 很难)',
-  `grade_id` tinyint(4) NOT NULL COMMENT '年级Id',
-  `subject_id` tinyint(4) NOT NULL COMMENT '学科Id',
-  `class_hour` int(11) NOT NULL COMMENT '课时数量',
+  `difficulty` int NOT NULL COMMENT '课程难度(0: 容易 1: 普通 2: 很难)',
+  `grade_id` tinyint NOT NULL COMMENT '年级Id',
+  `subject_id` tinyint NOT NULL COMMENT '学科Id',
+  `class_hour` int NOT NULL COMMENT '课时数量',
   `picture_url` varchar(1024) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL COMMENT '多张课程图片地址',
-  `create_user_id` bigint(20) NOT NULL COMMENT '创建用户Id',
+  `create_user_id` bigint NOT NULL COMMENT '创建用户Id',
   `create_time` datetime NOT NULL COMMENT '创建时间',
   `update_time` datetime NOT NULL COMMENT '最后修改时间',
   PRIMARY KEY (`course_id`) USING BTREE
@@ -3772,16 +3786,16 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `zz_course_trans_stats`;
 CREATE TABLE `zz_course_trans_stats` (
-  `stats_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键Id',
+  `stats_id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键Id',
   `stats_date` date NOT NULL COMMENT '统计日期',
-  `subject_id` tinyint(4) NOT NULL COMMENT '科目Id',
-  `grade_id` tinyint(4) NOT NULL COMMENT '年级Id',
-  `grade_name` varchar(20) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '年级名称',
-  `course_id` bigint(20) NOT NULL COMMENT '课程Id',
-  `course_name` varchar(128) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '课程名称',
-  `student_attend_count` int(11) NOT NULL COMMENT '学生上课次数',
-  `student_flower_amount` int(11) NOT NULL COMMENT '学生献花数量',
-  `student_flower_count` int(11) NOT NULL COMMENT '学生献花次数',
+  `subject_id` tinyint NOT NULL COMMENT '科目Id',
+  `grade_id` tinyint NOT NULL COMMENT '年级Id',
+  `grade_name` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL COMMENT '年级名称',
+  `course_id` bigint NOT NULL COMMENT '课程Id',
+  `course_name` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL COMMENT '课程名称',
+  `student_attend_count` int NOT NULL COMMENT '学生上课次数',
+  `student_flower_amount` int NOT NULL COMMENT '学生献花数量',
+  `student_flower_count` int NOT NULL COMMENT '学生献花次数',
   PRIMARY KEY (`stats_id`) USING BTREE,
   UNIQUE KEY `uk_stats_date_subject_id_grade_course_id` (`stats_date`,`grade_id`,`course_id`) USING BTREE,
   KEY `idx_grade_id` (`grade_id`) USING BTREE,
@@ -3793,7 +3807,7 @@ CREATE TABLE `zz_course_trans_stats` (
 -- ----------------------------
 DROP TABLE IF EXISTS `zz_data_sync_consumer_trans`;
 CREATE TABLE `zz_data_sync_consumer_trans` (
-  `trans_id` char(80) COLLATE utf8mb4_bin NOT NULL COMMENT '同步事务Id',
+  `trans_id` char(80) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '同步事务Id',
   `create_time` datetime NOT NULL COMMENT '创建时间',
   PRIMARY KEY (`trans_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='数据同步消费者消息流水表';
@@ -3803,14 +3817,14 @@ CREATE TABLE `zz_data_sync_consumer_trans` (
 -- ----------------------------
 DROP TABLE IF EXISTS `zz_data_sync_producer_trans`;
 CREATE TABLE `zz_data_sync_producer_trans` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
-  `trans_id` char(80) COLLATE utf8mb4_bin NOT NULL COMMENT '同步事务Id',
-  `message_type` varchar(64) COLLATE utf8mb4_bin NOT NULL COMMENT '消息类型',
-  `message_command` varchar(255) COLLATE utf8mb4_bin NOT NULL COMMENT '消息的命令类型',
-  `message_data` mediumtext COLLATE utf8mb4_bin NOT NULL COMMENT '消息数据',
-  `message_topic` varchar(64) COLLATE utf8mb4_bin NOT NULL COMMENT '消息主题',
-  `message_queue_selector_key` varchar(64) COLLATE utf8mb4_bin NOT NULL COMMENT '计算消息队列选择器的Key值',
-  `producer_trace_id` varchar(64) COLLATE utf8mb4_bin NOT NULL COMMENT '生产者traceId',
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `trans_id` char(80) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '同步事务Id',
+  `message_type` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '消息类型',
+  `message_command` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '消息的命令类型',
+  `message_data` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '消息数据',
+  `message_topic` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '消息主题',
+  `message_queue_selector_key` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '计算消息队列选择器的Key值',
+  `producer_trace_id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '生产者traceId',
   `create_time` datetime NOT NULL COMMENT '创建时间',
   `update_time` datetime DEFAULT NULL COMMENT '更新时间',
   `sent_status` bit(1) NOT NULL DEFAULT b'0' COMMENT '发送状态',
@@ -3823,8 +3837,8 @@ CREATE TABLE `zz_data_sync_producer_trans` (
 -- ----------------------------
 DROP TABLE IF EXISTS `zz_data_sync_producer_update_mark`;
 CREATE TABLE `zz_data_sync_producer_update_mark` (
-  `id` int(11) NOT NULL COMMENT '主键Id',
-  `max_update_id` bigint(20) NOT NULL COMMENT '生产者读取的最大更新同步事务Id',
+  `id` int NOT NULL COMMENT '主键Id',
+  `max_update_id` bigint NOT NULL COMMENT '生产者读取的最大更新同步事务Id',
   `update_time` datetime NOT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='数据同步生产者消息流水表的高水标记表';
@@ -3841,9 +3855,9 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `zz_grade`;
 CREATE TABLE `zz_grade` (
-  `grade_id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键Id',
+  `grade_id` int NOT NULL AUTO_INCREMENT COMMENT '主键Id',
   `grade_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL COMMENT '年级名称',
-  `status` int(11) NOT NULL COMMENT '是否正在使用（0：不是，1：是）',
+  `status` int NOT NULL COMMENT '是否正在使用（0：不是，1：是）',
   PRIMARY KEY (`grade_id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
@@ -3870,9 +3884,9 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `zz_material_edition`;
 CREATE TABLE `zz_material_edition` (
-  `edition_id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键Id',
+  `edition_id` int NOT NULL AUTO_INCREMENT COMMENT '主键Id',
   `edition_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL COMMENT '教材版本名称',
-  `status` int(11) NOT NULL COMMENT '是否正在使用（0：不是，1：是）',
+  `status` int NOT NULL COMMENT '是否正在使用（0：不是，1：是）',
   PRIMARY KEY (`edition_id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
@@ -3891,19 +3905,19 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `zz_student`;
 CREATE TABLE `zz_student` (
-  `student_id` bigint(20) NOT NULL COMMENT '学生Id',
-  `login_mobile` varchar(20) COLLATE utf8mb4_bin NOT NULL COMMENT '登录手机',
-  `student_name` varchar(20) COLLATE utf8mb4_bin NOT NULL COMMENT '学生姓名',
-  `province_id` bigint(20) NOT NULL COMMENT '所在省份Id',
-  `city_id` bigint(20) NOT NULL COMMENT '所在城市Id',
-  `district_id` bigint(20) NOT NULL COMMENT '区县Id',
-  `gender` int(11) NOT NULL COMMENT '学生性别 (0: 女生 1: 男生)',
+  `student_id` bigint NOT NULL COMMENT '学生Id',
+  `login_mobile` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '登录手机',
+  `student_name` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '学生姓名',
+  `province_id` bigint NOT NULL COMMENT '所在省份Id',
+  `city_id` bigint NOT NULL COMMENT '所在城市Id',
+  `district_id` bigint NOT NULL COMMENT '区县Id',
+  `gender` int NOT NULL COMMENT '学生性别 (0: 女生 1: 男生)',
   `birthday` date NOT NULL COMMENT '生日',
-  `experience_level` tinyint(4) NOT NULL COMMENT '经验等级 (0: 初级 1: 中级 2: 高级 3: 资深)',
-  `total_coin` int(11) NOT NULL DEFAULT '0' COMMENT '总共充值学币数量',
-  `left_coin` int(11) NOT NULL DEFAULT '0' COMMENT '可用学币数量',
-  `grade_id` int(11) NOT NULL COMMENT '年级Id',
-  `school_id` bigint(20) NOT NULL COMMENT '校区Id',
+  `experience_level` tinyint NOT NULL COMMENT '经验等级 (0: 初级 1: 中级 2: 高级 3: 资深)',
+  `total_coin` int NOT NULL DEFAULT '0' COMMENT '总共充值学币数量',
+  `left_coin` int NOT NULL DEFAULT '0' COMMENT '可用学币数量',
+  `grade_id` int NOT NULL COMMENT '年级Id',
+  `school_id` bigint NOT NULL COMMENT '校区Id',
   `register_time` datetime NOT NULL COMMENT '注册时间',
   `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '学生状态 (0: 正常 1: 锁定 2: 注销)',
   PRIMARY KEY (`student_id`) USING BTREE,
@@ -3922,27 +3936,27 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `zz_student_action_stats`;
 CREATE TABLE `zz_student_action_stats` (
-  `stats_id` bigint(20) NOT NULL COMMENT '主键Id',
+  `stats_id` bigint NOT NULL COMMENT '主键Id',
   `stats_date` date NOT NULL COMMENT '统计日期',
   `stats_month` date DEFAULT NULL COMMENT '统计小时',
-  `grade_id` int(11) NOT NULL COMMENT '年级Id',
-  `province_id` bigint(20) NOT NULL COMMENT '学生所在省Id',
-  `city_id` bigint(20) NOT NULL DEFAULT '0' COMMENT '学生所在城市Id',
-  `buy_course_amount` int(11) NOT NULL DEFAULT '0' COMMENT '购课学币数量',
-  `buy_course_count` int(11) NOT NULL DEFAULT '0' COMMENT '购买课程次数',
-  `buy_video_amount` int(11) NOT NULL DEFAULT '0' COMMENT '购买视频学币数量',
-  `buy_video_count` int(11) NOT NULL DEFAULT '0' COMMENT '购买视频次数',
-  `buy_paper_amount` int(11) NOT NULL DEFAULT '0' COMMENT '购买作业学币数量',
-  `buy_paper_count` int(11) NOT NULL DEFAULT '0' COMMENT '购买作业次数',
-  `buy_flower_amount` int(11) NOT NULL DEFAULT '0' COMMENT '购买献花数量',
-  `buy_flower_count` int(11) NOT NULL DEFAULT '0' COMMENT '购买献花次数',
-  `recharge_coin_amount` int(11) NOT NULL DEFAULT '0' COMMENT '充值学币数量',
-  `recharge_coin_count` int(11) NOT NULL DEFAULT '0' COMMENT '充值学币次数',
-  `do_course_count` int(11) NOT NULL COMMENT '线下课程上课次数',
-  `watch_video_count` int(11) NOT NULL DEFAULT '0' COMMENT '观看视频次数',
-  `watch_video_total_second` int(11) NOT NULL COMMENT '购买献花消费学币数量',
-  `do_exercise_count` int(11) NOT NULL DEFAULT '0' COMMENT '做题数量',
-  `do_exercise_correct_count` int(11) NOT NULL DEFAULT '0' COMMENT '做题正确的数量',
+  `grade_id` int NOT NULL COMMENT '年级Id',
+  `province_id` bigint NOT NULL COMMENT '学生所在省Id',
+  `city_id` bigint NOT NULL DEFAULT '0' COMMENT '学生所在城市Id',
+  `buy_course_amount` int NOT NULL DEFAULT '0' COMMENT '购课学币数量',
+  `buy_course_count` int NOT NULL DEFAULT '0' COMMENT '购买课程次数',
+  `buy_video_amount` int NOT NULL DEFAULT '0' COMMENT '购买视频学币数量',
+  `buy_video_count` int NOT NULL DEFAULT '0' COMMENT '购买视频次数',
+  `buy_paper_amount` int NOT NULL DEFAULT '0' COMMENT '购买作业学币数量',
+  `buy_paper_count` int NOT NULL DEFAULT '0' COMMENT '购买作业次数',
+  `buy_flower_amount` int NOT NULL DEFAULT '0' COMMENT '购买献花数量',
+  `buy_flower_count` int NOT NULL DEFAULT '0' COMMENT '购买献花次数',
+  `recharge_coin_amount` int NOT NULL DEFAULT '0' COMMENT '充值学币数量',
+  `recharge_coin_count` int NOT NULL DEFAULT '0' COMMENT '充值学币次数',
+  `do_course_count` int NOT NULL COMMENT '线下课程上课次数',
+  `watch_video_count` int NOT NULL DEFAULT '0' COMMENT '观看视频次数',
+  `watch_video_total_second` int NOT NULL COMMENT '购买献花消费学币数量',
+  `do_exercise_count` int NOT NULL DEFAULT '0' COMMENT '做题数量',
+  `do_exercise_correct_count` int NOT NULL DEFAULT '0' COMMENT '做题正确的数量',
   PRIMARY KEY (`stats_id`) USING BTREE,
   UNIQUE KEY `uk_stats_date_grade_id_region_id` (`stats_date`,`grade_id`,`province_id`,`city_id`) USING BTREE,
   KEY `idx_province_id` (`province_id`) USING BTREE,
@@ -3956,20 +3970,20 @@ CREATE TABLE `zz_student_action_stats` (
 -- ----------------------------
 DROP TABLE IF EXISTS `zz_student_action_trans`;
 CREATE TABLE `zz_student_action_trans` (
-  `trans_id` bigint(20) NOT NULL COMMENT '主键Id',
-  `student_id` bigint(20) NOT NULL COMMENT '学生Id',
-  `student_name` varchar(64) COLLATE utf8mb4_bin NOT NULL COMMENT '学生名称',
-  `school_id` bigint(20) NOT NULL COMMENT '学生校区',
-  `grade_id` int(11) NOT NULL COMMENT '年级Id',
-  `action_type` tinyint(4) NOT NULL COMMENT '行为类型(0: 充值  1: 购课 2: 上课签到 3: 上课签退 4: 看视频课 5: 做作业 6: 刷题 7: 献花)',
-  `device_type` tinyint(4) NOT NULL COMMENT '设备类型(0: iOS 1: Android 2: PC)',
-  `watch_video_seconds` int(11) DEFAULT NULL COMMENT '看视频秒数',
-  `flower_count` int(11) DEFAULT NULL COMMENT '购买献花数量',
-  `paper_count` int(11) DEFAULT NULL COMMENT '购买作业数量',
-  `video_count` int(11) DEFAULT NULL COMMENT '购买视频数量',
-  `course_count` int(11) DEFAULT NULL COMMENT '购买课程数量',
-  `coin_count` int(11) DEFAULT NULL COMMENT '充值学币数量',
-  `exercise_correct_flag` tinyint(4) DEFAULT NULL COMMENT '做题是否正确标记',
+  `trans_id` bigint NOT NULL COMMENT '主键Id',
+  `student_id` bigint NOT NULL COMMENT '学生Id',
+  `student_name` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '学生名称',
+  `school_id` bigint NOT NULL COMMENT '学生校区',
+  `grade_id` int NOT NULL COMMENT '年级Id',
+  `action_type` tinyint NOT NULL COMMENT '行为类型(0: 充值  1: 购课 2: 上课签到 3: 上课签退 4: 看视频课 5: 做作业 6: 刷题 7: 献花)',
+  `device_type` tinyint NOT NULL COMMENT '设备类型(0: iOS 1: Android 2: PC)',
+  `watch_video_seconds` int DEFAULT NULL COMMENT '看视频秒数',
+  `flower_count` int DEFAULT NULL COMMENT '购买献花数量',
+  `paper_count` int DEFAULT NULL COMMENT '购买作业数量',
+  `video_count` int DEFAULT NULL COMMENT '购买视频数量',
+  `course_count` int DEFAULT NULL COMMENT '购买课程数量',
+  `coin_count` int DEFAULT NULL COMMENT '充值学币数量',
+  `exercise_correct_flag` tinyint DEFAULT NULL COMMENT '做题是否正确标记',
   `create_time` datetime NOT NULL COMMENT '发生时间',
   PRIMARY KEY (`trans_id`) USING BTREE,
   KEY `idx_student_id` (`student_id`) USING BTREE,
@@ -3984,14 +3998,14 @@ CREATE TABLE `zz_student_action_trans` (
 -- ----------------------------
 DROP TABLE IF EXISTS `zz_sys_data_perm`;
 CREATE TABLE `zz_sys_data_perm` (
-  `data_perm_id` bigint(20) NOT NULL COMMENT '主键',
-  `data_perm_name` varchar(64) COLLATE utf8mb4_bin NOT NULL COMMENT '显示名称',
-  `rule_type` tinyint(2) NOT NULL COMMENT '数据权限规则类型(0: 全部可见 1: 只看自己 2: 只看本部门 3: 本部门及子部门 4: 多部门及子部门 5: 自定义部门列表)。',
-  `create_user_id` bigint(20) NOT NULL COMMENT '创建者Id',
+  `data_perm_id` bigint NOT NULL COMMENT '主键',
+  `data_perm_name` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '显示名称',
+  `rule_type` tinyint NOT NULL COMMENT '数据权限规则类型(0: 全部可见 1: 只看自己 2: 只看本部门 3: 本部门及子部门 4: 多部门及子部门 5: 自定义部门列表)。',
+  `create_user_id` bigint NOT NULL COMMENT '创建者Id',
   `create_time` datetime NOT NULL COMMENT '创建时间',
-  `update_user_id` bigint(20) NOT NULL COMMENT '更新者Id',
+  `update_user_id` bigint NOT NULL COMMENT '更新者Id',
   `update_time` datetime NOT NULL COMMENT '最后更新时间',
-  `deleted_flag` int(11) NOT NULL COMMENT '逻辑删除标记(1: 正常 -1: 已删除)',
+  `deleted_flag` int NOT NULL COMMENT '逻辑删除标记(1: 正常 -1: 已删除)',
   PRIMARY KEY (`data_perm_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='数据权限表';
 
@@ -4000,8 +4014,8 @@ CREATE TABLE `zz_sys_data_perm` (
 -- ----------------------------
 DROP TABLE IF EXISTS `zz_sys_data_perm_dept`;
 CREATE TABLE `zz_sys_data_perm_dept` (
-  `data_perm_id` bigint(20) NOT NULL COMMENT '数据权限Id',
-  `dept_id` bigint(20) NOT NULL COMMENT '部门Id',
+  `data_perm_id` bigint NOT NULL COMMENT '数据权限Id',
+  `dept_id` bigint NOT NULL COMMENT '部门Id',
   PRIMARY KEY (`data_perm_id`,`dept_id`),
   KEY `idx_dept_id` (`dept_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='数据权限和部门关联表';
@@ -4011,8 +4025,8 @@ CREATE TABLE `zz_sys_data_perm_dept` (
 -- ----------------------------
 DROP TABLE IF EXISTS `zz_sys_data_perm_user`;
 CREATE TABLE `zz_sys_data_perm_user` (
-  `data_perm_id` bigint(20) NOT NULL COMMENT '数据权限Id',
-  `user_id` bigint(20) NOT NULL COMMENT '用户Id',
+  `data_perm_id` bigint NOT NULL COMMENT '数据权限Id',
+  `user_id` bigint NOT NULL COMMENT '用户Id',
   PRIMARY KEY (`data_perm_id`,`user_id`),
   KEY `idx_user_id` (`user_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='数据权限和用户关联表';
@@ -4022,15 +4036,15 @@ CREATE TABLE `zz_sys_data_perm_user` (
 -- ----------------------------
 DROP TABLE IF EXISTS `zz_sys_dept`;
 CREATE TABLE `zz_sys_dept` (
-  `dept_id` bigint(20) NOT NULL COMMENT '部门Id',
-  `parent_id` bigint(20) DEFAULT NULL COMMENT '父部门Id',
-  `dept_name` varchar(50) COLLATE utf8mb4_bin NOT NULL COMMENT '部门名称',
-  `show_order` int(11) NOT NULL COMMENT '兄弟部分之间的显示顺序，数字越小越靠前',
-  `create_user_id` bigint(20) NOT NULL COMMENT '创建者Id',
+  `dept_id` bigint NOT NULL COMMENT '部门Id',
+  `parent_id` bigint DEFAULT NULL COMMENT '父部门Id',
+  `dept_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '部门名称',
+  `show_order` int NOT NULL COMMENT '兄弟部分之间的显示顺序，数字越小越靠前',
+  `create_user_id` bigint NOT NULL COMMENT '创建者Id',
   `create_time` datetime NOT NULL COMMENT '创建时间',
-  `update_user_id` bigint(20) NOT NULL COMMENT '更新者Id',
+  `update_user_id` bigint NOT NULL COMMENT '更新者Id',
   `update_time` datetime NOT NULL COMMENT '最后更新时间',
-  `deleted_flag` int(1) NOT NULL DEFAULT '0' COMMENT '删除标记(1: 正常 -1: 已删除)',
+  `deleted_flag` int NOT NULL DEFAULT '0' COMMENT '删除标记(1: 正常 -1: 已删除)',
   PRIMARY KEY (`dept_id`) USING BTREE,
   KEY `idx_parent_id` (`parent_id`) USING BTREE,
   KEY `idx_show_order` (`show_order`) USING BTREE
@@ -4050,8 +4064,8 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `zz_sys_dept_relation`;
 CREATE TABLE `zz_sys_dept_relation` (
-  `parent_dept_id` bigint(20) NOT NULL COMMENT '父部门Id',
-  `dept_id` bigint(20) NOT NULL COMMENT '部门Id',
+  `parent_dept_id` bigint NOT NULL COMMENT '父部门Id',
+  `dept_id` bigint NOT NULL COMMENT '部门Id',
   PRIMARY KEY (`parent_dept_id`,`dept_id`),
   KEY `idx_dept_id` (`dept_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin ROW_FORMAT=COMPACT COMMENT='部门关联关系表';
@@ -4070,20 +4084,20 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `zz_sys_menu`;
 CREATE TABLE `zz_sys_menu` (
-  `menu_id` bigint(20) NOT NULL COMMENT '主键Id',
-  `parent_id` bigint(20) DEFAULT NULL COMMENT '父菜单Id，目录菜单的父菜单为null',
-  `menu_name` varchar(50) COLLATE utf8mb4_bin NOT NULL COMMENT '菜单显示名称',
-  `menu_type` int(11) NOT NULL COMMENT '(0: 目录 1: 菜单 2: 按钮 3: UI片段)',
-  `form_router_name` varchar(64) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '前端表单路由名称，仅用于menu_type为1的菜单类型',
-  `online_form_id` bigint(20) DEFAULT NULL COMMENT '在线表单主键Id',
-  `online_menu_perm_type` int(11) DEFAULT NULL COMMENT '在线表单菜单的权限控制类型',
-  `show_order` int(11) NOT NULL COMMENT '菜单显示顺序 (值越小，排序越靠前)',
-  `icon` varchar(50) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '菜单图标',
-  `create_user_id` bigint(20) NOT NULL COMMENT '创建者Id',
+  `menu_id` bigint NOT NULL COMMENT '主键Id',
+  `parent_id` bigint DEFAULT NULL COMMENT '父菜单Id，目录菜单的父菜单为null',
+  `menu_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '菜单显示名称',
+  `menu_type` int NOT NULL COMMENT '(0: 目录 1: 菜单 2: 按钮 3: UI片段)',
+  `form_router_name` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL COMMENT '前端表单路由名称，仅用于menu_type为1的菜单类型',
+  `online_form_id` bigint DEFAULT NULL COMMENT '在线表单主键Id',
+  `online_menu_perm_type` int DEFAULT NULL COMMENT '在线表单菜单的权限控制类型',
+  `show_order` int NOT NULL COMMENT '菜单显示顺序 (值越小，排序越靠前)',
+  `icon` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL COMMENT '菜单图标',
+  `create_user_id` bigint NOT NULL COMMENT '创建者Id',
   `create_time` datetime NOT NULL COMMENT '创建时间',
-  `update_user_id` bigint(20) NOT NULL COMMENT '更新者Id',
+  `update_user_id` bigint NOT NULL COMMENT '更新者Id',
   `update_time` datetime NOT NULL COMMENT '最后更新时间',
-  `deleted_flag` int(11) NOT NULL COMMENT '逻辑删除标记(1: 正常 -1: 已删除)',
+  `deleted_flag` int NOT NULL COMMENT '逻辑删除标记(1: 正常 -1: 已删除)',
   PRIMARY KEY (`menu_id`) USING BTREE,
   KEY `idx_show_order` (`show_order`) USING BTREE,
   KEY `idx_parent_id` (`parent_id`) USING BTREE
@@ -4200,8 +4214,8 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `zz_sys_menu_perm_code`;
 CREATE TABLE `zz_sys_menu_perm_code` (
-  `menu_id` bigint(20) NOT NULL COMMENT '关联菜单Id',
-  `perm_code_id` bigint(20) NOT NULL COMMENT '关联权限字Id',
+  `menu_id` bigint NOT NULL COMMENT '关联菜单Id',
+  `perm_code_id` bigint NOT NULL COMMENT '关联权限字Id',
   PRIMARY KEY (`menu_id`,`perm_code_id`) USING BTREE,
   KEY `idx_perm_code_id` (`perm_code_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='菜单和权限关系表';
@@ -4350,25 +4364,25 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `zz_sys_operation_log`;
 CREATE TABLE `zz_sys_operation_log` (
-  `log_id` bigint(20) NOT NULL COMMENT '主键Id',
-  `description` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '日志描述',
-  `operation_type` int(11) DEFAULT NULL COMMENT '操作类型',
-  `service_name` varchar(128) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '接口所在服务名称',
-  `api_class` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '调用的controller全类名',
-  `api_method` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '调用的controller中的方法',
-  `session_id` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '用户会话sessionId',
-  `trace_id` char(32) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '每次请求的Id',
-  `elapse` int(11) DEFAULT NULL COMMENT '调用时长',
-  `request_method` varchar(32) COLLATE utf8mb4_bin DEFAULT NULL COMMENT 'HTTP 请求方法，如GET',
-  `request_url` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL COMMENT 'HTTP 请求地址',
-  `request_arguments` varchar(2000) COLLATE utf8mb4_bin DEFAULT NULL COMMENT 'controller接口参数',
-  `response_result` mediumtext COLLATE utf8mb4_bin COMMENT 'controller应答结果',
-  `request_ip` varchar(32) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '请求IP',
+  `log_id` bigint NOT NULL COMMENT '主键Id',
+  `description` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL COMMENT '日志描述',
+  `operation_type` int DEFAULT NULL COMMENT '操作类型',
+  `service_name` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL COMMENT '接口所在服务名称',
+  `api_class` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL COMMENT '调用的controller全类名',
+  `api_method` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL COMMENT '调用的controller中的方法',
+  `session_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL COMMENT '用户会话sessionId',
+  `trace_id` char(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL COMMENT '每次请求的Id',
+  `elapse` int DEFAULT NULL COMMENT '调用时长',
+  `request_method` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL COMMENT 'HTTP 请求方法，如GET',
+  `request_url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL COMMENT 'HTTP 请求地址',
+  `request_arguments` varchar(2000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL COMMENT 'controller接口参数',
+  `response_result` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin COMMENT 'controller应答结果',
+  `request_ip` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL COMMENT '请求IP',
   `success` bit(1) DEFAULT NULL COMMENT '应答状态',
-  `error_msg` varchar(2000) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '错误信息',
-  `tenant_id` bigint(20) DEFAULT NULL COMMENT '租户Id',
-  `operator_id` bigint(20) DEFAULT NULL COMMENT '操作员Id',
-  `operator_name` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '操作员名称',
+  `error_msg` varchar(2000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL COMMENT '错误信息',
+  `tenant_id` bigint DEFAULT NULL COMMENT '租户Id',
+  `operator_id` bigint DEFAULT NULL COMMENT '操作员Id',
+  `operator_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL COMMENT '操作员名称',
   `operation_time` datetime DEFAULT NULL COMMENT '操作时间',
   PRIMARY KEY (`log_id`),
   KEY `idx_trace_id_idx` (`trace_id`),
@@ -4383,16 +4397,16 @@ CREATE TABLE `zz_sys_operation_log` (
 -- ----------------------------
 DROP TABLE IF EXISTS `zz_sys_perm`;
 CREATE TABLE `zz_sys_perm` (
-  `perm_id` bigint(20) NOT NULL COMMENT '权限id',
-  `module_id` bigint(20) NOT NULL DEFAULT '0' COMMENT '权限所在的权限模块id',
-  `perm_name` varchar(64) COLLATE utf8mb4_bin NOT NULL DEFAULT '' COMMENT '权限名称',
-  `url` varchar(128) COLLATE utf8mb4_bin NOT NULL DEFAULT '' COMMENT '关联的url',
-  `show_order` int(11) NOT NULL DEFAULT '0' COMMENT '权限在当前模块下的顺序，由小到大',
-  `create_user_id` bigint(20) NOT NULL COMMENT '创建者Id',
+  `perm_id` bigint NOT NULL COMMENT '权限id',
+  `module_id` bigint NOT NULL DEFAULT '0' COMMENT '权限所在的权限模块id',
+  `perm_name` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL DEFAULT '' COMMENT '权限名称',
+  `url` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL DEFAULT '' COMMENT '关联的url',
+  `show_order` int NOT NULL DEFAULT '0' COMMENT '权限在当前模块下的顺序，由小到大',
+  `create_user_id` bigint NOT NULL COMMENT '创建者Id',
   `create_time` datetime NOT NULL COMMENT '创建时间',
-  `update_user_id` bigint(20) NOT NULL COMMENT '更新者Id',
+  `update_user_id` bigint NOT NULL COMMENT '更新者Id',
   `update_time` datetime NOT NULL COMMENT '最后更新时间',
-  `deleted_flag` int(11) NOT NULL COMMENT '逻辑删除标记(1: 正常 -1: 已删除)',
+  `deleted_flag` int NOT NULL COMMENT '逻辑删除标记(1: 正常 -1: 已删除)',
   PRIMARY KEY (`perm_id`) USING BTREE,
   KEY `idx_show_order` (`show_order`) USING BTREE,
   KEY `idx_module_id` (`module_id`) USING BTREE
@@ -4535,17 +4549,17 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `zz_sys_perm_code`;
 CREATE TABLE `zz_sys_perm_code` (
-  `perm_code_id` bigint(20) NOT NULL COMMENT '主键Id',
-  `parent_id` bigint(20) DEFAULT NULL COMMENT '上级权限字Id',
+  `perm_code_id` bigint NOT NULL COMMENT '主键Id',
+  `parent_id` bigint DEFAULT NULL COMMENT '上级权限字Id',
   `perm_code` varchar(128) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL COMMENT '权限字标识(一般为有含义的英文字符串)',
-  `perm_code_type` int(11) NOT NULL COMMENT '类型(0: 表单 1: UI片段 2: 操作)',
+  `perm_code_type` int NOT NULL COMMENT '类型(0: 表单 1: UI片段 2: 操作)',
   `show_name` varchar(128) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL COMMENT '显示名称',
-  `show_order` int(11) NOT NULL COMMENT '显示顺序(数值越小，越靠前)',
-  `create_user_id` bigint(20) NOT NULL COMMENT '创建者Id',
+  `show_order` int NOT NULL COMMENT '显示顺序(数值越小，越靠前)',
+  `create_user_id` bigint NOT NULL COMMENT '创建者Id',
   `create_time` datetime NOT NULL COMMENT '创建时间',
-  `update_user_id` bigint(20) NOT NULL COMMENT '更新者Id',
+  `update_user_id` bigint NOT NULL COMMENT '更新者Id',
   `update_time` datetime NOT NULL COMMENT '最后更新时间',
-  `deleted_flag` int(11) NOT NULL COMMENT '逻辑删除标记(1: 正常 -1: 已删除)',
+  `deleted_flag` int NOT NULL COMMENT '逻辑删除标记(1: 正常 -1: 已删除)',
   PRIMARY KEY (`perm_code_id`),
   UNIQUE KEY `idx_perm_code` (`perm_code`) USING BTREE,
   KEY `idx_parent_id` (`parent_id`) USING BTREE,
@@ -4692,8 +4706,8 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `zz_sys_perm_code_perm`;
 CREATE TABLE `zz_sys_perm_code_perm` (
-  `perm_code_id` bigint(20) NOT NULL COMMENT '权限字Id',
-  `perm_id` bigint(20) NOT NULL COMMENT '权限id',
+  `perm_code_id` bigint NOT NULL COMMENT '权限字Id',
+  `perm_id` bigint NOT NULL COMMENT '权限id',
   PRIMARY KEY (`perm_code_id`,`perm_id`),
   KEY `idx_perm_id` (`perm_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin ROW_FORMAT=COMPACT COMMENT='系统权限字和权限资源关联表';
@@ -4831,16 +4845,16 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `zz_sys_perm_module`;
 CREATE TABLE `zz_sys_perm_module` (
-  `module_id` bigint(20) NOT NULL COMMENT '权限模块id',
-  `parent_id` bigint(20) DEFAULT '0' COMMENT '上级权限模块id',
-  `module_name` varchar(64) COLLATE utf8mb4_bin NOT NULL DEFAULT '' COMMENT '权限模块名称',
-  `module_type` int(11) NOT NULL COMMENT '模块类型(0: 普通模块 1: Controller模块)',
-  `show_order` int(11) NOT NULL DEFAULT '0' COMMENT '权限模块在当前层级下的顺序，由小到大',
-  `create_user_id` bigint(20) NOT NULL COMMENT '创建者Id',
+  `module_id` bigint NOT NULL COMMENT '权限模块id',
+  `parent_id` bigint DEFAULT '0' COMMENT '上级权限模块id',
+  `module_name` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL DEFAULT '' COMMENT '权限模块名称',
+  `module_type` int NOT NULL COMMENT '模块类型(0: 普通模块 1: Controller模块)',
+  `show_order` int NOT NULL DEFAULT '0' COMMENT '权限模块在当前层级下的顺序，由小到大',
+  `create_user_id` bigint NOT NULL COMMENT '创建者Id',
   `create_time` datetime NOT NULL COMMENT '创建时间',
-  `update_user_id` bigint(20) NOT NULL COMMENT '更新者Id',
+  `update_user_id` bigint NOT NULL COMMENT '更新者Id',
   `update_time` datetime NOT NULL COMMENT '最后更新时间',
-  `deleted_flag` int(11) NOT NULL COMMENT '逻辑删除标记(1: 正常 -1: 已删除)',
+  `deleted_flag` int NOT NULL COMMENT '逻辑删除标记(1: 正常 -1: 已删除)',
   PRIMARY KEY (`module_id`) USING BTREE,
   KEY `idx_show_order` (`show_order`) USING BTREE,
   KEY `idx_parent_id` (`parent_id`) USING BTREE,
@@ -4913,13 +4927,13 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `zz_sys_role`;
 CREATE TABLE `zz_sys_role` (
-  `role_id` bigint(20) NOT NULL COMMENT '主键Id',
-  `role_name` varchar(64) COLLATE utf8mb4_bin NOT NULL COMMENT '角色名称',
-  `create_user_id` bigint(20) NOT NULL COMMENT '创建者Id',
+  `role_id` bigint NOT NULL COMMENT '主键Id',
+  `role_name` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '角色名称',
+  `create_user_id` bigint NOT NULL COMMENT '创建者Id',
   `create_time` datetime NOT NULL COMMENT '创建时间',
-  `update_user_id` bigint(20) NOT NULL COMMENT '更新者Id',
+  `update_user_id` bigint NOT NULL COMMENT '更新者Id',
   `update_time` datetime NOT NULL COMMENT '最后更新时间',
-  `deleted_flag` int(11) NOT NULL COMMENT '逻辑删除标记(1: 正常 -1: 已删除)',
+  `deleted_flag` int NOT NULL COMMENT '逻辑删除标记(1: 正常 -1: 已删除)',
   PRIMARY KEY (`role_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin ROW_FORMAT=COMPACT COMMENT='系统角色表';
 
@@ -4928,8 +4942,8 @@ CREATE TABLE `zz_sys_role` (
 -- ----------------------------
 DROP TABLE IF EXISTS `zz_sys_role_menu`;
 CREATE TABLE `zz_sys_role_menu` (
-  `role_id` bigint(20) NOT NULL COMMENT '角色Id',
-  `menu_id` bigint(20) NOT NULL COMMENT '菜单Id',
+  `role_id` bigint NOT NULL COMMENT '角色Id',
+  `menu_id` bigint NOT NULL COMMENT '菜单Id',
   PRIMARY KEY (`role_id`,`menu_id`) USING BTREE,
   KEY `idx_menu_id` (`menu_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin ROW_FORMAT=COMPACT COMMENT='角色与菜单对应关系表';
@@ -4939,19 +4953,19 @@ CREATE TABLE `zz_sys_role_menu` (
 -- ----------------------------
 DROP TABLE IF EXISTS `zz_sys_user`;
 CREATE TABLE `zz_sys_user` (
-  `user_id` bigint(20) NOT NULL COMMENT '主键Id',
-  `login_name` varchar(64) COLLATE utf8mb4_bin NOT NULL COMMENT '用户登录名称',
-  `password` varchar(64) COLLATE utf8mb4_bin NOT NULL COMMENT '密码',
-  `show_name` varchar(32) COLLATE utf8mb4_bin NOT NULL COMMENT '用户显示名称',
-  `dept_id` bigint(20) NOT NULL COMMENT '用户所在部门Id',
-  `head_image_url` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '用户头像的Url',
-  `user_type` int(11) NOT NULL COMMENT '用户类型(0: 管理员 1: 系统管理用户 2: 系统业务用户)',
-  `user_status` int(11) NOT NULL COMMENT '状态(0: 正常 1: 锁定)',
-  `create_user_id` bigint(20) NOT NULL COMMENT '创建者Id',
+  `user_id` bigint NOT NULL COMMENT '主键Id',
+  `login_name` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '用户登录名称',
+  `password` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '密码',
+  `show_name` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '用户显示名称',
+  `dept_id` bigint NOT NULL COMMENT '用户所在部门Id',
+  `head_image_url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL COMMENT '用户头像的Url',
+  `user_type` int NOT NULL COMMENT '用户类型(0: 管理员 1: 系统管理用户 2: 系统业务用户)',
+  `user_status` int NOT NULL COMMENT '状态(0: 正常 1: 锁定)',
+  `create_user_id` bigint NOT NULL COMMENT '创建者Id',
   `create_time` datetime NOT NULL COMMENT '创建时间',
-  `update_user_id` bigint(20) NOT NULL COMMENT '更新者Id',
+  `update_user_id` bigint NOT NULL COMMENT '更新者Id',
   `update_time` datetime NOT NULL COMMENT '最后更新时间',
-  `deleted_flag` int(11) NOT NULL COMMENT '删除标记(1: 正常 -1: 已删除)',
+  `deleted_flag` int NOT NULL COMMENT '删除标记(1: 正常 -1: 已删除)',
   PRIMARY KEY (`user_id`) USING BTREE,
   UNIQUE KEY `uk_login_name` (`login_name`) USING BTREE,
   KEY `idx_dept_id` (`dept_id`) USING BTREE,
@@ -4970,8 +4984,8 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `zz_sys_user_role`;
 CREATE TABLE `zz_sys_user_role` (
-  `user_id` bigint(20) NOT NULL COMMENT '用户Id',
-  `role_id` bigint(20) NOT NULL COMMENT '角色Id',
+  `user_id` bigint NOT NULL COMMENT '用户Id',
+  `role_id` bigint NOT NULL COMMENT '角色Id',
   PRIMARY KEY (`user_id`,`role_id`) USING BTREE,
   KEY `idx_role_id` (`role_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin ROW_FORMAT=COMPACT COMMENT='用户与角色对应关系表';
@@ -4981,11 +4995,11 @@ CREATE TABLE `zz_sys_user_role` (
 -- ----------------------------
 DROP TABLE IF EXISTS `zz_transaction_message_producer_trans`;
 CREATE TABLE `zz_transaction_message_producer_trans` (
-  `trans_id` varchar(128) COLLATE utf8mb4_bin NOT NULL COMMENT '消息事务Id',
-  `message_type` varchar(64) COLLATE utf8mb4_bin NOT NULL COMMENT '消息类型',
-  `command_type` varchar(64) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '命令类型',
-  `message_topic` varchar(64) COLLATE utf8mb4_bin NOT NULL COMMENT '消息主题',
-  `producer_trace_id` varchar(64) COLLATE utf8mb4_bin NOT NULL COMMENT '生产者traceId',
+  `trans_id` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '消息事务Id',
+  `message_type` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '消息类型',
+  `command_type` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL COMMENT '命令类型',
+  `message_topic` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '消息主题',
+  `producer_trace_id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '生产者traceId',
   `create_time` datetime NOT NULL COMMENT '创建时间',
   PRIMARY KEY (`trans_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='用于事务型消息的生产者发送数据流水表';

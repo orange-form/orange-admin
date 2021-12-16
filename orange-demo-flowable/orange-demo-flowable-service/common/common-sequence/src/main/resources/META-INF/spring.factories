@@ -1,2 +1,2 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-com.flow.demo.common.sequence.config.IdGeneratorAutoConfig
+com.orangeforms.common.sequence.config.IdGeneratorAutoConfig

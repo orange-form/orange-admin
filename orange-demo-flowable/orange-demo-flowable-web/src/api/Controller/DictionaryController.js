@@ -1,6 +1,17 @@
 import * as staticDict from '@/staticDict'
 
 export default class DictionaryController {
+  static dictSysRole (sender, params, axiosOption, httpOption) {
+    return new Promise((resolve, reject) => {
+      sender.doUrl('/admin/upms/sysRole/listDict', 'get', params, axiosOption, httpOption).then(res => {
+        let dictData = new staticDict.DictionaryBase('角色字典');
+        dictData.setList(res.data);
+        resolve(dictData);
+      }).catch(err => {
+        reject(err);
+      });
+    });
+  }
   static dictSysUserStatus () {
     return new Promise((resolve) => {
       resolve(staticDict.SysUserStatus);
@@ -76,6 +87,17 @@ export default class DictionaryController {
     return new Promise((resolve, reject) => {
       sender.doUrl('admin/upms/sysDept/listSysDeptPostWithRelation', 'get', params, axiosOption, httpOption).then(res => {
         resolve(res.data);
+      }).catch(err => {
+        reject(err);
+      });
+    });
+  }
+  static dictSysPost (sender, params, axiosOption, httpOption) {
+    return new Promise((resolve, reject) => {
+      sender.doUrl('/admin/upms/sysPost/listDict', 'get', params, axiosOption, httpOption).then(res => {
+        let dictData = new staticDict.DictionaryBase('岗位字典');
+        dictData.setList(res.data);
+        resolve(dictData);
       }).catch(err => {
         reject(err);
       });

@@ -78,6 +78,13 @@ export default {
       params.sysDeptDtoFilter = {
         deptName: this.formSysDept.formFilterCopy.deptName
       };
+      // 按照显示顺序排序
+      params.orderParam = [
+        {
+          fieldName: 'showOrder',
+          asc: true
+        }
+      ];
       return new Promise((resolve, reject) => {
         SysDeptController.list(this, params).then(res => {
           resolve({

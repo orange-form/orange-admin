@@ -181,7 +181,10 @@ export default {
               }).catch(e => {});
             }
           } else {
-            let masterData = {};
+            let masterData = {
+              // 级联添加数据唯一标识
+              __cascade_add_id__: this.formData.__cascade_add_id__ || new Date().getTime()
+            };
             if (this.masterTable && Array.isArray(this.masterTable.columnList)) {
               this.masterTable.columnList.forEach(column => {
                 let keyName = column.columnName;

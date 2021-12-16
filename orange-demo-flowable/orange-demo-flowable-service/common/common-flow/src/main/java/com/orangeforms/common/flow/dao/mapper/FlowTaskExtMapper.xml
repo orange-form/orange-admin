@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.orangeforms.common.flow.dao.FlowTaskExtMapper">
+    <resultMap id="BaseResultMap" type="com.orangeforms.common.flow.model.FlowTaskExt">
+        <result column="process_definition_id" jdbcType="VARCHAR" property="processDefinitionId"/>
+        <result column="task_id" jdbcType="VARCHAR" property="taskId"/>
+        <result column="operation_list_json" jdbcType="LONGVARCHAR" property="operationListJson"/>
+        <result column="variable_list_json" jdbcType="LONGVARCHAR" property="variableListJson"/>
+        <result column="assignee_list_json" jdbcType="LONGVARCHAR" property="assigneeListJson"/>
+        <result column="group_type" jdbcType="VARCHAR" property="groupType"/>
+        <result column="dept_post_list_json" jdbcType="VARCHAR" property="deptPostListJson"/>
+        <result column="role_ids" jdbcType="VARCHAR" property="roleIds"/>
+        <result column="dept_ids" jdbcType="VARCHAR" property="deptIds"/>
+        <result column="candidate_usernames" jdbcType="VARCHAR" property="candidateUsernames"/>
+    </resultMap>
+
+    <insert id="insertList">
+        INSERT INTO zz_flow_task_ext VALUES
+        <foreach collection="list" index="index" item="item" separator="," >
+            (#{item.processDefinitionId},
+            #{item.taskId},
+            #{item.operationListJson},
+            #{item.variableListJson},
+            #{item.assigneeListJson},
+            #{item.groupType},
+            #{item.deptPostListJson},
+            #{item.roleIds},
+            #{item.deptIds},
+            #{item.candidateUsernames})
+        </foreach>
+    </insert>
+</mapper>

@@ -53,28 +53,28 @@
         <root level="${OUTPUT_LOG_LEVEL}">
             <AppenderRef ref="console"/>
         </root>
-        <AsyncLogger name="com.flow.demo" additivity="false" level="info">
+        <AsyncLogger name="com.orangeforms" additivity="false" level="info">
             <AppenderRef ref="console"/>
             <AppenderRef ref="file_log"/>
         </AsyncLogger>
         <!-- 这里将dao的日志级别设置为DEBUG，是为了SQL语句的输出 -->
-        <AsyncLogger name="com.flow.demo.webadmin.app.dao" additivity="false" level="debug">
+        <AsyncLogger name="com.orangeforms.webadmin.app.dao" additivity="false" level="debug">
             <AppenderRef ref="console"/>
             <AppenderRef ref="file_log"/>
         </AsyncLogger>
-        <AsyncLogger name="com.flow.demo.webadmin.upms.dao" additivity="false" level="debug">
+        <AsyncLogger name="com.orangeforms.webadmin.upms.dao" additivity="false" level="debug">
             <AppenderRef ref="console"/>
             <AppenderRef ref="file_log"/>
         </AsyncLogger>
-        <AsyncLogger name="com.flow.demo.common.log.dao" additivity="false" level="debug">
+        <AsyncLogger name="com.orangeforms.common.log.dao" additivity="false" level="debug">
             <AppenderRef ref="console"/>
             <AppenderRef ref="file_log"/>
         </AsyncLogger>
-        <AsyncLogger name="com.flow.demo.common.online.dao" additivity="false" level="debug">
+        <AsyncLogger name="com.orangeforms.common.online.dao" additivity="false" level="debug">
             <AppenderRef ref="console"/>
             <AppenderRef ref="file_log"/>
         </AsyncLogger>
-        <AsyncLogger name="com.flow.demo.common.flow.dao" additivity="false" level="debug">
+        <AsyncLogger name="com.orangeforms.common.flow.dao" additivity="false" level="debug">
             <AppenderRef ref="console"/>
             <AppenderRef ref="file_log"/>
         </AsyncLogger>

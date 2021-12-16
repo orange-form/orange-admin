@@ -22,8 +22,8 @@
             [%-5p] [%d{YYYY-MM-dd HH:mm:ss}] [%t] ==> %msg%n
         </property>
         <property name="LOG_PATTERN_EX">
-            <!-- 下面注释中 %X{PtxId}, SpanId: %X{PspanId} 为PinPoint 中的traceid -->
-            [%-5p] [%d{YYYY-MM-dd HH:mm:ss}] T:[%X{traceId}] S:[%X{sessionId}] U:[%X{userId}] [%t] ==> [TxId: %X{PtxId}, SpanId: %X{PspanId}] %msg%n
+            <!-- 下面注释中 %traceid 为SkyWalking 中的traceid -->
+            [%-5p] [%d{YYYY-MM-dd HH:mm:ss}] T:[%X{traceId}] S:[%X{sessionId}] U:[%X{userId}] [%t] ==> [%traceId] %msg%n
         </property>
         <!-- 日志保留天数 -->
         <property name="EVERY_FILE_COUNT">31</property>
@@ -64,18 +64,18 @@
         </Logger>
         <!-- AsyncLogger 是基于Disruptor的全量异步队列，性能极高，队列默认大小4096。-->
         <!-- 队列默认值可通过JVM参数设置，参考博客：https://www.jianshu.com/p/82469047acbf -->
-        <AsyncLogger name="com.orange.demo" additivity="false" level="info">
+        <AsyncLogger name="com.orangeforms" additivity="false" level="info">
             <AppenderRef ref="console"/>
             <AppenderRef ref="kafka_log"/>
             <AppenderRef ref="file_log"/>
         </AsyncLogger>
         <!-- 这里将dao的日志级别设置为DEBUG，是为了SQL语句的输出 -->
-        <AsyncLogger name="com.orange.demo.upmsservice.dao" additivity="false" level="debug">
+        <AsyncLogger name="com.orangeforms.upmsservice.dao" additivity="false" level="debug">
             <AppenderRef ref="console"/>
             <AppenderRef ref="kafka_log"/>
             <AppenderRef ref="file_log"/>
         </AsyncLogger>
-        <AsyncLogger name="com.orange.demo.common.log.dao" additivity="false" level="debug">
+        <AsyncLogger name="com.orangeforms.common.log.dao" additivity="false" level="debug">
             <AppenderRef ref="console"/>
             <AppenderRef ref="kafka_log"/>
             <AppenderRef ref="file_log"/>

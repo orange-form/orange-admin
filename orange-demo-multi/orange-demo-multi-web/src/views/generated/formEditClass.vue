@@ -152,9 +152,9 @@ export default {
     }
   },
   methods: {
-    onCancel (isSuccess) {
+    onCancel (isSuccess, data) {
       if (this.observer != null) {
-        this.observer.cancel(isSuccess);
+        this.observer.cancel(isSuccess, data);
       }
     },
     /**
@@ -238,17 +238,6 @@ export default {
     onUpdateClick () {
       this.$refs.formEditClass.validate((valid) => {
         if (!valid) return;
-        if (
-          this.classId == null ||
-          this.formData.StudentClass.className == null ||
-          this.formData.StudentClass.schoolId == null ||
-          this.formData.StudentClass.leaderId == null ||
-          this.formData.StudentClass.finishClassHour == null ||
-          this.formData.StudentClass.classLevel == null
-        ) {
-          this.$message.error('请求失败，发现必填参数为空！');
-          return;
-        }
         let params = {
           studentClassDto: {
             classId: this.classId,

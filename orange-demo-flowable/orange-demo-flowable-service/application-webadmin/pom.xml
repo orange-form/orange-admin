@@ -2,7 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<parent>
-        <groupId>com.flow.demo</groupId>
+        <groupId>com.orangeforms</groupId>
         <artifactId>DemoFlow</artifactId>
         <version>1.0.0</version>
 	</parent>
@@ -16,32 +16,32 @@
 	<dependencies>
 		<!-- 业务组件依赖 -->
         <dependency>
-            <groupId>com.flow.demo</groupId>
+            <groupId>com.orangeforms</groupId>
             <artifactId>common-redis</artifactId>
             <version>1.0.0</version>
         </dependency>
         <dependency>
-            <groupId>com.flow.demo</groupId>
+            <groupId>com.orangeforms</groupId>
             <artifactId>common-online-api</artifactId>
             <version>1.0.0</version>
         </dependency>
         <dependency>
-            <groupId>com.flow.demo</groupId>
+            <groupId>com.orangeforms</groupId>
             <artifactId>common-flow-online</artifactId>
             <version>1.0.0</version>
         </dependency>
         <dependency>
-            <groupId>com.flow.demo</groupId>
+            <groupId>com.orangeforms</groupId>
             <artifactId>common-log</artifactId>
             <version>1.0.0</version>
         </dependency>
         <dependency>
-            <groupId>com.flow.demo</groupId>
+            <groupId>com.orangeforms</groupId>
             <artifactId>common-sequence</artifactId>
             <version>1.0.0</version>
         </dependency>
         <dependency>
-            <groupId>com.flow.demo</groupId>
+            <groupId>com.orangeforms</groupId>
             <artifactId>common-datafilter</artifactId>
             <version>1.0.0</version>
         </dependency>

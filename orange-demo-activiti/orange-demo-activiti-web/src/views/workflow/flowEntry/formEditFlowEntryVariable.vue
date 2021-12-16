@@ -153,7 +153,7 @@ export default {
             if (relation.relationType === this.SysOnlineRelationType.ONE_TO_ONE) {
               temp.push({
                 label: relation.relationName,
-                value: relation.variableName,
+                value: relation.relationId,
                 tableId: relation.slaveTableId,
                 children: relation.columnList.map(column => {
                   return {

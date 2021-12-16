@@ -1,7 +1,7 @@
 logging:
   level:
     # 这里设置的日志级别优先于log4j2.xml文件Loggers中的日志级别。
-    com.flow.demo: info
+    com.orangeforms: info
 
 server:
   port: 8082
@@ -46,8 +46,8 @@ spring:
     db-history-used: true
 
 mybatis-plus:
-  mapper-locations: classpath:com/flow/demo/webadmin/*/dao/mapper/*Mapper.xml,com/flow/demo/common/log/dao/mapper/*Mapper.xml,com/flow/demo/common/online/dao/mapper/*Mapper.xml,com/flow/demo/common/flow/dao/mapper/*Mapper.xml
-  type-aliases-package: com.flow.demo.webadmin.*.model,com.flow.demo.common.log.model,com.flow.demo.common.online.model,com.flow.demo.common.flow.model
+  mapper-locations: classpath:com/orangeforms/webadmin/*/dao/mapper/*Mapper.xml,com/orangeforms/common/log/dao/mapper/*Mapper.xml,com/orangeforms/common/online/dao/mapper/*Mapper.xml,com/orangeforms/common/flow/dao/mapper/*Mapper.xml
+  type-aliases-package: com.orangeforms.webadmin.*.model,com.orangeforms.common.log.model,com.orangeforms.common.online.model,com.orangeforms.common.flow.model
   global-config:
     db-config:
       logic-delete-value: -1
@@ -80,7 +80,7 @@ redis:
     # master-slave:
     #   每个节点逗号分隔，第一个为主节点，其余为从节点。同时每个节点前必须以redis://开头。
     #   address: redis://localhost:6379,redis://localhost:6378,...
-    address: redis://localhost:6380
+    address: redis://localhost:6379
     # 链接超时，单位毫秒。
     timeout: 6000
     # 单位毫秒。分布式锁的超时检测时长。
@@ -227,7 +227,7 @@ spring:
     type: com.alibaba.druid.pool.DruidDataSource
     druid:
       main:
-        url: jdbc:mysql://localhost:3306/zzdemo-online-activiti?characterEncoding=utf8&useSSL=true&serverTimezone=Asia/Shanghai
+        url: jdbc:mysql://localhost:3306/zzdemo-online?characterEncoding=utf8&useSSL=true&serverTimezone=Asia/Shanghai
         username: root
         password: 123456
       driver-class-name: com.mysql.cj.jdbc.Driver

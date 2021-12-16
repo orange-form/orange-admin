@@ -2,7 +2,6 @@ import Vue from 'vue';
 import { Loading, Message } from 'element-ui';
 import request from './request';
 import requestUrl from './requestUrl';
-import merge from 'lodash/merge';
 import { globalConfig } from '@/core/config';
 
 /**
@@ -132,34 +131,41 @@ const ajaxThrottleSet = new Set();
  * @param {Object} options 显示设置
  */
 const doUrl = function (url, type, params, axiosOption, options) {
-  options = merge(globalConfig.httpOption, options);
-  axiosOption = merge(globalConfig.axiosOption, axiosOption);
+  let finalOption = {
+    ...globalConfig.httpOption,
+    ...options
+  };
+  let { showMask, showError, throttleFlag, throttleTimeout } = finalOption;
+  let finalAxiosOption = {
+    ...globalConfig.axiosOption,
+    ...axiosOption
+  }
   if (type == null || type === '') type = 'post';
-  if (ajaxThrottleSet.has(url) && options.throttleFlag) {
+  if (ajaxThrottleSet.has(url) && throttleFlag) {
     return Promise.resolve();
   } else {
-    if (options.throttleFlag) {
+    if (throttleFlag) {
       ajaxThrottleSet.add(url);
       setTimeout(() => {
         ajaxThrottleSet.delete(url);
-      }, options.throttleTimeout || 50);
+      }, throttleTimeout || 50);
     }
     return new Promise((resolve, reject) => {
-      if (options.showMask) loadingManager.showMask();
+      if (showMask) loadingManager.showMask();
       let ajaxCall = null;
       if (type.toLowerCase() === 'get') {
-        ajaxCall = fetchGet(url, params, axiosOption);
+        ajaxCall = fetchGet(url, params, finalAxiosOption);
       } else if (type.toLowerCase() === 'post') {
-        ajaxCall = fetchPost(url, params, axiosOption);
+        ajaxCall = fetchPost(url, params, finalAxiosOption);
       }
   
       if (ajaxCall != null) {
         ajaxCall.then(res => {
-          if (options.showMask) loadingManager.hideMask();
+          if (showMask) loadingManager.hideMask();
           if (res.data && res.data.success) {
             resolve(res.data);
           } else {
-            if (options.showError) {
+            if (showError) {
               Message.error({
                 showClose: true,
                 message: res.data.errorMessage ? res.data.errorMessage : '数据请求失败'
@@ -168,8 +174,8 @@ const doUrl = function (url, type, params, axiosOption, options) {
             reject(res.data);
           }
         }).catch(e => {
-          if (options.showMask) loadingManager.hideMask();
-          if (options.showError) {
+          if (showMask) loadingManager.hideMask();
+          if (showError) {
             Message.error({
               showClose: true,
               message: e.errorMessage ? e.errorMessage : '网络请求错误'
@@ -178,7 +184,7 @@ const doUrl = function (url, type, params, axiosOption, options) {
           reject(e);
         });
       } else {
-        if (options.showMask) loadingManager.hideMask();
+        if (showMask) loadingManager.hideMask();
         reject(new Error('错误的请求类型 - ' + type));
       }
     });

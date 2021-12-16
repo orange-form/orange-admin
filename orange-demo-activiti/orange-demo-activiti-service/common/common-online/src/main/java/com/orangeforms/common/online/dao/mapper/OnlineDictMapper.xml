@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.orangeforms.common.online.dao.OnlineDictMapper">
+    <resultMap id="BaseResultMap" type="com.orangeforms.common.online.model.OnlineDict">
+        <id column="dict_id" jdbcType="BIGINT" property="dictId"/>
+        <result column="dict_name" jdbcType="VARCHAR" property="dictName"/>
+        <result column="dict_type" jdbcType="INTEGER" property="dictType"/>
+        <result column="dblink_id" jdbcType="BIGINT" property="dblinkId"/>
+        <result column="table_name" jdbcType="VARCHAR" property="tableName"/>
+        <result column="key_column_name" jdbcType="VARCHAR" property="keyColumnName"/>
+        <result column="parent_key_column_name" jdbcType="VARCHAR" property="parentKeyColumnName"/>
+        <result column="value_column_name" jdbcType="VARCHAR" property="valueColumnName"/>
+        <result column="deleted_column_name" jdbcType="VARCHAR" property="deletedColumnName"/>
+        <result column="user_filter_column_name" jdbcType="VARCHAR" property="userFilterColumnName"/>
+        <result column="dept_filter_column_name" jdbcType="VARCHAR" property="deptFilterColumnName"/>
+        <result column="tenant_filter_column_name" jdbcType="VARCHAR" property="tenantFilterColumnName"/>
+        <result column="tree_flag" jdbcType="BIT" property="treeFlag"/>
+        <result column="dict_list_url" jdbcType="VARCHAR" property="dictListUrl"/>
+        <result column="dict_ids_url" jdbcType="VARCHAR" property="dictIdsUrl"/>
+        <result column="dict_data_json" jdbcType="LONGVARCHAR" property="dictDataJson"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+    </resultMap>
+
+    <!-- 如果有逻辑删除字段过滤，请写到这里 -->
+    <sql id="filterRef">
+        <!-- 这里必须加上全包名，否则当filterRef被其他Mapper.xml包含引用的时候，就会调用Mapper.xml中的该SQL片段 -->
+        <include refid="com.orangeforms.common.online.dao.OnlineDictMapper.inputFilterRef"/>
+    </sql>
+
+    <!-- 这里仅包含调用接口输入的主表过滤条件 -->
+    <sql id="inputFilterRef">
+        <if test="onlineDictFilter != null">
+            <if test="onlineDictFilter.dictName != null and onlineDictFilter.dictName != ''">
+                AND zz_online_dict.dict_name = #{onlineDictFilter.dictName}
+            </if>
+            <if test="onlineDictFilter.dictType != null">
+                AND zz_online_dict.dict_type = #{onlineDictFilter.dictType}
+            </if>
+        </if>
+    </sql>
+
+    <select id="getOnlineDictList" resultMap="BaseResultMap" parameterType="com.orangeforms.common.online.model.OnlineDict">
+        SELECT * FROM zz_online_dict
+        <where>
+            <include refid="filterRef"/>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+</mapper>

@@ -98,6 +98,8 @@
 
 <script>
 /* eslint-disable-next-line */
+import { findTreeNode, findTreeNodePath, findItemFromList } from '@/utils';
+/* eslint-disable-next-line */
 import rules from '@/utils/validate.js';
 /* eslint-disable-next-line */
 import { DropdownWidget, TableWidget, UploadWidget, ChartWidget } from '@/utils/widget.js';
@@ -185,9 +187,9 @@ export default {
     }
   },
   methods: {
-    onCancel (isSuccess) {
+    onCancel (isSuccess, data) {
       if (this.observer != null) {
-        this.observer.cancel(isSuccess);
+        this.observer.cancel(isSuccess, data);
       }
     },
     /**
@@ -261,19 +263,6 @@ export default {
     onUpdateClick () {
       this.$refs.formEditCourse.validate((valid) => {
         if (!valid) return;
-        if (
-          this.courseId == null ||
-          this.formData.Course.courseName == null ||
-          this.formData.Course.price == null ||
-          this.formData.Course.difficulty == null ||
-          this.formData.Course.gradeId == null ||
-          this.formData.Course.subjectId == null ||
-          this.formData.Course.classHour == null ||
-          this.formData.Course.pictureUrl == null
-        ) {
-          this.$message.error('请求失败，发现必填参数为空！');
-          return;
-        }
         let params = {
           courseDto: {
             courseId: this.courseId,

@@ -45,12 +45,14 @@
 - ELK (可选，docker-compose-elk)
   - 版本：7.5.x
   - Kibana控制台URL：localhost:5601
-- PinPoint (可选，仅当尝试使用PinPoint进行链路跟踪时使用)
-  - 版本：2.0.x
-  - 控制台URL：localhost:8079
+- SkyWalking (可选，仅当尝试使用SkyWalking进行链路跟踪时使用)
+  - 版本：8.1.x
+  - 控制台URL：localhost:8095
+  - 注意：该服务缺省端口为8080，容易冲突，所以改为8095。具体修改方式参考开发文档[环境准备章节](http://www.orangeforms.com/development-doc/environment/#skywalking)
 - admin-monitor服务模块 (可选)
   - 控制台URL：localhost:8769
 - XXL-Job (可选，仅当启动Job服务时使用)
+  - 重要声明：xxl_job 官网仅提供对mysql的支持，如果您在橙单中选择了postgresql，xxl-job-admin仍需依赖mysql。
   - 版本：2.2.0
   - 控制台URL：localhost:8081/xxl-job-admin/
   - 注意：该服务缺省端口为8080，容易冲突，所以改为了8081。我们在所有的配置中均使用了8081，而非8080。
@@ -78,9 +80,8 @@
   - 包含全部服务的启动项，基础服务 + elk + gp。
   - 启动方式为 docker-compose -f docker-compose-full.yml up -d
   - 停止方式和数据错误处理方式，请参考上面docker-compose.yml的说明。
-- Pinpoint服务启动 (可选)
-  - 进入zz-resource/pinpoint-docker-master目录。
-  - 执行docker-compose up启动Pinpoint数据采集和分析服务，docker-compose down停止该服务。
+- Skywalking服务启动 (可选)
+  - 启动方式，目前仅支持命令行方式，具体参考开发文档中[环境准备章节](http://www.orangeforms.com/development-doc/environment/#skywalking)
 
 ### 本地命令行启动方式
 ---

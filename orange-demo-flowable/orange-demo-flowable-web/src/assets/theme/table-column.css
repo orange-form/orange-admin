@@ -1373,8 +1373,8 @@
     cursor: pointer;
     font-size: 14px; }
     .el-table-filter__list-item:hover {
-      background-color: #409EFF;
-      color: #FFFFFF; }
+      background-color: #ecf5ff;
+      color: #66b1ff; }
     .el-table-filter__list-item.is-active {
       background-color: #409EFF;
       color: #FFFFFF; }

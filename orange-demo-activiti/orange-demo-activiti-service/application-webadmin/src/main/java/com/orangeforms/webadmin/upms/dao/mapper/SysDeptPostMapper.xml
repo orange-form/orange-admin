@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.orangeforms.webadmin.upms.dao.SysDeptPostMapper">
+    <resultMap id="BaseResultMap" type="com.orangeforms.webadmin.upms.model.SysDeptPost">
+        <id column="dept_post_id" jdbcType="BIGINT" property="deptPostId"/>
+        <result column="dept_id" jdbcType="BIGINT" property="deptId"/>
+        <result column="post_id" jdbcType="BIGINT" property="postId"/>
+        <result column="post_show_name" jdbcType="VARCHAR" property="postShowName"/>
+    </resultMap>
+
+    <select id="getSysDeptPostListWithRelationByDeptId" resultType="map">
+        SELECT
+            a.dept_post_id deptPostId,
+            a.dept_id deptId,
+            a.post_id postId,
+            a.post_show_name postShowName,
+            b.dept_name deptName,
+            c.level,
+            c.leader_post leaderPost
+        FROM
+            zz_sys_dept_post a,
+            zz_sys_dept b,
+            zz_sys_post c
+        <where>
+            a.dept_id = b.dept_id
+            AND a.post_id = c.post_id
+            <if test="deptId != null">
+                AND a.dept_id = #{deptId}
+            </if>
+        </where>
+    </select>
+
+    <select id="getLeaderDeptPostList" resultMap="BaseResultMap">
+        SELECT
+            a.*
+        FROM
+            zz_sys_dept_post a,
+            zz_sys_post b
+        WHERE
+            a.post_id = b.post_id
+            AND b.leader_post = 1
+            AND a.dept_id = #{deptId}
+        ORDER BY
+            b.level
+    </select>
+</mapper>

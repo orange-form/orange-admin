@@ -1,2 +1,2 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-com.flow.demo.common.datafilter.config.DataFilterAutoConfig
+com.orangeforms.common.datafilter.config.DataFilterAutoConfig

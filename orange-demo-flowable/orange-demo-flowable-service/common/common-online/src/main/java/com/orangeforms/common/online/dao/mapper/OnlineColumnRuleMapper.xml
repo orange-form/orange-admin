@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.orangeforms.common.online.dao.OnlineColumnRuleMapper">
+    <resultMap id="BaseResultMap" type="com.orangeforms.common.online.model.OnlineColumnRule">
+        <id column="column_id" jdbcType="BIGINT" property="columnId"/>
+        <id column="rule_id" jdbcType="BIGINT" property="ruleId"/>
+        <result column="prop_data_json" jdbcType="LONGVARCHAR" property="propDataJson"/>
+    </resultMap>
+
+    <resultMap id="BaseResultMapWithOnlineRule" type="com.orangeforms.common.online.model.OnlineColumnRule" extends="BaseResultMap">
+        <association property="onlineRule" column="rule_id" foreignColumn="rule_id"
+                     notNullColumn="rule_id" resultMap="com.orangeforms.common.online.dao.OnlineRuleMapper.BaseResultMap" />
+    </resultMap>
+
+    <select id="getOnlineColumnRuleListByColumnIds" resultMap="BaseResultMapWithOnlineRule">
+        SELECT
+            zz_online_rule.*,
+            zz_online_column_rule.*
+        FROM
+            zz_online_rule,
+            zz_online_column_rule
+        WHERE
+            zz_online_column_rule.rule_id = zz_online_rule.rule_id
+            AND zz_online_column_rule.column_id IN
+            <foreach collection="columnIdSet" item="columnId" separator="," open="(" close=")">
+                #{columnId}
+            </foreach>
+    </select>
+
+</mapper>

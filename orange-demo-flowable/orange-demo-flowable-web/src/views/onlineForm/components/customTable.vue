@@ -84,6 +84,7 @@
               </template>
             </el-table-column>
           </template>
+          <el-table-column v-if="formType === SysOnlineFormType.WORK_ORDER" label="当前任务" prop="(runtimeTaskInfo || {}).taskName" />
           <el-table-column v-if="formType === SysOnlineFormType.WORK_ORDER" label="流程创建时间" width="180px" prop="createTime" />
           <el-table-column v-if="formType === SysOnlineFormType.WORK_ORDER" label="流程状态" width="100px" prop="flowStatus" />
           <el-table-column
@@ -107,6 +108,11 @@
                 v-if="formType === SysOnlineFormType.WORK_ORDER && (scope.row.initTaskInfo || {}).taskKey === (scope.row.runtimeTaskInfo || {}).taskKey"
                 @click.stop="onHandlerWorkOrder(scope.row)">
                 办理
+              </el-button>
+              <el-button type="text" size="mini"
+              v-if="formType === SysOnlineFormType.WORK_ORDER"
+                @click.stop="onHandlerRemindClick(scope.row)">
+                催办
               </el-button>
               <el-button type="text" size="mini" class="table-btn error"
                 v-if="formType === SysOnlineFormType.WORK_ORDER"
@@ -190,6 +196,9 @@ export default {
     },
     onHandlerWorkOrder (row) {
       this.$emit('handlerWOrkOrder', row, this.widgetConfig);
+    },
+    onHandlerRemindClick (row) {
+      this.$emit('handlerRemind', row, this.widgetConfig);
     },
     onCancelWorkOrder (row) {
       this.$emit('cancelWOrkOrder', row, this.widgetConfig);
@@ -338,7 +347,7 @@ export default {
         if (operatorType === this.SysCustomWidgetOperationType.ADD) this.tableWidget.dataList.push(row);
         if (operatorType === this.SysCustomWidgetOperationType.EDIT) {
           this.tableWidget.dataList = this.tableWidget.dataList.map(item => {
-            if (item[this.primaryColumnName] === row[this.primaryColumnName]) {
+            if (item.__cascade_add_id__ == null ? item[this.primaryColumnName] === row[this.primaryColumnName] : item.__cascade_add_id__ === row.__cascade_add_id__) {
               return {
                 ...row
               }
@@ -375,18 +384,12 @@ export default {
     getTableColumnFieldName (tableColumn) {
       if (tableColumn.column == null) return null;
       let fieldName = tableColumn.column.columnName || tableColumn.column.objectFieldName;
+      if (tableColumn.relation != null) {
+        fieldName = tableColumn.relation.variableName + '__' + fieldName;
+      }
       // 工单列表
       if (this.formType === this.SysOnlineFormType.WORK_ORDER) {
         fieldName = 'masterTable__' + fieldName;
-      } else {
-        if (tableColumn.relation != null) {
-          fieldName = tableColumn.relation.variableName + '__' + fieldName;
-        }
-        /*
-        if (tableColumn.column.dictInfo && tableColumn.column.dictInfo.dictType === this.SysOnlineDictType.TABLE) {
-          fieldName = fieldName + '__DictMap';
-        }
-        */
       }
       return fieldName;
     },

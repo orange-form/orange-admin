@@ -1,7 +1,7 @@
 logging:
   level:
     # 这里设置的日志级别优先于log4j2.xml文件Loggers中的日志级别。
-    com.orange.demo: info
+    com.orangeforms: info
 
 server:
   port: 8082
@@ -41,8 +41,8 @@ spring:
     suffix: .ftl
 
 mybatis-plus:
-  mapper-locations: classpath:com/orange/demo/webadmin/*/dao/mapper/*Mapper.xml,com/orange/demo/common/log/dao/mapper/*Mapper.xml
-  type-aliases-package: com.orange.demo.webadmin.*.model,com.orange.demo.common.log.model
+  mapper-locations: classpath:com/orangeforms/webadmin/*/dao/mapper/*Mapper.xml,com/orangeforms/common/log/dao/mapper/*Mapper.xml
+  type-aliases-package: com.orangeforms.webadmin.*.model,com.orangeforms.common.log.model
   global-config:
     db-config:
       logic-delete-value: -1
@@ -88,6 +88,17 @@ redis:
       poolSize: 20
       # 连接池中最小空闲数量。
       minIdle: 5
+
+swagger:
+  # 当enabled为false的时候，则可禁用swagger。
+  enabled: true
+  # 工程的基础包名。
+  basePackage: com.orangeforms
+  # 工程服务的基础包名。
+  serviceBasePackage: com.orangeforms.webadmin
+  title: 橙单单体服务工程
+  description: 橙单单体服务工程详情
+  version: 1.0
 
 datafilter:
   tenant:

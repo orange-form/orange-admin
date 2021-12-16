@@ -1,6 +1,6 @@
 {
   "projectName": "橙单在线表单",
-  "basePackage": "com.flow.demo",
+  "basePackage": "com.orangeforms",
   "projectRootPath": "这里请使用当前工程的根目录，如：e:/xxx/OrangeDemo 或者 /Users/xxx/OrangeDemo",
   "microService": "false",
   "serviceList": [
@@ -11,11 +11,11 @@
       "port": "8082",
       "controllerInfoList": [
         {
-          "path": "/src/main/java/com/flow/demo/webadmin/app/controller",
+          "path": "/src/main/java/com/orangeforms/webadmin/app/controller",
           "groupName": "app"
         },
         {
-          "path": "/src/main/java/com/flow/demo/webadmin/upms/controller",
+          "path": "/src/main/java/com/orangeforms/webadmin/upms/controller",
           "groupName": "upms"
         }
       ]

@@ -63,6 +63,16 @@ const SysFlowTaskOperationType = new DictionaryBase('任务操作类型', [
     symbol: 'REFUSE'
   },
   {
+    id: 'reject',
+    name: '驳回',
+    symbol: 'REJECT'
+  },
+  {
+    id: 'revoke',
+    name: '撤销',
+    symbol: 'REVOKE'
+  },
+  {
     id: 'transfer',
     name: '转办',
     symbol: 'TRANSFER'

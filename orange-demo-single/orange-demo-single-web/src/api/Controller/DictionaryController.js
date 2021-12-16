@@ -1,6 +1,17 @@
 import * as staticDict from '@/staticDict'
 
 export default class DictionaryController {
+  static dictSysRole (sender, params, axiosOption, httpOption) {
+    return new Promise((resolve, reject) => {
+      sender.doUrl('/admin/upms/sysRole/listDict', 'get', params, axiosOption, httpOption).then(res => {
+        let dictData = new staticDict.DictionaryBase('角色字典');
+        dictData.setList(res.data);
+        resolve(dictData);
+      }).catch(err => {
+        reject(err);
+      });
+    });
+  }
   static dictSysUserStatus () {
     return new Promise((resolve) => {
       resolve(staticDict.SysUserStatus);

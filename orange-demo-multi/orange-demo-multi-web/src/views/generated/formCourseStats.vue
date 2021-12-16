@@ -49,7 +49,7 @@
             </div>
           </el-card>
         </el-col>
-        <el-col class="table-box" :span="24">
+        <el-col class="table-box gutter-bottom" :span="24">
           <el-card class="base-card" style="height: 350px" shadow="never" :body-style="{padding: '0px'}">
             <div slot="header" class="base-card-header">
               <span>课程流水统计</span>
@@ -73,6 +73,8 @@
 </template>
 
 <script>
+/* eslint-disable-next-line */
+import { findTreeNode, findTreeNodePath, findItemFromList } from '@/utils';
 /* eslint-disable-next-line */
 import rules from '@/utils/validate.js';
 /* eslint-disable-next-line */

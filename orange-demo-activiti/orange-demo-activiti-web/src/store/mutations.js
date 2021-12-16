@@ -157,5 +157,11 @@ export default {
   setCurrentColumnId: (state, columnId) => {
     if (setObjectToSessionStorage('currentColumnId', columnId)) state.currentColumnId = columnId;
     if (setObjectToSessionStorage('currentMenuId', null)) state.currentMenuId = null;
+  },
+  setMessageTimer: (state, timerHandler) => {
+    state.messageTimer = timerHandler;
+  },
+  setMessageList: (state, messageList) => {
+    state.messageList = messageList;
   }
 }

@@ -44,6 +44,7 @@ const routers = [
       {path: 'formOnlinePage', component: _import('onlineForm/formOnlinePage/index'), name: 'formOnlinePage', props: getProps, meta: {title: '在线表单管理'}},
       {path: 'onlineForm', component: _import('onlineForm/index'), name: 'onlineForm', props: getProps, meta: {title: '在线表单'}},
       // 工作流模块路由配置
+      {path: 'formMessage', component: _import('workflow/formMessage/index'), name: 'formMessage', meta: {title: '催办消息'}},
       {path: 'formFlowCategory', component: _import('workflow/flowCategory/formFlowCategory'), name: 'formFlowCategory', props: getProps, meta: {title: '流程分类管理'}},
       {path: 'formFlowEntry', component: _import('workflow/flowEntry/formFlowEntry'), name: 'formFlowEntry', props: getProps, meta: {title: '流程设计'}},
       {path: 'formAllInstance', component: _import('workflow/taskManager/formAllInstance'), name: 'formAllInstance', props: getProps, meta: {title: '流程实例'}},

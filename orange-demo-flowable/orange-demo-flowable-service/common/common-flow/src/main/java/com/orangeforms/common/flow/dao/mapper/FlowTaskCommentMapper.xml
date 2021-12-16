@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.orangeforms.common.flow.dao.FlowTaskCommentMapper">
+    <resultMap id="BaseResultMap" type="com.orangeforms.common.flow.model.FlowTaskComment">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="process_instance_id" jdbcType="VARCHAR" property="processInstanceId"/>
+        <result column="task_id" jdbcType="VARCHAR" property="taskId"/>
+        <result column="task_key" jdbcType="VARCHAR" property="taskKey"/>
+        <result column="task_name" jdbcType="VARCHAR" property="taskName"/>
+        <result column="approval_type" jdbcType="VARCHAR" property="approvalType"/>
+        <result column="delegate_assignee" jdbcType="VARCHAR" property="delegateAssginee"/>
+        <result column="comment" jdbcType="VARCHAR" property="comment"/>
+        <result column="create_user_id" jdbcType="BIGINT" property="createUserId"/>
+        <result column="create_username" jdbcType="VARCHAR" property="createUsername"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+    </resultMap>
+</mapper>

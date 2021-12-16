@@ -12,6 +12,25 @@
           </el-menu>
         </div>
         <div class="header-menu" style="flex-grow: 1;">
+          <el-popover class="message" style="margin-right: 20px;" width="300" placement="bottom-end" :offset="20" popper-class="message-popover">
+            <el-badge slot="reference" is-dot :hidden="(getMessageList || {}).dataList == null || (getMessageList || {}).dataList.length <= 0"
+              style="height: 180x; line-height: 18px; cursor: pointer;">
+              <i class="el-icon-bell" style="font-size: 18px;" />
+            </el-badge>
+            <el-table :data="(getMessageList || {}).dataList" size="mini" empty-text="暂无消息" :show-header="false">
+              <el-table-column label="流程名称" prop="processDefinitionName" />
+              <el-table-column width="80px">
+                <template slot-scope="scope">
+                  <el-button size="mini" type="text" @click="onSubmit(scope.row)">办理</el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+            <el-button v-if="getMessageList && (getMessageList.dataList || []).length < getMessageList.totalCount"
+              size="small" type="text" style="width: 100%;"
+              @click="onMoreMessageClick">
+              查看更多
+            </el-button>
+          </el-popover>
           <el-dropdown class="user-dropdown" trigger="click" @command="handleCommand">
             <span class="el-dropdown-link">{{(getUserInfo || {}).showName}}<i class="el-icon-arrow-down el-icon--right"></i>
             </span>
@@ -40,11 +59,12 @@
 <script>
 import '@/staticDict/onlineStaticDict.js';
 import SideBar from './components/sidebar/sidebar.vue';
-import { mapGetters, mapMutations } from 'vuex';
+import { mapGetters, mapMutations, mapActions } from 'vuex';
 import Breadcrumb from './components/breadcrumb';
 import TagPanel from './components/tags/tagPanel.vue';
 import formModifyPassword from './components/formModifyPassword/index.vue';
 import { SystemController } from '@/api';
+import { FlowOperationController } from '@/api/flowController.js';
 import { getToken, setToken } from '@/utils';
 
 export default {
@@ -107,6 +127,47 @@ export default {
         }, {}).catch(e => {});
       }
     },
+    // 办理催办任务
+    onSubmit (row) {
+      console.log(row);
+      let params = {
+        processInstanceId: row.processInstanceId,
+        processDefinitionId: row.processDefinitionId,
+        taskId: row.taskId
+      }
+
+      FlowOperationController.viewRuntimeTaskInfo(this, params).then(res => {
+        if (res.data) {
+          this.$router.push({
+            name: res.data.routerName || 'handlerFlowTask',
+            query: {
+              isRuntime: true,
+              taskId: row.taskId,
+              processDefinitionKey: row.processDefinitionKey,
+              processInstanceId: row.processInstanceId,
+              processDefinitionId: row.processDefinitionId,
+              formId: res.data.formId,
+              routerName: res.data.routerName,
+              readOnly: res.data.readOnly,
+              taskName: row.taskName,
+              flowEntryName: row.processDefinitionName,
+              processInstanceInitiator: row.processInstanceInitiator,
+              // 过滤掉加签和撤销操作，只有在已完成任务里可以操作
+              operationList: (res.data.operationList || []).filter(item => {
+                return item.type !== this.SysFlowTaskOperationType.CO_SIGN && item.type !== this.SysFlowTaskOperationType.REVOKE;
+              }),
+              variableList: res.data.variableList
+            }
+          });
+        }
+      }).catch(e => {});
+    },
+    // 更多催办消息
+    onMoreMessageClick () {
+      this.$router.push({
+        name: 'formMessage'
+      });
+    },
     ...mapMutations([
       'setClientHeight',
       'setClientWidth',
@@ -116,6 +177,10 @@ export default {
       'setUserInfo',
       'clearOnlineFormCache',
       'setMenuList'
+    ]),
+    ...mapActions([
+      'startMessage',
+      'stopMessage'
     ])
   },
   computed: {
@@ -145,6 +210,7 @@ export default {
       'getCurrentColumnId',
       'getColumnList',
       'getMenuItem',
+      'getMessageList',
       'getMainContextHeight'
     ])
   },
@@ -164,6 +230,9 @@ export default {
         this.setUserInfo(data.data);
       }).catch(e => {});
     }
+
+    // 获取催办消息
+    this.startMessage(this);
   },
   watch: {
     getMenuItem: {
@@ -204,9 +273,27 @@ export default {
       },
       immediate: true
     }
+  },
+  beforeRouteLeave (to, form, next) {
+    this.stopMessage();
+    next();
+  },
+  destoryed () {
+    this.stopMessage();
   }
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
+  .message-popover {
+    padding: 5px!important;
+  }
+
+  .message-popover .el-table::before {
+    height: 0px!important;
+  }
+
+  .message-popover .el-table td {
+    border: none;
+  }
 </style>

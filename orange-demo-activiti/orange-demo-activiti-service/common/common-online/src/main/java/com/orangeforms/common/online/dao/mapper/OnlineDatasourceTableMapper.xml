@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.orangeforms.common.online.dao.OnlineDatasourceTableMapper">
+    <resultMap id="BaseResultMap" type="com.orangeforms.common.online.model.OnlineDatasourceTable">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="datasource_id" jdbcType="BIGINT" property="datasourceId"/>
+        <result column="relation_id" jdbcType="BIGINT" property="relationId"/>
+        <result column="table_id" jdbcType="BIGINT" property="tableId"/>
+    </resultMap>
+</mapper>

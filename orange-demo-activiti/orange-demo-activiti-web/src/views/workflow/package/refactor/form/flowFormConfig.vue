@@ -88,7 +88,7 @@ export default {
           formId: formObj.formId,
           routerName: formObj.routerName,
           editable: !formObj.readOnly,
-          groupType: formObj.groupType || 'DEPT'
+          groupType: formObj.groupType || 'ASSIGNEE'
         }
       }
       let elExtensionElements = this.bpmnELement.businessObject.get("extensionElements") || window.bpmnInstances.moddle.create("bpmn:ExtensionElements", { values: [] });
@@ -109,7 +109,7 @@ export default {
           formId: this.flowEntry().bindFormType === this.SysFlowEntryBindFormType.ONLINE_FORM ? this.formData.formId : undefined,
           routerName: this.flowEntry().bindFormType === this.SysFlowEntryBindFormType.ONLINE_FORM ? undefined : this.formData.routerName,
           readOnly: !this.formData.editable,
-          groupType: this.formData.groupType || 'DEPT'
+          groupType: this.formData.groupType || 'ROLE'
         });
         window.bpmnInstances.modeling.updateProperties(this.bpmnELement, { formKey: formKeyString });
       });
@@ -126,7 +126,8 @@ export default {
           id: item.id,
           label: item.label,
           type: item.type,
-          showOrder: item.showOrder
+          showOrder: item.showOrder,
+          multiSignAssignee: item.multiSignAssignee
         });
       });
       // 更新到元素上
@@ -149,6 +150,7 @@ export default {
               item.label = res.label;
               item.type = res.type;
               item.showOrder = res.showOrder;
+              item.multiSignAssignee = res.multiSignAssignee;
             }
           });
         }

@@ -32,6 +32,7 @@ export function initListenerType(listener) {
   if (listener.delegateExpression) listenerType = "delegateExpressionListener";
   if (listener.script) listenerType = "scriptListener";
   return {
+    id: (listener.$attrs || {}).id,
     ...JSON.parse(JSON.stringify(listener)),
     ...(listener.script ?? {}),
     listenerType: listenerType
@@ -50,8 +51,8 @@ export const eventType = {
   assignment: "指派",
   complete: "完成",
   delete: "删除",
-  update: "更新",
-  timeout: "超时"
+  // update: "更新",
+  // timeout: "超时"
 };
 
 export const fieldType = {
