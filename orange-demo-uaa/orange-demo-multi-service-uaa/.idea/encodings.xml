@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Encoding">
+    <file url="file://$PROJECT_DIR$" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/application" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/application-consumer" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/application-consumer/operation-log-consumer" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/application/application-common" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/application/course-class" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/application/course-class/course-class-api" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/application/course-class/course-class-service" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/application/gateway" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/application/stats" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/application/stats/stats-api" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/application/stats/stats-service" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/application/upms" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/application/upms/upms-api" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/application/upms/upms-service" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/common" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/common/common-core" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/common/common-datafilter" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/common/common-log" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/common/common-redis" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/common/common-sequence" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/common/common-swagger" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/common/common-xxljob" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/framework" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/framework/admin-monitor" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/framework/apidoc-tools" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/framework/uaa" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/framework/uaa/uaa-admin" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/framework/uaa/uaa-auth" charset="UTF-8" />
+  </component>
+</project>

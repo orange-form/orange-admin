@@ -1,0 +1,148 @@
+version: '3.5'
+
+services:
+
+  xxljob:
+    image: docker.io/xuxueli/xxl-job-admin:2.2.0
+    container_name: xxljob
+    volumes:
+      - ./logs/xxljob:/data/applogs
+    ports:
+      - "8081:8080"
+    environment:
+      TZ: Asia/Shanghai
+      # 注意: spring.datasource.password需要修改成正确的root密码
+      PARAMS: '--spring.datasource.url=jdbc:mysql://host.docker.internal:3306/xxl_job?Unicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
+               --spring.datasource.username=root
+               --spring.datasource.password=123456
+               --xxl.job.login.username=admin
+               --xxl.job.login.password=123456'
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "200k"
+        max-file: "10"
+
+  nacos:
+    image: nacos/nacos-server:1.4.1
+    container_name: nacos-standalone
+    environment:
+      - PREFER_HOST_MODE=hostname
+      - MODE=standalone
+    privileged: true
+    volumes:
+      - ./logs/nacos/:/home/nacos/logs
+      - ./data/nacos/:/home/nacos/data
+    ports:
+      - "8848:8848"
+    networks:
+      - zz-test
+
+  redis:
+    container_name: redis
+    build:
+      context: services/redis/
+      args:
+        - REDIS_VER=4
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./services/redis/redis.conf:/usr/local/etc/redis/redis.conf:rw
+      - ./data/redis:/data:rw
+      - ./logs/redis:/var/log/:rw
+    networks:
+      - zz-test
+
+  elasticsearch:
+    container_name: elasticsearch
+    build:
+      context: services/elasticsearch/
+      args:
+        - ES_VER=7.5.0
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    environment:
+      ES_JAVA_OPTS: "-Xms512m -Xmx512m"
+      discovery.type: single-node
+    volumes:
+      - ./data/elasticsearch/plugins/:/usr/share/elasticsearch/plugins/
+      - ./data/elasticsearch/:/usr/share/elasticsearch/data/
+      - ./logs/elasticsearch/:/usr/share/elasticsearch/logs/
+      - ./services/elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+    networks:
+      - zz-test
+
+  logstash:
+    build:
+      context: services/logstash/
+      args:
+        - LOGSTASH_VER=7.5.0
+    environment:
+      LS_JAVA_OPTS: "-Xmx256m -Xms256m"
+    volumes:
+      - ./data/logstash/:/usr/share/logstash/data/
+      - ./logs/logstash/:/usr/share/logstash/logs/
+      - ./services/logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml
+      - ./services/logstash/config/pipelines.yml:/usr/share/logstash/config/pipeline.yml
+      - ./services/logstash/pipeline/:/usr/share/logstash/pipeline/
+    networks:
+      - zz-test
+    depends_on:
+      - elasticsearch
+      - kafka
+
+  kibana:
+    container_name: kibana
+    build:
+      context: services/kibana/
+      args:
+        - KIBANA_VER=7.5.0
+    ports:
+      - "5601:5601"
+    volumes:
+      - ./services/kibana/kibana.yml:/usr/share/kibana/config/kibana.yml
+    networks:
+      - zz-test
+    depends_on:
+      - elasticsearch
+
+  zookeeper:
+    image: zookeeper:3.5.5
+    ports:
+      - "2181:2181"
+    volumes:
+      - ./logs/zookeeper/:/data
+      - ./data/zookeeper/:/datalog
+    networks:
+      - zz-test
+
+  kafka:
+    image: wurstmeister/kafka:2.12-2.4.0
+    ports:
+      - "9092:9092"
+    expose:
+      - "9093"
+    environment:
+      KAFKA_ADVERTISED_LISTENERS: INSIDE://kafka:9093,OUTSIDE://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
+      KAFKA_LISTENERS: INSIDE://0.0.0.0:9093,OUTSIDE://0.0.0.0:9092
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
+    volumes:
+      - ./data/kafka/:/kafka
+    networks:
+      - zz-test
+    depends_on:
+      - zookeeper
+
+  sentinel:
+    image: bladex/sentinel-dashboard
+    ports:
+      - "8858:8858"
+    networks:
+      - zz-test
+
+networks:
+  zz-test:
+    driver: bridge

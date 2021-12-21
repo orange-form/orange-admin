@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.orangeforms.uaaadmin.dao.SysUaaUserMapper">
+    <resultMap id="BaseResultMap" type="com.orangeforms.uaaadmin.model.SysUaaUser">
+        <id column="user_id" jdbcType="BIGINT" property="userId"/>
+        <result column="username" jdbcType="VARCHAR" property="username"/>
+        <result column="password" jdbcType="VARCHAR" property="password"/>
+        <result column="show_name" jdbcType="VARCHAR" property="showName"/>
+        <result column="locked" jdbcType="INTEGER" property="locked"/>
+        <result column="create_user_id" jdbcType="BIGINT" property="createUserId"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_user_id" jdbcType="BIGINT" property="updateUserId"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="deleted_flag" jdbcType="INTEGER" property="deletedFlag"/>
+    </resultMap>
+
+    <sql id="filterRef">
+        <if test="sysUaaUserFilter != null">
+            <if test="sysUaaUserFilter.locked != null">
+                AND zz_sys_uaa_user.locked = #{sysUaaUserFilter.locked}
+            </if>
+            <if test="sysUaaUserFilter.createTimeStart != null and sysUaaUserFilter.createTimeStart != ''">
+                AND zz_sys_uaa_user.create_time &gt;= #{sysUaaUserFilter.createTimeStart}
+            </if>
+            <if test="sysUaaUserFilter.createTimeEnd != null and sysUaaUserFilter.createTimeEnd != ''">
+                AND zz_sys_uaa_user.create_time &lt;= #{sysUaaUserFilter.createTimeEnd}
+            </if>
+            <if test="sysUaaUserFilter.searchString != null and sysUaaUserFilter.searchString != ''">
+                <bind name = "safeSearchString" value = "'%' + sysUaaUserFilter.searchString + '%'" />
+                AND CONCAT(IFNULL(zz_sys_uaa_user.username,''), IFNULL(zz_sys_uaa_user.show_name,'')) LIKE #{safeSearchString}
+            </if>
+        </if>
+        AND zz_sys_uaa_user.deleted_flag = ${@com.orangeforms.common.core.constant.GlobalDeletedFlag@NORMAL}
+    </sql>
+
+    <select id="getSysUaaUserList" resultMap="BaseResultMap" parameterType="com.orangeforms.uaaadmin.model.SysUaaUser">
+        SELECT * FROM zz_sys_uaa_user
+        <where>
+            <include refid="filterRef"/>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+</mapper>

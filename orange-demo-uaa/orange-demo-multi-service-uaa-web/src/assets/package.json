@@ -1,0 +1,13 @@
+{
+  "scripts": {
+    "theme-light": "et -c element-variables-light.scss",
+    "theme-dark": "et -c element-variables-dark.scss",
+    "theme-green": "et -c element-variables-green.scss",
+    "theme-orange": "et -c element-variables-orange.scss",
+    "theme-blue": "et -c element-variables-blue.scss"
+  },
+  "devDependencies": {
+    "element-theme": "2.0.1",
+    "element-theme-chalk": "2.14.1"
+  }
+}

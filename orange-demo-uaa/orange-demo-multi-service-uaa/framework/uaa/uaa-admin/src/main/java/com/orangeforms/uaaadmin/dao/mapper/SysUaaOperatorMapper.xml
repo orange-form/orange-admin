@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.orangeforms.uaaadmin.dao.SysUaaOperatorMapper">
+    <resultMap id="BaseResultMap" type="com.orangeforms.uaaadmin.model.SysUaaOperator">
+        <id column="operator_id" jdbcType="BIGINT" property="operatorId"/>
+        <result column="login_name" jdbcType="VARCHAR" property="loginName"/>
+        <result column="password" jdbcType="VARCHAR" property="password"/>
+        <result column="show_name" jdbcType="VARCHAR" property="showName"/>
+        <result column="operator_type" jdbcType="INTEGER" property="operatorType"/>
+        <result column="head_image_url" jdbcType="VARCHAR" property="headImageUrl"/>
+        <result column="create_user_id" jdbcType="BIGINT" property="createUserId"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_user_id" jdbcType="BIGINT" property="updateUserId"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="deleted_flag" jdbcType="INTEGER" property="deletedFlag"/>
+    </resultMap>
+
+    <sql id="filterRef">
+        <if test="sysUaaOperatorFilter != null">
+            <if test="sysUaaOperatorFilter.operatorType != null">
+                AND zz_sys_uaa_operator.operator_type = #{sysUaaOperatorFilter.operatorType}
+            </if>
+            <if test="sysUaaOperatorFilter.searchString != null and sysUaaOperatorFilter.searchString != ''">
+                <bind name = "safeSearchString" value = "'%' + sysUaaOperatorFilter.searchString + '%'" />
+                AND CONCAT(IFNULL(zz_sys_uaa_operator.login_name,''), IFNULL(zz_sys_uaa_operator.show_name,'')) LIKE #{safeSearchString}
+            </if>
+        </if>
+        AND zz_sys_uaa_operator.deleted_flag = ${@com.orangeforms.common.core.constant.GlobalDeletedFlag@NORMAL}
+    </sql>
+
+    <select id="getSysUaaOperatorList" resultMap="BaseResultMap" parameterType="com.orangeforms.uaaadmin.model.SysUaaOperator">
+        SELECT * FROM zz_sys_uaa_operator
+        <where>
+            <include refid="filterRef"/>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+</mapper>

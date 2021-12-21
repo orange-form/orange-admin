@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.orangeforms.courseclassservice.dao.ClassCourseMapper">
+    <resultMap id="BaseResultMap" type="com.orangeforms.courseclassservice.model.ClassCourse">
+        <id column="class_id" jdbcType="BIGINT" property="classId"/>
+        <id column="course_id" jdbcType="BIGINT" property="courseId"/>
+        <result column="course_order" jdbcType="TINYINT" property="courseOrder"/>
+    </resultMap>
+
+    <insert id="insertList">
+        INSERT INTO zz_class_course
+            (class_id,
+            course_id,
+            course_order)
+        VALUES
+        <foreach collection="list" index="index" item="item" separator="," >
+            (#{item.classId},
+            #{item.courseId},
+            #{item.courseOrder})
+        </foreach>
+    </insert>
+</mapper>

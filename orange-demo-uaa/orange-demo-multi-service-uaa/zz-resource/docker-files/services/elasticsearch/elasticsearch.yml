@@ -1,0 +1,15 @@
+# 设置支持Elasticsearch-Head
+http.cors.enabled: true
+http.cors.allow-origin: "*"
+
+# 设置集群Master配置信息
+cluster.name: "docker-cluster-master"
+# 设置网络，如果是本机的话就是127.0.0.1，其他服务器配置对应的IP地址即可(0.0.0.0支持外网访问)
+network.host: 0.0.0.0
+
+# 密码验证
+# xpack.security.enabled: true
+# xpack.security.transport.ssl.enabled: true
+
+# 单节点模式
+discovery.type: single-node

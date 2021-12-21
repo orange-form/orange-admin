@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.orangeforms.uaaadmin.dao.AuthClientDetailsMapper">
+    <resultMap id="BaseResultMap" type="com.orangeforms.uaaadmin.model.AuthClientDetails">
+        <id column="client_id" jdbcType="CHAR" property="clientId"/>
+        <result column="client_secret" jdbcType="VARCHAR" property="clientSecret"/>
+        <result column="client_secret_plain" jdbcType="VARCHAR" property="clientSecretPlain"/>
+        <result column="client_desc" jdbcType="VARCHAR" property="clientDesc"/>
+        <result column="authorized_grant_types" jdbcType="VARCHAR" property="authorizedGrantTypes"/>
+        <result column="web_server_redirect_uri" jdbcType="VARCHAR" property="webServerRedirectUri"/>
+        <result column="access_token_validity" jdbcType="INTEGER" property="accessTokenValidity"/>
+        <result column="refresh_token_validity" jdbcType="INTEGER" property="refreshTokenValidity"/>
+        <result column="create_user_id" jdbcType="BIGINT" property="createUserId"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_user_id" jdbcType="BIGINT" property="updateUserId"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="deleted_flag" jdbcType="INTEGER" property="deletedFlag"/>
+    </resultMap>
+
+    <sql id="filterRef">
+        <if test="authClientDetailsFilter != null">
+            <if test="authClientDetailsFilter.clientDesc != null and authClientDetailsFilter.clientDesc != ''">
+                AND zz_auth_client_details.client_desc = #{authClientDetailsFilter.clientDesc}
+            </if>
+        </if>
+        AND zz_auth_client_details.deleted_flag = ${@com.orangeforms.common.core.constant.GlobalDeletedFlag@NORMAL}
+    </sql>
+
+    <select id="getAuthClientDetailsList" resultMap="BaseResultMap" parameterType="com.orangeforms.uaaadmin.model.AuthClientDetails">
+        SELECT * FROM zz_auth_client_details
+        <where>
+            <include refid="filterRef"/>
+        </where>
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+</mapper>

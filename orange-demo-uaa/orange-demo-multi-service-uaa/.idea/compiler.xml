@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile default="true" name="Default" enabled="true" />
+      <profile name="Annotation profile for OrangeMultiDemo" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.20/lombok-1.18.20.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok-mapstruct-binding/0.2.0/lombok-mapstruct-binding-0.2.0.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/mapstruct/mapstruct-processor/1.4.2.Final/mapstruct-processor-1.4.2.Final.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/mapstruct/mapstruct/1.4.2.Final/mapstruct-1.4.2.Final.jar" />
+        </processorPath>
+        <module name="uaa-auth" />
+        <module name="common-datafilter" />
+        <module name="uaa-admin" />
+        <module name="common-log" />
+        <module name="operation-log-consumer" />
+        <module name="application-common" />
+        <module name="upms-api" />
+        <module name="apidoc-tools" />
+        <module name="stats-service" />
+        <module name="course-class-service" />
+        <module name="common-redis" />
+        <module name="common-swagger" />
+        <module name="admin-monitor" />
+        <module name="stats-api" />
+        <module name="common-core" />
+        <module name="common-sequence" />
+        <module name="gateway" />
+        <module name="upms-service" />
+        <module name="common-xxljob" />
+        <module name="course-class-api" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="admin-monitor" target="1.8" />
+      <module name="apidoc-tools" target="1.8" />
+      <module name="application" target="1.8" />
+      <module name="application-common" target="1.8" />
+      <module name="application-consumer" target="1.8" />
+      <module name="common" target="1.8" />
+      <module name="common-core" target="1.8" />
+      <module name="common-datafilter" target="1.8" />
+      <module name="common-log" target="1.8" />
+      <module name="common-redis" target="1.8" />
+      <module name="common-sequence" target="1.8" />
+      <module name="common-swagger" target="1.8" />
+      <module name="common-xxljob" target="1.8" />
+      <module name="course-class" target="1.8" />
+      <module name="course-class-api" target="1.8" />
+      <module name="course-class-service" target="1.8" />
+      <module name="framework" target="1.8" />
+      <module name="gateway" target="1.8" />
+      <module name="operation-log-consumer" target="1.8" />
+      <module name="OrangeMultiDemo" target="1.8" />
+      <module name="stats" target="1.8" />
+      <module name="stats-api" target="1.8" />
+      <module name="stats-service" target="1.8" />
+      <module name="uaa" target="1.8" />
+      <module name="uaa-admin" target="1.8" />
+      <module name="uaa-auth" target="1.8" />
+      <module name="upms" target="1.8" />
+      <module name="upms-api" target="1.8" />
+      <module name="upms-service" target="1.8" />
+    </bytecodeTargetLevel>
+  </component>
+</project>
