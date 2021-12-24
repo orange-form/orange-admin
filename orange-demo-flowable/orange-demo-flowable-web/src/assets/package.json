@@ -8,6 +8,7 @@
   },
   "devDependencies": {
     "element-theme": "2.0.1",
-    "element-theme-chalk": "2.14.1"
+    "element-theme-chalk": "2.14.1",
+    "element-themex": "^1.0.3"
   }
 }
